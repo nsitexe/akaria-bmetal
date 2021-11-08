@@ -76,11 +76,14 @@ include(${PRJ_CONFIG_NOTIFY_FILE})
 add_custom_target(
   cache_config
   COMMAND
-    diff "${PRJ_CONFIG_FILE}" "${PRJ_CONFIG_CACHE_FILE}" ";"
+    ${CMAKE_COMMAND} -E compare_files
+      "${PRJ_CONFIG_FILE}" "${PRJ_CONFIG_CACHE_FILE}" ";"
     if [ $$? -ne 0 ]; then
-      echo "config is changed!!" ";"
-      cp ${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE} ";"
-      touch ${PRJ_CONFIG_NOTIFY_FILE} ";"
+      ${CMAKE_COMMAND} -E copy
+        ${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE} ";"
+      ${CMAKE_COMMAND} -E touch
+        ${PRJ_CONFIG_NOTIFY_FILE} ";"
+      ${CMAKE_MAKE_PROGRAM} ";"
     fi
   )
 add_dependencies(${PRJ_LIB_NAME} cache_config)
