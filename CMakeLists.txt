@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-project(metal_crt)
+project(baremetal_crt)
 
 cmake_minimum_required(VERSION 3.16)
 enable_language(C ASM)
@@ -19,7 +19,7 @@ if(NOT DEFINED CROSS_COMPILE)
 endif()
 
 # Common settings
-set(PRJ_LIB_NAME metal_crt)
+set(PRJ_LIB_NAME bmetal_crt)
 set(PRJ_CONFIG_NAME config_cur)
 set(PRJ_CONFIG_CACHE_NAME config_cache)
 set(PRJ_CONFIG_NOTIFY_NAME config_notify.cmake)
@@ -30,7 +30,7 @@ set(PRJ_AUTOCONF_H_NAME autoconf.h)
 set(PRJ_CONFIG_FILE ${CMAKE_BINARY_DIR}/${PRJ_CONFIG_NAME})
 set(PRJ_CONFIG_CACHE_FILE ${CMAKE_BINARY_DIR}/${PRJ_CONFIG_CACHE_NAME})
 set(PRJ_CONFIG_NOTIFY_FILE ${CMAKE_BINARY_DIR}/${PRJ_CONFIG_NOTIFY_NAME})
-set(PRJ_AUTOCONF_H_FILE ${CMAKE_BINARY_DIR}/include/generated/${PRJ_AUTOCONF_H_NAME})
+set(PRJ_AUTOCONF_H_FILE ${CMAKE_BINARY_DIR}/include/bmetal/generated/${PRJ_AUTOCONF_H_NAME})
 
 set(PRJ_DEFCONFIG_FILE ${CMAKE_SOURCE_DIR}/${PRJ_DEFCONFIG_NAME})
 
@@ -93,8 +93,6 @@ import_config(${PRJ_CONFIG_FILE})
 write_autoconf(${PRJ_CONFIG_FILE} ${PRJ_AUTOCONF_H_FILE})
 ###
 
-
-
 # Compiler settings
 if(NOT DEFINED CC)
   set(CC gcc)
@@ -114,22 +112,15 @@ if("${CC}" STREQUAL "gcc")
   include(${CMAKE_SOURCE_DIR}/cmake/gcc.cmake)
 endif()
 
-
-
-
-
-
-add_custom_target(hoge)
-add_custom_command(OUTPUT fuga COMMAND echo hogehogehoge)
-target_sources(hoge PRIVATE fuga)
-
-
-
-
-
-
-
-
+# Install, includes
+install(TARGETS ${PRJ_LIB_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  )
+target_include_directories(${PRJ_LIB_NAME}
+  PRIVATE ${CMAKE_SOURCE_DIR}/include
+  PRIVATE ${CMAKE_BINARY_DIR}/include
+  )
 
 add_subdirectory(arch)
 add_subdirectory(sys)
