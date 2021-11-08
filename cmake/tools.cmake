@@ -101,5 +101,22 @@ function(write_autoconf config_file autoconf_file)
       ${autoconf_file}
       "#define ${CONFIG_NAME} ${CONFIG_VAL}\n"
     )
-  endforeach() 
+  endforeach()
 endfunction()
+
+# Show toolchain settings
+set(SPACER "----")
+
+if(NOT DEFINED CC)
+  set(CC gcc)
+endif()
+set(CMAKE_C_COMPILER ${CROSS_COMPILE}${CC})
+message("${SPACER} CC is '${CC}'")
+message("${SPACER} Compiler is '${CMAKE_C_COMPILER}'")
+
+if(NOT DEFINED CCASM)
+  set(CCASM ${CC})
+endif()
+set(CMAKE_ASM_COMPILER ${CROSS_COMPILE}${CCASM})
+message("${SPACER} CCASM is '${CCASM}'")
+message("${SPACER} Assembler is '${CMAKE_ASM_COMPILER}'")

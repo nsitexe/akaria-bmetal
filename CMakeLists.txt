@@ -97,25 +97,11 @@ write_autoconf(${PRJ_CONFIG_FILE} ${PRJ_AUTOCONF_H_FILE})
 ###
 
 # Compiler settings
-if(NOT DEFINED CC)
-  set(CC gcc)
-endif()
-set(CMAKE_C_COMPILER ${CROSS_COMPILE}${CC})
-message("CC is '${CC}'")
-message("Compiler is '${CMAKE_C_COMPILER}'")
-
-if(NOT DEFINED CCASM)
-  set(CCASM ${CC})
-endif()
-set(CMAKE_ASM_COMPILER ${CROSS_COMPILE}${CCASM})
-message("CCASM is '${CCASM}'")
-message("Assembler is '${CMAKE_ASM_COMPILER}'")
-
 if("${CC}" STREQUAL "gcc")
   include(${CMAKE_SOURCE_DIR}/cmake/gcc.cmake)
 endif()
 
-# Install, includes
+# Install, include settings
 install(
   TARGETS ${PRJ_LIB_NAME}
   LIBRARY DESTINATION lib
