@@ -113,9 +113,16 @@ if("${CC}" STREQUAL "gcc")
 endif()
 
 # Install, includes
-install(TARGETS ${PRJ_LIB_NAME}
+install(
+  TARGETS ${PRJ_LIB_NAME}
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
+  )
+install(
+  DIRECTORY
+  ${CMAKE_SOURCE_DIR}/include/bmetal
+  ${CMAKE_BINARY_DIR}/include/bmetal
+  TYPE INCLUDE
   )
 target_include_directories(${PRJ_LIB_NAME}
   PRIVATE ${CMAKE_SOURCE_DIR}/include
