@@ -1,6 +1,4 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 #include <bmetal/generated/autoconf.h>
 
@@ -10,7 +8,7 @@
 .globl _start
 .type _start, %function
 
-.section ".text.init"
+.section ".reset"
 .align 2
 _start:
 	la   t0, trap_entry

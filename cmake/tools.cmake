@@ -56,6 +56,10 @@ function(import_config config_file)
     string(REGEX MATCH "[^=]+" CONFIG_NAME ${CONFIG})
     string(REGEX REPLACE "[^=]+=" "" CONFIG_VAL ${CONFIG})
 
+    # Remove quotation marks
+    string(REGEX REPLACE "^\"" "" CONFIG_VAL ${CONFIG_VAL})
+    string(REGEX REPLACE "\"$" "" CONFIG_VAL ${CONFIG_VAL})
+
     set(${CONFIG_NAME} ${CONFIG_VAL} PARENT_SCOPE)
   endforeach()
 endfunction()
