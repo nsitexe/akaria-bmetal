@@ -1,8 +1,6 @@
-/*
- * SPDX-License-Identifier: Apache-2.0
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/generated/autoconf.h>
+#include <bmetal/bmetal.h>
 
 #if (CONFIG_MAIN_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
 #  error Invalid main stack size. \
