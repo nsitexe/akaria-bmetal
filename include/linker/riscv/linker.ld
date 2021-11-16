@@ -15,6 +15,16 @@
 #  error Not defined size of RAM (CONFIG_RAM_SIZE).
 #endif
 
+#ifdef CONFIG_XIP
+#  define TEXT_AREA       ROM
+#  define DATA_AREA       RAM
+#  define DATA_AREA_AT    ROM
+#else /* CONFIG_XIP */
+#  define TEXT_AREA       RAM
+#  define DATA_AREA       RAM
+#  define DATA_AREA_AT    RAM
+#endif /* CONFIG_XIP */
+
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
@@ -33,42 +43,56 @@ SECTIONS
 	.reset : {
 		. = ALIGN(4);
 		KEEP(*(.reset .reset.*))
-	} > ROM
+	} > TEXT_AREA
 
 	.text : {
+		. = ALIGN(4);
 		*(.text .text.*)
-	} > ROM
+	} > TEXT_AREA
+
 	.fini : {
+		. = ALIGN(4);
 		KEEP(*(SORT_NONE(.fini)))
-	} > ROM
+	} > TEXT_AREA
 
 	PROVIDE(_etext = .);
 
 	.rodata : {
+		. = ALIGN(4);
 		*(.rodata .rodata.*)
-	} > ROM
+	} > TEXT_AREA
 
 	.data : {
+		. = ALIGN(4);
+		__data_start = .;
 		*(.data .data.*)
-	} > RAM AT > ROM
-
-	PROVIDE(_edata = .);
+	} > DATA_AREA AT > DATA_AREA_AT
 
 	.sdata : {
+		. = ALIGN(4);
 		__global_pointer$ = . + 0x800;
 		*(.srodata.*)
 		*(.sdata .sdata.*)
-	} > RAM AT > ROM
+		__data_end = .;
+	} > DATA_AREA AT > DATA_AREA_AT
+
+	__data_load = LOADADDR(.data);
+	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
+		. = ALIGN(4);
+		__bss_start = .;
 		*(.sbss .sbss.*)
 		*(.scommon)
-	} > RAM AT > RAM
+	} > DATA_AREA
 
 	.bss (NOLOAD) : {
+		. = ALIGN(4);
 		*(.bss .bss.*)
 		*(COMMON)
-	} > RAM AT > RAM
+		__bss_end = .;
+	} > DATA_AREA
 
+	__bss_load = LOADADDR(.sbss);
 	PROVIDE(_end = .);
 }

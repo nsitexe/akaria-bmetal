@@ -6,9 +6,9 @@
 #define MHARTID_MAIN    CONFIG_MAIN_CORE
 
 .globl _start
-.type _start, %function
+.type _start, @function
 
-.section ".reset"
+.section ".reset", "ax"
 .align 2
 _start:
 	la   t0, trap_entry
@@ -42,7 +42,7 @@ for_main:
 	li   t0, CONFIG_MAIN_STACK_SIZE
 	add  sp, t0, sp
 
-	call _prep_main
+	call __prep_main
 
 	# For error handling
 1:
@@ -56,7 +56,7 @@ for_sub:
 	li   t1, CONFIG_INTR_STACK_SIZE
 	mul  sp, t0, t1
 
-	call _prep_sub
+	call __prep_sub
 
 	# For error handling
 1:
@@ -66,3 +66,6 @@ for_sub:
 .align 2
 trap_entry:
 	# TODO: to be implemented
+1:
+	wfi
+	j   1b
