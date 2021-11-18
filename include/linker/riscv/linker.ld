@@ -41,35 +41,47 @@ SECTIONS
 
 	/* Special text section for reset vector */
 	.reset : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		KEEP(*(.reset .reset.*))
 	} > TEXT_AREA
 
+	.init : {
+		. = ALIGN(8);
+		KEEP(*(SORT_NONE(.init)))
+	} > TEXT_AREA
+
 	.text : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		*(.text .text.*)
 	} > TEXT_AREA
 
 	.fini : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		KEEP(*(SORT_NONE(.fini)))
 	} > TEXT_AREA
 
 	PROVIDE(_etext = .);
 
 	.rodata : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		*(.rodata .rodata.*)
 	} > TEXT_AREA
 
+	.initdata : {
+		. = ALIGN(8);
+		__initcall_start = .;
+		KEEP(*(.initdata))
+		__initcall_end = .;
+	} > TEXT_AREA
+
 	.data : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__data_start = .;
 		*(.data .data.*)
 	} > DATA_AREA AT > DATA_AREA_AT
 
 	.sdata : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__global_pointer$ = . + 0x800;
 		*(.srodata.*)
 		*(.sdata .sdata.*)
@@ -80,14 +92,14 @@ SECTIONS
 	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_start = .;
 		*(.sbss .sbss.*)
 		*(.scommon)
 	} > DATA_AREA
 
 	.bss (NOLOAD) : {
-		. = ALIGN(4);
+		. = ALIGN(8);
 		*(.bss .bss.*)
 		*(COMMON)
 		__bss_end = .;
