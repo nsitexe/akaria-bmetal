@@ -145,7 +145,11 @@ install(
   )
 install(
   DIRECTORY
-  ${CMAKE_SOURCE_DIR}/include/bmetal
+  ${CMAKE_SOURCE_DIR}/include/bmetal/app/bmetal
+  TYPE INCLUDE
+  )
+install(
+  DIRECTORY
   ${CMAKE_BINARY_DIR}/include/bmetal
   TYPE INCLUDE
   )

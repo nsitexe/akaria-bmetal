@@ -3,6 +3,6 @@
 #ifndef BAREMETAL_CRT_BMETAL_H_
 #define BAREMETAL_CRT_BMETAL_H_
 
-#include <bmetal/generated/autoconf.h>
+#include <bmetal/app/bmetal/bmetal.h>
 
 #endif /* BAREMETAL_CRT_BMETAL_H_ */
