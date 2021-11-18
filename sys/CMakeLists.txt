@@ -2,6 +2,8 @@
 
 prj_sources(
   init.c
+  syscall.c
   )
 
+add_subdirectory_ifdef(CONFIG_USE_MUSL musl)
 add_subdirectory_ifdef(CONFIG_USE_NEWLIB newlib)

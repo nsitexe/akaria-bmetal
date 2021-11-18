@@ -7,21 +7,7 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall.h>
 
-extern void __libc_init_array(void);
-extern void __libc_fini_array(void);
-
-int errno_real = 0;
-
-int *__errno(void)
-{
-	return &errno_real;
-}
-
-void __libc_init(void)
-{
-	atexit(__libc_fini_array);
-	__libc_init_array();
-}
+/* TODO: to be implemented */
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 };
