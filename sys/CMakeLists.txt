@@ -2,6 +2,7 @@
 
 prj_sources(
   init.c
+  printk.c
   syscall.c
   )
 
