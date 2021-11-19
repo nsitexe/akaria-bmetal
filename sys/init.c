@@ -6,6 +6,7 @@
 
 #include <bmetal/bmetal.h>
 #include <bmetal/init.h>
+#include <bmetal/printk.h>
 
 #if (CONFIG_MAIN_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
 #  error Invalid main stack size. \
@@ -27,6 +28,9 @@ extern char __data_start[];
 extern char __data_end[];
 extern char __data_load[];
 
+extern __init_func_t __initcall_start[];
+extern __init_func_t __initcall_end[];
+
 char stack_main[CONFIG_MAIN_STACK_SIZE];
 char stack_intr[CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE];
 
@@ -43,9 +47,6 @@ static void __copy_data(void)
 	memcpy(__data_start, __data_load, __data_end - __data_start);
 }
 
-extern __init_func_t __initcall_start[];
-extern __init_func_t __initcall_end[];
-
 void __prep_main(void)
 {
 	__clear_bss();
@@ -57,7 +58,12 @@ void __prep_main(void)
 	/* Init drivers */
 	int cnt = __initcall_end - __initcall_start;
 	for (int i = 0; i < cnt; i++) {
-		__initcall_start[i]();
+		int r;
+
+		r = __initcall_start[i]();
+		if (r) {
+			printk("Initcall failed.\n");
+		}
 	}
 
 	/* Init libc */
