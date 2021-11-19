@@ -8,7 +8,7 @@
 
 static int null_putc(int c);
 
-__putc_func printk_putc = null_putc;
+static __putc_func printk_putc = null_putc;
 
 static int null_putc(int c)
 {
@@ -32,12 +32,12 @@ static int inner_puts(const char *s, int newline)
 	return 0;
 }
 
-__putc_func get_printk_out(void)
+__putc_func __get_printk_out(void)
 {
 	return printk_putc;
 }
 
-int set_printk_out(__putc_func f)
+int __set_printk_out(__putc_func f)
 {
 	if (f == NULL)
 		f = null_putc;

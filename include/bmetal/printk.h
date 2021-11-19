@@ -12,7 +12,7 @@ typedef int (*__putc_func)(int c);
 int __attribute__((format(printf, 1, 2))) printk(const char *fmt, ...);
 int vprintk(const char *fmt, va_list ap);
 
-__putc_func get_printk_out(void);
-int set_printk_out(__putc_func f);
+__putc_func __get_printk_out(void);
+int __set_printk_out(__putc_func f);
 
 #endif /* BAREMETAL_CRT_PRINTK_H_ */
