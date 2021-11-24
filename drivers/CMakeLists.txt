@@ -4,3 +4,5 @@ prj_sources(
   device.c
   io.c
   )
+
+add_subdirectory_ifdef(CONFIG_UART uart)
