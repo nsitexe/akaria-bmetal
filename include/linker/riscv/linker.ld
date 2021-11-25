@@ -70,7 +70,7 @@ SECTIONS
 	.initdata : {
 		. = ALIGN(8);
 		__initcall_start = .;
-		KEEP(*(.initdata))
+		KEEP(*(.initdata .initdata.*))
 		__initcall_end = .;
 	} > TEXT_AREA
 
