@@ -13,17 +13,32 @@ function(prj_sources src)
   target_sources(${PRJ_LIB_NAME} PRIVATE ${src} ${ARGN})
 endfunction()
 
-# Do target_sources() for project
-# if conf is ON, YES, TRUE, Y or non-zero.
 function(prj_sources_ifdef conf src)
   if(${${conf}})
-    target_sources(${PRJ_LIB_NAME} PRIVATE ${src} ${ARGN})
+    prj_sources(${src} ${ARGN})
+  endif()
+endfunction()
+
+# Do target_include_directories() for project
+function(prj_include_directories scope item)
+  target_include_directories(${PRJ_LIB_NAME} ${scope} ${item} ${ARGN})
+endfunction()
+
+function(prj_include_directories_ifdef conf scope item)
+  if(${${conf}})
+    prj_include_directories(${scope} ${item} ${ARGN})
   endif()
 endfunction()
 
 # Do target_compile_options() for project
 function(prj_compile_options opt)
   target_compile_options(${PRJ_LIB_NAME} PRIVATE ${opt} ${ARGN})
+endfunction()
+
+function(prj_compile_options_ifdef conf opt)
+  if(${${conf}})
+    prj_compile_options(${opt} ${ARGN})
+  endif()
 endfunction()
 
 # Import Kconfig-like config variables to cmake environment

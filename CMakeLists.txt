@@ -157,7 +157,7 @@ install(
   ${CMAKE_BINARY_DIR}/include/bmetal
   TYPE INCLUDE
   )
-target_include_directories(${PRJ_LIB_NAME}
+prj_include_directories(
   PRIVATE ${CMAKE_SOURCE_DIR}/include
   PRIVATE ${CMAKE_BINARY_DIR}/include
   )
