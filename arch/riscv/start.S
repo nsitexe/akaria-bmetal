@@ -124,10 +124,12 @@ for_main:
 
 for_sub:
 	# Set stack pointer
+	la   sp, stack_intr
 	csrr t0, mhartid
 	addi t0, t0, 1
 	li   t1, CONFIG_INTR_STACK_SIZE
-	mul  sp, t0, t1
+	mul  t0, t0, t1
+	add  sp, t0, sp
 
 	call __prep_sub
 
