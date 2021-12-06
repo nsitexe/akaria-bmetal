@@ -21,12 +21,10 @@
          Please check configs about MAIN_CORE and NUM_CORES.
 #endif
 
-extern char __bss_start[];
-extern char __bss_end[];
-extern char __bss_load[];
-extern char __data_start[];
-extern char __data_end[];
-extern char __data_load[];
+extern char __bss_start[], __bss_end[], __bss_load[];
+extern char __sbss_start[], __sbss_end[], __sbss_load[];
+extern char __data_start[], __data_end[], __data_load[];
+extern char __sdata_start[], __sdata_end[], __sdata_load[];
 
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
@@ -40,11 +38,13 @@ int main(int argc, char *argv[], char *envp[]);
 static void __clear_bss(void)
 {
 	memset(__bss_load, 0, __bss_end - __bss_start);
+	memset(__sbss_load, 0, __sbss_end - __sbss_start);
 }
 
 static void __copy_data(void)
 {
 	memcpy(__data_start, __data_load, __data_end - __data_start);
+	memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
 }
 
 void __prep_main(void)

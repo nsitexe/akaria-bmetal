@@ -78,33 +78,41 @@ SECTIONS
 		. = ALIGN(8);
 		__data_start = .;
 		*(.data .data.*)
-	} > DATA_AREA AT > DATA_AREA_AT
-
-	.sdata : {
-		. = ALIGN(8);
-		__global_pointer$ = . + 0x800;
-		*(.srodata.*)
-		*(.sdata .sdata.*)
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
 	__data_load = LOADADDR(.data);
+
+	.sdata : {
+		. = ALIGN(8);
+		__sdata_start = .;
+		__global_pointer$ = . + 0x800;
+		*(.srodata.*)
+		*(.sdata .sdata.*)
+		__sdata_end = .;
+	} > DATA_AREA AT > DATA_AREA_AT
+
+	__sdata_load = LOADADDR(.sdata);
 	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
 		. = ALIGN(8);
-		__bss_start = .;
+		__sbss_start = .;
 		*(.sbss .sbss.*)
 		*(.scommon)
+		__sbss_end = .;
 	} > DATA_AREA
+
+	__sbss_load = LOADADDR(.sbss);
 
 	.bss (NOLOAD) : {
 		. = ALIGN(8);
+		__bss_start = .;
 		*(.bss .bss.*)
 		*(COMMON)
 		__bss_end = .;
 	} > DATA_AREA
 
-	__bss_load = LOADADDR(.sbss);
+	__bss_load = LOADADDR(.bss);
 	PROVIDE(_end = .);
 }
