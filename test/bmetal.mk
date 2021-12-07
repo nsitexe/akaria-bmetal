@@ -10,6 +10,7 @@ endif
 BAREMETAL_CMNFLAGS = -static -nostdlib --sysroot=$(USE_SYSROOT)
 BAREMETAL_CMNLDFLAGS = \
 	-Wl,-T,generated/linker_gen.ld \
+	-Wl,--print-memory-usage \
 	-L $(USE_SYSROOT)/include/bmetal
 
 LDADD += -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive,-lgcc
