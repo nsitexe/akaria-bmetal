@@ -38,7 +38,7 @@ static inline struct __device *__to_dev(struct __uart_device *dev)
 		return NULL;
 	}
 
-	return (struct __device *)&dev->base;
+	return &dev->base;
 }
 
 static inline struct __uart_device *__to_uart(struct __device *dev)

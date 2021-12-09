@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
+#include <inttypes.h>
 
 #include <bmetal/uart.h>
 #include <bmetal/init.h>
@@ -76,7 +77,7 @@ static int uart_ns16550_add(struct __device *dev)
 		w = REG_WIDTH_DEFAULT;
 
 		printk("ns16550: config 'reg-width' is not found."
-			"Use default size %d.\n", w);
+			"Use default size %"PRId32".\n", w);
 	}
 	switch (w) {
 	case 1:
@@ -89,7 +90,7 @@ static int uart_ns16550_add(struct __device *dev)
 		addr_shift = 2;
 		break;
 	default:
-		printk("ns16550: config 'reg-width' %d is not support.\n", w);
+		printk("ns16550: config 'reg-width' %"PRId32" is not supported.\n", w);
 		break;
 	}
 

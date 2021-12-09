@@ -36,7 +36,7 @@ int __io_mmap_device(void *addr, struct __device *dev)
 	}
 	if (dev->virt == __IO_MAP_FAILED) {
 		dev->virt = NULL;
-		printk("io_mmap_device: map '0x%08"PRIxPTR"' failed.\n", reg);
+		printk("io_mmap_device: map '0x%08"PRIx64"' failed.\n", reg);
 		return -EIO;
 	}
 
