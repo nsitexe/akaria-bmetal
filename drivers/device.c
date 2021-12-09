@@ -8,14 +8,12 @@
 #include <bmetal/printk.h>
 
 static struct __driver head = {
-	.name = "null driver",
 	.type_vendor = "none",
 	.type_device = "none",
 };
 
 static struct __device_driver drv_root_dev = {
 	.base = {
-		.name = "root device",
 		.type_vendor = "generic",
 		.type_device = "dev_root",
 	},
@@ -23,18 +21,19 @@ static struct __device_driver drv_root_dev = {
 
 static struct __bus_driver drv_root_bus = {
 	.base = {
-		.name = "root bus",
 		.type_vendor = "generic",
 		.type_device = "bus_root",
 	},
 };
 
 static struct __device dev_root = {
+	.name = "root device",
 	.type_vendor = "generic",
 	.type_device = "dev_root",
 };
 
 static struct __bus bus_root = {
+	.name = "root bus",
 	.type_vendor = "generic",
 	.type_device = "bus_root",
 };
@@ -162,15 +161,16 @@ int __driver_add(struct __driver *driver)
 {
 	struct __driver *d = &head;
 
-	if (!driver->name || !driver->type_vendor || !driver->type_device) {
-		printk("driver_add: Please set name and type.\n");
+	if (!driver->type_vendor || !driver->type_device) {
+		printk("driver_add: Please set vendor and device.\n");
 		return -EINVAL;
 	}
 
 	while (d->drv_next) {
-		if (strcmp(d->name, driver->name) == 0) {
-			printk("Driver '%s' has already registered.\n",
-				driver->name);
+		if (strcmp(d->type_vendor, driver->type_vendor) == 0 &&
+		    strcmp(d->type_device, driver->type_device) == 0) {
+			printk("Driver '%s:%s' has already registered.\n",
+				driver->type_vendor, driver->type_device);
 			return -EINVAL;
 		}
 		d = d->drv_next;
@@ -195,6 +195,10 @@ int __driver_remove(struct __driver *driver)
 int __device_add(struct __device *dev, struct __bus *parent)
 {
 	if (!dev || !parent) {
+		return -EINVAL;
+	}
+	if (!dev->name) {
+		printk("device_add: Please set name.\n");
 		return -EINVAL;
 	}
 
@@ -306,6 +310,10 @@ struct __bus *__bus_get_root(void)
 int __bus_add(struct __bus *bus, struct __device *parent)
 {
 	if (!bus || !parent) {
+		return -EINVAL;
+	}
+	if (!bus->name) {
+		printk("bus_add: Please set name.\n");
 		return -EINVAL;
 	}
 

@@ -13,7 +13,6 @@ struct __device;
 struct __bus;
 
 struct __driver {
-	const char *name;
 	const char *type_vendor;
 	const char *type_device;
 
@@ -48,6 +47,7 @@ struct __device_config {
 };
 
 struct __device {
+	const char *name;
 	const char *type_vendor;
 	const char *type_device;
 	const struct __device_config *conf;
@@ -77,6 +77,7 @@ struct __device {
 };
 
 struct __bus {
+	const char *name;
 	const char *type_vendor;
 	const char *type_device;
 

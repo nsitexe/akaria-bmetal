@@ -13,6 +13,7 @@ const static struct __device_config uart0_conf[] = {
 
 static struct __uart_device uart0 = {
 	.base = {
+		.name = "uart0",
 		.type_vendor = "generic",
 		.type_device = "uart_ns16550",
 		.conf = uart0_conf,
