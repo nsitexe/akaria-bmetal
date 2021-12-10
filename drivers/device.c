@@ -317,15 +317,27 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 		return -EINVAL;
 	}
 
-	if (bus->dev_parent || parent->bus_child) {
+	if (bus->dev_parent) {
 		/* TODO: autogenerate device name */
-		printk("dev:%d '%s' has already had bus:%d.\n",
-			parent->id, "", bus->id);
+		printk("Bus:%d '%s' has already had Dev:%d.\n",
+			bus->id, "", bus->dev_parent->id);
 		return -EINVAL;
 	}
 
+	if (!parent->bus_child) {
+		/* First child */
+		parent->bus_child = bus;
+	} else {
+		struct __bus *b = parent->bus_child;
+
+		while (b->bus_next) {
+			b = b->bus_next;
+		}
+
+		b->bus_next = bus;
+	}
+
 	bus->dev_parent = parent;
-	parent->bus_child = bus;
 
 	int r = __device_probe_all();
 	if (r) {

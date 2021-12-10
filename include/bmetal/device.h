@@ -57,10 +57,8 @@ struct __device {
 	int id;
 
 	struct __bus *bus_parent;
-
 	/* Set non-NULL if this device has an other bus */
 	struct __bus *bus_child;
-
 	/* Set non-NULL if this device has a sibling */
 	struct __device *dev_next;
 
@@ -86,9 +84,10 @@ struct __bus {
 	int id;
 
 	struct __device *dev_parent;
-
 	/* Set non-NULL if other devices are connected to this bus */
 	struct __device *dev_child;
+	/* Set non-NULL if this device has a sibling */
+	struct __bus *bus_next;
 
 	/* Private data area for each driver */
 	void *priv;
