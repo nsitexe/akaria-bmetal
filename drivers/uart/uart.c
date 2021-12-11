@@ -12,7 +12,7 @@ static int uart_putc(int c)
 		return (unsigned char)c;
 	}
 
-	const struct __uart_driver *drv = __get_uart_drv(__to_dev(uart_default));
+	const struct __uart_driver *drv = __uart_get_drv(uart_default);
 
 	if (drv && drv->char_out) {
 		drv->char_out(uart_default, c);
@@ -39,7 +39,7 @@ int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_
 {
 	int r;
 
-	r = __device_add(__to_dev(uart), parent);
+	r = __device_add(__uart_to_dev(uart), parent);
 	if (r) {
 		return r;
 	}
@@ -60,6 +60,6 @@ int __uart_remove_device(struct __uart_device *uart)
 		uart_set_default_console(NULL);
 	}
 
-	return __device_remove(__to_dev(uart));
+	return __device_remove(__uart_to_dev(uart));
 }
 

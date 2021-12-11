@@ -23,25 +23,25 @@ struct __uart_device {
 	int as_default;
 };
 
-static inline const struct __uart_driver *__get_uart_drv(const struct __device *dev)
+static inline const struct __uart_driver *__uart_get_drv(const struct __uart_device *uart)
 {
-	if (!dev) {
+	if (!uart) {
 		return NULL;
 	}
 
-	return (const struct __uart_driver *)dev->drv;
+	return (const struct __uart_driver *)uart->base.drv;
 }
 
-static inline struct __device *__to_dev(struct __uart_device *dev)
+static inline struct __device *__uart_to_dev(struct __uart_device *uart)
 {
-	if (!dev) {
+	if (!uart) {
 		return NULL;
 	}
 
-	return &dev->base;
+	return &uart->base;
 }
 
-static inline struct __uart_device *__to_uart(struct __device *dev)
+static inline struct __uart_device *__uart_from_dev(struct __device *dev)
 {
 	return (struct __uart_device *)dev;
 }

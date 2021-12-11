@@ -31,11 +31,11 @@ static uint8_t uart_read(struct __uart_device *uart, uintptr_t off)
 
 	switch (addr_shift) {
 	case 0:
-		return __device_read8(__to_dev(uart), shifted);
+		return __device_read8(__uart_to_dev(uart), shifted);
 	case 1:
-		return __device_read16(__to_dev(uart), shifted);
+		return __device_read16(__uart_to_dev(uart), shifted);
 	case 2:
-		return __device_read32(__to_dev(uart), shifted);
+		return __device_read32(__uart_to_dev(uart), shifted);
 	default:
 		/* BUG */
 		return -1;
@@ -48,13 +48,13 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 
 	switch (addr_shift) {
 	case 0:
-		__device_write8(__to_dev(uart), dat, shifted);
+		__device_write8(__uart_to_dev(uart), dat, shifted);
 		break;
 	case 1:
-		__device_write16(__to_dev(uart), dat, shifted);
+		__device_write16(__uart_to_dev(uart), dat, shifted);
 		break;
 	case 2:
-		__device_write32(__to_dev(uart), dat, shifted);
+		__device_write32(__uart_to_dev(uart), dat, shifted);
 		break;
 	default:
 		/* BUG */
@@ -63,16 +63,15 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 
 static int uart_ns16550_add(struct __device *dev)
 {
-	struct __uart_device *uart = __to_uart(dev);
 	uint32_t w;
 	int r;
 
-	r = __io_mmap_device(NULL, __to_dev(uart));
+	r = __io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
 
-	r = __device_read_conf_u32(__to_dev(uart), "reg-width", &w);
+	r = __device_read_conf_u32(dev, "reg-width", &w);
 	if (r) {
 		w = REG_WIDTH_DEFAULT;
 
@@ -91,7 +90,7 @@ static int uart_ns16550_add(struct __device *dev)
 		break;
 	default:
 		printk("ns16550: config 'reg-width' %"PRId32" is not supported.\n", w);
-		break;
+		return -EINVAL;
 	}
 
 	return 0;

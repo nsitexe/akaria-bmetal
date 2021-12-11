@@ -95,7 +95,7 @@ struct __bus {
 	int probed;
 };
 
-static inline const struct __device_driver *__get_dev_drv(const struct __device *dev)
+static inline const struct __device_driver *__device_get_drv(const struct __device *dev)
 {
 	if (!dev) {
 		return NULL;
@@ -104,7 +104,7 @@ static inline const struct __device_driver *__get_dev_drv(const struct __device 
 	return (const struct __device_driver *)dev->drv;
 }
 
-static inline const struct __bus_driver *__get_bus_drv(const struct __bus *bus)
+static inline const struct __bus_driver *__bus_get_drv(const struct __bus *bus)
 {
 	if (!bus) {
 		return NULL;
@@ -119,7 +119,7 @@ static inline uint8_t __device_read8(struct __device *dev, uintptr_t off)
 		return __io_read8(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->read8) {
 		return devdrv->read8(dev, off);
@@ -134,7 +134,7 @@ static inline uint16_t __device_read16(struct __device *dev, uintptr_t off)
 		return __io_read16(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->read16) {
 		return devdrv->read16(dev, off);
@@ -149,7 +149,7 @@ static inline uint32_t __device_read32(struct __device *dev, uintptr_t off)
 		return __io_read32(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->read32) {
 		return devdrv->read32(dev, off);
@@ -164,7 +164,7 @@ static inline void __device_write8(struct __device *dev, uint8_t dat, uintptr_t 
 		__io_write8(dat, dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->write8) {
 		return devdrv->write8(dev, dat, off);
@@ -177,7 +177,7 @@ static inline void __device_write16(struct __device *dev, uint16_t dat, uintptr_
 		__io_write16(dat, dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->write16) {
 		return devdrv->write16(dev, dat, off);
@@ -190,7 +190,7 @@ static inline void __device_write32(struct __device *dev, uint32_t dat, uintptr_
 		__io_write32(dat, dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (devdrv && devdrv->write32) {
 		return devdrv->write32(dev, dat, off);

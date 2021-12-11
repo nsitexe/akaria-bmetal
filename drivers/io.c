@@ -27,7 +27,7 @@ int __io_mmap_device(void *addr, struct __device *dev)
 	dev->io_base.addr = reg;
 	dev->io_base.size = size;
 
-	const struct __device_driver *devdrv = __get_dev_drv(dev);
+	const struct __device_driver *devdrv = __device_get_drv(dev);
 
 	if (!devdrv || !devdrv->mmap) {
 		dev->virt = __IO_MAP_FAILED;

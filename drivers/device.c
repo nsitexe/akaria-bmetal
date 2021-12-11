@@ -94,7 +94,7 @@ static int device_probe(struct __device *dev)
 	}
 
 	if (dev->drv && !dev->probed) {
-		const struct __device_driver *drv_dev = __get_dev_drv(dev);
+		const struct __device_driver *drv_dev = __device_get_drv(dev);
 
 		if (drv_dev && drv_dev->add) {
 			drv_dev->add(dev);
@@ -120,7 +120,7 @@ static int bus_probe(struct __bus *bus)
 	}
 
 	if (bus->drv && !bus->probed) {
-		const struct __bus_driver *drv_bus = __get_bus_drv(bus);
+		const struct __bus_driver *drv_bus = __bus_get_drv(bus);
 
 		if (drv_bus && drv_bus->add) {
 			drv_bus->add(bus);
@@ -293,7 +293,7 @@ void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, st
 		return __IO_MAP_FAILED;
 	}
 
-	const struct __bus_driver *busdrv = __get_bus_drv(dev->bus_parent);
+	const struct __bus_driver *busdrv = __bus_get_drv(dev->bus_parent);
 
 	if (!busdrv || !busdrv->mmap) {
 		return (void *)off;
@@ -367,7 +367,7 @@ void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struc
 		return __IO_MAP_FAILED;
 	}
 
-	const struct __device_driver *devdrv = __get_dev_drv(bus->dev_parent);
+	const struct __device_driver *devdrv = __device_get_drv(bus->dev_parent);
 
 	if (!devdrv || !devdrv->mmap) {
 		return (void *)off;
