@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <inttypes.h>
 
-#include <bmetal/uart.h>
+#include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>

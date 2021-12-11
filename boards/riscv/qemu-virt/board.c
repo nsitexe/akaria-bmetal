@@ -2,7 +2,7 @@
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
-#include <bmetal/uart.h>
+#include <bmetal/drivers/uart.h>
 
 const static struct __device_config uart0_conf[] = {
 	{"reg", 0x10000000},
