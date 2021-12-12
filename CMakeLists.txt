@@ -70,6 +70,7 @@ add_custom_command(
     ${CMAKE_C_COMPILER}
     -I ${CMAKE_SOURCE_DIR}/include
     -I ${CMAKE_BINARY_DIR}/include
+    -I ${ARCH_DIR}/include
     -DLINKER_SCRIPT
     -E -P -x c -o ${PRJ_GEN_LINKER_SCRIPT_FILE}
     ${PRJ_LINKER_SCRIPT_FILE}
@@ -103,6 +104,7 @@ install(
 prj_include_directories(
   PRIVATE ${CMAKE_SOURCE_DIR}/include
   PRIVATE ${CMAKE_BINARY_DIR}/include
+  PRIVATE ${ARCH_DIR}/include
   )
 
 add_subdirectory(arch)
