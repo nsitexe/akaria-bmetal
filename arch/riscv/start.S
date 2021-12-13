@@ -84,6 +84,7 @@
 .section ".reset", "ax"
 .align 2
 _start:
+	# Interrupt handler
 	la   t0, __start_trap
 	csrw mtvec, t0
 
@@ -100,8 +101,10 @@ _start:
 	csrw fcsr, x0
 #endif
 
-	# Clear thread pointer
-	li   tp, 0
+	# Clear notify area
+	la    t0, __boot_proc
+	li    t1, -1
+	OP_ST t1, (t0)
 
 	# Branch to main/sub function
 	csrr t0, mhartid
@@ -111,7 +114,7 @@ _start:
 
 for_main:
 	# Stack pointer
-	la   sp, stack_main
+	la   sp, __stack_main
 	li   t0, CONFIG_MAIN_STACK_SIZE
 	add  sp, t0, sp
 
@@ -123,13 +126,21 @@ for_main:
 	j   1b
 
 for_sub:
-	# Set stack pointer
-	la   sp, stack_intr
-	csrr t0, mhartid
-	addi t0, t0, 1
-	li   t1, CONFIG_INTR_STACK_SIZE
-	mul  t0, t0, t1
-	add  sp, t0, sp
+	# Wait for notify
+	csrr  t0, mhartid
+	la    t1, __boot_proc
+	OP_LD t1, (t1)
+	bne   t0, t1, for_sub
+
+	# Set stack/thread pointer
+	la    t0, __boot_sp
+	OP_LD sp, (t0)
+	la    t0, __boot_tp
+	OP_LD tp, (t0)
+	la    t0, __boot_done
+	li    t1, 1
+	OP_ST t1, (t0)
+	fence iorw, iorw
 
 	call __prep_sub
 
