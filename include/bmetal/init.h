@@ -24,4 +24,6 @@
 typedef int (*__init_func_t)(void);
 typedef void (*__fini_func_t)(void);
 
+extern char __stack_intr[];
+
 #endif /* BAREMETAL_CRT_INIT_H_ */
