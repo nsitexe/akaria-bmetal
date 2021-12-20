@@ -15,4 +15,6 @@
 #  include <bmetal/newlib/syscall.h>
 #endif
 
+#define SYSCALL_P(num, func)    [(num)] = (__syscall_func_t)(func)
+
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */

@@ -24,4 +24,5 @@ void __libc_init(void)
 }
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
+	SYSCALL_P(SYS_write, __sys_write),
 };
