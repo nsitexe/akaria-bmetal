@@ -3,14 +3,15 @@
 #ifndef BAREMETAL_CRT_THREAD_H_
 #define BAREMETAL_CRT_THREAD_H_
 
-#include <bmetal/bmetal.h>
-
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <bmetal/bmetal.h>
+#include <bmetal/file.h>
+
 struct __process_info {
 	pid_t pid;
-	int fdset[CONFIG_MAX_FD];
+	struct __file_desc *fdset[CONFIG_MAX_FD];
 };
 
 struct __thread_info {

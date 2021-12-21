@@ -75,9 +75,7 @@ void __prep_main(void)
 	struct __process_info *pi = __get_current_process();
 
 	pi->pid = CONFIG_MAIN_PID;
-	pi->fdset[0] = 0;
-	pi->fdset[1] = 1;
-	pi->fdset[2] = 2;
+	__file_stdio_init(pi);
 
 	/* Init thread info */
 	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
