@@ -13,17 +13,17 @@ BAREMETAL_CMNLDFLAGS = \
 	-Wl,--print-memory-usage \
 	-L $(USE_SYSROOT)/include/bmetal
 
-LDADD += -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive,-lgcc
+LDADD += -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
 ifeq ($(USE_NEWLIB),y)
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
-  LDADD    += -Wl,-lc,-lgloss
+  LDADD    += -lc -lgloss
 endif
 ifeq ($(USE_MUSL),y)
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
-  LDADD    += -Wl,-lc
+  LDADD    += -lc
 endif
-LDADD += -Wl,-lbmetal_crt,-lgcc
+LDADD += -lgcc
