@@ -6,6 +6,7 @@
 
 #include <bmetal/init.h>
 #include <bmetal/arch.h>
+#include <bmetal/comm.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
@@ -37,6 +38,19 @@ char __section(".noinit") __stack_intr[CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE
 void __libc_init(void);
 int main(int argc, char *argv[], char *envp[]);
 
+/* +1 is for argv[0] (command name) */
+static char *argv[CONFIG_COMM_MAX_ARGS + 1];
+
+/* Communication area for host */
+extern char __comm_area[];
+
+static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
+	.magic     = BAREMETAL_CRT_COMM_MAGIC,
+	.base_addr = CONFIG_RAM_BASE,
+	.phys_addr = (uintptr_t)&__comm_area,
+	.size      = CONFIG_COMM_AREA_SIZE,
+};
+
 static void clear_bss(void)
 {
 	memset(__bss_start, 0, __bss_end - __bss_start);
@@ -47,6 +61,26 @@ static void copy_data(void)
 {
 	memcpy(__data_start, __data_load, __data_end - __data_start);
 	memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
+}
+
+static void load_argv(const struct __comm_area_header *h, const char *buf_args)
+{
+	const struct __comm_arg_header *ha;
+	uintptr_t buf = (uintptr_t)buf_args;
+	int p = 1;
+
+	for (int i = 0; i < h->num_args; i++) {
+		ha = (const struct __comm_arg_header *)buf;
+		buf += sizeof(struct __comm_arg_header);
+
+		argv[p] = (char *)buf;
+		p++;
+
+		buf += ha->size;
+		if (buf % 4 != 0) {
+			buf += ((buf / 4) + 1) * 4;
+		}
+	}
 }
 
 void __prep_main(void)
@@ -90,15 +124,28 @@ void __prep_main(void)
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
-	char *argv[1];
+	/* Setup arguments */
 	char *envp[2];
+
+	const struct __comm_area_header *h_area = (const struct __comm_area_header *)__comm_area;
+	int argc = 1;
+
+	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
+		if (CONFIG_COMM_MAX_ARGS <= h_area->num_args) {
+			printk("Exceed number of args (req:%d, max:%d)\n",
+				h_area->num_args, CONFIG_COMM_MAX_ARGS);
+		}
+
+		load_argv(h_area, __comm_area + sizeof(struct __comm_area_header));
+		argc = h_area->num_args + 1;
+	}
 
 	argv[0] = "app";
 
 	envp[0] = NULL;
 	envp[1] = NULL;
 
-	main(1, argv, envp);
+	main(argc, argv, envp);
 }
 
 void __prep_sub(void)

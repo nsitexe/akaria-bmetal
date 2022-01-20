@@ -118,5 +118,16 @@ SECTIONS
 		__noinit_end = .;
 	} > DATA_AREA
 
+	.comm : {
+		. = ALIGN(8);
+		KEEP(*(.comm_header .comm_header.*))
+	} > TEXT_AREA
+
+	.comm_area (NOLOAD) : {
+		. = ALIGN(8);
+		__comm_area = .;
+		. = . + CONFIG_COMM_AREA_SIZE;
+	} > DATA_AREA
+
 	PROVIDE(_end = .);
 }
