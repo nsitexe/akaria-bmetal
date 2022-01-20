@@ -10,7 +10,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 
-atomic_uintptr_t __boot_proc;
+atomic_uintptr_t __section(".noinit") __boot_proc;
 atomic_uintptr_t __boot_sp;
 atomic_uintptr_t __boot_tp;
 atomic_int __boot_done;
