@@ -23,24 +23,24 @@
          Please check configs about MAIN_CORE and NUM_CORES.
 #endif
 
-extern char __bss_start[], __bss_end[], __bss_load[];
-extern char __sbss_start[], __sbss_end[], __sbss_load[];
+extern char __bss_start[], __bss_end[];
+extern char __sbss_start[], __sbss_end[];
 extern char __data_start[], __data_end[], __data_load[];
 extern char __sdata_start[], __sdata_end[], __sdata_load[];
 
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
 
-char __stack_main[CONFIG_MAIN_STACK_SIZE];
-char __stack_intr[CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE];
+char __section(".noinit") __stack_main[CONFIG_MAIN_STACK_SIZE];
+char __section(".noinit") __stack_intr[CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE];
 
 void __libc_init(void);
 int main(int argc, char *argv[], char *envp[]);
 
 static void clear_bss(void)
 {
-	memset(__bss_load, 0, __bss_end - __bss_start);
-	memset(__sbss_load, 0, __sbss_end - __sbss_start);
+	memset(__bss_start, 0, __bss_end - __bss_start);
+	memset(__sbss_start, 0, __sbss_end - __sbss_start);
 }
 
 static void copy_data(void)

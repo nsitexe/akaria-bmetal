@@ -103,8 +103,6 @@ SECTIONS
 		__sbss_end = .;
 	} > DATA_AREA
 
-	__sbss_load = LOADADDR(.sbss);
-
 	.bss (NOLOAD) : {
 		. = ALIGN(8);
 		__bss_start = .;
@@ -113,6 +111,12 @@ SECTIONS
 		__bss_end = .;
 	} > DATA_AREA
 
-	__bss_load = LOADADDR(.bss);
+	.noinit (NOLOAD) : {
+		. = ALIGN(8);
+		__noinit_start = .;
+		*(.noinit .noinit.*)
+		__noinit_end = .;
+	} > DATA_AREA
+
 	PROVIDE(_end = .);
 }
