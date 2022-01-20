@@ -58,6 +58,7 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 		break;
 	default:
 		/* BUG */
+		return;
 	}
 }
 
