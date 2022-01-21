@@ -33,8 +33,8 @@ extern char __sdata_start[], __sdata_end[], __sdata_load[];
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
 
-char __section(".noinit") __stack_main[CONFIG_MAIN_STACK_SIZE];
-char __section(".noinit") __stack_intr[CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE];
+define_stack(__stack_main, CONFIG_MAIN_STACK_SIZE);
+define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
 void __libc_init(void);
 int main(int argc, char *argv[], char *envp[]);
@@ -130,7 +130,7 @@ void __prep_main(void)
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
 		if (CONFIG_COMM_MAX_ARGS <= h_area->num_args) {
-			printk("Exceed number of args (req:%d, max:%d)\n",
+			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 

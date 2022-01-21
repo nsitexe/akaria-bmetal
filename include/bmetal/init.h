@@ -13,6 +13,9 @@
 #define __used          __attribute__((used))
 #endif
 
+#define define_stack(sym, size) \
+	char __section(".noinit") sym[size]
+
 #define define_init_func(fn) \
 	const __init_func_t __init_func__##fn \
 	__section(".initdata") __used = fn
