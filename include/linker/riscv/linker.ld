@@ -19,10 +19,12 @@
 #  define TEXT_AREA       ROM
 #  define DATA_AREA       RAM
 #  define DATA_AREA_AT    ROM
+#  define COMM_AREA       SHM
 #else /* CONFIG_XIP */
 #  define TEXT_AREA       RAM
 #  define DATA_AREA       RAM
 #  define DATA_AREA_AT    RAM
+#  define COMM_AREA       SHM
 #endif /* CONFIG_XIP */
 
 OUTPUT_ARCH(riscv)
@@ -32,6 +34,7 @@ MEMORY
 {
 	ROM (rx)  : ORIGIN = CONFIG_ROM_BASE, LENGTH = CONFIG_ROM_SIZE
 	RAM (rwx) : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
+	SHM (rwx) : ORIGIN = CONFIG_SHM_BASE, LENGTH = CONFIG_SHM_SIZE
 }
 
 SECTIONS
@@ -61,6 +64,11 @@ SECTIONS
 	} > TEXT_AREA
 
 	PROVIDE(_etext = .);
+
+	.comm : {
+		. = ALIGN(8);
+		KEEP(*(.comm_header .comm_header.*))
+	} > TEXT_AREA
 
 	.rodata : {
 		. = ALIGN(8);
@@ -118,16 +126,11 @@ SECTIONS
 		__noinit_end = .;
 	} > DATA_AREA
 
-	.comm : {
-		. = ALIGN(8);
-		KEEP(*(.comm_header .comm_header.*))
-	} > TEXT_AREA
-
 	.comm_area (NOLOAD) : {
 		. = ALIGN(8);
-		__comm_area = .;
+		PROVIDE(__comm_area = .);
 		. = . + CONFIG_COMM_AREA_SIZE;
-	} > DATA_AREA
+	} > COMM_AREA
 
 	PROVIDE(_end = .);
 }

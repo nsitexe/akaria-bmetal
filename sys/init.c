@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -46,9 +47,6 @@ extern char __comm_area[];
 
 static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
-	.base_addr = CONFIG_RAM_BASE,
-	.phys_addr = (uintptr_t)&__comm_area,
-	.size      = CONFIG_COMM_AREA_SIZE,
 };
 
 static void clear_bss(void)

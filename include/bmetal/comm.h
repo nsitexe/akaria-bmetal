@@ -5,14 +5,12 @@
 
 #include <stdint.h>
 
-#define BAREMETAL_CRT_COMM_SECTION    ".comm"
-#define BAREMETAL_CRT_COMM_MAGIC      0xbadcafe5
+#define BAREMETAL_CRT_COMM_SECTION         ".comm"
+#define BAREMETAL_CRT_COMM_AREA_SECTION    ".comm_area"
+#define BAREMETAL_CRT_COMM_MAGIC           0xbadcafe5
 
 struct __comm_section {
 	uint32_t magic;
-	uint64_t base_addr;
-	uint64_t phys_addr;
-	uint64_t size;
 };
 
 struct __comm_area_header {
