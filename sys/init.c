@@ -65,6 +65,7 @@ static void load_argv(const struct __comm_area_header *h, const char *buf_args)
 {
 	const struct __comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
+	/* argv[0] is command name */
 	int p = 1;
 
 	for (int i = 0; i < h->num_args; i++) {
@@ -129,7 +130,7 @@ void __prep_main(void)
 	int argc = 1;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
-		if (CONFIG_COMM_MAX_ARGS <= h_area->num_args) {
+		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
 			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
@@ -138,6 +139,7 @@ void __prep_main(void)
 		argc = h_area->num_args + 1;
 	}
 
+	/* TODO: command name */
 	argv[0] = "app";
 
 	envp[0] = NULL;
