@@ -9,7 +9,9 @@
 #include <bmetal/app/bmetal/syscall.h>
 #endif /* ASMLANG */
 
-#if defined(CONFIG_USE_MUSL)
+#if defined(CONFIG_USE_GLIBC)
+#  include <bmetal/glibc/syscall.h>
+#elif defined(CONFIG_USE_MUSL)
 #  include <bmetal/musl/syscall.h>
 #elif defined(CONFIG_USE_NEWLIB)
 #  include <bmetal/newlib/syscall.h>

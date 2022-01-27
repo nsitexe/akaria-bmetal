@@ -8,5 +8,6 @@ prj_sources(
   file.c
   )
 
+add_subdirectory_ifdef(CONFIG_USE_GLIBC glibc)
 add_subdirectory_ifdef(CONFIG_USE_MUSL musl)
 add_subdirectory_ifdef(CONFIG_USE_NEWLIB newlib)
