@@ -90,17 +90,6 @@ void __prep_main(void)
 	copy_data();
 #endif /* CONFIG_XIP */
 
-	/* Init drivers */
-	int cnt = __initcall_end - __initcall_start;
-	for (int i = 0; i < cnt; i++) {
-		int r;
-
-		r = __initcall_start[i]();
-		if (r) {
-			printk("Initcall failed.\n");
-		}
-	}
-
 	/* Init libc */
 	__libc_init();
 
@@ -119,6 +108,17 @@ void __prep_main(void)
 
 	/* Set thread pointer */
 	__set_current_thread(__get_raw_thread(0));
+
+	/* Init drivers */
+	int cnt = __initcall_end - __initcall_start;
+	for (int i = 0; i < cnt; i++) {
+		int r;
+
+		r = __initcall_start[i]();
+		if (r) {
+			printk("Initcall failed.\n");
+		}
+	}
 
 	/* Boot other cores */
 	__cpu_wakeup_all();
