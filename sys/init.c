@@ -8,6 +8,7 @@
 #include <bmetal/init.h>
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
+#include <bmetal/libc_support.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
@@ -36,7 +37,6 @@ extern __init_func_t __initcall_end[];
 define_stack(__stack_main, CONFIG_MAIN_STACK_SIZE);
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
-void __libc_init(void);
 int main(int argc, char *argv[], char *envp[]);
 
 /* +1 is for argv[0] (command name) */
