@@ -9,4 +9,7 @@
 #  error Include wrong syscall header.
 #endif
 
+/* TODO: to be implemented */
+#define MAX_SYSCALLS    0
+
 #endif /* BAREMETAL_CRT_MUSL_SYSCALL_H_ */

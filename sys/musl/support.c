@@ -9,5 +9,9 @@
 
 /* TODO: to be implemented */
 
+void __libc_init(void)
+{
+}
+
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 };
