@@ -24,4 +24,7 @@ struct __comm_arg_header {
 	uint64_t size;
 };
 
-#endif /* BAREMETAL_CRT_HOST_DRV_COMM */
+/* Communication area for host */
+extern char __comm_area[];
+
+#endif /* BAREMETAL_CRT_DRV_COMM */

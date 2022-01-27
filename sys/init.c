@@ -42,9 +42,6 @@ int main(int argc, char *argv[], char *envp[]);
 /* +1 is for argv[0] (command name) */
 static char *argv[CONFIG_COMM_MAX_ARGS + 1];
 
-/* Communication area for host */
-extern char __comm_area[];
-
 static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
 };
