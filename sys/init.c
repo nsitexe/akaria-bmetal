@@ -39,7 +39,7 @@ define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
 int main(int argc, char *argv[], char *envp[]);
 
-/* +1 is for argv[0] (command name) */
+/* +1 is for argv[0] */
 static char *argv[CONFIG_COMM_MAX_ARGS + 1];
 
 static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
@@ -62,22 +62,17 @@ static void load_argv(const struct __comm_area_header *h, const char *buf_args)
 {
 	const struct __comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
-	/* argv[0] is command name */
-	int p = 1;
+	int p = 0;
 
 	for (int i = 0; i < h->num_args; i++) {
 		ha = (const struct __comm_arg_header *)buf;
 		buf += sizeof(struct __comm_arg_header);
 
-		printk("type:%d, index:%d, size:%d\n", (int)ha->argtype, (int)ha->index, (int)ha->size);
-
 		argv[p] = (char *)buf;
 		p++;
-
 		buf += ha->size;
-		if (buf % 4 != 0) {
-			buf += ((buf / 4) + 1) * 4;
-		}
+
+		buf = ALIGN_OF(buf, 4);
 	}
 }
 
@@ -137,9 +132,10 @@ void __prep_main(void)
 		load_argv(h_area, __comm_area + sizeof(struct __comm_area_header));
 		argc = h_area->num_args + 1;
 	}
-
-	/* TODO: command name */
-	argv[0] = "app";
+	if (argv[0] == NULL) {
+		printk("Missing kernel name. Use default.\n");
+		argv[0] = "main";
+	}
 
 	envp[0] = NULL;
 	envp[1] = NULL;

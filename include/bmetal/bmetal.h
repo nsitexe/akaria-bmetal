@@ -5,4 +5,9 @@
 
 #include <bmetal/app/bmetal/bmetal.h>
 
+#define NMAX(a, b)     (((a) > (b)) ? (a) : (b))
+#define NMIN(a, b)     (((a) < (b)) ? (a) : (b))
+#define ARRAY_OF(x)    (sizeof(x) / sizeof((x)[0]))
+#define ALIGN_OF(x, align)    (((x) % (align) == 0) ? (x) : ((x) / (align) + 1) * (align))
+
 #endif /* BAREMETAL_CRT_BMETAL_H_ */
