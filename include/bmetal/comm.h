@@ -16,6 +16,8 @@ struct __comm_section {
 struct __comm_area_header {
 	uint32_t magic;
 	uint32_t num_args;
+	uint32_t done;
+	uint32_t ret_main;
 };
 
 struct __comm_arg_header {
@@ -23,6 +25,12 @@ struct __comm_arg_header {
 	uint32_t index;
 	uint64_t size;
 };
+
+#define __COMM_ARG_NOTUSED    0
+/* Direct value */
+#define __COMM_ARG_VAL        1
+/* cl_mem */
+#define __COMM_ARG_MEM        2
 
 /* Communication area for host */
 extern char __comm_area[];

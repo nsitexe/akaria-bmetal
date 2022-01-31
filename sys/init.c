@@ -69,6 +69,8 @@ static void load_argv(const struct __comm_area_header *h, const char *buf_args)
 		ha = (const struct __comm_arg_header *)buf;
 		buf += sizeof(struct __comm_arg_header);
 
+		printk("type:%d, index:%d, size:%d\n", (int)ha->argtype, (int)ha->index, (int)ha->size);
+
 		argv[p] = (char *)buf;
 		p++;
 
@@ -123,7 +125,7 @@ void __prep_main(void)
 	/* Setup arguments */
 	char *envp[2];
 
-	const struct __comm_area_header *h_area = (const struct __comm_area_header *)__comm_area;
+	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 	int argc = 1;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
@@ -142,7 +144,10 @@ void __prep_main(void)
 	envp[0] = NULL;
 	envp[1] = NULL;
 
-	main(argc, argv, envp);
+	int r = main(argc, argv, envp);
+
+	h_area->ret_main = r;
+	h_area->done = 1;
 }
 
 void __prep_sub(void)
