@@ -42,6 +42,8 @@ int main(int argc, char *argv[], char *envp[]);
 
 /* +1 is for argv[0] */
 static char *argv[CONFIG_COMM_MAX_ARGS + 1];
+/* always NULL */
+static char *envp[2];
 
 static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
@@ -59,7 +61,50 @@ static void copy_data(void)
 	memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
 }
 
-static void load_argv(const struct __comm_area_header *h, const char *buf_args)
+static int init_proc(void)
+{
+	struct __process_info *pi = __get_current_process();
+
+	pi->pid = CONFIG_MAIN_PID;
+
+	/* Init stdin/out/err */
+	__file_stdio_init(pi);
+
+	/* Init thread info */
+	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
+		struct __thread_info *ti = __get_raw_thread(i);
+
+		ti->tid = i + CONFIG_MAIN_PID;
+	}
+
+	/*
+	 * Set thread pointer. Need for main thread only.
+	 * CPU drivers set thread pointer for other threads.
+	 */
+	__set_current_thread(__get_raw_thread(0));
+
+	return 0;
+}
+
+static int init_drivers(void)
+{
+	int cnt = __initcall_end - __initcall_start;
+	int res = 0;
+
+	for (int i = 0; i < cnt; i++) {
+		int r;
+
+		r = __initcall_start[i]();
+		if (r) {
+			printk("Initcall failed.\n");
+			res = r;
+		}
+	}
+
+	return res;
+}
+
+static int load_argv(const struct __comm_area_header *h, const char *buf_args)
 {
 	const struct __comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
@@ -75,6 +120,31 @@ static void load_argv(const struct __comm_area_header *h, const char *buf_args)
 
 		buf = ALIGN_OF(buf, 4);
 	}
+
+	return 0;
+}
+
+static int init_args(int *argc)
+{
+	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+
+	*argc = 1;
+
+	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
+		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
+			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
+				h_area->num_args, CONFIG_COMM_MAX_ARGS);
+		}
+
+		load_argv(h_area, __comm_area + sizeof(struct __comm_area_header));
+		*argc = h_area->num_args + 1;
+	}
+	if (argv[0] == NULL) {
+		printk("Missing kernel name. Use default.\n");
+		argv[0] = "main";
+	}
+
+	return 0;
 }
 
 void __prep_main(void)
@@ -85,61 +155,15 @@ void __prep_main(void)
 	copy_data();
 #endif /* CONFIG_XIP */
 
-	/* Init libc */
 	__libc_init();
-
-	/* Init process info */
-	struct __process_info *pi = __get_current_process();
-
-	pi->pid = CONFIG_MAIN_PID;
-	__file_stdio_init(pi);
-
-	/* Init thread info */
-	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
-		struct __thread_info *ti = __get_raw_thread(i);
-
-		ti->tid = i + CONFIG_MAIN_PID;
-	}
-
-	/* Set thread pointer */
-	__set_current_thread(__get_raw_thread(0));
-
-	/* Init drivers */
-	int cnt = __initcall_end - __initcall_start;
-	for (int i = 0; i < cnt; i++) {
-		int r;
-
-		r = __initcall_start[i]();
-		if (r) {
-			printk("Initcall failed.\n");
-		}
-	}
+	init_proc();
+	init_drivers();
 
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
-	/* Setup arguments */
-	char *envp[2];
-
-	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
-	int argc = 1;
-
-	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
-		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
-				h_area->num_args, CONFIG_COMM_MAX_ARGS);
-		}
-
-		load_argv(h_area, __comm_area + sizeof(struct __comm_area_header));
-		argc = h_area->num_args + 1;
-	}
-	if (argv[0] == NULL) {
-		printk("Missing kernel name. Use default.\n");
-		argv[0] = "main";
-	}
-
-	envp[0] = NULL;
-	envp[1] = NULL;
+	int argc;
+	init_args(&argc);
 
 	int r = main(argc, argv, envp);
 
