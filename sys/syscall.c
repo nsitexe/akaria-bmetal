@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include <bmetal/syscall.h>
+#include <bmetal/comm.h>
 #include <bmetal/file.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
@@ -48,4 +49,12 @@ ssize_t __sys_write(int fd, const void *buf, size_t count)
 	}
 
 	return ret;
+}
+
+void __sys_exit(int status)
+{
+	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+
+	h_area->ret_main = status;
+	h_area->done = 1;
 }

@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <bmetal/init.h>
@@ -142,8 +143,7 @@ void __prep_main(void)
 
 	int r = main(argc, argv, envp);
 
-	h_area->ret_main = r;
-	h_area->done = 1;
+	exit(r);
 }
 
 void __prep_sub(void)
