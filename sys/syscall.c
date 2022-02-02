@@ -11,6 +11,9 @@
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 
+static char brk_area[CONFIG_BRK_SIZE];
+static char *brk_cur = brk_area;
+
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
 	printk("unknown syscall %"PRIdPTR"\n", number);
@@ -57,4 +60,22 @@ void __sys_exit(int status)
 
 	h_area->ret_main = status;
 	h_area->done = 1;
+}
+
+void *__sys_brk(void *addr)
+{
+	void *brk_start = &brk_area[0];
+	void *brk_end = &brk_area[CONFIG_BRK_SIZE];
+
+	if (addr == NULL) {
+		return brk_cur;
+	}
+	if (addr < brk_start || brk_end < addr) {
+		printk("sys_brk: addr:%p is out of bounds.\n", addr);
+		return INT_TO_PTR(-1);
+	}
+
+	brk_cur = addr;
+
+	return addr;
 }
