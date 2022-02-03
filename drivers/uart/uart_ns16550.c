@@ -119,8 +119,8 @@ void uart_ns16550_char_out(struct __uart_device *uart, int value)
 static struct __uart_driver ns16550_drv = {
 	.base = {
 		.base = {
-			.type_vendor = "generic",
-			.type_device = "uart_ns16550",
+			.type_vendor = "ns",
+			.type_device = "ns16550",
 		},
 
 		.add = uart_ns16550_add,
