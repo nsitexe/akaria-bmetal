@@ -33,6 +33,40 @@ static struct __file_desc *get_file_desc(int fd)
 	return pi->fdset[fd];
 }
 
+static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
+{
+	struct __process_info *pi = __get_current_process();
+	struct __file_desc *olddesc;
+
+	if (fd < 0 || CONFIG_MAX_FD <= fd) {
+		printk("set_file_desc: fd %d is invalid\n", fd);
+		return NULL;
+	}
+
+	olddesc = pi->fdset[fd];
+	pi->fdset[fd] = desc;
+
+	return olddesc;
+}
+
+int __sys_close(int fd)
+{
+	struct __file_desc *desc = get_file_desc(fd);
+	int ret = 0;
+
+	if (!desc) {
+		return -EBADF;
+	}
+
+	if (desc->ops && desc->ops->close) {
+		ret = desc->ops->close(desc);
+	}
+
+	set_file_desc(fd, NULL);
+
+	return ret;
+}
+
 ssize_t __sys_write(int fd, const void *buf, size_t count)
 {
 	struct __file_desc *desc = get_file_desc(fd);

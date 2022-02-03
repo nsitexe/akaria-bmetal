@@ -12,6 +12,7 @@ struct __process_info;
 
 struct __file_ops {
 	ssize_t (*write)(struct __file_desc *desc, const void *buf, size_t count);
+	int (*close)(struct __file_desc *desc);
 };
 
 struct __file_desc {

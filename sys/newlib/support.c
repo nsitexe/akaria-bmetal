@@ -24,6 +24,7 @@ void __libc_init(void)
 }
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
+	SYSCALL_P(SYS_close, __sys_close),
 	SYSCALL_P(SYS_write, __sys_write),
 	SYSCALL_P(SYS_exit, __sys_exit),
 	SYSCALL_P(SYS_brk, __sys_brk),
