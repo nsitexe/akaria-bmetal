@@ -26,7 +26,7 @@ static struct __uart_device *uart_get_default_console(void)
 	return uart_default;
 }
 
-static int uart_set_default_console(struct __uart_device *uart)
+int __uart_set_default_console(struct __uart_device *uart)
 {
 	uart_default = uart;
 
@@ -45,7 +45,7 @@ int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_
 	}
 
 	if (set_default) {
-		r = uart_set_default_console(uart);
+		r = __uart_set_default_console(uart);
 		if (r) {
 			return r;
 		}
@@ -57,7 +57,7 @@ int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_
 int __uart_remove_device(struct __uart_device *uart)
 {
 	if (uart_get_default_console() == uart) {
-		uart_set_default_console(NULL);
+		__uart_set_default_console(NULL);
 	}
 
 	return __device_remove(__uart_to_dev(uart));
