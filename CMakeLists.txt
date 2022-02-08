@@ -35,6 +35,11 @@ include(${CMAKE_SOURCE_DIR}/cmake/tools.cmake)
 # Target: Library
 add_library(${PRJ_LIB_NAME} STATIC)
 
+# Default config directory
+set(CONF_DIR ${CMAKE_SOURCE_DIR}/configs)
+message("${SPACER} DEFCONF is '${DEFCONF}'")
+message("${SPACER} CONF dir is '${CONF_DIR}'")
+
 # Use Kconfig like configuration system.
 # After that, we can use CONFIG_ABCD variables in CMake
 include(${CMAKE_SOURCE_DIR}/cmake/kconfig.cmake)

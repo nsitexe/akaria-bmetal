@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Check variables
+if(NOT DEFINED CONF_DIR)
+  message(FATAL_ERROR "CONF_DIR is not defined.")
+endif()
 if(NOT DEFINED PRJ_CONFIG_NAME)
   message(FATAL_ERROR "PRJ_CONFIG_NAME is not defined.")
 endif()
@@ -16,16 +19,13 @@ endif()
 if(NOT DEFINED PRJ_AUTOCONF_H_NAME)
   message(FATAL_ERROR "PRJ_AUTOCONF_H_NAME is not defined.")
 endif()
-if(NOT DEFINED PRJ_DEFCONFIG_NAME)
-  message(FATAL_ERROR "PRJ_DEFCONFIG_NAME is not defined.")
-endif()
 
 # File path for Kconfig
+set(PRJ_DEFCONF_FILE ${CONF_DIR}/${DEFCONF})
 set(PRJ_CONFIG_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_NAME})
 set(PRJ_CONFIG_CACHE_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_CACHE_NAME})
 set(PRJ_CONFIG_NOTIFY_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_NOTIFY_NAME})
 set(PRJ_AUTOCONF_H_FILE ${PROJECT_BINARY_DIR}/${PRJ_AUTOCONF_H_DIR}/${PRJ_AUTOCONF_H_NAME})
-set(PRJ_DEFCONFIG_FILE ${PROJECT_SOURCE_DIR}/${PRJ_DEFCONFIG_NAME})
 
 # Target: Default config
 # TODO: Use suitable tools for Kconfig
@@ -45,9 +45,12 @@ add_custom_target(
 # Run defconfig silently and create cache if each file does not exist
 # TODO: Use suitable tools for Kconfig
 if(NOT EXISTS ${PRJ_CONFIG_FILE})
+  if(NOT EXISTS ${PRJ_DEFCONF_FILE} OR IS_DIRECTORY ${PRJ_DEFCONF_FILE})
+    message(FATAL_ERROR "defconf '${PRJ_DEFCONF_FILE}' is wrong. Please set DEFCONF.")
+  endif()
   execute_process(
-    COMMAND cp ${PROJECT_SOURCE_DIR}/config ${PRJ_CONFIG_FILE}
-    COMMAND cp ${PROJECT_SOURCE_DIR}/config ${PRJ_CONFIG_CACHE_FILE}
+    COMMAND cp ${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE}
+    COMMAND cp ${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_CACHE_FILE}
     )
 endif()
 execute_process(
