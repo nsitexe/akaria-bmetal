@@ -29,10 +29,10 @@ int __io_mmap_device(void *addr, struct __device *dev)
 
 	const struct __device_driver *devdrv = __device_get_drv(dev);
 
-	if (!devdrv || !devdrv->mmap) {
+	if (!devdrv || !devdrv->ops || !devdrv->ops->mmap) {
 		dev->virt = __IO_MAP_FAILED;
 	} else {
-		dev->virt = devdrv->mmap(addr, size, 0, 0, dev, reg);
+		dev->virt = devdrv->ops->mmap(addr, size, 0, 0, dev, reg);
 	}
 	if (dev->virt == __IO_MAP_FAILED) {
 		dev->virt = NULL;

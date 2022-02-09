@@ -51,16 +51,20 @@ void uart_sifive_char_out(struct __uart_device *uart, int value)
 	__device_write32(d, value & 0xffU, REG_TXDATA);
 }
 
-static struct __uart_driver sifive_drv = {
+const static struct __device_driver_ops uart_sifive_dev_ops = {
+	.add = uart_sifive_add,
+	.remove = uart_sifive_remove,
+	.mmap = __device_driver_mmap,
+};
+
+static struct __uart_driver uart_sifive_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "sifive",
 			.type_device = "uart0",
 		},
 
-		.add = uart_sifive_add,
-		.remove = uart_sifive_remove,
-		.mmap = __device_driver_mmap,
+		.ops = &uart_sifive_dev_ops,
 	},
 
 	.char_in = uart_sifive_char_in,
@@ -69,7 +73,7 @@ static struct __uart_driver sifive_drv = {
 
 static int uart_sifive_init(void)
 {
-	__uart_add_driver(&sifive_drv);
+	__uart_add_driver(&uart_sifive_drv);
 
 	return 0;
 }

@@ -96,8 +96,8 @@ static int device_probe(struct __device *dev)
 	if (dev->drv && !dev->probed) {
 		const struct __device_driver *drv_dev = __device_get_drv(dev);
 
-		if (drv_dev && drv_dev->add) {
-			drv_dev->add(dev);
+		if (drv_dev && drv_dev->ops && drv_dev->ops->add) {
+			drv_dev->ops->add(dev);
 		}
 		dev->probed = 1;
 	}
@@ -122,8 +122,8 @@ static int bus_probe(struct __bus *bus)
 	if (bus->drv && !bus->probed) {
 		const struct __bus_driver *drv_bus = __bus_get_drv(bus);
 
-		if (drv_bus && drv_bus->add) {
-			drv_bus->add(bus);
+		if (drv_bus && drv_bus->ops && drv_bus->ops->add) {
+			drv_bus->ops->add(bus);
 		}
 		bus->probed = 1;
 	}
@@ -295,11 +295,11 @@ void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, st
 
 	const struct __bus_driver *busdrv = __bus_get_drv(dev->bus_parent);
 
-	if (!busdrv || !busdrv->mmap) {
+	if (!busdrv || !busdrv->ops || !busdrv->ops->mmap) {
 		return (void *)off;
 	}
 
-	return busdrv->mmap(addr, length, prot, flags, dev->bus_parent, off);
+	return busdrv->ops->mmap(addr, length, prot, flags, dev->bus_parent, off);
 }
 
 struct __bus *__bus_get_root(void)
@@ -369,11 +369,11 @@ void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struc
 
 	const struct __device_driver *devdrv = __device_get_drv(bus->dev_parent);
 
-	if (!devdrv || !devdrv->mmap) {
+	if (!devdrv || !devdrv->ops || !devdrv->ops->mmap) {
 		return (void *)off;
 	}
 
-	return devdrv->mmap(addr, length, prot, flags, bus->dev_parent, off);
+	return devdrv->ops->mmap(addr, length, prot, flags, bus->dev_parent, off);
 }
 
 static int bus_init(void)

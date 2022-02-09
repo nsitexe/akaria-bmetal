@@ -116,6 +116,12 @@ void uart_ns16550_char_out(struct __uart_device *uart, int value)
 	uart_write(uart, value, REG_THR);
 }
 
+const static struct __device_driver_ops ns16550_dev_ops = {
+	.add = uart_ns16550_add,
+	.remove = uart_ns16550_remove,
+	.mmap = __device_driver_mmap,
+};
+
 static struct __uart_driver ns16550_drv = {
 	.base = {
 		.base = {
@@ -123,9 +129,7 @@ static struct __uart_driver ns16550_drv = {
 			.type_device = "ns16550",
 		},
 
-		.add = uart_ns16550_add,
-		.remove = uart_ns16550_remove,
-		.mmap = __device_driver_mmap,
+		.ops = &ns16550_dev_ops,
 	},
 
 	.char_in = uart_ns16550_char_in,
