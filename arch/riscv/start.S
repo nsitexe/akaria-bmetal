@@ -114,8 +114,8 @@ _start:
 
 for_main:
 	# Stack pointer
-	la   sp, __stack_main
-	li   t0, CONFIG_MAIN_STACK_SIZE
+	la   sp, __stack_intr
+	li   t0, CONFIG_INTR_STACK_SIZE
 	add  sp, t0, sp
 
 	call __prep_main
