@@ -10,11 +10,15 @@
 
 struct __uart_device;
 
+struct __uart_driver_ops {
+	int (*char_in)(struct __uart_device *uart);
+	void (*char_out)(struct __uart_device *uart, int value);
+};
+
 struct __uart_driver {
 	struct __device_driver base;
 
-	int (*char_in)(struct __uart_device *uart);
-	void (*char_out)(struct __uart_device *uart, int value);
+	const struct __uart_driver_ops *ops;
 };
 
 struct __uart_device {

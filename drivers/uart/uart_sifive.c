@@ -57,6 +57,11 @@ const static struct __device_driver_ops uart_sifive_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
+const static struct __uart_driver_ops uart_sifive_uart_ops = {
+	.char_in = uart_sifive_char_in,
+	.char_out = uart_sifive_char_out,
+};
+
 static struct __uart_driver uart_sifive_drv = {
 	.base = {
 		.base = {
@@ -67,8 +72,7 @@ static struct __uart_driver uart_sifive_drv = {
 		.ops = &uart_sifive_dev_ops,
 	},
 
-	.char_in = uart_sifive_char_in,
-	.char_out = uart_sifive_char_out,
+	.ops = &uart_sifive_uart_ops,
 };
 
 static int uart_sifive_init(void)

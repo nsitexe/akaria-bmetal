@@ -14,8 +14,8 @@ static int uart_putc(int c)
 
 	const struct __uart_driver *drv = __uart_get_drv(uart_default);
 
-	if (drv && drv->char_out) {
-		drv->char_out(uart_default, c);
+	if (drv && drv->ops && drv->ops->char_out) {
+		drv->ops->char_out(uart_default, c);
 	}
 
 	return (unsigned char)c;
@@ -62,4 +62,3 @@ int __uart_remove_device(struct __uart_device *uart)
 
 	return __device_remove(__uart_to_dev(uart));
 }
-

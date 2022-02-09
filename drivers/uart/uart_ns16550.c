@@ -122,6 +122,11 @@ const static struct __device_driver_ops ns16550_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
+const static struct __uart_driver_ops ns16550_uart_ops = {
+	.char_in = uart_ns16550_char_in,
+	.char_out = uart_ns16550_char_out,
+};
+
 static struct __uart_driver ns16550_drv = {
 	.base = {
 		.base = {
@@ -132,8 +137,7 @@ static struct __uart_driver ns16550_drv = {
 		.ops = &ns16550_dev_ops,
 	},
 
-	.char_in = uart_ns16550_char_in,
-	.char_out = uart_ns16550_char_out,
+	.ops = &ns16550_uart_ops,
 };
 
 static int uart_ns16550_init(void)
