@@ -77,8 +77,8 @@ int __cpu_wakeup_all(void)
 		struct __cpu_device *cpu = __cpu_get(i);
 		const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 
-		if (drv && drv->wakeup) {
-			r = drv->wakeup(cpu);
+		if (drv && drv->ops && drv->ops->wakeup) {
+			r = drv->ops->wakeup(cpu);
 			if (r) {
 				printk("cpu_wakeup_all: id:%d failed to wakeup.\n", i);
 				res = r;

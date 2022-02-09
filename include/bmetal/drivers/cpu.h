@@ -10,11 +10,15 @@
 
 struct __cpu_device;
 
+struct __cpu_driver_ops {
+	int (*wakeup)(struct __cpu_device *cpu);
+	int (*sleep)(struct __cpu_device *cpu);
+};
+
 struct __cpu_driver {
 	struct __device_driver base;
 
-	int (*wakeup)(struct __cpu_device *cpu);
-	int (*sleep)(struct __cpu_device *cpu);
+	const struct __cpu_driver_ops *ops;
 };
 
 struct __cpu_device {

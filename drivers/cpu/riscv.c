@@ -83,6 +83,10 @@ const static struct __device_driver_ops cpu_riscv_dev_ops = {
 	.remove = cpu_riscv_remove,
 };
 
+const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
+	.wakeup = cpu_riscv_wakeup,
+};
+
 static struct __cpu_driver cpu_riscv_drv = {
 	.base = {
 		.base = {
@@ -93,7 +97,7 @@ static struct __cpu_driver cpu_riscv_drv = {
 		.ops = &cpu_riscv_dev_ops,
 	},
 
-	.wakeup = cpu_riscv_wakeup,
+	.ops = &cpu_riscv_cpu_ops,
 };
 
 static int cpu_riscv_init(void)
