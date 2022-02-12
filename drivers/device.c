@@ -43,42 +43,41 @@ static int bus_probe(struct __bus *bus);
 
 static int bus_attach_driver(struct __bus *bus)
 {
-	struct __driver *d = &head;
+	struct __driver *drv = NULL;
 
-	while (d) {
+	for_each_driver (d, &head) {
 		if (strcmp(d->type_vendor, bus->type_vendor) == 0 &&
 		    strcmp(d->type_device, bus->type_device) == 0) {
+			drv = d;
 			break;
 		}
-
-		d = d->drv_next;
 	}
-	if (d == &head || !d) {
+	if (drv == &head || !drv) {
 		return -EAGAIN;
 	}
 
-	bus->drv = d;
+	bus->drv = drv;
 
 	return 0;
 }
 
+
 static int device_attach_driver(struct __device *dev)
 {
-	struct __driver *d = &head;
+	struct __driver *drv = NULL;
 
-	while (d) {
+	for_each_driver (d, &head) {
 		if (strcmp(d->type_vendor, dev->type_vendor) == 0 &&
 		    strcmp(d->type_device, dev->type_device) == 0) {
+			drv = d;
 			break;
 		}
-
-		d = d->drv_next;
 	}
-	if (d == &head || !d) {
+	if (drv == &head || !drv) {
 		return -EAGAIN;
 	}
 
-	dev->drv = d;
+	dev->drv = drv;
 
 	return 0;
 }
@@ -166,16 +165,12 @@ static int bus_probe(struct __bus *bus)
 		return 0;
 	}
 
-	struct __device *dev = bus->dev_child;
-
-	while (dev) {
+	for_each_device (dev, bus->dev_child) {
 		int r = device_probe(dev);
 		if (IS_ERROR(r)) {
 			printk("bus:%d probe: Failed to probe dev:%d '%s'.",
 				bus->id, dev->id, "");
 		}
-
-		dev = dev->dev_next;
 	}
 
 	return 0;
@@ -196,24 +191,25 @@ int __device_probe_all(void)
 
 int __driver_add(struct __driver *driver)
 {
-	struct __driver *d = &head;
+	struct __driver *drv = NULL;
 
 	if (!driver->type_vendor || !driver->type_device) {
 		printk("driver_add: Please set vendor and device.\n");
 		return -EINVAL;
 	}
 
-	while (d->drv_next) {
+	for_each_driver (d, &head) {
 		if (strcmp(d->type_vendor, driver->type_vendor) == 0 &&
 		    strcmp(d->type_device, driver->type_device) == 0) {
 			printk("Driver '%s:%s' has already registered.\n",
 				driver->type_vendor, driver->type_device);
 			return -EINVAL;
 		}
-		d = d->drv_next;
+
+		drv = d;
 	}
 
-	d->drv_next = driver;
+	drv->drv_next = driver;
 
 	int r = __device_probe_all();
 	if (IS_ERROR(r)) {
@@ -250,10 +246,10 @@ int __device_add(struct __device *dev, struct __bus *parent)
 		/* First child */
 		parent->dev_child = dev;
 	} else {
-		struct __device *d = parent->dev_child;
+		struct __device *d = NULL;
 
-		while (d->dev_next) {
-			d = d->dev_next;
+		for_each_device (tmp, parent->dev_child) {
+			d = tmp;
 		}
 
 		d->dev_next = dev;
@@ -365,10 +361,10 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 		/* First child */
 		parent->bus_child = bus;
 	} else {
-		struct __bus *b = parent->bus_child;
+		struct __bus *b = NULL;
 
-		while (b->bus_next) {
-			b = b->bus_next;
+		for_each_bus (tmp, parent->bus_child) {
+			b = tmp;
 		}
 
 		b->bus_next = bus;

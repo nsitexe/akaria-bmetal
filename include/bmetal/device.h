@@ -10,6 +10,10 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
 
+#define for_each_driver(x, head)    for (struct __driver *x = (head); x; x = x->drv_next)
+#define for_each_device(x, head)    for (struct __device *x = (head); x; x = x->dev_next)
+#define for_each_bus(x, head)       for (struct __bus *x = (head); x; x = x->bus_next)
+
 #define IS_ERROR(r)    ((r) != 0 && (r) != -EAGAIN)
 
 struct __device;
