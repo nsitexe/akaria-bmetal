@@ -8,7 +8,7 @@ static struct __uart_device *uart_default;
 
 static int uart_putc(int c)
 {
-	if (!uart_default) {
+	if (!uart_default || !uart_default->base.probed) {
 		return (unsigned char)c;
 	}
 
@@ -40,7 +40,7 @@ int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_
 	int r;
 
 	r = __device_add(__uart_to_dev(uart), parent);
-	if (r) {
+	if (IS_ERROR(r)) {
 		return r;
 	}
 

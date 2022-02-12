@@ -56,7 +56,7 @@ int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
 	int r;
 
 	r = __device_add(__cpu_to_dev(cpu), parent);
-	if (r) {
+	if (IS_ERROR(r)) {
 		return r;
 	}
 

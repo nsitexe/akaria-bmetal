@@ -85,34 +85,56 @@ static int device_attach_driver(struct __device *dev)
 
 static int device_probe(struct __device *dev)
 {
+	int r = 0;
+
 	if (!dev) {
-		return 0;
+		return -EINVAL;
 	}
 
 	if (!dev->drv) {
 		device_attach_driver(dev);
+	}
+	if (!dev->drv) {
+		return -EAGAIN;
 	}
 
 	if (dev->drv && !dev->probed) {
 		const struct __device_driver *drv_dev = __device_get_drv(dev);
 
 		if (drv_dev && drv_dev->ops && drv_dev->ops->add) {
-			drv_dev->ops->add(dev);
+			r = drv_dev->ops->add(dev);
+			if (r == 0) {
+				dev->probed = 1;
+			} else if (r == -EAGAIN) {
+				/* Probe again in the next time */
+			} else if (r != 0) {
+				dev->failed = 1;
+			}
+		} else {
+			/* Always succeed */
+			dev->probed = 1;
 		}
-		dev->probed = 1;
+	}
+	if (!dev->probed) {
+		goto err_out;
 	}
 
-	if (dev->bus_child) {
+	if (dev->probed && dev->bus_child) {
 		bus_probe(dev->bus_child);
 	}
 
 	return 0;
+
+err_out:
+	return r;
 }
 
 static int bus_probe(struct __bus *bus)
 {
+	int r = 0;
+
 	if (!bus) {
-		return 0;
+		return -EINVAL;
 	}
 
 	if (!bus->drv) {
@@ -123,9 +145,21 @@ static int bus_probe(struct __bus *bus)
 		const struct __bus_driver *drv_bus = __bus_get_drv(bus);
 
 		if (drv_bus && drv_bus->ops && drv_bus->ops->add) {
-			drv_bus->ops->add(bus);
+			r = drv_bus->ops->add(bus);
+			if (r == 0) {
+				bus->probed = 1;
+			} else if (r == -EAGAIN) {
+				/* Probe again in the next time */
+			} else if (r != 0) {
+				bus->failed = 1;
+			}
+		} else {
+			/* Always succeed */
+			bus->probed = 1;
 		}
-		bus->probed = 1;
+	}
+	if (!bus->probed) {
+		goto err_out;
 	}
 
 	if (!bus->dev_child) {
@@ -136,7 +170,7 @@ static int bus_probe(struct __bus *bus)
 
 	while (dev) {
 		int r = device_probe(dev);
-		if (r) {
+		if (IS_ERROR(r)) {
 			printk("bus:%d probe: Failed to probe dev:%d '%s'.",
 				bus->id, dev->id, "");
 		}
@@ -145,6 +179,9 @@ static int bus_probe(struct __bus *bus)
 	}
 
 	return 0;
+
+err_out:
+	return r;
 }
 
 struct __device *__device_get_root(void)
@@ -179,8 +216,8 @@ int __driver_add(struct __driver *driver)
 	d->drv_next = driver;
 
 	int r = __device_probe_all();
-	if (r) {
-		printk("driver_add: Probe failed.\n");
+	if (IS_ERROR(r)) {
+		printk("driver_add: Probe failed (%d).\n", r);
 	}
 
 	return 0;
@@ -225,8 +262,8 @@ int __device_add(struct __device *dev, struct __bus *parent)
 	dev->bus_parent = parent;
 
 	int r = __device_probe_all();
-	if (r) {
-		printk("dev:%d add: Probe failed.\n", dev->id);
+	if (IS_ERROR(r)) {
+		printk("dev:%d add: Probe failed (%d).\n", dev->id, r);
 	}
 
 	return 0;
@@ -340,8 +377,8 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 	bus->dev_parent = parent;
 
 	int r = __device_probe_all();
-	if (r) {
-		printk("bus:%d add: Probe failed.\n", bus->id);
+	if (IS_ERROR(r)) {
+		printk("bus:%d add: Probe failed (%d).\n", bus->id, r);
 	}
 
 	return 0;

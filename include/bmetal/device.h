@@ -3,11 +3,14 @@
 #ifndef BAREMETAL_CRT_DEVICE_H_
 #define BAREMETAL_CRT_DEVICE_H_
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
+
+#define IS_ERROR(r)    ((r) != 0 && (r) != -EAGAIN)
 
 struct __device;
 struct __bus;
@@ -79,7 +82,8 @@ struct __device {
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed;
+	int probed:1;
+	int failed:1;
 };
 
 struct __bus {
@@ -100,7 +104,8 @@ struct __bus {
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed;
+	int probed:1;
+	int failed:1;
 };
 
 static inline const struct __device_driver *__device_get_drv(const struct __device *dev)
