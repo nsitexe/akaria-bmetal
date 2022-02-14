@@ -8,7 +8,9 @@ static struct __uart_device *uart_default;
 
 static int uart_putc(int c)
 {
-	if (!uart_default || !uart_default->base.probed) {
+	struct __device *uart_default_dev = __uart_to_dev(uart_default);
+
+	if (!uart_default || !uart_default_dev->probed) {
 		return (unsigned char)c;
 	}
 
