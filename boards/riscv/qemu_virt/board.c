@@ -28,7 +28,7 @@ const static struct __device_config cpu3_conf[] = {
 static struct __cpu_device cpu0 = {
 	.base = {
 		.name = "cpu0",
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu0_conf,
 	},
@@ -37,7 +37,7 @@ static struct __cpu_device cpu0 = {
 static struct __cpu_device cpu1 = {
 	.base = {
 		.name = "cpu1",
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu1_conf,
 	},
@@ -46,7 +46,7 @@ static struct __cpu_device cpu1 = {
 static struct __cpu_device cpu2 = {
 	.base = {
 		.name = "cpu2",
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu2_conf,
 	},
@@ -55,7 +55,7 @@ static struct __cpu_device cpu2 = {
 static struct __cpu_device cpu3 = {
 	.base = {
 		.name = "cpu3",
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu3_conf,
 	},

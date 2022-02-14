@@ -90,7 +90,7 @@ const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
 static struct __cpu_driver cpu_riscv_drv = {
 	.base = {
 		.base = {
-			.type_vendor = "generic",
+			.type_vendor = "none",
 			.type_device = "cpu_riscv",
 		},
 

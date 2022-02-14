@@ -14,27 +14,27 @@ static struct __driver head = {
 
 static struct __device_driver drv_root_dev = {
 	.base = {
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "dev_root",
 	},
 };
 
 static struct __bus_driver drv_root_bus = {
 	.base = {
-		.type_vendor = "generic",
+		.type_vendor = "none",
 		.type_device = "bus_root",
 	},
 };
 
 static struct __device dev_root = {
 	.name = "root device",
-	.type_vendor = "generic",
+	.type_vendor = "none",
 	.type_device = "dev_root",
 };
 
 static struct __bus bus_root = {
 	.name = "root bus",
-	.type_vendor = "generic",
+	.type_vendor = "none",
 	.type_device = "bus_root",
 };
 
