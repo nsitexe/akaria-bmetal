@@ -4,8 +4,10 @@ CC = $(CROSS_COMPILE)gcc
 
 # 32bit
 #CMNFLAGS = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+#CMNFLAGS = -march=rv32imac -mabi=ilp32 -mcmodel=medany
 # 64bit
 CMNFLAGS = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#CMNFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany
 CPPFLAGS = -Wall -O2 -g
 CFLAGS   = $(CMNFLAGS)
 LDFLAGS  = $(CMNFLAGS)
