@@ -72,7 +72,7 @@ static int uart_ns16550_add(struct __device *dev)
 		return r;
 	}
 
-	r = __device_read_conf_u32(dev, "reg-width", &w);
+	r = __device_read_conf_u32(dev, "reg-width", &w, 0);
 	if (r) {
 		w = REG_WIDTH_DEFAULT;
 

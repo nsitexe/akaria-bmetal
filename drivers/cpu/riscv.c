@@ -30,7 +30,7 @@ static int cpu_riscv_add(struct __device *dev)
 	uint32_t hartid;
 	int cpuid, r;
 
-	r = __device_read_conf_u32(dev, "hartid", &hartid);
+	r = __device_read_conf_u32(dev, "hartid", &hartid, 0);
 	if (r) {
 		printk("riscv_add: config 'hartid' is not found.\n");
 		return -EINVAL;

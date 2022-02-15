@@ -13,13 +13,13 @@ int __io_mmap_device(void *addr, struct __device *dev)
 	uint64_t reg, size;
 	int r;
 
-	r = __device_read_conf_u64(dev, "reg", &reg);
+	r = __device_read_conf_u64(dev, "reg", &reg, 0);
 	if (r) {
 		printk("io_mmap_device: config 'reg' is not found.\n");
 		return -EINVAL;
 	}
 
-	r = __device_read_conf_u64(dev, "reg-size", &size);
+	r = __device_read_conf_u64(dev, "reg-size", &size, 0);
 	if (r) {
 		printk("io_mmap_device: config 'reg-size' is not found.\n");
 		return -EINVAL;

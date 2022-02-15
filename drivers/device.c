@@ -292,29 +292,58 @@ static int device_find_conf(struct __device *dev, const char *name)
 	return -1;
 }
 
-int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr)
+int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
 		return -EINVAL;
 	}
+	if (index >= dev->conf[i].count) {
+		printk("conf '%s': index %d exceeds array size %d.\n",
+			name, index, dev->conf[i].count);
+		return -EINVAL;
+	}
 
 	if (ptr) {
-		*ptr = dev->conf[i].val;
+		*ptr = dev->conf[i].val[index];
 	}
 
 	return 0;
 }
 
-int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr)
+int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr, int index)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
 		return -EINVAL;
 	}
+	if (index >= dev->conf[i].count) {
+		printk("conf '%s': index %d exceeds array size %d.\n",
+			name, index, dev->conf[i].count);
+		return -EINVAL;
+	}
 
 	if (ptr) {
-		*ptr = dev->conf[i].val;
+		*ptr = dev->conf[i].val[index];
+	}
+
+	return 0;
+}
+
+int __device_read_conf_str(struct __device *dev, const char *name, const char **ptr, int index)
+{
+	int i = device_find_conf(dev, name);
+	if (i < 0) {
+		return -EINVAL;
+	}
+	if (index >= dev->conf[i].count) {
+		printk("conf '%s': index %d exceeds array size %d.\n",
+			name, index, dev->conf[i].count);
+		return -EINVAL;
+	}
+
+	if (ptr) {
+		*ptr = (const char *)dev->conf[i].val[index];
 	}
 
 	return 0;
