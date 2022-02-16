@@ -113,7 +113,7 @@ static int load_argv(const struct __comm_area_header *h, const char *buf_args)
 		p++;
 		buf += ha->size;
 
-		buf = ALIGN_OF(buf, 4);
+		buf = ALIGN_OF(buf, 8);
 	}
 
 	return 0;
@@ -126,12 +126,14 @@ static int init_args(int *argc)
 	*argc = 1;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
+		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
+
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
 			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
-		load_argv(h_area, __comm_area + sizeof(struct __comm_area_header));
+		load_argv(h_area, __comm_area + sz);
 		*argc = h_area->num_args + 1;
 	}
 	if (argv[0] == NULL) {
