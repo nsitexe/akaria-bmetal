@@ -4,9 +4,12 @@
 #include <inttypes.h>
 
 #include <bmetal/drivers/uart.h>
+#include <bmetal/drivers/clk.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+
+#define UART_SIFIVE_DEFAULT_BAUD    9600
 
 #define REG_TXDATA     0x00  /* Transmit data */
 #define REG_RXDATA     0x04  /* Receive data */
@@ -33,15 +36,42 @@ struct uart_sifive_priv {
 };
 CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
+static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
+{
+	struct __device * dev= __uart_to_dev(uart);
+	struct uart_sifive_priv *priv = dev->priv;
+	uint32_t d;
+
+	d = priv->freq_in / baud - 1;
+	__device_write32(dev, d, REG_DIV);
+
+	priv->baud = baud;
+
+	return 0;
+}
+
 static int uart_sifive_add(struct __device *dev)
 {
+	struct __uart_device *uart = __uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
+	struct __clk_device *clk;
 	uint32_t val;
 	int r;
 
 	if (priv == NULL) {
 		__dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
+	}
+
+	r = __clk_get_clk_from_config(dev, 0, &clk);
+	if (r) {
+		return r;
+	}
+
+	r = __clk_get_frequency(clk, 0, &priv->freq_in);
+	if (r) {
+		__dev_err(dev, "clock freq is unknown.\n");
+		return r;
 	}
 
 	r = __io_mmap_device(NULL, dev);
@@ -56,6 +86,8 @@ static int uart_sifive_add(struct __device *dev)
 	val = RXCTRL_RXEN |
 		(0 << RXCTRL_RXCNT_SHIFT);
 	__device_write32(dev, val, REG_RXCTRL);
+
+	uart_sifive_set_baud(uart, UART_SIFIVE_DEFAULT_BAUD);
 
 	return 0;
 }
