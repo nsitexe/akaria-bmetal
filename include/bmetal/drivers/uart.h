@@ -27,6 +27,12 @@ struct __uart_device {
 	int as_default;
 };
 
+struct __uart_priv_max {
+	char dummy[16];
+};
+typedef struct __uart_priv_max    __uart_priv_t;
+#define CHECK_PRIV_SIZE_UART(typ)    CHECK_PRIV_SIZE(typ, __uart_priv_t);
+
 static inline const struct __uart_driver *__uart_get_drv(const struct __uart_device *uart)
 {
 	if (!uart) {

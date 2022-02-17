@@ -64,21 +64,25 @@ const static struct __device_config uart1_conf[] = {
 	{0},
 };
 
+static __uart_priv_t uart0_priv;
 static struct __uart_device uart0 = {
 	.base = {
 		.name = "uart0",
 		.type_vendor = "sifive",
 		.type_device = "uart0",
 		.conf = uart0_conf,
+		.priv = &uart0_priv,
 	},
 };
 
+static __uart_priv_t uart1_priv;
 static struct __uart_device uart1 = {
 	.base = {
 		.name = "uart1",
 		.type_vendor = "sifive",
 		.type_device = "uart0",
 		.conf = uart1_conf,
+		.priv = &uart1_priv,
 	},
 };
 

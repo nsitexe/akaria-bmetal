@@ -27,10 +27,22 @@
 #define RXCTRL_RXCNT_SHIFT    16
 #define RXCTRL_RXCNT_MASK     (0x7 << RXCTRL_RXCNT_SHIFT)
 
+struct uart_sifive_priv {
+	uint64_t freq_in;
+	uint32_t baud;
+};
+CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
+
 static int uart_sifive_add(struct __device *dev)
 {
+	struct uart_sifive_priv *priv = dev->priv;
 	uint32_t val;
 	int r;
+
+	if (priv == NULL) {
+		__dev_err(dev, "priv is NULL\n");
+		return -EINVAL;
+	}
 
 	r = __io_mmap_device(NULL, dev);
 	if (r) {
