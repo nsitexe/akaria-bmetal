@@ -61,7 +61,6 @@ static int bus_attach_driver(struct __bus *bus)
 	return 0;
 }
 
-
 static int device_attach_driver(struct __device *dev)
 {
 	struct __driver *drv = NULL;
@@ -421,6 +420,32 @@ int __bus_remove(struct __bus *bus)
 	/*parent->bus_child = NULL;*/
 
 	return -ENOTSUP;
+}
+
+int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev)
+{
+	if (!bus || !name) {
+		return -EINVAL;
+	}
+
+	for_each_device (tmp, bus->dev_child) {
+		if (strcasecmp(name, tmp->name) == 0) {
+			if (!tmp->probed) {
+				return -EAGAIN;
+			} else {
+				if (dev) {
+					*dev = tmp;
+				}
+				return 0;
+			}
+		}
+
+		if (tmp->probed && tmp->bus_child) {
+			return __bus_find_device(tmp->bus_child, name, dev);
+		}
+	}
+
+	return -ENODEV;
 }
 
 void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off)

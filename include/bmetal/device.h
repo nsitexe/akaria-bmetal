@@ -244,6 +244,7 @@ void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, st
 struct __bus *__bus_get_root(void);
 int __bus_add(struct __bus *bus, struct __device *parent);
 int __bus_remove(struct __bus *bus);
+int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev);
 
 void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off);
 
