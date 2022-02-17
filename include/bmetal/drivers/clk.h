@@ -11,6 +11,8 @@
 struct __clk_device;
 
 struct __clk_driver_ops {
+	int (* get_freq)(struct __clk_device *clk, int index, uint64_t *freq);
+	int (* set_freq)(struct __clk_device *clk, int index, uint64_t freq);
 };
 
 struct __clk_driver {
@@ -62,7 +64,11 @@ static inline int __clk_remove_driver(struct __clk_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
-int __clk_add_device(struct __clk_device *dev, struct __bus *parent);
-int __clk_remove_device(struct __clk_device *dev);
+int __clk_add_device(struct __clk_device *clk, struct __bus *parent);
+int __clk_remove_device(struct __clk_device *clk);
+int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq);
+int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq);
+
+int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk);
 
 #endif /* BAREMETAL_CRT_CLK_H_ */
