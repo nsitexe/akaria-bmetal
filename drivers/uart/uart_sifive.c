@@ -18,14 +18,32 @@
 
 #define TXDATA_FULL    BIT(31)
 
+#define TXCTRL_TXEN           BIT(0)
+#define TXCTRL_NSTOP          BIT(1)
+#define TXCTRL_TXCNT_SHIFT    16
+#define TXCTRL_TXCNT_MASK     (0x7 << RXCTRL_RXCNT_SHIFT)
+
+#define RXCTRL_RXEN           BIT(0)
+#define RXCTRL_RXCNT_SHIFT    16
+#define RXCTRL_RXCNT_MASK     (0x7 << RXCTRL_RXCNT_SHIFT)
+
 static int uart_sifive_add(struct __device *dev)
 {
+	uint32_t val;
 	int r;
 
 	r = __io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
+
+	val = TXCTRL_TXEN |
+		(1 << TXCTRL_TXCNT_SHIFT);
+	__device_write32(dev, val, REG_TXCTRL);
+
+	val = RXCTRL_RXEN |
+		(0 << RXCTRL_RXCNT_SHIFT);
+	__device_write32(dev, val, REG_RXCTRL);
 
 	return 0;
 }
