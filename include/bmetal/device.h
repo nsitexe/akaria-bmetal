@@ -10,11 +10,15 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
 
+#define __dev_err(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+
 #define for_each_driver(x, head)    for (struct __driver *x = (head); x; x = x->drv_next)
 #define for_each_device(x, head)    for (struct __device *x = (head); x; x = x->dev_next)
 #define for_each_bus(x, head)       for (struct __bus *x = (head); x; x = x->bus_next)
 
 #define IS_ERROR(r)    ((r) != 0 && (r) != -EAGAIN)
+
+#define CHECK_PRIV_SIZE(typ, lim)    static_assert(sizeof(lim) >= sizeof(typ), "size of " #lim " is less than " #typ);
 
 struct __device;
 struct __bus;
@@ -120,6 +124,15 @@ static inline const struct __device_driver *__device_get_drv(const struct __devi
 	}
 
 	return (const struct __device_driver *)dev->drv;
+}
+
+static inline const char *__device_get_name(const struct __device *dev)
+{
+	if (!dev) {
+		return NULL;
+	}
+
+	return dev->name;
 }
 
 static inline const struct __bus_driver *__bus_get_drv(const struct __bus *bus)

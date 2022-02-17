@@ -21,9 +21,13 @@ struct __clk_driver {
 
 struct __clk_device {
 	struct __device base;
-
-	int as_default;
 };
+
+struct __clk_priv_max {
+	char dummy[8];
+};
+typedef struct __clk_priv_max    __clk_priv_t;
+#define CHECK_PRIV_SIZE_CLK(typ)    CHECK_PRIV_SIZE(typ, __clk_priv_t);
 
 static inline const struct __clk_driver *__clk_get_drv(const struct __clk_device *clk)
 {

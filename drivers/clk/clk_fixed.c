@@ -5,21 +5,29 @@
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 
+struct clk_fixed_priv {
+	uint64_t freq;
+};
+CHECK_PRIV_SIZE_CLK(struct clk_fixed_priv);
+
 static int clk_fixed_add(struct __device *dev)
 {
-	uint32_t f;
+	struct clk_fixed_priv *priv = dev->priv;
+	uint64_t f;
 	int r;
 
-	r = __io_mmap_device(NULL, dev);
-	if (r) {
-		return r;
-	}
-
-	r = __device_read_conf_u32(dev, "frequency", &f, 0);
-	if (r) {
-		printk("clk_fixed: config 'frequency' is not found.\n");
+	if (priv == NULL) {
+		__dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
+
+	r = __device_read_conf_u64(dev, "frequency", &f, 0);
+	if (r) {
+		__dev_err(dev, "config 'frequency' is not found.\n");
+		return -EINVAL;
+	}
+
+	priv->freq = f;
 
 	return 0;
 }

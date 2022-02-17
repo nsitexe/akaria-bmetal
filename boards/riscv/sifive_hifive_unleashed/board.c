@@ -2,6 +2,7 @@
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
+#include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/uart.h>
 
@@ -16,6 +17,38 @@ static struct __cpu_device cpu0 = {
 		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu0_conf,
+	},
+};
+
+const static struct __device_config hfclk_conf[] = {
+	{"frequency", 1, {33333333}},
+	{0},
+};
+
+static __clk_priv_t hfclk_priv;
+static struct __clk_device hfclk = {
+	.base = {
+		.name = "hfclk",
+		.type_vendor = "none",
+		.type_device = "clk_fixed",
+		.conf = hfclk_conf,
+		.priv = &hfclk_priv,
+	},
+};
+
+const static struct __device_config rtclk_conf[] = {
+	{"frequency", 1, {1000000}},
+	{0},
+};
+
+static __clk_priv_t rtclk_priv;
+static struct __clk_device rtclk = {
+	.base = {
+		.name = "rtclk",
+		.type_vendor = "none",
+		.type_device = "clk_fixed",
+		.conf = rtclk_conf,
+		.priv = &rtclk_priv,
 	},
 };
 
@@ -52,6 +85,8 @@ static struct __uart_device uart1 = {
 static int board_qemu_virt_init(void)
 {
 	__cpu_add_device(&cpu0, __bus_get_root());
+	__clk_add_device(&hfclk, __bus_get_root());
+	__clk_add_device(&rtclk, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
 
