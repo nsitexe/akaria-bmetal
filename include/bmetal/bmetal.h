@@ -9,6 +9,7 @@
 
 #include <bmetal/app/bmetal/bmetal.h>
 
+#define NABS(a)        (((a) > 0) ? (a) : -(a))
 #define NMAX(a, b)     (((a) > (b)) ? (a) : (b))
 #define NMIN(a, b)     (((a) < (b)) ? (a) : (b))
 #define ARRAY_OF(x)    (sizeof(x) / sizeof((x)[0]))
