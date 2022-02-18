@@ -21,6 +21,30 @@ int __clk_remove_device(struct __clk_device *clk)
 	return __device_remove(__clk_to_dev(clk));
 }
 
+int __clk_enable(struct __clk_device *clk, int index)
+{
+	const struct __clk_driver *drv = __clk_get_drv(clk);
+	int r = -ENODEV;
+
+	if (drv && drv->ops && drv->ops->enable) {
+		r = drv->ops->enable(clk, index);
+	}
+
+	return r;
+}
+
+int __clk_disable(struct __clk_device *clk, int index)
+{
+	const struct __clk_driver *drv = __clk_get_drv(clk);
+	int r = -ENODEV;
+
+	if (drv && drv->ops && drv->ops->disable) {
+		r = drv->ops->disable(clk, index);
+	}
+
+	return r;
+}
+
 int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq)
 {
 	const struct __clk_driver *drv = __clk_get_drv(clk);

@@ -8,9 +8,15 @@
 
 #include <bmetal/device.h>
 
+#define KHZ    (1000)
+#define MHZ    (1000000)
+#define GHZ    (1000000000)
+
 struct __clk_device;
 
 struct __clk_driver_ops {
+	int (* enable)(struct __clk_device *clk, int index);
+	int (* disable)(struct __clk_device *clk, int index);
 	int (* get_freq)(struct __clk_device *clk, int index, uint64_t *freq);
 	int (* set_freq)(struct __clk_device *clk, int index, uint64_t freq);
 };
@@ -26,7 +32,7 @@ struct __clk_device {
 };
 
 struct __clk_priv_max {
-	char dummy[8];
+	char dummy[56];
 };
 typedef struct __clk_priv_max    __clk_priv_t;
 #define CHECK_PRIV_SIZE_CLK(typ)    CHECK_PRIV_SIZE(typ, __clk_priv_t);
@@ -66,6 +72,8 @@ static inline int __clk_remove_driver(struct __clk_driver *drv)
 
 int __clk_add_device(struct __clk_device *clk, struct __bus *parent);
 int __clk_remove_device(struct __clk_device *clk);
+int __clk_enable(struct __clk_device *clk, int index);
+int __clk_disable(struct __clk_device *clk, int index);
 int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq);
 int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq);
 
