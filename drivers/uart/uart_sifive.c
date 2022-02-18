@@ -31,6 +31,8 @@
 #define RXCTRL_RXCNT_MASK     (0x7 << RXCTRL_RXCNT_SHIFT)
 
 struct uart_sifive_priv {
+	struct __clk_device *clk;
+	int index_clk;
 	uint64_t freq_in;
 	uint32_t baud;
 };
@@ -38,7 +40,7 @@ CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
 static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
 {
-	struct __device * dev= __uart_to_dev(uart);
+	struct __device *dev= __uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 	uint32_t d;
 
@@ -54,7 +56,6 @@ static int uart_sifive_add(struct __device *dev)
 {
 	struct __uart_device *uart = __uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
-	struct __clk_device *clk;
 	uint32_t val;
 	int r;
 
@@ -63,14 +64,19 @@ static int uart_sifive_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	r = __clk_get_clk_from_config(dev, 0, &clk);
+	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
 	if (r) {
 		return r;
 	}
 
-	r = __clk_get_frequency(clk, 0, &priv->freq_in);
+	r = __clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
 	if (r) {
 		__dev_err(dev, "clock freq is unknown.\n");
+		return r;
+	}
+
+	r = __clk_enable(priv->clk, priv->index_clk);
+	if (r) {
 		return r;
 	}
 

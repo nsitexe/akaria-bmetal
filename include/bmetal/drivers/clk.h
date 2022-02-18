@@ -77,6 +77,6 @@ int __clk_disable(struct __clk_device *clk, int index);
 int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq);
 int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq);
 
-int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk);
+int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *clk_index);
 
 #endif /* BAREMETAL_CRT_CLK_H_ */

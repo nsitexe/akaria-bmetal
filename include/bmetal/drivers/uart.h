@@ -28,7 +28,7 @@ struct __uart_device {
 };
 
 struct __uart_priv_max {
-	char dummy[16];
+	char dummy[32];
 };
 typedef struct __uart_priv_max    __uart_priv_t;
 #define CHECK_PRIV_SIZE_UART(typ)    CHECK_PRIV_SIZE(typ, __uart_priv_t);

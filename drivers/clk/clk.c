@@ -73,7 +73,7 @@ int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq)
 	return r;
 }
 
-int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk)
+int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *index_clk)
 {
 	const char *clock_name;
 	struct __device *tmp;
@@ -101,6 +101,9 @@ int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_devi
 
 	if (clk) {
 		*clk = __clk_from_dev(tmp);
+	}
+	if (index_clk) {
+		*index_clk = val;
 	}
 
 	return 0;
