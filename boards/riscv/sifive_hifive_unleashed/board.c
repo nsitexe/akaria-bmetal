@@ -6,6 +6,11 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/uart.h>
 
+#define PRCI_DDRCTRLCLK    0
+#define PRCI_TLCLK         1
+#define PRCI_CORECLK       2
+#define PRCI_GEMGXLCLK     3
+
 const static struct __device_config cpu0_conf[] = {
 	{"hartid", 1, {0}},
 	{0},
@@ -37,7 +42,7 @@ static struct __clk_device hfclk = {
 };
 
 const static struct __device_config rtclk_conf[] = {
-	{"frequency", 1, {1000000}},
+	{"frequency", 1, {1 * MHZ}},
 	{0},
 };
 
@@ -52,15 +57,38 @@ static struct __clk_device rtclk = {
 	},
 };
 
+/* ddrctrlclk, tlclk, coreclk, gemgxlclk */
+const static struct __device_config prci_conf[] = {
+	{"reg", 1, {0x10000000}},
+	{"reg-size", 1, {0x1000}},
+	{"clocks", 2, {UPTR("hfclk"), 0}},
+	/* Cannot set tlclk (fixed as coreclk / 2) */
+	{"frequency", 4, {600 * MHZ, 0, 1 * GHZ, 125 * MHZ}},
+	{0},
+};
+
+static __clk_priv_t prci_priv;
+static struct __clk_device prci = {
+	.base = {
+		.name = "prci",
+		.type_vendor = "sifive",
+		.type_device = "prci0",
+		.conf = prci_conf,
+		.priv = &prci_priv,
+	},
+};
+
 const static struct __device_config uart0_conf[] = {
 	{"reg", 1, {0x10010000}},
 	{"reg-size", 1, {0x1000}},
+	{"clocks", 2, {UPTR("prci"), PRCI_TLCLK}},
 	{0},
 };
 
 const static struct __device_config uart1_conf[] = {
 	{"reg", 1, {0x10011000}},
 	{"reg-size", 1, {0x1000}},
+	{"clocks", 2, {UPTR("prci"), PRCI_TLCLK}},
 	{0},
 };
 
@@ -91,6 +119,7 @@ static int board_hifive_unleashed_init(void)
 	__cpu_add_device(&cpu0, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
 	__clk_add_device(&rtclk, __bus_get_root());
+	__clk_add_device(&prci, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
 
