@@ -86,7 +86,7 @@ static struct __uart_device uart1 = {
 	},
 };
 
-static int board_qemu_virt_init(void)
+static int board_hifive_unleashed_init(void)
 {
 	__cpu_add_device(&cpu0, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
@@ -99,4 +99,4 @@ static int board_qemu_virt_init(void)
 	return 0;
 }
 
-define_init_func(board_qemu_virt_init);
+define_init_func(board_hifive_unleashed_init);
