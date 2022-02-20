@@ -21,6 +21,15 @@
 #define REG_BRDL    0x00  /* Divisor latch (LSB) */
 #define REG_BRDH    0x01  /* Divisor latch (MSB) */
 
+#define LSR_RX_READY           BIT(0)
+#define LSR_RX_OVERRUN_ERR     BIT(1)
+#define LSR_RX_PARITY_ERR      BIT(2)
+#define LSR_RX_FRAME_ERR       BIT(3)
+#define LSR_RX_BREAK           BIT(4)
+#define LSR_THR_EMPTY          BIT(5)
+#define LSR_THR_TSR_EMPTY      BIT(6)
+#define LSR_RX_FIFO_GBL_ERR    BIT(7)
+
 #define REG_WIDTH_DEFAULT    4
 
 static uint32_t addr_shift;
@@ -76,7 +85,7 @@ static int uart_ns16550_add(struct __device *dev)
 	if (r) {
 		w = REG_WIDTH_DEFAULT;
 
-		printk("ns16550: config 'reg-width' is not found."
+		__dev_err(dev, "config 'reg-width' is not found."
 			"Use default size %"PRId32".\n", w);
 	}
 	switch (w) {
@@ -90,7 +99,7 @@ static int uart_ns16550_add(struct __device *dev)
 		addr_shift = 2;
 		break;
 	default:
-		printk("ns16550: config 'reg-width' %"PRId32" is not supported.\n", w);
+		__dev_err(dev, "config 'reg-width' %"PRId32" is not supported.\n", w);
 		return -EINVAL;
 	}
 
@@ -110,7 +119,7 @@ int uart_ns16550_char_in(struct __uart_device *uart)
 
 void uart_ns16550_char_out(struct __uart_device *uart, int value)
 {
-	while ((uart_read(uart, REG_LSR) & 0x20) == 0) {
+	while ((uart_read(uart, REG_LSR) & LSR_THR_EMPTY) == 0) {
 	}
 
 	uart_write(uart, value, REG_THR);
