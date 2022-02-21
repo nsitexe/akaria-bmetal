@@ -23,7 +23,7 @@ if(CONFIG_FPU)
   endif()
 endif()
 
-if(CONFIG_RISCV_COMPACT)
+if(CONFIG_RISCV_COMPRESSED)
   set(RV_ARCH ${RV_ARCH}c)
 endif()
 
