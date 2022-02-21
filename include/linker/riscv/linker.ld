@@ -2,26 +2,52 @@
 
 #include <bmetal/generated/autoconf.h>
 
+#ifdef CONFIG_XIP
 #ifndef CONFIG_ROM_BASE
 #  error Not defined base address of ROM (CONFIG_ROM_BASE).
 #endif
 #ifndef CONFIG_ROM_SIZE
 #  error Not defined size of ROM (CONFIG_ROM_SIZE).
 #endif
+#endif /* CONFIG_XIP */
+
 #ifndef CONFIG_RAM_BASE
 #  error Not defined base address of RAM (CONFIG_RAM_BASE).
 #endif
 #ifndef CONFIG_RAM_SIZE
 #  error Not defined size of RAM (CONFIG_RAM_SIZE).
 #endif
+#ifndef CONFIG_SHM_BASE
+#  error Not defined base address of SHARED RAM (CONFIG_SHM_BASE).
+#endif
+#ifndef CONFIG_SHM_SIZE
+#  error Not defined size of SHARED RAM (CONFIG_SHM_SIZE).
+#endif
 
-#ifdef CONFIG_XIP
+#ifdef CONFIG_MIRROR_RAM
+#ifndef CONFIG_MRR_BASE
+#  error Not defined base address of MIRROR (CONFIG_MRR_BASE).
+#endif
+#ifndef CONFIG_MRR_SIZE
+#  error Not defined size of MIRROR (CONFIG_MRR_SIZE).
+#endif
+#endif /* CONFIG_MIRROR_RAM */
+
+#if defined(CONFIG_XIP) && defined(CONFIG_MIRROR_RAM)
 #  define TEXT_AREA       ROM
+#  define TEXT_AREA_AT    MRR
+#  define DATA_AREA       RAM
+#  define DATA_AREA_AT    MRR
+#  define COMM_AREA       SHM
+#elif defined(CONFIG_XIP) && !defined(CONFIG_MIRROR_RAM)
+#  define TEXT_AREA       ROM
+#  define TEXT_AREA_AT    ROM
 #  define DATA_AREA       RAM
 #  define DATA_AREA_AT    ROM
 #  define COMM_AREA       SHM
-#else /* CONFIG_XIP */
+#else /* !CONFIG_XIP */
 #  define TEXT_AREA       RAM
+#  define TEXT_AREA_AT    RAM
 #  define DATA_AREA       RAM
 #  define DATA_AREA_AT    RAM
 #  define COMM_AREA       SHM
@@ -32,9 +58,14 @@ ENTRY(_start)
 
 MEMORY
 {
+#ifdef CONFIG_XIP
 	ROM (rx)  : ORIGIN = CONFIG_ROM_BASE, LENGTH = CONFIG_ROM_SIZE
+#endif /* CONFIG_XIP */
 	RAM (rwx) : ORIGIN = CONFIG_RAM_BASE, LENGTH = CONFIG_RAM_SIZE
 	SHM (rwx) : ORIGIN = CONFIG_SHM_BASE, LENGTH = CONFIG_SHM_SIZE
+#ifdef CONFIG_MIRROR_RAM
+	MRR (rx)  : ORIGIN = CONFIG_MRR_BASE, LENGTH = CONFIG_MRR_SIZE
+#endif /* CONFIG_MIRROR_RAM */
 }
 
 SECTIONS
@@ -43,47 +74,43 @@ SECTIONS
 	PROVIDE(_stext = .);
 
 	/* Special text section for reset vector */
-	.reset : {
-		. = ALIGN(8);
+	.reset : ALIGN_WITH_INPUT {
+		. = ALIGN(4);
 		KEEP(*(.reset .reset.*))
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.init : {
-		. = ALIGN(8);
+	.init : ALIGN_WITH_INPUT {
 		KEEP(*(SORT_NONE(.init)))
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.text : {
-		. = ALIGN(8);
+	.text : ALIGN_WITH_INPUT {
+		. = ALIGN(4);
 		*(.text .text.*)
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.fini : {
-		. = ALIGN(8);
+	.fini : ALIGN_WITH_INPUT {
 		KEEP(*(SORT_NONE(.fini)))
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	PROVIDE(_etext = .);
 
-	.comm : {
+	.comm : ALIGN_WITH_INPUT {
 		. = ALIGN(8);
 		KEEP(*(.comm_header .comm_header.*))
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.rodata : {
-		. = ALIGN(8);
-		*(.rodata .rodata.*)
-	} > TEXT_AREA
-
-	.initdata : {
+	.initdata : ALIGN_WITH_INPUT {
 		. = ALIGN(8);
 		__initcall_start = .;
 		KEEP(*(.initdata .initdata.*))
 		__initcall_end = .;
-	} > TEXT_AREA
+	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.data : {
-		. = ALIGN(8);
+	.rodata : ALIGN_WITH_INPUT {
+		*(.rodata .rodata.*)
+	} > TEXT_AREA AT > TEXT_AREA_AT
+
+	.data : ALIGN_WITH_INPUT {
 		__data_start = .;
 		*(.data .data.*)
 		*(.eh_frame .eh_frame.*)
@@ -93,8 +120,7 @@ SECTIONS
 
 	__data_load = LOADADDR(.data);
 
-	.sdata : {
-		. = ALIGN(8);
+	.sdata : ALIGN_WITH_INPUT {
 		__sdata_start = .;
 		__global_pointer$ = . + 0x800;
 		*(.srodata .srodata.*)
@@ -106,7 +132,6 @@ SECTIONS
 	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
-		. = ALIGN(8);
 		__sbss_start = .;
 		*(.sbss .sbss.*)
 		*(.scommon)
@@ -114,7 +139,6 @@ SECTIONS
 	} > DATA_AREA
 
 	.bss (NOLOAD) : {
-		. = ALIGN(8);
 		__bss_start = .;
 		*(.bss .bss.*)
 		*(COMMON)
@@ -122,7 +146,6 @@ SECTIONS
 	} > DATA_AREA
 
 	.noinit (NOLOAD) : {
-		. = ALIGN(8);
 		__noinit_start = .;
 		*(.noinit .noinit.*)
 		__noinit_end = .;
