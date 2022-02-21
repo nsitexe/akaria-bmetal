@@ -86,6 +86,8 @@ SECTIONS
 		. = ALIGN(8);
 		__data_start = .;
 		*(.data .data.*)
+		*(.eh_frame .eh_frame.*)
+		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
@@ -95,7 +97,7 @@ SECTIONS
 		. = ALIGN(8);
 		__sdata_start = .;
 		__global_pointer$ = . + 0x800;
-		*(.srodata.*)
+		*(.srodata .srodata.*)
 		*(.sdata .sdata.*)
 		__sdata_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
