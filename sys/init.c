@@ -52,8 +52,10 @@ static void clear_bss(void)
 
 static void copy_data(void)
 {
+#ifdef CONFIG_XIP
 	memcpy(__data_start, __data_load, __data_end - __data_start);
 	memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
+#endif /* CONFIG_XIP */
 }
 
 static int init_proc(void)
@@ -147,10 +149,7 @@ static int init_args(int *argc)
 void __prep_main(void)
 {
 	clear_bss();
-
-#ifdef CONFIG_XIP
 	copy_data();
-#endif /* CONFIG_XIP */
 
 	__libc_init();
 	init_proc();
