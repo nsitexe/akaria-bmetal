@@ -95,7 +95,6 @@ SECTIONS
 	PROVIDE(_etext = .);
 
 	.comm : ALIGN_WITH_INPUT {
-		. = ALIGN(8);
 		KEEP(*(.comm_header .comm_header.*))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 

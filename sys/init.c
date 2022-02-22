@@ -40,7 +40,7 @@ static char *argv[CONFIG_COMM_MAX_ARGS + 1];
 /* always NULL */
 static char *envp[2];
 
-static const struct __comm_section __section(BAREMETAL_CRT_COMM_SECTION) __used __comm_s = {
+static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION) __aligned(8) __used = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
 };
 

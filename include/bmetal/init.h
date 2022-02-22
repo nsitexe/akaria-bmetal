@@ -5,6 +5,10 @@
 
 #include <bmetal/bmetal.h>
 
+#ifndef __aligned
+#define __aligned(n)    __attribute__((aligned(n)))
+#endif
+
 #ifndef __section
 #define __section(n)    __attribute__((section(n)))
 #endif
