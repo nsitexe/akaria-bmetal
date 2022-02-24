@@ -20,10 +20,10 @@ VECADD_OBJS = vecadd.o
 all: $(BINS)
 
 hello: $(HELLO_OBJS)
-	$(CC) $(LDFLAGS) $< $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 vecadd: $(VECADD_OBJS)
-	$(CC) $(LDFLAGS) $< $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 clean:
 	rm -f $(BINS) $(OBJS)
