@@ -68,11 +68,9 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 	__boot_tp = (uintptr_t)__get_raw_thread(cpu->id_cpu);
 	dwmb();
 
-	__boot_proc = cpu->id_phys;
-	dmb();
-
 	while (!__boot_done) {
-		drmb();
+		__boot_proc = cpu->id_phys;
+		dmb();
 	}
 
 	return 0;
