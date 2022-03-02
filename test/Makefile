@@ -1,4 +1,5 @@
 CROSS_COMPILE ?= riscv64-unknown-elf-
+#CROSS_COMPILE ?= riscv64-unknown-linux-gnu-
 
 CC = $(CROSS_COMPILE)gcc
 
@@ -29,8 +30,9 @@ clean:
 	rm -f $(BINS) $(OBJS)
 
 # config
-USE_NEWLIB  ?= y
+USE_GLIBC   ?= n
 USE_MUSL    ?= n
+USE_NEWLIB  ?= y
 USE_SYSROOT ?= ./sysroot
 
 include bmetal.mk

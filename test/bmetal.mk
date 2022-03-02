@@ -17,11 +17,11 @@ BAREMETAL_CMNLDFLAGS = \
 	-L $(USE_SYSROOT)/lib
 
 LDADD += -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
-ifeq ($(USE_NEWLIB),y)
+ifeq ($(USE_GLIBC),y)
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
-  LDADD    += -lc -lgloss
+  LDADD    += -lc -lgcc_eh -lc
 endif
 ifeq ($(USE_MUSL),y)
   CPPFLAGS +=
@@ -29,10 +29,10 @@ ifeq ($(USE_MUSL),y)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
   LDADD    += -lc
 endif
-ifeq ($(USE_GLIBC),y)
+ifeq ($(USE_NEWLIB),y)
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
-  LDADD    += -lc -lgcc_eh -lc
+  LDADD    += -lc -lgloss
 endif
 LDADD += -lgcc
