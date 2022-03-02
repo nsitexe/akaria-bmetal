@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 prj_sources(
+  file.c
   init.c
+  lock.c
   printk.c
   syscall.c
   thread.c
-  file.c
   )
 
 add_subdirectory_ifdef(CONFIG_USE_GLIBC glibc)
