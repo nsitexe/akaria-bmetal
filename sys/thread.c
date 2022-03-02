@@ -47,20 +47,28 @@ pid_t __get_pid(void)
 
 struct __thread_info *__create_thread(struct __process_info *pi)
 {
+	struct __thread_info *ti = NULL;
+
+	__spinlock_lock(&pi->lock);
+
 	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
-		struct __thread_info *ti = __get_raw_thread(i);
+		ti = __get_raw_thread(i);
 
 		if (!ti->avail) {
 			ti->pi = pi;
 			ti->tid = alloc_tid();
 			ti->avail = 1;
 
-			return ti;
+			break;
 		}
 	}
-	printk("create_thread: reach to limit.\n");
+	if (ti == NULL) {
+		printk("create_thread: reach to limit.\n");
+	}
 
-	return NULL;
+	__spinlock_unlock(&pi->lock);
+
+	return ti;
 }
 
 int __destroy_thread(struct __thread_info *ti)

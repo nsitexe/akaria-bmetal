@@ -8,12 +8,14 @@
 
 #include <bmetal/bmetal.h>
 #include <bmetal/file.h>
+#include <bmetal/lock.h>
 
 struct __cpu_device;
 
 struct __process_info {
 	pid_t pid;
 	int avail;
+	struct __spinlock lock;
 
 	struct __file_desc *fdset[CONFIG_MAX_FD];
 };
