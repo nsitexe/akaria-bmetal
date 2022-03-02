@@ -5,10 +5,12 @@
 #include <string.h>
 
 #include <bmetal/printk.h>
+#include <bmetal/lock.h>
 
 static int null_putc(int c);
 
 static __putc_func printk_putc = null_putc;
+static struct __spinlock printk_lock;
 
 static int null_putc(int c)
 {
@@ -22,12 +24,16 @@ static int inner_putc(int c)
 
 static int inner_puts(const char *s, int newline)
 {
+	__spinlock_lock(&printk_lock);
+
 	for (size_t i = 0; i < strlen(s); i++) {
 		inner_putc(s[i]);
 	}
 	if (newline) {
 		inner_putc('\n');
 	}
+
+	__spinlock_unlock(&printk_lock);
 
 	return 0;
 }
