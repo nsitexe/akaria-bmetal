@@ -135,8 +135,6 @@ for_sub:
 	# Set stack/thread pointer
 	la    t0, __boot_sp
 	OP_LD sp, (t0)
-	la    t0, __boot_tp
-	OP_LD tp, (t0)
 	la    t0, __boot_done
 	li    t1, 1
 	OP_ST t1, (t0)

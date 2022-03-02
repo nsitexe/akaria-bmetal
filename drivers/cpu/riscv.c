@@ -12,10 +12,9 @@
 
 atomic_uintptr_t __section(".noinit") __boot_proc;
 atomic_uintptr_t __boot_sp;
-atomic_uintptr_t __boot_tp;
 atomic_int __boot_done;
 
-static inline int get_hartid(void)
+int __cpu_arch_get_physical_id(void)
 {
 	int tmp;
 
@@ -65,7 +64,6 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 	
 	__boot_done = 0;
 	__boot_sp = (uintptr_t)&__stack_intr[sp_pos];
-	__boot_tp = (uintptr_t)__get_raw_thread(cpu->id_cpu);
 	dwmb();
 
 	while (!__boot_done) {

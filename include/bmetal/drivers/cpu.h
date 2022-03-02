@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include <bmetal/device.h>
+#include <bmetal/thread.h>
 
 struct __cpu_device;
 
@@ -26,6 +27,7 @@ struct __cpu_device {
 
 	int id_cpu;
 	int id_phys;
+	struct __thread_info *ti;
 };
 
 static inline const struct __cpu_driver *__cpu_get_drv(const struct __cpu_device *cpu)
@@ -61,10 +63,15 @@ static inline int __cpu_remove_driver(struct __cpu_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
+int __cpu_arch_get_physical_id(void);
+
 int __cpu_alloc_id(void);
 struct __cpu_device *__cpu_get(int id);
 int __cpu_set(int id, struct __cpu_device *cpu);
 struct __cpu_device *__cpu_get_by_physical_id(int id_phys);
+struct __cpu_device *__cpu_get_current(void);
+int __cpu_get_id(struct __cpu_device *cpu);
+struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
 int __cpu_remove_device(struct __cpu_device *cpu);

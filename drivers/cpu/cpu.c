@@ -51,6 +51,21 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 	return NULL;
 }
 
+struct __cpu_device *__cpu_get_current(void)
+{
+	return __cpu_get_by_physical_id(__cpu_arch_get_physical_id());
+}
+
+int __cpu_get_id(struct __cpu_device *cpu)
+{
+	return cpu->id_cpu;
+}
+
+struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu)
+{
+	return cpu->ti;
+}
+
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
 {
 	int r;

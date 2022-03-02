@@ -60,7 +60,10 @@ static void copy_data(void)
 
 static int init_proc(void)
 {
-	struct __process_info *pi = __get_current_process();
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __process_info *pi = __create_process();
+	struct __thread_info *ti;
+	int r;
 
 	pi->pid = CONFIG_MAIN_PID;
 
@@ -68,17 +71,15 @@ static int init_proc(void)
 	__file_stdio_init(pi);
 
 	/* Init thread info */
-	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
-		struct __thread_info *ti = __get_raw_thread(i);
-
-		ti->tid = i + CONFIG_MAIN_PID;
+	ti = __create_thread(pi);
+	if (!ti) {
+		return -EAGAIN;
 	}
 
-	/*
-	 * Set thread pointer. Need for main thread only.
-	 * CPU drivers set thread pointer for other threads.
-	 */
-	__set_current_thread(__get_raw_thread(0));
+	r = __run_thread(ti, cpu);
+	if (r) {
+		return r;
+	}
 
 	return 0;
 }
@@ -151,9 +152,8 @@ void __prep_main(void)
 	clear_bss();
 	copy_data();
 
-	__libc_init();
-	init_proc();
 	init_drivers();
+	init_proc();
 
 	/* Boot other cores */
 	__cpu_wakeup_all();
@@ -161,6 +161,7 @@ void __prep_main(void)
 	int argc;
 	init_args(&argc);
 
+	__libc_init();
 	int r = main(argc, argv, envp);
 
 	exit(r);
