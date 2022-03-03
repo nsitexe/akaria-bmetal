@@ -2,10 +2,10 @@
 
 #include <stdarg.h>
 #include <stdio.h>
-#include <string.h>
 
 #include <bmetal/printk.h>
 #include <bmetal/lock.h>
+#include <bmetal/string.h>
 
 static int null_putc(int c);
 
@@ -26,7 +26,7 @@ static int inner_puts(const char *s, int newline)
 {
 	__spinlock_lock(&printk_lock);
 
-	for (size_t i = 0; i < strlen(s); i++) {
+	for (size_t i = 0; i < kstrlen(s); i++) {
 		inner_putc(s[i]);
 	}
 	if (newline) {

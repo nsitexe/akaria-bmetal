@@ -5,6 +5,7 @@ prj_sources(
   init.c
   lock.c
   printk.c
+  string.c
   syscall.c
   thread.c
   )

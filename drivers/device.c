@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
-#include <string.h>
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
+#include <bmetal/string.h>
 
 static struct __driver head = {
 	.type_vendor = "none",
@@ -46,8 +46,8 @@ static int bus_attach_driver(struct __bus *bus)
 	struct __driver *drv = NULL;
 
 	for_each_driver (d, &head) {
-		if (strcmp(d->type_vendor, bus->type_vendor) == 0 &&
-		    strcmp(d->type_device, bus->type_device) == 0) {
+		if (kstrcmp(d->type_vendor, bus->type_vendor) == 0 &&
+		    kstrcmp(d->type_device, bus->type_device) == 0) {
 			drv = d;
 			break;
 		}
@@ -66,8 +66,8 @@ static int device_attach_driver(struct __device *dev)
 	struct __driver *drv = NULL;
 
 	for_each_driver (d, &head) {
-		if (strcmp(d->type_vendor, dev->type_vendor) == 0 &&
-		    strcmp(d->type_device, dev->type_device) == 0) {
+		if (kstrcmp(d->type_vendor, dev->type_vendor) == 0 &&
+		    kstrcmp(d->type_device, dev->type_device) == 0) {
 			drv = d;
 			break;
 		}
@@ -198,8 +198,8 @@ int __driver_add(struct __driver *driver)
 	}
 
 	for_each_driver (d, &head) {
-		if (strcmp(d->type_vendor, driver->type_vendor) == 0 &&
-		    strcmp(d->type_device, driver->type_device) == 0) {
+		if (kstrcmp(d->type_vendor, driver->type_vendor) == 0 &&
+		    kstrcmp(d->type_device, driver->type_device) == 0) {
 			printk("Driver '%s:%s' has already registered.\n",
 				driver->type_vendor, driver->type_device);
 			return -EINVAL;
@@ -283,7 +283,7 @@ static int device_find_conf(struct __device *dev, const char *name)
 	}
 
 	for (int i = 0; dev->conf[i].name != NULL; i++) {
-		if (strcasecmp(name, dev->conf[i].name) == 0) {
+		if (kstrcasecmp(name, dev->conf[i].name) == 0) {
 			return i;
 		}
 	}
@@ -429,7 +429,7 @@ int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev
 	}
 
 	for_each_device (tmp, bus->dev_child) {
-		if (strcasecmp(name, tmp->name) == 0) {
+		if (kstrcasecmp(name, tmp->name) == 0) {
 			if (!tmp->probed) {
 				return -EAGAIN;
 			} else {

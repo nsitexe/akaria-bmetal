@@ -3,8 +3,6 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include <bmetal/init.h>
 #include <bmetal/arch.h>
@@ -12,6 +10,7 @@
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
+#include <bmetal/string.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
 
@@ -45,15 +44,15 @@ static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION
 
 static void clear_bss(void)
 {
-	memset(__bss_start, 0, __bss_end - __bss_start);
-	memset(__sbss_start, 0, __sbss_end - __sbss_start);
+	kmemset(__bss_start, 0, __bss_end - __bss_start);
+	kmemset(__sbss_start, 0, __sbss_end - __sbss_start);
 }
 
 static void copy_data(void)
 {
 #ifdef CONFIG_XIP
-	memcpy(__data_start, __data_load, __data_end - __data_start);
-	memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
+	kmemcpy(__data_start, __data_load, __data_end - __data_start);
+	kmemcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
 #endif /* CONFIG_XIP */
 }
 

@@ -2,11 +2,11 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 #include <bmetal/init.h>
 #include <bmetal/file.h>
 #include <bmetal/printk.h>
+#include <bmetal/string.h>
 #include <bmetal/thread.h>
 
 static const struct __file_ops file_stdio_ops = {
