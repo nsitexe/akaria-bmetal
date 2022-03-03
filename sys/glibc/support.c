@@ -9,7 +9,7 @@
 
 /* TODO: to be implemented */
 
-void __libc_init(void)
+void __libc_init(int argc, char *argv[], char *envp[])
 {
 }
 

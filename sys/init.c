@@ -10,6 +10,7 @@
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
 #include <bmetal/libc_support.h>
+#include <bmetal/lock.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
@@ -32,8 +33,6 @@ extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
 
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
-
-int main(int argc, char *argv[], char *envp[]);
 
 /* +1 is for argv[0] */
 static char *argv[CONFIG_COMM_MAX_ARGS + 1];
@@ -161,12 +160,19 @@ void __prep_main(void)
 	int argc;
 	init_args(&argc);
 
-	__libc_init();
-	int r = main(argc, argv, envp);
+	/* FIXME: tentative */
+	printk("hello %d\n", __get_tid());
 
-	exit(r);
+	__libc_init(argc, argv, envp);
 }
 
 void __prep_sub(void)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti = __create_thread(__get_current_process());
+
+	__run_thread(ti, cpu);
+
+	/* FIXME: tentative */
+	printk("hello %d\n", __get_tid());
 }
