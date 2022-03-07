@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 prj_sources(
+  isr.S
   start.S
   cpu.c
   lock.c
