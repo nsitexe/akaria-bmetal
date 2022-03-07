@@ -2,7 +2,7 @@
 
 prj_sources(
   start.S
-  init.c
+  cpu.c
   )
 
 add_subdirectory(${CONFIG_SOC_NAME})

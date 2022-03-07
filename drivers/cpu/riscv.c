@@ -14,15 +14,6 @@ atomic_uintptr_t __section(".noinit") __boot_proc;
 atomic_uintptr_t __boot_sp;
 atomic_int __boot_done;
 
-int __cpu_arch_get_physical_id(void)
-{
-	int tmp;
-
-	__asm volatile ("csrr %0, mhartid" : "=r"(tmp));
-
-	return tmp;
-}
-
 static int cpu_riscv_add(struct __device *dev)
 {
 	struct __cpu_device *cpu = __cpu_from_dev(dev);
