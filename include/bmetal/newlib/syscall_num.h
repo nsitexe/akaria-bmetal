@@ -1,9 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_NEWLIB_SYSCALL_H_
-#define BAREMETAL_CRT_NEWLIB_SYSCALL_H_
-
-#include <bmetal/generated/autoconf.h>
+#ifndef BAREMETAL_CRT_NEWLIB_SYSCALL_NUM_H_
+#define BAREMETAL_CRT_NEWLIB_SYSCALL_NUM_H_
 
 #ifndef CONFIG_USE_NEWLIB
 #  error Include wrong syscall header.

@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <bmetal/arch/asm.h>
-#include <bmetal/syscall.h>
 
 .globl _start
 .type _start, @function

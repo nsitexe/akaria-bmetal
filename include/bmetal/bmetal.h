@@ -3,10 +3,6 @@
 #ifndef BAREMETAL_CRT_BMETAL_H_
 #define BAREMETAL_CRT_BMETAL_H_
 
-#ifndef ASMLANG
-#include <assert.h>
-#endif /* ASMLANG */
-
 #include <bmetal/app/bmetal/bmetal.h>
 
 #define NABS(a)        (((a) > 0) ? (a) : -(a))

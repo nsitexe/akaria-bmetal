@@ -3,6 +3,7 @@
 #ifndef BAREMETAL_CRT_DEVICE_H_
 #define BAREMETAL_CRT_DEVICE_H_
 
+#include <assert.h>
 #include <errno.h>
 #include <stddef.h>
 #include <stdint.h>

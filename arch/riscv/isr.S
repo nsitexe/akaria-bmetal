@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <bmetal/arch/asm.h>
-#include <bmetal/syscall.h>
+#include <bmetal/syscall_num.h>
 
 .globl __start_trap
 .type __start_trap, @function

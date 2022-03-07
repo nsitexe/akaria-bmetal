@@ -3,20 +3,21 @@
 #ifndef BAREMETAL_CRT_SYSCALL_H_
 #define BAREMETAL_CRT_SYSCALL_H_
 
+#include <stdint.h>
+#include <unistd.h>
+
 #include <bmetal/bmetal.h>
-
-#ifndef ASMLANG
-#include <bmetal/app/bmetal/syscall.h>
-#endif /* ASMLANG */
-
-#if defined(CONFIG_USE_GLIBC)
-#  include <bmetal/glibc/syscall.h>
-#elif defined(CONFIG_USE_MUSL)
-#  include <bmetal/musl/syscall.h>
-#elif defined(CONFIG_USE_NEWLIB)
-#  include <bmetal/newlib/syscall.h>
-#endif
+#include <bmetal/syscall_num.h>
 
 #define SYSCALL_P(num, func)    [(num)] = (__syscall_func_t)(func)
+
+typedef intptr_t (*__syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
+
+intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
+
+int __sys_close(int fd);
+ssize_t __sys_write(int fd, const void *buf, size_t count);
+void __sys_exit(int status);
+void *__sys_brk(void *addr);
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */
