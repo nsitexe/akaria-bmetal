@@ -3,7 +3,7 @@
 #ifndef BAREMETAL_CRT_ARCH_RISCV_ARCH_SYNC_H_
 #define BAREMETAL_CRT_ARCH_RISCV_ARCH_SYNC_H_
 
-#include <bmetal/generated/autoconf.h>
+#include <bmetal/bmetal.h>
 
 /* Instruction memory barrier */
 #define imb()     __asm volatile("fence.i" : : : "memory")

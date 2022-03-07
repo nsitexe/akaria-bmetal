@@ -1,3 +1,3 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/arch/lock.h>
+#include <bmetal/arch/sync.h>

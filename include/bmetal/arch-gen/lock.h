@@ -16,18 +16,22 @@ typedef struct __arch_gen_spinlock {
 
 #ifndef __arch_spinlock_init
 #define __arch_spinlock_init    __arch_gen_spinlock_init
+int __arch_gen_spinlock_init(__arch_spinlock_t *lock);
 #endif
 
 #ifndef __arch_spinlock_lock
 #define __arch_spinlock_lock    __arch_gen_spinlock_lock
+int __arch_gen_spinlock_lock(__arch_spinlock_t *lock);
 #endif
 
 #ifndef __arch_spinlock_trylock
 #define __arch_spinlock_trylock    __arch_gen_spinlock_trylock
+int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock);
 #endif
 
 #ifndef __arch_spinlock_unlock
 #define __arch_spinlock_unlock    __arch_gen_spinlock_unlock
+int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock);
 #endif
 
 #endif /* BAREMETAL_CRT_ARCH_GEN_LOCK_H_ */

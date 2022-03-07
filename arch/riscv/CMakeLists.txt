@@ -3,6 +3,8 @@
 prj_sources(
   start.S
   cpu.c
+  lock.c
+  sync.c
   )
 
 add_subdirectory(${CONFIG_SOC_NAME})

@@ -3,7 +3,7 @@
 #ifndef BAREMETAL_CRT_ARCH_RISCV_ARCH_LOCK_H_
 #define BAREMETAL_CRT_ARCH_RISCV_ARCH_LOCK_H_
 
-#include <bmetal/generated/autoconf.h>
+#include <bmetal/bmetal.h>
 
 #include <bmetal/arch-gen/lock.h>
 
