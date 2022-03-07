@@ -2,14 +2,10 @@
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
+#include <bmetal/bindings/clk/sifive/prci.h>
 #include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/uart.h>
-
-#define PRCI_DDRCTRLCLK    0
-#define PRCI_TLCLK         1
-#define PRCI_CORECLK       2
-#define PRCI_GEMGXLCLK     3
 
 const static struct __device_config cpu0_conf[] = {
 	{"hartid", 1, {0}},
@@ -81,14 +77,14 @@ static struct __clk_device prci = {
 const static struct __device_config uart0_conf[] = {
 	{"reg", 1, {0x10010000}},
 	{"reg-size", 1, {0x1000}},
-	{"clocks", 2, {UPTR("prci"), PRCI_TLCLK}},
+	{"clocks", 2, {UPTR("prci"), PRCI_INDEX_TLCLK}},
 	{0},
 };
 
 const static struct __device_config uart1_conf[] = {
 	{"reg", 1, {0x10011000}},
 	{"reg-size", 1, {0x1000}},
-	{"clocks", 2, {UPTR("prci"), PRCI_TLCLK}},
+	{"clocks", 2, {UPTR("prci"), PRCI_INDEX_TLCLK}},
 	{0},
 };
 

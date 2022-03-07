@@ -6,12 +6,7 @@
 #include <bmetal/init.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
-
-#define PRCI_INDEX_DDRCTRLCLK    0
-#define PRCI_INDEX_TLCLK         1
-#define PRCI_INDEX_CORECLK       2
-#define PRCI_INDEX_GEMGXLCLK     3
-#define PRCI_INDEX_MAX           4
+#include <bmetal/bindings/clk/sifive/prci.h>
 
 #define PRCI_HFXOSCCFG         0x00
 #define PRCI_COREPLLCFG0       0x04
