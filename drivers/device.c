@@ -167,7 +167,7 @@ static int bus_probe(struct __bus *bus)
 	for_each_device (dev, bus->dev_child) {
 		int r = device_probe(dev);
 		if (IS_ERROR(r)) {
-			printk("bus:%d probe: Failed to probe dev:%d '%s'.",
+			printk("bus:%d probe: Failed to probe dev:%d '%s'.\n",
 				bus->id, dev->id, "");
 		}
 	}

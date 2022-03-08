@@ -135,7 +135,7 @@ static int clk_prci_filter_range(struct __clk_device *clk, uint64_t post_divr, i
 		r = 7;
 		break;
 	default:
-		__dev_err(dev, "post divr frequency out of range: %"PRId64"",
+		__dev_err(dev, "post divr frequency out of range: %"PRId64"\n",
 			post_divr);
 		return -ERANGE;
 	}
