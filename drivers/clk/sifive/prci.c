@@ -287,7 +287,6 @@ static int clk_prci_update_clksel(struct __clk_device *clk, int bypass, int off)
 	return 0;
 }
 
-
 static int clk_prci_add(struct __device *dev)
 {
 	struct clk_prci_priv *priv = dev->priv;
@@ -508,5 +507,4 @@ static int clk_prci_init(void)
 
 	return 0;
 }
-
 define_init_func(clk_prci_init);

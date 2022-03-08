@@ -155,5 +155,4 @@ static int uart_ns16550_init(void)
 
 	return 0;
 }
-
 define_init_func(uart_ns16550_init);

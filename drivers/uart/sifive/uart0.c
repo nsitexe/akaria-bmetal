@@ -149,5 +149,4 @@ static int uart_sifive_init(void)
 
 	return 0;
 }
-
 define_init_func(uart_sifive_init);

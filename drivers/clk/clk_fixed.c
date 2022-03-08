@@ -92,5 +92,4 @@ static int clk_fixed_init(void)
 
 	return 0;
 }
-
 define_init_func(clk_fixed_init);

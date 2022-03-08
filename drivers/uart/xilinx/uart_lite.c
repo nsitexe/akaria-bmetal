@@ -89,5 +89,4 @@ static int uart_lite_init(void)
 
 	return 0;
 }
-
 define_init_func(uart_lite_init);
