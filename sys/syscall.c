@@ -23,7 +23,7 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 
 static struct __file_desc *get_file_desc(int fd)
 {
-	struct __process_info *pi = __get_current_process();
+	struct __proc_info *pi = __proc_get_current();
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
 		printk("get_file_desc: fd %d is invalid\n", fd);
@@ -35,7 +35,7 @@ static struct __file_desc *get_file_desc(int fd)
 
 static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
 {
-	struct __process_info *pi = __get_current_process();
+	struct __proc_info *pi = __proc_get_current();
 	struct __file_desc *olddesc;
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {

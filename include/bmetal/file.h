@@ -8,7 +8,7 @@
 #include <bmetal/bmetal.h>
 
 struct __file_desc;
-struct __process_info;
+struct __proc_info;
 
 struct __file_ops {
 	ssize_t (*write)(struct __file_desc *desc, const void *buf, size_t count);
@@ -20,6 +20,6 @@ struct __file_desc {
 };
 
 ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count);
-int __file_stdio_init(struct __process_info *pi);
+int __file_stdio_init(struct __proc_info *pi);
 
 #endif /* BAREMETAL_CRT_FILE_H_ */

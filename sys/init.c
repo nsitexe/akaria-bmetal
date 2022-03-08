@@ -59,7 +59,7 @@ static void copy_data(void)
 static int init_proc(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	struct __process_info *pi = __create_process();
+	struct __proc_info *pi = __proc_create();
 	struct __thread_info *ti;
 	int r;
 
@@ -69,12 +69,12 @@ static int init_proc(void)
 	__file_stdio_init(pi);
 
 	/* Init thread info */
-	ti = __create_thread(pi);
+	ti = __thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
-	r = __run_thread(ti, cpu);
+	r = __thread_run(ti, cpu);
 	if (r) {
 		return r;
 	}
@@ -160,7 +160,7 @@ void __prep_main(void)
 	init_args(&argc);
 
 	/* FIXME: tentative */
-	printk("hello %d\n", __get_tid());
+	printk("hello %d\n", __thread_get_tid());
 
 	__libc_init(argc, argv, envp);
 }
@@ -168,10 +168,10 @@ void __prep_main(void)
 void __prep_sub(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	struct __thread_info *ti = __create_thread(__get_current_process());
+	struct __thread_info *ti = __thread_create(__proc_get_current());
 
-	__run_thread(ti, cpu);
+	__thread_run(ti, cpu);
 
 	/* FIXME: tentative */
-	printk("hello %d\n", __get_tid());
+	printk("hello %d\n", __thread_get_tid());
 }

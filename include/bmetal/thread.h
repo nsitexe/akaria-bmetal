@@ -12,7 +12,7 @@
 
 struct __cpu_device;
 
-struct __process_info {
+struct __proc_info {
 	pid_t pid;
 	int avail;
 	struct __spinlock lock;
@@ -21,7 +21,7 @@ struct __process_info {
 };
 
 struct __thread_info {
-	struct __process_info *pi;
+	struct __proc_info *pi;
 	pid_t tid;
 	int avail;
 	int running;
@@ -29,17 +29,17 @@ struct __thread_info {
 	struct __cpu_device *cpu;
 };
 
-struct __process_info *__create_process(void);
-struct __process_info *__get_current_process(void);
-pid_t __get_pid(void);
+struct __proc_info *__proc_create(void);
+struct __proc_info *__proc_get_current(void);
+pid_t __proc_get_pid(void);
 
-struct __thread_info *__create_thread(struct __process_info *pi);
-int __destroy_thread(struct __thread_info *ti);
-int __run_thread(struct __thread_info *ti, struct __cpu_device *cpu);
-int __stop_thread(struct __thread_info *ti);
-struct __thread_info *__get_raw_thread(int n);
-struct __thread_info *__get_thread(pid_t tid);
-struct __thread_info *__get_current_thread(void);
-pid_t __get_tid(void);
+struct __thread_info *__thread_create(struct __proc_info *pi);
+int __thread_destroy(struct __thread_info *ti);
+int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu);
+int __thread_stop(struct __thread_info *ti);
+struct __thread_info *__thread_get_raw(int n);
+struct __thread_info *__thread_get(pid_t tid);
+struct __thread_info *__thread_get_current(void);
+pid_t __thread_get_tid(void);
 
 #endif /* BAREMETAL_CRT_THREAD_H_ */

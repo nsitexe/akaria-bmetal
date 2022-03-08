@@ -46,7 +46,7 @@ ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t cou
 	return count;
 }
 
-int __file_stdio_init(struct __process_info *pi)
+int __file_stdio_init(struct __proc_info *pi)
 {
 	pi->fdset[0] = &fds[0];
 	pi->fdset[1] = &fds[1];
