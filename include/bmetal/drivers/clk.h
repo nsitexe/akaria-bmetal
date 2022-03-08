@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_CLK_H_
-#define BAREMETAL_CRT_CLK_H_
+#ifndef BAREMETAL_CRT_DRIVERS_CLK_H_
+#define BAREMETAL_CRT_DRIVERS_CLK_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -79,4 +79,4 @@ int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq);
 
 int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *clk_index);
 
-#endif /* BAREMETAL_CRT_CLK_H_ */
+#endif /* BAREMETAL_CRT_DRIVERS_CLK_H_ */

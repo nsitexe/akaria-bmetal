@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_UART_H_
-#define BAREMETAL_CRT_UART_H_
+#ifndef BAREMETAL_CRT_DRIVERS_UART_H_
+#define BAREMETAL_CRT_DRIVERS_UART_H_
 
 #include <stddef.h>
 #include <stdint.h>
@@ -70,4 +70,4 @@ int __uart_set_default_console(struct __uart_device *dev);
 int __uart_add_device(struct __uart_device *dev, struct __bus *parent, int set_default);
 int __uart_remove_device(struct __uart_device *dev);
 
-#endif /* BAREMETAL_CRT_UART_H_ */
+#endif /* BAREMETAL_CRT_DRIVERS_UART_H_ */
