@@ -291,6 +291,20 @@ static int device_find_conf(struct __device *dev, const char *name)
 	return -1;
 }
 
+int __device_get_conf_length(struct __device *dev, const char *name, int *len)
+{
+	int i = device_find_conf(dev, name);
+	if (i < 0) {
+		return -EINVAL;
+	}
+
+	if (len) {
+		*len = dev->conf[i].count;
+	}
+
+	return 0;
+}
+
 int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index)
 {
 	int i = device_find_conf(dev, name);

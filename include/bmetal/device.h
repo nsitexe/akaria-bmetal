@@ -64,7 +64,7 @@ struct __device_driver {
 struct __device_config {
 	const char *name;
 	int count;
-	uintptr_t val[4];
+	uintptr_t val[32];
 };
 
 struct __device {
@@ -236,6 +236,7 @@ struct __device *__device_get_root(void);
 int __device_probe_all(void);
 int __device_add(struct __device *dev, struct __bus *parent);
 int __device_remove(struct __device *dev);
+int __device_get_conf_length(struct __device *dev, const char *name, int *len);
 int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index);
 int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr, int index);
 int __device_read_conf_str(struct __device *dev, const char *name, const char **ptr, int index);
