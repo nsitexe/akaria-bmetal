@@ -148,3 +148,30 @@ int __cpu_sleep_all(void)
 
 	return res;
 }
+
+int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu)
+{
+	const char *cpu_name;
+	struct __device *tmp;
+	int r;
+
+	r = __device_read_conf_str(dev, "cpu", &cpu_name, index);
+	if (r) {
+		__dev_err(dev, "cpu name is not found, index:%d.\n", index);
+		return -EINVAL;
+	}
+
+	r = __bus_find_device(__bus_get_root(), cpu_name, &tmp);
+	if (r == -EAGAIN) {
+		return -EAGAIN;
+	} else if (r) {
+		__dev_err(dev, "cpu '%s' is not found.\n", cpu_name);
+		return -EINVAL;
+	}
+
+	if (cpu) {
+		*cpu = __cpu_from_dev(tmp);
+	}
+
+	return 0;
+}
