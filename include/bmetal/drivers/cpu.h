@@ -12,6 +12,7 @@
 struct __cpu_device;
 
 struct __cpu_driver_ops {
+	/* Run on any CPUs */
 	int (*wakeup)(struct __cpu_device *cpu);
 	int (*sleep)(struct __cpu_device *cpu);
 };
@@ -63,8 +64,6 @@ static inline int __cpu_remove_driver(struct __cpu_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
-int __cpu_arch_get_physical_id(void);
-
 int __cpu_alloc_id(void);
 struct __cpu_device *__cpu_get(int id);
 int __cpu_set(int id, struct __cpu_device *cpu);
@@ -75,7 +74,9 @@ struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
 int __cpu_remove_device(struct __cpu_device *cpu);
-
+int __cpu_wakeup(struct __cpu_device *cpu);
+int __cpu_sleep(struct __cpu_device *cpu);
 int __cpu_wakeup_all(void);
+int __cpu_sleep_all(void);
 
 #endif /* BAREMETAL_CRT_DRIVERS_CPU_H_ */

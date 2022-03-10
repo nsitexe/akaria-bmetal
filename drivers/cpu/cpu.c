@@ -83,6 +83,38 @@ int __cpu_remove(struct __cpu_device *cpu)
 	return __device_remove(__cpu_to_dev(cpu));
 }
 
+int __cpu_wakeup(struct __cpu_device *cpu)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->wakeup) {
+		r = drv->ops->wakeup(cpu);
+		if (r) {
+			printk("cpu_wakeup: id:%d(phys:%d) failed to wakeup.\n", cpu->id_cpu, cpu->id_phys);
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+int __cpu_sleep(struct __cpu_device *cpu)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->sleep) {
+		r = drv->ops->sleep(cpu);
+		if (r) {
+			printk("cpu_sleep: id:%d(phys:%d) failed to sleep.\n", cpu->id_cpu, cpu->id_phys);
+			return r;
+		}
+	}
+
+	return 0;
+}
+
 int __cpu_wakeup_all(void)
 {
 	int r, res = 0;
@@ -90,14 +122,27 @@ int __cpu_wakeup_all(void)
 	/* Main core (id:0) already booted, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
 		struct __cpu_device *cpu = __cpu_get(i);
-		const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 
-		if (drv && drv->ops && drv->ops->wakeup) {
-			r = drv->ops->wakeup(cpu);
-			if (r) {
-				printk("cpu_wakeup_all: id:%d failed to wakeup.\n", i);
-				res = r;
-			}
+		r = __cpu_wakeup(cpu);
+		if (r) {
+			res = r;
+		}
+	}
+
+	return res;
+}
+
+int __cpu_sleep_all(void)
+{
+	int r, res = 0;
+
+	/* Main core (id:0) cannot sleep, start from 1 */
+	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
+		struct __cpu_device *cpu = __cpu_get(i);
+
+		r = __cpu_sleep(cpu);
+		if (r) {
+			res = r;
 		}
 	}
 
