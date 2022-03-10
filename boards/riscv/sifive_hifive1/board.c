@@ -10,12 +10,14 @@ const static struct __device_config cpu0_conf[] = {
 	{0},
 };
 
+static __cpu_priv_t cpu0_priv;
 static struct __cpu_device cpu0 = {
 	.base = {
 		.name = "cpu0",
 		.type_vendor = "none",
 		.type_device = "cpu_riscv",
 		.conf = cpu0_conf,
+		.priv = &cpu0_priv,
 	},
 };
 

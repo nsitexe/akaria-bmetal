@@ -5,60 +5,36 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/uart.h>
 
-const static struct __device_config cpu0_conf[] = {
-	{"hartid", 1, {0}},
-	{0},
+#define CPU_CONF(N)    \
+	[N] = { \
+		{"hartid", 1, {N}}, \
+		{0}, \
+	}
+
+#define CPU_DEVICE(N)    \
+	[N] = { \
+		.base = { \
+			.name = "cpu" #N, \
+			.type_vendor = "none", \
+			.type_device = "cpu_riscv", \
+			.conf = cpu_conf[N], \
+			.priv = &cpu_priv[N], \
+		}, \
+	}
+
+const static struct __device_config cpu_conf[][2] = {
+	CPU_CONF(0),
+	CPU_CONF(1),
+	CPU_CONF(2),
+	CPU_CONF(3),
 };
 
-const static struct __device_config cpu1_conf[] = {
-	{"hartid", 1, {1}},
-	{0},
-};
-
-const static struct __device_config cpu2_conf[] = {
-	{"hartid", 1, {2}},
-	{0},
-};
-
-const static struct __device_config cpu3_conf[] = {
-	{"hartid", 1, {3}},
-	{0},
-};
-
-static struct __cpu_device cpu0 = {
-	.base = {
-		.name = "cpu0",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu0_conf,
-	},
-};
-
-static struct __cpu_device cpu1 = {
-	.base = {
-		.name = "cpu1",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu1_conf,
-	},
-};
-
-static struct __cpu_device cpu2 = {
-	.base = {
-		.name = "cpu2",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu2_conf,
-	},
-};
-
-static struct __cpu_device cpu3 = {
-	.base = {
-		.name = "cpu3",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu3_conf,
-	},
+static __cpu_priv_t cpu_priv[4];
+static struct __cpu_device cpu[] = {
+	CPU_DEVICE(0),
+	CPU_DEVICE(1),
+	CPU_DEVICE(2),
+	CPU_DEVICE(3),
 };
 
 const static struct __device_config uart0_conf[] = {
@@ -79,10 +55,9 @@ static struct __uart_device uart0 = {
 
 static int board_qemu_virt_init(void)
 {
-	__cpu_add_device(&cpu0, __bus_get_root());
-	__cpu_add_device(&cpu1, __bus_get_root());
-	__cpu_add_device(&cpu2, __bus_get_root());
-	__cpu_add_device(&cpu3, __bus_get_root());
+	for (int i = 0; i < 4; i++) {
+		__cpu_add_device(&cpu[i], __bus_get_root());
+	}
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 
 	return 0;

@@ -31,6 +31,12 @@ struct __cpu_device {
 	struct __thread_info *ti;
 };
 
+struct __cpu_priv_max {
+	char dummy[56];
+};
+typedef struct __cpu_priv_max    __cpu_priv_t;
+#define CHECK_PRIV_SIZE_CPU(typ)    CHECK_PRIV_SIZE(typ, __cpu_priv_t);
+
 static inline const struct __cpu_driver *__cpu_get_drv(const struct __cpu_device *cpu)
 {
 	if (!cpu) {

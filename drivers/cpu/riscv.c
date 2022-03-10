@@ -14,11 +14,21 @@ atomic_uintptr_t __section(".noinit") __boot_proc;
 atomic_uintptr_t __boot_sp;
 atomic_int __boot_done;
 
+struct cpu_riscv_priv {
+};
+CHECK_PRIV_SIZE_CPU(struct cpu_riscv_priv);
+
 static int cpu_riscv_add(struct __device *dev)
 {
 	struct __cpu_device *cpu = __cpu_from_dev(dev);
+	struct cpu_riscv_priv *priv = dev->priv;
 	uint32_t hartid;
 	int cpuid, r;
+
+	if (priv == NULL) {
+		__dev_err(dev, "priv is NULL\n");
+		return -EINVAL;
+	}
 
 	r = __device_read_conf_u32(dev, "hartid", &hartid, 0);
 	if (r) {
