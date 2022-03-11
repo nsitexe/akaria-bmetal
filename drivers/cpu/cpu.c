@@ -83,6 +83,51 @@ int __cpu_remove(struct __cpu_device *cpu)
 	return __device_remove(__cpu_to_dev(cpu));
 }
 
+static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event ev)
+{
+	int r, res = 0;
+
+	if (CPU_EVENT_MAX <= ev) {
+		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
+		return -EINVAL;
+	}
+
+	if (cpu->handlers[ev] && cpu->handlers[ev]->func) {
+		r = cpu->handlers[ev]->func(ev, cpu->handlers[ev]);
+		if (r != EVENT_HANDLED) {
+			res = -EINVAL;
+		}
+	}
+
+	return res;
+}
+
+int __cpu_get_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler **hnd)
+{
+	if (CPU_EVENT_MAX <= ev) {
+		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
+		return -EINVAL;
+	}
+
+	if (hnd) {
+		*hnd = cpu->handlers[ev];
+	}
+
+	return 0;
+}
+
+int __cpu_set_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd)
+{
+	if (CPU_EVENT_MAX <= ev) {
+		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
+		return -EINVAL;
+	}
+
+	cpu->handlers[ev] = hnd;
+
+	return 0;
+}
+
 int __cpu_wakeup(struct __cpu_device *cpu)
 {
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
@@ -167,6 +212,12 @@ int __cpu_on_wakeup(struct __cpu_device *cpu)
 		}
 	}
 
+	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_WAKEUP);
+	if (r) {
+		__dev_err(__cpu_to_dev(cpu), "failed to handle event of on_wakeup.\n");
+		return r;
+	}
+
 	return 0;
 }
 
@@ -178,6 +229,12 @@ int __cpu_on_sleep(struct __cpu_device *cpu)
 	if (__arch_get_cpu_id() != cpu->id_phys) {
 		__dev_err(__cpu_to_dev(cpu), "This cpu is %d not id_phys:%d.\n", __arch_get_cpu_id(), cpu->id_phys);
 		return -EINVAL;
+	}
+
+	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_SLEEP);
+	if (r) {
+		__dev_err(__cpu_to_dev(cpu), "failed to handle event of on_sleep.\n");
+		return r;
 	}
 
 	if (drv && drv->ops && drv->ops->on_sleep) {

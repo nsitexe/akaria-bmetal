@@ -9,6 +9,13 @@
 #include <bmetal/device.h>
 #include <bmetal/thread.h>
 
+enum __cpu_event {
+	CPU_EVENT_ON_WAKEUP,
+	CPU_EVENT_ON_SLEEP,
+
+	CPU_EVENT_MAX,
+};
+
 struct __cpu_device;
 
 struct __cpu_driver_ops {
@@ -33,6 +40,7 @@ struct __cpu_device {
 	int id_cpu;
 	int id_phys;
 	struct __thread_info *ti;
+	struct __event_handler *handlers[CPU_EVENT_MAX];
 };
 
 struct __cpu_priv_max {
@@ -84,6 +92,8 @@ struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
 int __cpu_remove_device(struct __cpu_device *cpu);
+int __cpu_get_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler **hnd);
+int __cpu_set_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_wakeup(struct __cpu_device *cpu);
 int __cpu_sleep(struct __cpu_device *cpu);
 int __cpu_wakeup_all(void);
