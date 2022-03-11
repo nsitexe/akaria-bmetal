@@ -149,6 +149,48 @@ int __cpu_sleep_all(void)
 	return res;
 }
 
+int __cpu_on_wakeup(struct __cpu_device *cpu)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (__arch_get_cpu_id() != cpu->id_phys) {
+		__dev_err(__cpu_to_dev(cpu), "This cpu is %d not id_phys:%d.\n", __arch_get_cpu_id(), cpu->id_phys);
+		return -EINVAL;
+	}
+
+	if (drv && drv->ops && drv->ops->on_wakeup) {
+		r = drv->ops->on_wakeup(cpu);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "failed to callback on_wakeup.\n");
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+int __cpu_on_sleep(struct __cpu_device *cpu)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (__arch_get_cpu_id() != cpu->id_phys) {
+		__dev_err(__cpu_to_dev(cpu), "This cpu is %d not id_phys:%d.\n", __arch_get_cpu_id(), cpu->id_phys);
+		return -EINVAL;
+	}
+
+	if (drv && drv->ops && drv->ops->on_sleep) {
+		r = drv->ops->on_sleep(cpu);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "failed to callback on_sleep.\n");
+			return r;
+		}
+	}
+
+	return 0;
+}
+
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu)
 {
 	const char *cpu_name;
