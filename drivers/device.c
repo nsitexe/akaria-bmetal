@@ -38,6 +38,9 @@ static struct __bus bus_root = {
 	.type_device = "bus_root",
 };
 
+static struct __event_handler device_evt_handlers[CONFIG_MAX_EVENT_HANDLERS];
+static int device_evt_handler_stat[CONFIG_MAX_EVENT_HANDLERS];
+
 static int device_probe(struct __device *dev);
 static int bus_probe(struct __bus *bus);
 
@@ -274,6 +277,98 @@ int __device_remove(struct __device *dev)
 	/* dev->bus_parent = 0; */
 
 	return -ENOTSUP;
+}
+
+int __device_alloc_event_handler(struct __device *dev, struct __event_handler **handler)
+{
+	int found = 0;
+	int i;
+
+	if (dev == NULL || handler == NULL) {
+		return -EINVAL;
+	}
+
+	for (i = 0; i < CONFIG_MAX_EVENT_HANDLERS; i++) {
+		if (device_evt_handler_stat[i] == 0) {
+			found = 1;
+			break;
+		}
+	}
+	if (!found) {
+		__dev_err(dev, "No more interrupt handlers.\n");
+		return -ENOMEM;
+	}
+
+	*handler = &device_evt_handlers[i];
+	device_evt_handler_stat[i] = 1;
+
+	return 0;
+}
+
+int __device_free_event_handler(struct __device *dev, struct __event_handler *handler)
+{
+	int found = 0;
+	int i;
+
+	if (dev == NULL || handler == NULL) {
+		return -EINVAL;
+	}
+
+	for (i = 0; i < CONFIG_MAX_EVENT_HANDLERS; i++) {
+		if (handler == &device_evt_handlers[i]) {
+			found = 1;
+			break;
+		}
+	}
+	if (!found) {
+		__dev_err(dev, "handler %p is not found.\n", handler);
+		return -EINVAL;
+	}
+
+	device_evt_handler_stat[i] = 0;
+
+	return 0;
+}
+
+int __device_add_event_handler(struct __device *dev, struct __event_handler *head, struct __event_handler *handler)
+{
+	struct __event_handler *last = NULL;
+
+	if (head == NULL || handler == NULL) {
+		return -EINVAL;
+	}
+
+	for_each_handler(h, head) {
+		last = h;
+	}
+
+	last->hnd_next = handler;
+	handler->hnd_next = NULL;
+
+	return 0;
+}
+
+int __device_remove_event_handler(struct __device *dev, struct __event_handler *head, struct __event_handler *handler)
+{
+	int found = 0;
+
+	if (head == NULL || handler == NULL) {
+		return -EINVAL;
+	}
+
+	for_each_handler(h, head) {
+		if (h->hnd_next == handler) {
+			found = 1;
+			h->hnd_next = handler->hnd_next;
+			break;
+		}
+	}
+	if (!found) {
+		__dev_err(dev, "handler %p is not found.\n", handler);
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 static int device_find_conf(struct __device *dev, const char *name)

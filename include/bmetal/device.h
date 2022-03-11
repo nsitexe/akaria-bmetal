@@ -13,6 +13,25 @@
 
 #define __dev_err(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 
+#define EVENT_HANDLED            1
+#define EVENT_NOT_HANDLED        2
+
+#define for_each_handler(x, head)    for (struct __event_handler *x = (head); x; x = x->hnd_next)
+
+struct __event_handler;
+
+typedef int (* __event_handler_func_t)(int event, struct __event_handler *hnd);
+
+struct __event_handler {
+	/* Set by driver */
+	__event_handler_func_t func;
+	void *priv;
+
+	/* Set by framework */
+	int event;
+	struct __event_handler *hnd_next;
+};
+
 #define for_each_driver(x, head)    for (struct __driver *x = (head); x; x = x->drv_next)
 #define for_each_device(x, head)    for (struct __device *x = (head); x; x = x->dev_next)
 #define for_each_bus(x, head)       for (struct __bus *x = (head); x; x = x->bus_next)
@@ -236,6 +255,10 @@ struct __device *__device_get_root(void);
 int __device_probe_all(void);
 int __device_add(struct __device *dev, struct __bus *parent);
 int __device_remove(struct __device *dev);
+int __device_alloc_event_handler(struct __device *dev, struct __event_handler **handler);
+int __device_free_event_handler(struct __device *dev, struct __event_handler *handler);
+int __device_add_event_handler(struct __device *dev, struct __event_handler *head, struct __event_handler *handler);
+int __device_remove_event_handler(struct __device *dev, struct __event_handler *head, struct __event_handler *handler);
 int __device_get_conf_length(struct __device *dev, const char *name, int *len);
 int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index);
 int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr, int index);
