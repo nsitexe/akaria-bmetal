@@ -56,7 +56,7 @@ static void copy_data(void)
 #endif /* CONFIG_XIP */
 }
 
-static int init_proc(void)
+static int init_proc_main(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_create();
@@ -66,7 +66,31 @@ static int init_proc(void)
 	pi->pid = CONFIG_MAIN_PID;
 
 	/* Init stdin/out/err */
-	__file_stdio_init(pi);
+	r = __file_stdio_init(pi);
+	if (r) {
+		return r;
+	}
+
+	/* Init thread info */
+	ti = __thread_create(pi);
+	if (!ti) {
+		return -EAGAIN;
+	}
+
+	r = __thread_run(ti, cpu);
+	if (r) {
+		return r;
+	}
+
+	return 0;
+}
+
+static int init_proc_sub(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __proc_info *pi = __proc_get_current();
+	struct __thread_info *ti;
+	int r;
 
 	/* Init thread info */
 	ti = __thread_create(pi);
@@ -147,30 +171,41 @@ static int init_args(int *argc)
 
 void __prep_main(void)
 {
+	int r;
+
 	clear_bss();
 	copy_data();
 
 	init_drivers();
-	init_proc();
+	init_proc_main();
 
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
-	int argc;
-	init_args(&argc);
+	r = __cpu_on_wakeup(__cpu_get_current());
+	if (r) {
+		printk("prep_main: failed to callback on_wakeup.\n");
+	}
 
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
+
+	int argc;
+	init_args(&argc);
 
 	__libc_init(argc, argv, envp);
 }
 
 void __prep_sub(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __thread_info *ti = __thread_create(__proc_get_current());
+	int r;
 
-	__thread_run(ti, cpu);
+	init_proc_sub();
+
+	r = __cpu_on_wakeup(__cpu_get_current());
+	if (r) {
+		printk("prep_sub: failed to callback on_wakeup.\n");
+	}
 
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
