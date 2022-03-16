@@ -4,6 +4,7 @@ prj_sources(
   isr.S
   start.S
   cpu.c
+  intr.c
   lock.c
   sync.c
   )

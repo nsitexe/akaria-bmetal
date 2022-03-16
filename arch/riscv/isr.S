@@ -8,6 +8,10 @@
 
 .globl __sys_unknown
 .type __sys_unknown, @function
+.globl __arch_riscv_interrupt
+.type __arch_riscv_interrupt, @function
+.globl __arch_riscv_exception
+.type __arch_riscv_exception, @function
 
 .section ".text", "ax"
 .align 2
@@ -62,16 +66,16 @@ __trap_syscall_unknown:
 	j     __trap_syscall_end
 
 __trap_interrupt:
-	# TODO: to be implemented
-1:
-	wfi
-	j 1b
+	csrr a0, mcause
+	call __arch_riscv_interrupt
+	j    __end_trap
 
 __trap_exception:
-	# TODO: to be implemented
-1:
-	wfi
-	j 1b
+	csrr a0, mcause
+	slli a0, a0, 1
+	srli a0, a0, 1
+	call __arch_riscv_exception
+	j    __end_trap
 
 __end_trap:
 	load_caller_regs
