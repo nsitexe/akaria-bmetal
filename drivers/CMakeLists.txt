@@ -7,4 +7,5 @@ prj_sources(
 
 add_subdirectory(cpu)
 add_subdirectory_ifdef(CONFIG_CLK clk)
+add_subdirectory_ifdef(CONFIG_INTC intc)
 add_subdirectory_ifdef(CONFIG_UART uart)
