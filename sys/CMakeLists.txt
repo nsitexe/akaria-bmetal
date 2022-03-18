@@ -3,6 +3,7 @@
 prj_sources(
   file.c
   init.c
+  intr.c
   lock.c
   printk.c
   string.c
