@@ -7,6 +7,7 @@
 #include <bmetal/init.h>
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
+#include <bmetal/intr.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
@@ -189,6 +190,7 @@ void __prep_main(void)
 
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
+	__intr_enable_local();
 
 	int argc;
 	init_args(&argc);
@@ -209,4 +211,5 @@ void __prep_sub(void)
 
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
+	__intr_enable_local();
 }
