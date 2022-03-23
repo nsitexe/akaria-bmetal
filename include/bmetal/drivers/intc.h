@@ -3,6 +3,7 @@
 #ifndef BAREMETAL_CRT_DRIVERS_INTC_H_
 #define BAREMETAL_CRT_DRIVERS_INTC_H_
 
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -67,6 +68,8 @@ static inline int __intc_remove_driver(struct __intc_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
+#ifdef CONFIG_INTC
+
 int __intc_add_device(struct __intc_device *intc, struct __bus *parent);
 int __intc_remove_device(struct __intc_device *intc);
 int __intc_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler);
@@ -75,5 +78,45 @@ int __intc_handle_generic_event(struct __intc_device *intc, int event, struct __
 
 int __intc_get_conf_length(struct __device *dev, int *len);
 int __intc_get_intc_from_config(struct __device *dev, int index, struct __intc_device **intc, int *num_irq);
+
+#else /* CONFIG_INTC */
+
+static inline int __intc_add_device(struct __intc_device *intc, struct __bus *parent)
+{
+	return -ENOTSUP;
+}
+
+static inline int __intc_remove_device(struct __intc_device *intc)
+{
+	return -ENOTSUP;
+}
+
+static inline int __intc_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+{
+	return -ENOTSUP;
+}
+
+static inline int __intc_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+{
+	return -ENOTSUP;
+}
+
+static inline int __intc_handle_generic_event(struct __intc_device *intc, int event, struct __event_handler *hnd_head)
+{
+	return -ENOTSUP;
+}
+
+
+static inline int __intc_get_conf_length(struct __device *dev, int *len)
+{
+	return -ENOTSUP;
+}
+
+static inline int __intc_get_intc_from_config(struct __device *dev, int index, struct __intc_device **intc, int *num_irq)
+{
+	return -ENOTSUP;
+}
+
+#endif /* CONFIG_INTC */
 
 #endif /* BAREMETAL_CRT_DRIVERS_INTC_H_ */
