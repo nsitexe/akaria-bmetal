@@ -139,7 +139,7 @@ static struct __uart_device uart0 = {
 
 static int board_qemu_virt_init(void)
 {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < ARRAY_OF(cpu); i++) {
 		__cpu_add_device(&cpu[i], __bus_get_root());
 		__intc_add_device(&rvintc[i], __bus_get_root());
 	}
