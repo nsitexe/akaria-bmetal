@@ -7,20 +7,38 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/uart.h>
 
-const static struct __device_config cpu0_conf[] = {
-	{"hartid", 1, {0}},
-	{0},
+#define CPU_CONF(N)    \
+	[N] = { \
+		{"hartid", 1, {N}}, \
+		{0}, \
+	}
+
+#define CPU_DEVICE(N)    \
+	[N] = { \
+		.base = { \
+			.name = "cpu" #N, \
+			.type_vendor = "none", \
+			.type_device = "cpu_riscv", \
+			.conf = cpu_conf[N], \
+			.priv = &cpu_priv[N], \
+		}, \
+	}
+
+const static struct __device_config cpu_conf[][2] = {
+	CPU_CONF(0),
+	CPU_CONF(1),
+	CPU_CONF(2),
+	CPU_CONF(3),
+	CPU_CONF(4),
 };
 
-static __cpu_priv_t cpu0_priv;
-static struct __cpu_device cpu0 = {
-	.base = {
-		.name = "cpu0",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu0_conf,
-		.priv = &cpu0_priv,
-	},
+static __cpu_priv_t cpu_priv[5];
+static struct __cpu_device cpu[] = {
+	CPU_DEVICE(0),
+	CPU_DEVICE(1),
+	CPU_DEVICE(2),
+	CPU_DEVICE(3),
+	CPU_DEVICE(4),
 };
 
 const static struct __device_config hfclk_conf[] = {
@@ -114,7 +132,9 @@ static struct __uart_device uart1 = {
 
 static int board_hifive_unleashed_init(void)
 {
-	__cpu_add_device(&cpu0, __bus_get_root());
+	for (int i = 0; i < ARRAY_OF(cpu); i++) {
+		__cpu_add_device(&cpu[i], __bus_get_root());
+	}
 	__clk_add_device(&hfclk, __bus_get_root());
 	__clk_add_device(&rtclk, __bus_get_root());
 	__clk_add_device(&prci, __bus_get_root());
