@@ -12,6 +12,10 @@
 .section ".reset", "ax"
 .align 2
 _start:
+	# Disable global, all interrupts
+	csrw mstatus, zero
+	csrw mie, zero
+
 	# Interrupt handler
 	la   t0, __start_trap
 	csrw mtvec, t0
@@ -21,13 +25,6 @@ _start:
 .option norelax
 	la   gp, __global_pointer$
 .option pop
-
-	# Enable FPU
-#ifdef CONFIG_FPU
-	li   t0, MSTATUS_FS
-	csrs mstatus, t0
-	csrw fcsr, x0
-#endif
 
 	# Clear notify area
 	la    t0, __boot_proc
@@ -46,6 +43,7 @@ for_main:
 	li   t0, CONFIG_INTR_STACK_SIZE
 	add  sp, t0, sp
 
+	call for_common
 	call __prep_main
 
 	# For error handling
@@ -68,9 +66,19 @@ for_sub:
 	OP_ST t1, (t0)
 	fence iorw, iorw
 
+	call for_common
 	call __prep_sub
 
 	# For error handling
 1:
 	wfi
 	j   1b
+
+for_common:
+	# Enable FPU
+#ifdef CONFIG_FPU
+	li   t0, MSTATUS_FS
+	csrs mstatus, t0
+	csrw fcsr, x0
+#endif
+	ret
