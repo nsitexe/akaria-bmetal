@@ -3,8 +3,10 @@
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/bindings/clk/sifive/prci.h>
+#include <bmetal/bindings/intc/riscv/rv_priv.h>
 #include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/drivers/intc.h>
 #include <bmetal/drivers/uart.h>
 
 #define CPU_CONF(N)    \
@@ -39,6 +41,67 @@ static struct __cpu_device cpu[] = {
 	CPU_DEVICE(2),
 	CPU_DEVICE(3),
 	CPU_DEVICE(4),
+};
+
+#define INTC_CONF(N)    \
+	[N] = { \
+		{"cpu", 1, {UPTR("cpu" #N)}}, \
+		{0}, \
+	}
+
+#define INTC_DEVICE(N)    \
+	[N] = { \
+		.base = { \
+			.name = "rvintc" #N, \
+			.type_vendor = "riscv", \
+			.type_device = "priv1_10", \
+			.conf = rvintc_conf[N], \
+			.priv = &rvintc_priv[N], \
+		}, \
+	}
+
+const static struct __device_config rvintc_conf[][2] = {
+	INTC_CONF(0),
+	INTC_CONF(1),
+	INTC_CONF(2),
+	INTC_CONF(3),
+	INTC_CONF(4),
+};
+
+static __intc_priv_t rvintc_priv[5];
+static struct __intc_device rvintc[] = {
+	INTC_DEVICE(0),
+	INTC_DEVICE(1),
+	INTC_DEVICE(2),
+	INTC_DEVICE(3),
+	INTC_DEVICE(4),
+};
+
+const static struct __device_config clint_conf[] = {
+	{"reg", 1, {0x2000000}},
+	{"reg-size", 1, {0x1000}},
+	{"interrupts", 16, {
+		UPTR("rvintc0"), RV_IX_SIX,
+		UPTR("rvintc1"), RV_IX_SIX,
+		UPTR("rvintc2"), RV_IX_SIX,
+		UPTR("rvintc3"), RV_IX_SIX,
+		UPTR("rvintc0"), RV_IX_TIX,
+		UPTR("rvintc1"), RV_IX_TIX,
+		UPTR("rvintc2"), RV_IX_TIX,
+		UPTR("rvintc3"), RV_IX_TIX,
+		}},
+	{0},
+};
+
+static __intc_priv_t clint_priv;
+static struct __intc_device clint = {
+	.base = {
+		.name = "clint",
+		.type_vendor = "sifive",
+		.type_device = "clint0",
+		.conf = clint_conf,
+		.priv = &clint_priv,
+	}
 };
 
 const static struct __device_config hfclk_conf[] = {
@@ -134,7 +197,9 @@ static int board_hifive_unleashed_init(void)
 {
 	for (int i = 0; i < ARRAY_OF(cpu); i++) {
 		__cpu_add_device(&cpu[i], __bus_get_root());
+		__intc_add_device(&rvintc[i], __bus_get_root());
 	}
+	__intc_add_device(&clint, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
 	__clk_add_device(&rtclk, __bus_get_root());
 	__clk_add_device(&prci, __bus_get_root());
