@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <bmetal/printk.h>
+#include <bmetal/intr.h>
 #include <bmetal/lock.h>
 #include <bmetal/string.h>
 
@@ -24,6 +25,9 @@ static int inner_putc(int c)
 
 static int inner_puts(const char *s, int newline)
 {
+	long st;
+
+	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
 
 	for (size_t i = 0; i < kstrlen(s); i++) {
@@ -34,6 +38,7 @@ static int inner_puts(const char *s, int newline)
 	}
 
 	__spinlock_unlock(&printk_lock);
+	__intr_restore_local(st);
 
 	return 0;
 }
