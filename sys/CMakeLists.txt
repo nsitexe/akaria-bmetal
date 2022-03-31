@@ -9,6 +9,7 @@ prj_sources(
   string.c
   syscall.c
   thread.c
+  vsprintf.c
   )
 
 add_subdirectory_ifdef(CONFIG_USE_GLIBC glibc)

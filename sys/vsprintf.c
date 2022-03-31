@@ -31,10 +31,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
-#include "printf.h"
-
+#include <bmetal/printk.h>
 
 // define this globally (e.g. gcc -DPRINTF_INCLUDE_CONFIG_H ...) to include the
 // printf_config.h header file
@@ -128,6 +128,7 @@ typedef struct {
   void* arg;
 } out_fct_wrap_type;
 
+int inner_putc(int c);
 
 // internal buffer output
 static inline void _out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
@@ -150,7 +151,7 @@ static inline void _out_char(char character, void* buffer, size_t idx, size_t ma
 {
   (void)buffer; (void)idx; (void)maxlen;
   if (character) {
-    _putchar(character);
+    inner_putc(character);
   }
 }
 
@@ -859,51 +860,18 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int printf_(const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  char buffer[1];
-  const int ret = _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
-  va_end(va);
-  return ret;
-}
-
-
-int sprintf_(char* buffer, const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  const int ret = _vsnprintf(_out_buffer, buffer, (size_t)-1, format, va);
-  va_end(va);
-  return ret;
-}
-
-
-int snprintf_(char* buffer, size_t count, const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  const int ret = _vsnprintf(_out_buffer, buffer, count, format, va);
-  va_end(va);
-  return ret;
-}
-
-
-int vprintf_(const char* format, va_list va)
+int inner_vprintf(const char* format, va_list va)
 {
   char buffer[1];
   return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
 }
 
-
-int vsnprintf_(char* buffer, size_t count, const char* format, va_list va)
+int inner_vsnprintf(char* buffer, size_t count, const char* format, va_list va)
 {
   return _vsnprintf(_out_buffer, buffer, count, format, va);
 }
 
-
-int fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
+int inner_fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
 {
   va_list va;
   va_start(va, format);
