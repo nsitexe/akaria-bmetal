@@ -35,9 +35,13 @@ extern __init_func_t __initcall_end[];
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
 /* +1 is for argv[0] */
-static char *argv[CONFIG_COMM_MAX_ARGS + 1];
-/* always NULL */
-static char *envp[2];
+#define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS)
+static char *argv[MAX_ARGV];
+static char **envp;
+static int index_argv = 0;
+
+/* TODO: randomize */
+static char at_random[16];
 
 static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION) __aligned(8) __used = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
@@ -125,18 +129,50 @@ static int init_drivers(void)
 	return res;
 }
 
+static int add_argv(void *p)
+{
+	if (index_argv >= MAX_ARGV) {
+		return -ENOMEM;
+	}
+
+	argv[index_argv] = p;
+	index_argv++;
+
+	return 0;
+}
+
+static int add_env(void *p)
+{
+	return add_argv(p);
+}
+
+static int add_aux(int typ, void *p)
+{
+	if (index_argv >= MAX_ARGV - 1) {
+		return -ENOMEM;
+	}
+
+	argv[index_argv] = (void *)(intptr_t)typ;
+	argv[index_argv + 1] = p;
+	index_argv += 2;
+
+	return 0;
+}
+
 static int load_argv(const struct __comm_area_header *h, const char *buf_args)
 {
 	const struct __comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
-	int p = 0;
+	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
 		ha = (const struct __comm_arg_header *)buf;
 		buf += sizeof(struct __comm_arg_header);
 
-		argv[p] = (char *)buf;
-		p++;
+		r = add_argv((void *)buf);
+		if (r) {
+			printk("Exceed number of argv max:%d.\n", MAX_ARGV);
+		}
 		buf += ha->size;
 
 		buf = ALIGN_OF(buf, 8);
@@ -149,7 +185,8 @@ static int init_args(int *argc)
 {
 	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 
-	*argc = 1;
+	/* Set argv[0] after */
+	index_argv = 1;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
 		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
@@ -160,12 +197,26 @@ static int init_args(int *argc)
 		}
 
 		load_argv(h_area, __comm_area + sz);
-		*argc = h_area->num_args + 1;
+		if (index_argv != h_area->num_args + 1) {
+			printk("Illegal number of arguments (ind:%d != num_args:%d).\n",
+				index_argv, h_area->num_args + 1);
+		}
+		*argc = index_argv;
 	}
 	if (argv[0] == NULL) {
 		printk("Missing kernel name. Use default.\n");
 		argv[0] = "main";
 	}
+
+	envp = &argv[index_argv];
+
+	/* No environment variables */
+	add_env(NULL);
+
+	/* Auxiliary vector */
+	add_aux(25 /* AT_RANDOM */, at_random);
+
+	add_aux(0, NULL);
 
 	return 0;
 }
@@ -212,4 +263,8 @@ void __prep_sub(void)
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
 	__intr_enable_local();
+
+	//for (;;) {
+		*((volatile int *)0x200000c) = 0x1;
+	//}
 }
