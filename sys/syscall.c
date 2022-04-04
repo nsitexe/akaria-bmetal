@@ -9,16 +9,34 @@
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
 #include <bmetal/printk.h>
+#include <bmetal/string.h>
 #include <bmetal/thread.h>
 
 static char brk_area[CONFIG_BRK_SIZE];
 static char *brk_cur = brk_area;
+//static char heap_area[CONFIG_HEAP_SIZE];
+
+static const struct new_utsname uname = {
+	.sysname    = "Linux",
+	.nodename   = "",
+	.release    = "5.15.0",
+	.version    = "5.15.0",
+	.machine    = "rv",
+	.domainname = "",
+};
 
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
 	printk("unknown syscall %"PRIdPTR"\n", number);
 
 	return -ENOTSUP;
+}
+
+int __sys_uname(struct new_utsname *name)
+{
+	kmemcpy(name, &uname, sizeof(uname));
+
+	return 0;
 }
 
 static struct __file_desc *get_file_desc(int fd)
