@@ -111,7 +111,7 @@ SECTIONS
 
 	.data : ALIGN_WITH_INPUT {
 		__data_start = .;
-		*(.data .data.*)
+		*(.data .data.* .gnu.linkonce.d.*)
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
 		__data_end = .;
@@ -123,7 +123,7 @@ SECTIONS
 		__sdata_start = .;
 		__global_pointer$ = . + 0x800;
 		*(.srodata .srodata.*)
-		*(.sdata .sdata.*)
+		*(.sdata .sdata.* .gnu.linkonce.s.*)
 		__sdata_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
@@ -132,14 +132,14 @@ SECTIONS
 
 	.sbss (NOLOAD) : {
 		__sbss_start = .;
-		*(.sbss .sbss.*)
+		*(.sbss .sbss.* .gnu.linkonce.sb.*)
 		*(.scommon)
 		__sbss_end = .;
 	} > DATA_AREA
 
 	.bss (NOLOAD) : {
 		__bss_start = .;
-		*(.bss .bss.*)
+		*(.bss .bss.* .gnu.linkonce.b.*)
 		*(COMMON)
 		__bss_end = .;
 	} > DATA_AREA
