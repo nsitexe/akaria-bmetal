@@ -109,6 +109,27 @@ SECTIONS
 		*(.rodata .rodata.*)
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
+	.preinit_array : {
+		__preinit_array_start = .;
+		KEEP(*(.preinit_array))
+		__preinit_array_end = .;
+	} > TEXT_AREA AT > TEXT_AREA_AT
+
+	.init_array : {
+		__init_array_start = .;
+		KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)
+			SORT_BY_INIT_PRIORITY(.ctors.*)))
+		KEEP(*(.init_array EXCLUDE_FILE(*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o) .ctors))
+		__init_array_end = .;
+	} > TEXT_AREA AT > TEXT_AREA_AT
+
+	.fini_array : {
+		__fini_array_start = .;
+		KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
+		KEEP(*(.fini_array EXCLUDE_FILE(*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
+		__fini_array_end = .;
+	} > TEXT_AREA AT > TEXT_AREA_AT
+
 	.tdata : ALIGN_WITH_INPUT {
 		__tdata_start = .;
 		*(.tdata .tdata.* .gnu.linkonce.td.*)
@@ -127,6 +148,7 @@ SECTIONS
 		*(.data .data.* .gnu.linkonce.d.*)
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
+		*(.got .got.plt)
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
