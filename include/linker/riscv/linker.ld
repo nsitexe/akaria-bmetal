@@ -109,6 +109,19 @@ SECTIONS
 		*(.rodata .rodata.*)
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
+	.tdata : ALIGN_WITH_INPUT {
+		__tdata_start = .;
+		*(.tdata .tdata.* .gnu.linkonce.td.*)
+		__tdata_end = .;
+	} > DATA_AREA AT > DATA_AREA_AT
+
+	__tdata_load = LOADADDR(.tdata);
+
+	.tbss (NOLOAD) : ALIGN_WITH_INPUT {
+		*(.tbss .tbss.* .gnu.linkonce.tb.*)
+		*(.tcommon)
+	} > DATA_AREA
+
 	.data : ALIGN_WITH_INPUT {
 		__data_start = .;
 		*(.data .data.* .gnu.linkonce.d.*)
