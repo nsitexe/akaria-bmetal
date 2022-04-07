@@ -105,6 +105,11 @@ SECTIONS
 		__initcall_end = .;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
+	.auxdata : ALIGN_WITH_INPUT {
+		*(.auxdata .auxdata.*)
+		. += CONFIG_AUX_AREA_SIZE;
+	} > TEXT_AREA AT > TEXT_AREA_AT
+
 	.rodata : ALIGN_WITH_INPUT {
 		*(.rodata .rodata.*)
 	} > TEXT_AREA AT > TEXT_AREA_AT
