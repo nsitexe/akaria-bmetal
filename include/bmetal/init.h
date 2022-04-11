@@ -5,6 +5,16 @@
 
 #include <bmetal/bmetal.h>
 
+/* from elf/elf.h */
+#define AT_PHDR      3
+#define AT_PHENT     4
+#define AT_PHNUM     5
+#define AT_RANDOM    25
+
+#define BAREMETAL_CRT_AUX_SECTION    ".auxdata"
+
+#define DEFAULT_KERNEL_NAME    "main"
+
 #ifndef __aligned
 #define __aligned(n)    __attribute__((aligned(n)))
 #endif
@@ -32,5 +42,12 @@ typedef int (*__init_func_t)(void);
 typedef void (*__fini_func_t)(void);
 
 extern char __stack_intr[];
+
+struct __aux_data {
+	uint32_t valid;
+	uint64_t phent;
+	uint64_t phnum;
+	uint64_t phdr_size;
+};
 
 #endif /* BAREMETAL_CRT_INIT_H_ */

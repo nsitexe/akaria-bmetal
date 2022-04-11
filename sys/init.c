@@ -28,9 +28,12 @@ extern char __bss_start[], __bss_end[];
 extern char __sbss_start[], __sbss_end[];
 extern char __data_start[], __data_end[], __data_load[];
 extern char __sdata_start[], __sdata_end[], __sdata_load[];
+extern char __tdata_start[], __tdata_end[], __tdata_load[];
 
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
+
+static struct __aux_data __aux_start __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
 
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
@@ -58,6 +61,7 @@ static void copy_data(void)
 #ifdef CONFIG_XIP
 	kmemcpy(__data_start, __data_load, __data_end - __data_start);
 	kmemcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
+	kmemcpy(__tdata_start, __tdata_load, __tdata_end - __tdata_start);
 #endif /* CONFIG_XIP */
 }
 
@@ -204,17 +208,30 @@ static int init_args(int *argc)
 		*argc = index_argv;
 	}
 	if (argv[0] == NULL) {
-		printk("Missing kernel name. Use default.\n");
-		argv[0] = "main";
+		printk("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
+		argv[0] = DEFAULT_KERNEL_NAME;
 	}
 
+	/* Environment variables */
 	envp = &argv[index_argv];
 
 	/* No environment variables */
 	add_env(NULL);
 
-	/* Auxiliary vector */
-	add_aux(25 /* AT_RANDOM */, at_random);
+	/* Auxiliary vectors */
+	add_aux(AT_RANDOM, at_random);
+
+	if (__aux_start.valid) {
+		add_aux(AT_PHENT, (void *)__aux_start.phent);
+		add_aux(AT_PHNUM, (void *)__aux_start.phnum);
+
+		char *p = (char *)&__aux_start;
+		p += sizeof(__aux_start);
+
+		add_aux(AT_PHDR, p);
+	} else {
+		printk("Missing program header. AT_PHDR is not available.\n");
+	}
 
 	add_aux(0, NULL);
 
