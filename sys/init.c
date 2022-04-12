@@ -37,8 +37,8 @@ static struct __aux_data __aux_start __section(BAREMETAL_CRT_AUX_SECTION) __alig
 
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 
-/* +1 is for argv[0] */
-#define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS)
+/* +1 is for sentinel */
+#define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS + 1)
 static char *argv[MAX_ARGV];
 static char **envp;
 static int index_argv = 0;
@@ -136,6 +136,7 @@ static int init_drivers(void)
 static int add_argv(void *p)
 {
 	if (index_argv >= MAX_ARGV) {
+		printk("Exceed number of argv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -153,6 +154,7 @@ static int add_env(void *p)
 static int add_aux(int typ, void *p)
 {
 	if (index_argv >= MAX_ARGV - 1) {
+		printk("Exceed number of auxv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -175,7 +177,7 @@ static int load_argv(const struct __comm_area_header *h, const char *buf_args)
 
 		r = add_argv((void *)buf);
 		if (r) {
-			printk("Exceed number of argv max:%d.\n", MAX_ARGV);
+			printk("Too many argumnets, max:%d.\n", MAX_ARGV);
 		}
 		buf += ha->size;
 
@@ -189,8 +191,7 @@ static int init_args(int *argc)
 {
 	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 
-	/* Set argv[0] after */
-	index_argv = 1;
+	index_argv = 0;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
 		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
@@ -201,16 +202,19 @@ static int init_args(int *argc)
 		}
 
 		load_argv(h_area, __comm_area + sz);
-		if (index_argv != h_area->num_args + 1) {
+		if (index_argv != h_area->num_args) {
 			printk("Illegal number of arguments (ind:%d != num_args:%d).\n",
-				index_argv, h_area->num_args + 1);
+				index_argv, h_area->num_args);
 		}
-		*argc = index_argv;
 	}
 	if (argv[0] == NULL) {
 		printk("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
 		argv[0] = DEFAULT_KERNEL_NAME;
+		index_argv = 1;
 	}
+
+	*argc = index_argv;
+	index_argv++;
 
 	/* Environment variables */
 	envp = &argv[index_argv];
