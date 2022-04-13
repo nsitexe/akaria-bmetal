@@ -1,5 +1,3 @@
-CROSS_COMPILE ?= riscv64-unknown-elf-
-#CROSS_COMPILE ?= riscv64-unknown-linux-gnu-
 
 CC = $(CROSS_COMPILE)gcc
 

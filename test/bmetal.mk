@@ -18,18 +18,21 @@ BAREMETAL_CMNLDFLAGS = \
 
 LDADD += -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
 ifeq ($(USE_GLIBC),y)
+  CROSS_COMPILE ?= riscv64-unknown-linux-gnu-
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
   LDADD    += -lc -lgcc_eh -lc
 endif
 ifeq ($(USE_MUSL),y)
+  CROSS_COMPILE ?= riscv64-unknown-linux-musl-
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
   LDADD    += -lc
 endif
 ifeq ($(USE_NEWLIB),y)
+  CROSS_COMPILE ?= riscv64-unknown-elf-
   CPPFLAGS +=
   CFLAGS   += $(BAREMETAL_CMNFLAGS)
   LDFLAGS  += $(BAREMETAL_CMNFLAGS) $(BAREMETAL_CMNLDFLAGS)
