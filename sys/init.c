@@ -284,8 +284,4 @@ void __prep_sub(void)
 	/* FIXME: tentative */
 	printk("hello %d\n", __thread_get_tid());
 	__intr_enable_local();
-
-	//for (;;) {
-		*((volatile int *)0x200000c) = 0x1;
-	//}
 }
