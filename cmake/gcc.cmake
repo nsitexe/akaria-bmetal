@@ -2,7 +2,7 @@
 
 # Common
 prj_compile_options(
-  -Wall
+  -Wall -nostdlib -ffreestanding
   $<$<CONFIG:Debug>:>
   $<$<CONFIG:Release>:>
   $<$<CONFIG:MinSizeRel>:>
