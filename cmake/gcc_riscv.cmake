@@ -30,7 +30,5 @@ endif()
 prj_compile_options(-march=${RV_ARCH})
 prj_compile_options(-mabi=${RV_MABI})
 
-set(SPACER "----")
-message("${SPACER} arch  is RISC-V")
 message("${SPACER} march is '${RV_ARCH}'")
 message("${SPACER} mabi  is '${RV_MABI}'")

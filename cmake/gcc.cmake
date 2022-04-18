@@ -12,6 +12,7 @@ prj_compile_options(
 # Assembler
 prj_compile_options($<$<COMPILE_LANGUAGE:ASM>:-DASMLANG>)
 
-if("${ARCH}" STREQUAL "riscv")
-  include(${CMAKE_SOURCE_DIR}/cmake/gcc_riscv.cmake)
-endif()
+# Architecture depenent
+set(SPACER "----")
+message("${SPACER} arch  is ${ARCH}")
+include(${CMAKE_SOURCE_DIR}/cmake/gcc_${ARCH}.cmake)
