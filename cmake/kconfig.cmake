@@ -31,7 +31,7 @@ set(PRJ_AUTOCONF_H_FILE ${PROJECT_BINARY_DIR}/${PRJ_AUTOCONF_H_DIR}/${PRJ_AUTOCO
 # TODO: Use suitable tools for Kconfig
 add_custom_target(
   defconfig
-  COMMAND cp ${PROJECT_SOURCE_DIR}/config ${PRJ_CONFIG_FILE}
+  COMMAND cp ${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE}
   COMMAND touch ${PRJ_CONFIG_NOTIFY_FILE}
   )
 
