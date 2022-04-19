@@ -48,6 +48,7 @@ pid_t __proc_get_pid(void)
 struct __thread_info *__thread_create(struct __proc_info *pi)
 {
 	struct __thread_info *ti = NULL;
+	int found = 0;
 
 	__spinlock_lock(&pi->lock);
 
@@ -55,16 +56,21 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 		ti = __thread_get_raw(i);
 
 		if (!ti->avail) {
-			ti->pi = pi;
-			ti->tid = alloc_tid();
-			ti->avail = 1;
-
+			found = 1;
 			break;
 		}
 	}
-	if (ti == NULL) {
+	if (!found) {
 		printk("create_thread: reach to limit.\n");
+
+		__spinlock_unlock(&pi->lock);
+		return NULL;
 	}
+
+	ti->pi = pi;
+	ti->tid = alloc_tid();
+	ti->avail = 1;
+	ti->running = 0;
 
 	__spinlock_unlock(&pi->lock);
 
