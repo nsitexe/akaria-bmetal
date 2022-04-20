@@ -4,10 +4,6 @@
 
 .globl _start
 .type _start, @function
-.globl __prep_main
-.type __prep_main, @function
-.globl __prep_sub
-.type __prep_sub, @function
 
 .section ".reset", "ax"
 .align 2
@@ -17,7 +13,7 @@ _start:
 	csrw mie, zero
 
 	# Interrupt handler
-	la   t0, __start_trap
+	la   t0, __trap_start
 	csrw mtvec, t0
 
 	# Global pointer
@@ -34,16 +30,16 @@ _start:
 	# Branch to main/sub function
 	csrr t0, mhartid
 	li   t1, MHARTID_MAIN
-	beq  t0, t1, for_main
-	j    for_sub
+	beq  t0, t1, __start_for_main
+	j    __start_for_sub
 
-for_main:
+__start_for_main:
 	# Stack pointer
 	la   sp, __stack_intr
 	li   t0, CONFIG_INTR_STACK_SIZE
 	add  sp, t0, sp
 
-	call for_common
+	call __start_for_common
 	call __prep_main
 
 	# For error handling
@@ -51,12 +47,12 @@ for_main:
 	wfi
 	j   1b
 
-for_sub:
+__start_for_sub:
 	# Wait for notify
 	csrr  t0, mhartid
 	la    t1, __boot_proc
 	OP_LD t1, (t1)
-	bne   t0, t1, for_sub
+	bne   t0, t1, __start_for_sub
 
 	# Set stack/thread pointer
 	la    t0, __boot_sp
@@ -66,7 +62,7 @@ for_sub:
 	OP_ST t1, (t0)
 	fence iorw, iorw
 
-	call for_common
+	call __start_for_common
 	call __prep_sub
 
 	# For error handling
@@ -74,7 +70,7 @@ for_sub:
 	wfi
 	j   1b
 
-for_common:
+__start_for_common:
 	# Enable FPU
 #ifdef CONFIG_FPU
 	li   t0, MSTATUS_FS

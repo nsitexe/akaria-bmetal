@@ -83,6 +83,15 @@ int __cpu_remove(struct __cpu_device *cpu)
 	return __device_remove(__cpu_to_dev(cpu));
 }
 
+int __cpu_set_current_user_regs(__arch_user_regs_t *regs)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+
+	cpu->regs = regs;
+
+	return 0;
+}
+
 static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event ev)
 {
 	int r, res = 0;

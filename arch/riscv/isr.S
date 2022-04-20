@@ -3,21 +3,29 @@
 #include <bmetal/arch/asm.h>
 #include <bmetal/syscall_num.h>
 
-.globl __start_trap
-.type __start_trap, @function
-
-.globl __sys_unknown
-.type __sys_unknown, @function
-.globl __arch_riscv_interrupt
-.type __arch_riscv_interrupt, @function
-.globl __arch_riscv_exception
-.type __arch_riscv_exception, @function
+.globl __trap_start
+.type __trap_start, @function
+.globl __trap_end
+.type __trap_end, @function
 
 .section ".text", "ax"
 .align 2
-__start_trap:
+__trap_start:
+	addi  sp, sp, -REGOFF_ALL
 	store_caller_regs
+	store_callee_regs
+	store_special_regs
 	store_status_regs t0
+	addi  t0, sp, REGOFF_ALL
+	OP_ST t0, REGOFF_SP(sp)
+
+	# Save pointer of user regs
+	addi  sp, sp, -REGOFF_ALL
+	store_caller_regs
+	addi a0, sp, REGOFF_ALL
+	call __cpu_set_current_user_regs
+	load_caller_regs
+	addi  sp, sp, REGOFF_ALL
 
 	# Check syscall
 	csrr t0, mcause
@@ -53,7 +61,7 @@ __trap_syscall_end:
 	csrr  t0, mepc
 	addi  t0, t0, 4
 	OP_ST t0, REGOFF_MEPC(sp)
-	j     __end_trap
+	j     __trap_end
 
 __trap_syscall_unknown:
 	mv    a6, a5
@@ -69,16 +77,19 @@ __trap_syscall_unknown:
 __trap_interrupt:
 	csrr a0, mcause
 	call __arch_riscv_interrupt
-	j    __end_trap
+	j    __trap_end
 
 __trap_exception:
 	csrr a0, mcause
 	slli a0, a0, 1
 	srli a0, a0, 1
 	call __arch_riscv_exception
-	j    __end_trap
+	j    __trap_end
 
-__end_trap:
+__trap_end:
 	load_status_regs t0
 	load_caller_regs
+	load_callee_regs
+	load_special_regs
+	addi sp, sp, REGOFF_ALL
 	mret

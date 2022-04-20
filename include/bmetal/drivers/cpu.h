@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include <bmetal/device.h>
+#include <bmetal/arch.h>
 #include <bmetal/thread.h>
 
 enum __cpu_event {
@@ -39,6 +40,7 @@ struct __cpu_device {
 
 	int id_cpu;
 	int id_phys;
+	__arch_user_regs_t *regs;
 	struct __thread_info *ti;
 	struct __event_handler *handlers[CPU_EVENT_MAX];
 };
@@ -89,6 +91,7 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys);
 struct __cpu_device *__cpu_get_current(void);
 int __cpu_get_id(struct __cpu_device *cpu);
 struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu);
+int __cpu_set_current_user_regs(__arch_user_regs_t *regs);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
 int __cpu_remove_device(struct __cpu_device *cpu);
