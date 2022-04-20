@@ -62,7 +62,7 @@ static int cpu_riscv_remove(struct __device *dev)
 static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 {
 	size_t sp_pos = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
-	
+
 	__boot_done = 0;
 	__boot_sp = (uintptr_t)&__stack_intr[sp_pos];
 	dwmb();
