@@ -17,6 +17,7 @@
 .align 2
 __start_trap:
 	store_caller_regs
+	store_status_regs t0
 
 	# Check syscall
 	csrr t0, mcause
@@ -51,7 +52,7 @@ __trap_syscall_end:
 	# Return to next instruction of ecall
 	csrr  t0, mepc
 	addi  t0, t0, 4
-	csrw  mepc, t0
+	OP_ST t0, REGOFF_MEPC(sp)
 	j     __end_trap
 
 __trap_syscall_unknown:
@@ -78,5 +79,6 @@ __trap_exception:
 	j    __end_trap
 
 __end_trap:
+	load_status_regs t0
 	load_caller_regs
 	mret

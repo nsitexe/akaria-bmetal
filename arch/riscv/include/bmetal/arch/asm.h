@@ -43,7 +43,7 @@
 #define REGOFF_MEPC       (REGSIZE * 17)
 #define REGOFF_MSTATUS    (REGSIZE * 18)
 
-#define REGOFF_ALL        (REGSIZE * 18)
+#define REGOFF_ALL        (REGSIZE * 19)
 
 #define OP_CALLER_REGS(OP) \
 	OP ra, REGOFF_RA(sp); \
@@ -71,6 +71,22 @@
 .macro load_caller_regs
 	OP_CALLER_REGS(OP_LD)
 	addi sp, sp, REGOFF_ALL
+.endm
+
+#define OP_STATUS_REGS(OP) \
+
+.macro store_status_regs tmp
+	csrr  \tmp, mepc
+	OP_ST \tmp, REGOFF_MEPC(sp)
+	csrr  \tmp, mstatus
+	OP_ST \tmp, REGOFF_MSTATUS(sp)
+.endm
+
+.macro load_status_regs tmp
+	OP_LD \tmp, REGOFF_MEPC(sp)
+	csrw  mepc, \tmp
+	OP_LD \tmp, REGOFF_MSTATUS(sp)
+	csrw  mstatus, \tmp
 .endm
 
 #endif /* BAREMETAL_CRT_ARCH_RISCV_ARCH_ASM_H_ */
