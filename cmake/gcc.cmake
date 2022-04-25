@@ -2,7 +2,7 @@
 
 # Common
 prj_compile_options(
-  -Wall -nostdlib -ffreestanding -gdwarf-4
+  -Wall -nostdlib -gdwarf-4
   $<$<CONFIG:Debug>:>
   $<$<CONFIG:Release>:>
   $<$<CONFIG:MinSizeRel>:>
