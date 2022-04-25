@@ -20,7 +20,6 @@
 #  define OP_ST       sw
 #endif /* CONFIG_64BIT */
 
-/* caller-saved registers */
 #define REGOFF_RA         (REGSIZE * 0)
 #define REGOFF_SP         (REGSIZE * 1)
 #define REGOFF_GP         (REGSIZE * 2)
@@ -57,52 +56,52 @@
 
 #define REGOFF_ALL        (REGSIZE * 33)
 
-#define OP_CALLER_REGS(OP) \
-	OP ra, REGOFF_RA(sp); \
-	OP t0, REGOFF_T0(sp); \
-	OP t1, REGOFF_T1(sp); \
-	OP t2, REGOFF_T2(sp); \
-	OP t3, REGOFF_T3(sp); \
-	OP t4, REGOFF_T4(sp); \
-	OP t5, REGOFF_T5(sp); \
-	OP t6, REGOFF_T6(sp); \
-	OP a0, REGOFF_A0(sp); \
-	OP a1, REGOFF_A1(sp); \
-	OP a2, REGOFF_A2(sp); \
-	OP a3, REGOFF_A3(sp); \
-	OP a4, REGOFF_A4(sp); \
-	OP a5, REGOFF_A5(sp); \
-	OP a6, REGOFF_A6(sp); \
-	OP a7, REGOFF_A7(sp);
+#define OP_CALLER_REGS(OP, pt) \
+	OP ra, REGOFF_RA(pt); \
+	OP t0, REGOFF_T0(pt); \
+	OP t1, REGOFF_T1(pt); \
+	OP t2, REGOFF_T2(pt); \
+	OP t3, REGOFF_T3(pt); \
+	OP t4, REGOFF_T4(pt); \
+	OP t5, REGOFF_T5(pt); \
+	OP t6, REGOFF_T6(pt); \
+	OP a0, REGOFF_A0(pt); \
+	OP a1, REGOFF_A1(pt); \
+	OP a2, REGOFF_A2(pt); \
+	OP a3, REGOFF_A3(pt); \
+	OP a4, REGOFF_A4(pt); \
+	OP a5, REGOFF_A5(pt); \
+	OP a6, REGOFF_A6(pt); \
+	OP a7, REGOFF_A7(pt);
 
-#define OP_CALLEE_REGS(OP) \
-	OP s0, REGOFF_S0(sp); \
-	OP s1, REGOFF_S1(sp); \
-	OP s2, REGOFF_S2(sp); \
-	OP s3, REGOFF_S3(sp); \
-	OP s4, REGOFF_S4(sp); \
-	OP s5, REGOFF_S5(sp); \
-	OP s6, REGOFF_S6(sp); \
-	OP s7, REGOFF_S7(sp); \
-	OP s8, REGOFF_S8(sp); \
-	OP s9, REGOFF_S9(sp); \
-	OP s10, REGOFF_S10(sp); \
-	OP s11, REGOFF_S11(sp);
+#define OP_CALLEE_REGS(OP, pt) \
+	OP s0, REGOFF_S0(pt); \
+	OP s1, REGOFF_S1(pt); \
+	OP s2, REGOFF_S2(pt); \
+	OP s3, REGOFF_S3(pt); \
+	OP s4, REGOFF_S4(pt); \
+	OP s5, REGOFF_S5(pt); \
+	OP s6, REGOFF_S6(pt); \
+	OP s7, REGOFF_S7(pt); \
+	OP s8, REGOFF_S8(pt); \
+	OP s9, REGOFF_S9(pt); \
+	OP s10, REGOFF_S10(pt); \
+	OP s11, REGOFF_S11(pt);
 
-#define OP_SPECIAL_REGS(OP) \
-	OP gp, REGOFF_GP(sp); \
-	OP tp, REGOFF_TP(sp);
+#define OP_SPECIAL_REGS(OP, pt) \
+	OP gp, REGOFF_GP(pt); \
+	OP tp, REGOFF_TP(pt);
 
 .macro store_caller_regs
-	OP_CALLER_REGS(OP_ST)
+	OP_CALLER_REGS(OP_ST, sp)
 .endm
 
 .macro store_callee_regs
-	OP_CALLEE_REGS(OP_ST)
+	OP_CALLEE_REGS(OP_ST, sp)
 .endm
 
 .macro store_special_regs
-	OP_SPECIAL_REGS(OP_ST)
+	OP_SPECIAL_REGS(OP_ST, sp)
 .endm
 
 .macro store_status_regs tmp
@@ -113,15 +112,15 @@
 .endm
 
 .macro load_caller_regs
-	OP_CALLER_REGS(OP_LD)
+	OP_CALLER_REGS(OP_LD, sp)
 .endm
 
 .macro load_callee_regs
-	OP_CALLEE_REGS(OP_LD)
+	OP_CALLEE_REGS(OP_LD, sp)
 .endm
 
 .macro load_special_regs
-	OP_SPECIAL_REGS(OP_LD)
+	OP_SPECIAL_REGS(OP_LD, sp)
 .endm
 
 .macro load_status_regs tmp

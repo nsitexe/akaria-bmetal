@@ -41,7 +41,13 @@ __trap_start:
 	j    __trap_exception
 
 __trap_syscall:
+	# Return to next instruction of ecall
+	csrr  t0, mepc
+	addi  t0, t0, 4
+	OP_ST t0, REGOFF_MEPC(sp)
+
 	# Check syscall number
+	blt   a7, zero, __trap_syscall_unknown
 	li    t0, MAX_SYSCALLS
 	bge   a7, t0, __trap_syscall_unknown
 
@@ -57,10 +63,6 @@ __trap_syscall_end:
 	# Store return value of syscall
 	OP_ST a0, REGOFF_A0(sp)
 
-	# Return to next instruction of ecall
-	csrr  t0, mepc
-	addi  t0, t0, 4
-	OP_ST t0, REGOFF_MEPC(sp)
 	j     __trap_end
 
 __trap_syscall_unknown:
@@ -91,5 +93,6 @@ __trap_end:
 	load_caller_regs
 	load_callee_regs
 	load_special_regs
-	addi sp, sp, REGOFF_ALL
+	OP_LD sp, REGOFF_SP(sp)
+
 	mret
