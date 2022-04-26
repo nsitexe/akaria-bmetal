@@ -18,6 +18,7 @@
          Please check configs about HEAP_SIZE.
 #endif
 
+static struct __spinlock lock_mmap;
 static char brk_area[CONFIG_BRK_SIZE];
 static char *brk_cur = brk_area;
 static char heap_area[CONFIG_HEAP_SIZE];
@@ -138,6 +139,20 @@ void *__sys_brk(void *addr)
 	brk_cur = addr;
 
 	return addr;
+}
+
+static int __mmap_lock(void)
+{
+	__spinlock_lock(&lock_mmap);
+
+	return 0;
+}
+
+static int __mmap_unlock(void)
+{
+	__spinlock_unlock(&lock_mmap);
+
+	return 0;
 }
 
 static void *heap_area_start(void)
@@ -274,7 +289,9 @@ void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t o
 		return INT_TO_PTR(-EINVAL);
 	}
 
+	__mmap_lock();
 	off_page = alloc_pages(len);
+	__mmap_unlock();
 	if (off_page == -1) {
 		printk("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return INT_TO_PTR(-ENOMEM);
@@ -292,7 +309,9 @@ int __sys_munmap(void *addr, size_t length)
 		return -EINVAL;
 	}
 
+	__mmap_lock();
 	free_pages(addr, length);
+	__mmap_unlock();
 
 	return 0;
 }
