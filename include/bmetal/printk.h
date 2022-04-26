@@ -4,6 +4,7 @@
 #define BAREMETAL_CRT_PRINTK_H_
 
 #include <stdarg.h>
+#include <stddef.h>
 
 #include <bmetal/bmetal.h>
 
