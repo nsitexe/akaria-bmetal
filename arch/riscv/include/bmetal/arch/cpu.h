@@ -7,10 +7,11 @@
 
 #include <bmetal/bmetal.h>
 
-#define __arch_get_cpu_id    __arch_riscv_get_cpu_id
-int __arch_riscv_get_cpu_id(void);
+#define __arch_user_regs_t       __arch_riscv_user_regs_t
+#define __arch_get_cpu_id        __arch_riscv_get_cpu_id
 
-#define __arch_user_regs_t    __arch_riscv_user_regs_t
+#include <bmetal/arch-gen/cpu.h>
+
 typedef struct __arch_riscv_user_regs {
 	uintptr_t ra;
 	uintptr_t sp;
@@ -47,6 +48,6 @@ typedef struct __arch_riscv_user_regs {
 	uintptr_t mstatus;
 } __arch_riscv_user_regs_t;
 
-#include <bmetal/arch-gen/cpu.h>
+int __arch_riscv_get_cpu_id(void);
 
 #endif /* BAREMETAL_CRT_ARCH_RISCV_ARCH_CPU_H_ */
