@@ -1,0 +1,14 @@
+
+= Barematal CRT
+
+== Overview
+
+Baremetal CRT is simple C language runtime on baremetal hardware.
+This project aims at providing limited "Linux like" environment for applications.
+
+For more info, refer to xref:doc/index.adoc[Documentation].
+
+
+== How to use
+
+Refer to xref:doc/build.adoc[Build and install] page for first step.

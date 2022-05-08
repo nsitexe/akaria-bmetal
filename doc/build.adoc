@@ -1,0 +1,144 @@
+
+= Build and Install
+
+== Prerequisites
+
+OS::
+  * Debian Testing
+  * Ubuntu 20.04 LTS
+Cross compiler::
+  * GCC
+  ** Need to build manually.
+  ** Use helper tool such as Crosstool-NG or RISC-V GNU toolchain to easy to build.
+  *** Crosstool-NG: https://github.com/crosstool-ng/crosstool-ng
+  *** RISC-V GNU toolchain: https://github.com/riscv-collab/riscv-gnu-toolchain
+Emulator::
+  * QEMU
+  ** Need to build manually if you use Ubuntu 20.04 LTS.
+  *** QEMU: https://github.com/qemu/qemu
+Tools::
+  * CMake, Ninja
+
+
+== Build QEMU
+
+[source,sh]
+----
+$ git clone https://github.com/qemu/qemu
+$ cd qemu
+
+$ mkdir build
+$ cd build
+$ ../configure \
+  --target-list=riscv32-softmmu,riscv32-linux-user,riscv64-softmmu,riscv64-linux-user \
+  --enable-debug \
+  --disable-docs
+$ ninja
+----
+
+
+== Setup
+
+[source,sh]
+----
+$ export PATH=$PATH:/path_to/cross_compiler/bin
+$ export PATH=$PATH:/path_to/qemu
+----
+
+
+== Build runtime
+
+Run cmake to configure this project.
+
+[source,sh]
+----
+$ mkdir build
+$ cd build
+$ cmake ../ -G Ninja \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
+  -DARCH=riscv \
+  -DCROSS_COMPILE=riscv64-unknown-linux-gnu- \
+  -DCC=gcc \
+  -DDEFCONF=riscv_qemu_virt_64_xip
+----
+
+Project specific options::
+  ARCH:::
+    Specify architecture type. Currently supported types are:
++
+----
+riscv
+----
+
+  CROSS_COMPILE:::
+    Specify prefix of cross compiler.
+  CC:::
+    Specify compiler name.
+  DEFCONF:::
+    Specify default config name.
+
+CMake standard options::
+  CMAKE_BUILD_TYPE:::
+    Specify build type. Currently supported types are:
++
+----
+Debug, Release, RelWithDebInfo, MinSizeRel
+----
+
+  CMAKE_INSTALL_PREFIX:::
+    Specify path for install directory.
+    In this example install runtime for test applications under test/ directory.
+
+
+Build and install runtime libraries to sysroot.
+
+[source,sh]
+----
+$ ninja
+$ ninja install
+----
+
+
+== Build application
+
+[source,sh]
+----
+$ cd test
+
+$ make
+----
+
+You can use USE_SYSROOT option to specify sysroot (includes runtime libraries) if you have installed runtime into other directory.
+
+[source,sh]
+----
+$ cd test
+
+$ make USE_SYSROOT=/path_to/sysroot
+----
+
+If build is succeeded, some application binaries (includes "hello") are generated in current directory.
+
+
+== Run
+
+[source,sh]
+----
+$ qemu-system-riscv64 \
+  -machine virt \
+  -kernel hello \
+  -bios none \
+  -net none \
+  -nographic \
+  -chardev stdio,id=con,mux=on \
+  -serial chardev:con \
+  -mon chardev=con,mode=readline \
+  -smp 4 \
+  -s
+
+Missing kernel name. Use default 'main'.
+Missing program header. AT_PHDR is not available.
+main: hello world!
+----
+

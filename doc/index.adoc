@@ -1,0 +1,12 @@
+
+= Baremetal CRT documentation
+
+1. Overview
+1. Getting started
+1. xref:build.adoc[Build and install]
+1. Configure
+1. Device support
+1. APIs for application
+1. APIs for runtime
+1. Porting guide
+1. Internals
