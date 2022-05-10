@@ -9,6 +9,66 @@
 static struct __cpu_device *cpus[CONFIG_NUM_CORES];
 static int uniq_id_cpu = 1;
 
+int __cpu_get_id(struct __cpu_device *cpu)
+{
+	return cpu->id_cpu;
+}
+
+int __cpu_get_id_phys(struct __cpu_device *cpu)
+{
+	return cpu->id_phys;
+}
+
+int __cpu_get_running(struct __cpu_device *cpu)
+{
+	return cpu->running;
+}
+
+void __cpu_set_running(struct __cpu_device *cpu, int r)
+{
+	cpu->running = r;
+}
+
+struct __thread_info *__cpu_get_thread_idle(struct __cpu_device *cpu)
+{
+	return cpu->ti_idle;
+}
+
+void __cpu_set_thread_idle(struct __cpu_device *cpu, struct __thread_info *ti)
+{
+	cpu->ti_idle = ti;
+}
+
+struct __thread_info *__cpu_get_thread_task(struct __cpu_device *cpu)
+{
+	return cpu->ti_task;
+}
+
+void __cpu_set_thread_task(struct __cpu_device *cpu, struct __thread_info *ti)
+{
+	cpu->ti_task = ti;
+}
+
+__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
+{
+	return cpu->regs;
+}
+
+void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs)
+{
+	cpu->regs = regs;
+}
+
+__arch_user_regs_t *__cpu_get_current_user_regs(void)
+{
+	return __cpu_get_user_regs(__cpu_get_current());
+}
+
+void __cpu_set_current_user_regs(__arch_user_regs_t *regs)
+{
+	__cpu_set_user_regs(__cpu_get_current(), regs);
+}
+
 int __cpu_alloc_id(void)
 {
 	return uniq_id_cpu++;
@@ -56,16 +116,6 @@ struct __cpu_device *__cpu_get_current(void)
 	return __cpu_get_by_physical_id(__arch_get_cpu_id());
 }
 
-int __cpu_get_id(struct __cpu_device *cpu)
-{
-	return cpu->id_cpu;
-}
-
-struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu)
-{
-	return cpu->ti;
-}
-
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
 {
 	int r;
@@ -81,15 +131,6 @@ int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
 int __cpu_remove(struct __cpu_device *cpu)
 {
 	return __device_remove(__cpu_to_dev(cpu));
-}
-
-int __cpu_set_current_user_regs(__arch_user_regs_t *regs)
-{
-	struct __cpu_device *cpu = __cpu_get_current();
-
-	cpu->regs = regs;
-
-	return 0;
 }
 
 static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event ev)

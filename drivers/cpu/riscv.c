@@ -72,6 +72,19 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 		dmb();
 	}
 
+	cpu->running = 1;
+
+	dwmb();
+
+	return 0;
+}
+
+static int cpu_riscv_sleep(struct __cpu_device *cpu)
+{
+	cpu->running = 0;
+
+	dwmb();
+
 	return 0;
 }
 
@@ -82,6 +95,7 @@ const static struct __device_driver_ops cpu_riscv_dev_ops = {
 
 const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
 	.wakeup = cpu_riscv_wakeup,
+	.sleep = cpu_riscv_sleep,
 };
 
 static struct __cpu_driver cpu_riscv_drv = {
