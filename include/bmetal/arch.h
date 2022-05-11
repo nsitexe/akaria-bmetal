@@ -9,5 +9,6 @@
 #include <bmetal/arch/lock.h>
 #include <bmetal/arch/mman.h>
 #include <bmetal/arch/sync.h>
+#include <bmetal/arch/thread.h>
 
 #endif /* BAREMETAL_CRT_ARCH_H_ */

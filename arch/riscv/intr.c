@@ -4,36 +4,7 @@
 
 #include <bmetal/arch/intr.h>
 #include <bmetal/printk.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
-
-/* mstatus, sstatus */
-#define XSTATUS_UIE     BIT(RV_STATUS_UIE )
-#define XSTATUS_SIE     BIT(RV_STATUS_SIE )
-#define XSTATUS_MIE     BIT(RV_STATUS_MIE )
-#define XSTATUS_UPIE    BIT(RV_STATUS_UPIE)
-#define XSTATUS_SPIE    BIT(RV_STATUS_SPIE)
-#define XSTATUS_MPIE    BIT(RV_STATUS_MPIE)
-#define XSTATUS_SPP     BIT(RV_STATUS_SPP )
-#define XSTATUS_MPRV    BIT(RV_STATUS_MPRV)
-#define XSTATUS_SUM     BIT(RV_STATUS_SUM )
-#define XSTATUS_MXR     BIT(RV_STATUS_MXR )
-#define XSTATUS_TVM     BIT(RV_STATUS_TVM )
-#define XSTATUS_TW      BIT(RV_STATUS_TW  )
-#define XSTATUS_TSR     BIT(RV_STATUS_TSR )
-
-#define XSTATUS_IE      BIT(RV_STATUS_IE)
-#define XSTATUS_PIE     BIT(RV_STATUS_PIE)
-
-/* mie, mip, sie, sip */
-#define XIX_USIX        BIT(RV_IX_USIX)
-#define XIX_SSIX        BIT(RV_IX_SSIX)
-#define XIX_MSIX        BIT(RV_IX_MSIX)
-#define XIX_UTIX        BIT(RV_IX_UTIX)
-#define XIX_STIX        BIT(RV_IX_STIX)
-#define XIX_MTIX        BIT(RV_IX_MTIX)
-#define XIX_UEIX        BIT(RV_IX_UEIX)
-#define XIX_SEIX        BIT(RV_IX_SEIX)
-#define XIX_MEIX        BIT(RV_IX_MEIX)
+#include <bmetal/arch/cpu.h>
 
 static struct __event_handler *int_handlers[RV_CAUSE_INT_MAX_NUM];
 static struct __event_handler *exc_handlers[RV_CAUSE_EXC_MAX_NUM];

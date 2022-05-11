@@ -4,11 +4,14 @@
 #include <stdatomic.h>
 
 #include <bmetal/thread.h>
+#include <bmetal/arch.h>
+#include <bmetal/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/cpu.h>
 
 static struct __proc_info __pi;
-static struct __thread_info __ti[CONFIG_NUM_CORES];
+/* Each CPU has 2 threads (idle and task) */
+static struct __thread_info __ti[CONFIG_NUM_CORES * 2];
 static atomic_int uniq_tid = 1;
 
 static int alloc_tid(void)
@@ -45,14 +48,59 @@ pid_t __proc_get_pid(void)
 	return pi->pid;
 }
 
+int __thread_get_leader(struct __thread_info *ti)
+{
+	return ti->leader;
+}
+
+void __thread_set_leader(struct __thread_info *ti, int l)
+{
+	ti->leader = l;
+}
+
+void __thread_idle_main(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti = NULL;
+	int r;
+
+	r = __cpu_on_wakeup(cpu);
+	if (r) {
+		printk("idle: failed to callback on_wakeup.\n");
+	}
+
+	while (__cpu_get_running(cpu)) {
+		ti = NULL;
+		while (!ti) {
+			ti = __cpu_get_thread_task(cpu);
+
+			/* Wait for notification from other cores */
+			__intr_enable_local();
+			drmb();
+			__intr_disable_local();
+		}
+
+		/* tentative */
+		printk("hello idle\n");
+
+		/* Switch to task thread from idle thread */
+		__arch_context_switch();
+	}
+
+	r = __cpu_on_sleep(cpu);
+	if (r) {
+		printk("idle: failed to callback on_sleep.\n");
+	}
+}
+
 struct __thread_info *__thread_create(struct __proc_info *pi)
 {
 	struct __thread_info *ti = NULL;
-	int found = 0;
+	int found = 0, r;
 
 	__spinlock_lock(&pi->lock);
 
-	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
+	for (int i = 0; i < ARRAY_OF(__ti); i++) {
 		ti = __thread_get_raw(i);
 
 		if (!ti->avail) {
@@ -71,6 +119,18 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 	ti->tid = alloc_tid();
 	ti->avail = 1;
 	ti->running = 0;
+
+	ti->sp = 0;
+	ti->ctid = 0;
+	ti->ptid = 0;
+
+	r = __arch_thread_init(ti);
+	if (r) {
+		printk("create_thread: failed to arch_thread_init.\n");
+
+		__spinlock_unlock(&pi->lock);
+		return NULL;
+	}
 
 	__spinlock_unlock(&pi->lock);
 
@@ -96,14 +156,14 @@ int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu)
 {
 	ti->running = 1;
 	ti->cpu = cpu;
-	cpu->ti = ti;
+	cpu->ti_task = ti;
 
 	return 0;
 }
 
 int __thread_stop(struct __thread_info *ti)
 {
-	ti->cpu->ti = NULL;
+	ti->cpu->ti_task = NULL;
 	ti->cpu = NULL;
 	ti->running = 0;
 
@@ -112,7 +172,7 @@ int __thread_stop(struct __thread_info *ti)
 
 struct __thread_info *__thread_get_raw(int n)
 {
-	if (n < 0 || CONFIG_NUM_CORES <= n) {
+	if (n < 0 || ARRAY_OF(__ti) <= n) {
 		return NULL;
 	}
 
@@ -121,7 +181,7 @@ struct __thread_info *__thread_get_raw(int n)
 
 struct __thread_info *__thread_get(pid_t tid)
 {
-	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
+	for (int i = 0; i < ARRAY_OF(__ti); i++) {
 		struct __thread_info *ti = __thread_get_raw(i);
 
 		if (ti->tid == tid) {
@@ -134,7 +194,7 @@ struct __thread_info *__thread_get(pid_t tid)
 
 struct __thread_info *__thread_get_current(void)
 {
-	return __cpu_get_thread(__cpu_get_current());
+	return __cpu_get_thread_task(__cpu_get_current());
 }
 
 pid_t __thread_get_tid(void)

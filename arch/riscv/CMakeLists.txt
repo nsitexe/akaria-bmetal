@@ -7,6 +7,7 @@ prj_sources(
   intr.c
   lock.c
   sync.c
+  thread.c
   )
 
 add_subdirectory(${CONFIG_SOC_NAME})

@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include <bmetal/bmetal.h>
+#include <bmetal/arch.h>
 #include <bmetal/file.h>
 #include <bmetal/lock.h>
 
@@ -24,7 +25,13 @@ struct __thread_info {
 	struct __proc_info *pi;
 	pid_t tid;
 	int avail;
+	int leader;
 	int running;
+
+	char *sp;
+	long *ctid;
+	long *ptid;
+	__arch_user_regs_t regs;
 
 	struct __cpu_device *cpu;
 };
@@ -33,6 +40,10 @@ struct __proc_info *__proc_create(void);
 struct __proc_info *__proc_get_current(void);
 pid_t __proc_get_pid(void);
 
+int __thread_get_leader(struct __thread_info *ti);
+void __thread_set_leader(struct __thread_info *ti, int l);
+
+void __thread_idle_main(void);
 struct __thread_info *__thread_create(struct __proc_info *pi);
 int __thread_destroy(struct __thread_info *ti);
 int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu);

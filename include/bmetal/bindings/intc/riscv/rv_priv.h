@@ -15,12 +15,17 @@
 #define RV_STATUS_SPIE    5
 #define RV_STATUS_MPIE    7
 #define RV_STATUS_SPP     8
+#define RV_STATUS_MPP     11
+#define RV_STATUS_FS      13
+#define RV_STATUS_XS      15
 #define RV_STATUS_MPRV    17
 #define RV_STATUS_SUM     18
 #define RV_STATUS_MXR     19
 #define RV_STATUS_TVM     20
 #define RV_STATUS_TW      21
 #define RV_STATUS_TSR     22
+#define RV_STATUS_UXL     32
+#define RV_STATUS_SXL     34
 
 /* mie, mip, sie, sip */
 /* User software interrupt enable/pending */
