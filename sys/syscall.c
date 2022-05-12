@@ -8,8 +8,10 @@
 #include <bmetal/syscall.h>
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
+#include <bmetal/lock.h>
 #include <bmetal/mman.h>
 #include <bmetal/printk.h>
+#include <bmetal/smp.h>
 #include <bmetal/string.h>
 #include <bmetal/thread.h>
 
@@ -115,12 +117,42 @@ ssize_t __sys_write(int fd, const void *buf, size_t count)
 	return ret;
 }
 
-void __sys_exit(int status)
+long __sys_exit(int status)
 {
-	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti;
+	int r;
 
-	h_area->ret_main = status;
-	h_area->done = 1;
+	ti = __cpu_get_thread_task(cpu);
+	if (!ti) {
+		printk("sys_exit: cannot get task thread.\n");
+		return -EINVAL;
+	}
+
+	r = __thread_stop(ti);
+	if (r) {
+		return r;
+	}
+
+	r = __thread_destroy(ti);
+	if (r) {
+		return r;
+	}
+
+	/* Notify to host when leader exit */
+	if (__thread_get_leader(ti)) {
+		struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+
+		h_area->ret_main = status;
+		h_area->done = 1;
+	}
+
+	dwmb();
+	printk("exit!!\n");
+
+	__sys_context_switch();
+
+	return cpu->regs->a0;
 }
 
 void *__sys_brk(void *addr)
@@ -321,4 +353,68 @@ int __sys_mprotect(void *addr, size_t length, int prot)
 	printk("sys_mprotect: ignore mprotect.\n");
 
 	return 0;
+}
+
+long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
+{
+	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
+	struct __proc_info *pi = __proc_get_current();
+	struct __thread_info *ti;
+	int r;
+
+	__smp_lock();
+
+	r = __smp_find_idle_cpu(&cpu);
+	if (r) {
+		goto err_out;
+	}
+
+	/* Init thread info */
+	ti = __thread_create(pi);
+	if (!ti) {
+		r = -ENOMEM;
+		goto err_out;
+	}
+
+	/* Copy user regs to the initial stack of new thread */
+	ti->sp = child_stack;
+	kmemcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
+
+	/* Return value and stack for new thread */
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_RETVAL, 0);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
+
+	r = __thread_run(ti, cpu);
+	if (r) {
+		goto err_out;
+	}
+
+	/* Notify */
+	dwmb();
+
+	/* Return value for current thread */
+	r = ti->tid;
+
+err_out:
+	__smp_unlock();
+
+	return r;
+}
+
+long __sys_context_switch(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	uintptr_t v;
+
+	if (cpu->ti_task) {
+		/* Switch to task */
+		kmemcpy(cpu->regs, &cpu->ti_task->regs, sizeof(*cpu->regs));
+	} else {
+		/* Switch to idle */
+		kmemcpy(cpu->regs, &cpu->ti_idle->regs, sizeof(*cpu->regs));
+	}
+
+	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+
+	return v;
 }

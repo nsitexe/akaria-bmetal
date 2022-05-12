@@ -42,6 +42,8 @@ typedef int (*__init_func_t)(void);
 typedef void (*__fini_func_t)(void);
 
 extern char __stack_intr[];
+extern char __stack_idle[];
+extern char __stack_main[];
 
 struct __aux_data {
 	uint32_t valid;

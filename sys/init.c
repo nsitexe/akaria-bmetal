@@ -36,6 +36,8 @@ extern __init_func_t __initcall_end[];
 static struct __aux_data __aux_start __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
 
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
+define_stack(__stack_idle, CONFIG_NUM_CORES * CONFIG_IDLE_STACK_SIZE);
+define_stack(__stack_main, CONFIG_MAIN_STACK_SIZE);
 
 /* +1 is for sentinel */
 #define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS + 1)
@@ -65,11 +67,9 @@ static void copy_data(void)
 #endif /* CONFIG_XIP */
 }
 
-static int init_proc_main(void)
+static int init_proc(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_create();
-	struct __thread_info *ti;
 	int r;
 
 	pi->pid = CONFIG_MAIN_PID;
@@ -80,37 +80,59 @@ static int init_proc_main(void)
 		return r;
 	}
 
-	/* Init thread info */
+	return 0;
+}
+
+static int init_idle_thread(char *sp)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __proc_info *pi = __proc_get_current();
+	struct __thread_info *ti;
+
 	ti = __thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
-	r = __thread_run(ti, cpu);
-	if (r) {
-		return r;
-	}
+	__thread_set_leader(ti, 0);
+
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
+
+	__cpu_set_thread_idle(cpu, ti);
+
+	dwmb();
 
 	return 0;
 }
 
-static int init_proc_sub(void)
+static int init_main_thread(int argc, char *argv[], char *envp[], char *sp, void *start_routine)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
 	int r;
 
-	/* Init thread info */
 	ti = __thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
+	__thread_set_leader(ti, 1);
+
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, argc);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_2, (uintptr_t)argv);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_3, (uintptr_t)envp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)start_routine);
+
 	r = __thread_run(ti, cpu);
 	if (r) {
 		return r;
 	}
+
+	dwmb();
 
 	return 0;
 }
@@ -242,46 +264,34 @@ static int init_args(int *argc)
 	return 0;
 }
 
+void __prep_sub(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	size_t sp_pos = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
+
+	printk("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+
+	init_idle_thread(&__stack_idle[sp_pos]);
+
+	/* Switch to idle/main thread */
+	__arch_context_switch();
+}
+
 void __prep_main(void)
 {
-	int r;
+	int argc;
 
 	clear_bss();
 	copy_data();
 
 	init_drivers();
-	init_proc_main();
+	init_proc();
 
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
-	r = __cpu_on_wakeup(__cpu_get_current());
-	if (r) {
-		printk("prep_main: failed to callback on_wakeup.\n");
-	}
-
-	/* FIXME: tentative */
-	printk("hello %d\n", __thread_get_tid());
-	__intr_enable_local();
-
-	int argc;
 	init_args(&argc);
+	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], __libc_init);
 
-	__libc_init(argc, argv, envp);
-}
-
-void __prep_sub(void)
-{
-	int r;
-
-	init_proc_sub();
-
-	r = __cpu_on_wakeup(__cpu_get_current());
-	if (r) {
-		printk("prep_sub: failed to callback on_wakeup.\n");
-	}
-
-	/* FIXME: tentative */
-	printk("hello %d\n", __thread_get_tid());
-	__intr_enable_local();
+	__prep_sub();
 }

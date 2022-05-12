@@ -3,6 +3,7 @@
 prj_sources(
   isr.S
   start.S
+  switch.S
   cpu.c
   intr.c
   lock.c

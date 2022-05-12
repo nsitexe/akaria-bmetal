@@ -49,6 +49,11 @@
 #define SYS_time 1062
 #define SYS_getmainvars 2011
 
-#define MAX_SYSCALLS    2012
+#define MAX_SYSCALLS_LIB    2012
+
+#define SYS_orig              (MAX_SYSCALLS_LIB)
+#define SYS_context_switch    (SYS_orig + 1)
+
+#define MAX_SYSCALLS        2020
 
 #endif /* BAREMETAL_CRT_NEWLIB_SYSCALL_H_ */

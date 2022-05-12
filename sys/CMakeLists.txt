@@ -7,6 +7,7 @@ prj_sources(
   lock.c
   printk.c
   string.c
+  smp.c
   syscall.c
   thread.c
   vsprintf.c

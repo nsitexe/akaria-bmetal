@@ -299,6 +299,11 @@
 #define SYS_write 64
 #define SYS_writev 66
 
-#define MAX_SYSCALLS    440
+#define MAX_SYSCALLS_LIB    440
+
+#define SYS_orig              (MAX_SYSCALLS_LIB)
+#define SYS_context_switch    (SYS_orig + 1)
+
+#define MAX_SYSCALLS        448
 
 #endif /* BAREMETAL_CRT_GLIBC_SYSCALL_NUM_H_ */
