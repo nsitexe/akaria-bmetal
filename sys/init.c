@@ -19,6 +19,14 @@
 #  error Invalid interrupt stack size. \
          Please check configs about INTR_STACK_SIZE and STACK_ALIGN.
 #endif
+#if (CONFIG_IDLE_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
+#  error Invalid idle stack size. \
+         Please check configs about IDLE_STACK_SIZE and STACK_ALIGN.
+#endif
+#if (CONFIG_MAIN_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
+#  error Invalid main stack size. \
+         Please check configs about MAIN_STACK_SIZE and STACK_ALIGN.
+#endif
 #if (CONFIG_MAIN_CORE >= CONFIG_NUM_CORES) != 0
 #  error Invalid main core. \
          Please check configs about MAIN_CORE and NUM_CORES.
