@@ -2,20 +2,29 @@
 
 #include <errno.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include <bmetal/bmetal.h>
+#include <bmetal/arch.h>
+#include <bmetal/string.h>
 #include <bmetal/syscall.h>
+#include <bmetal/thread.h>
 
-void __libc_start_main(void *main, int argc, char **argv, void *init, void *fini, void *rtld_fini, void *stack_end);
-int main(int argc, char *argv[], char *envp[]);
+void _start(void);
 
-void __libc_init(int argc, char *argv[], char *envp[])
+int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp)
 {
-	volatile int tmp = 0;
+	uintptr_t v;
 
-	__libc_start_main(main, argc, argv, NULL,
-		NULL, NULL, (void *)((uintptr_t)&tmp & ~0xfff));
+	sp = (void *)argv;
+	sp -= sizeof(uintptr_t);
+	v = argc;
+	kmemcpy(sp, &v, sizeof(uintptr_t));
+
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, (uintptr_t)NULL);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)_start);
+
+	return 0;
 }
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {

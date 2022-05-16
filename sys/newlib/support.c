@@ -2,13 +2,16 @@
 
 #include <errno.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include <bmetal/bmetal.h>
+#include <bmetal/arch.h>
 #include <bmetal/syscall.h>
+#include <bmetal/thread.h>
 
 void __libc_init_array(void);
 void __libc_fini_array(void);
+int atexit(void (*function)(void));
+void exit(int status);
 int main(int argc, char *argv[], char *envp[]);
 
 int errno_real = 0;
@@ -26,6 +29,19 @@ void __libc_init(int argc, char *argv[], char *envp[])
 	int r = main(argc, argv, envp);
 
 	exit(r);
+}
+
+int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp)
+{
+	sp = (void *)argv;
+
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, argc);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_2, (uintptr_t)argv);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_3, (uintptr_t)envp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__libc_init);
+
+	return 0;
 }
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {

@@ -15,6 +15,9 @@
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
 
+/* +1 is for sentinel, +10 for auxiliary vectors */
+#define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS + 1 + 10)
+
 #if (CONFIG_INTR_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
 #  error Invalid interrupt stack size. \
          Please check configs about INTR_STACK_SIZE and STACK_ALIGN.
@@ -26,6 +29,10 @@
 #if (CONFIG_MAIN_STACK_SIZE % CONFIG_STACK_ALIGN) != 0
 #  error Invalid main stack size. \
          Please check configs about MAIN_STACK_SIZE and STACK_ALIGN.
+#endif
+#if CONFIG_MAIN_STACK_SIZE < 8 * MAX_ARGV
+#  error Too small main stack size. Cannot put argv on stack. \
+         Please check configs about MAIN_STACK_SIZE.
 #endif
 #if (CONFIG_MAIN_CORE >= CONFIG_NUM_CORES) != 0
 #  error Invalid main core. \
@@ -47,11 +54,9 @@ define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 define_stack(__stack_idle, CONFIG_NUM_CORES * CONFIG_IDLE_STACK_SIZE);
 define_stack(__stack_main, CONFIG_MAIN_STACK_SIZE);
 
-/* +1 is for sentinel */
-#define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS + 1)
-static char *argv[MAX_ARGV];
+static char **argv;
 static char **envp;
-static int index_argv = 0;
+static int index_argv;
 
 /* TODO: randomize */
 static char at_random[16];
@@ -110,12 +115,10 @@ static int init_idle_thread(char *sp)
 
 	__cpu_set_thread_idle(cpu, ti);
 
-	dwmb();
-
 	return 0;
 }
 
-static int init_main_thread(int argc, char *argv[], char *envp[], char *sp, void *start_routine)
+static int init_main_thread(int argc, char *argv[], char *envp[], char *sp)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
@@ -127,20 +130,13 @@ static int init_main_thread(int argc, char *argv[], char *envp[], char *sp, void
 		return -EAGAIN;
 	}
 
+	__init_main_thread_args(ti, argc, argv, envp, sp);
 	__thread_set_leader(ti, 1);
-
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, argc);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_2, (uintptr_t)argv);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_3, (uintptr_t)envp);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)start_routine);
 
 	r = __thread_run(ti, cpu);
 	if (r) {
 		return r;
 	}
-
-	dwmb();
 
 	return 0;
 }
@@ -221,6 +217,10 @@ static int init_args(int *argc)
 {
 	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 
+	/* argv, envp and auxv are constructed on stack of main thread */
+	argv = (void *)&__stack_main[CONFIG_MAIN_STACK_SIZE];
+	argv -= MAX_ARGV;
+
 	index_argv = 0;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
@@ -281,6 +281,8 @@ void __prep_sub(void)
 
 	init_idle_thread(&__stack_idle[sp_pos]);
 
+	dwmb();
+
 	/* Switch to idle/main thread */
 	__arch_context_switch();
 }
@@ -299,7 +301,7 @@ void __prep_main(void)
 	__cpu_wakeup_all();
 
 	init_args(&argc);
-	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], __libc_init);
+	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE]);
 
 	__prep_sub();
 }
