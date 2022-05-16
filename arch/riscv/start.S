@@ -2,12 +2,12 @@
 
 #include <bmetal/arch/asm.h>
 
-.globl _start
-.type _start, @function
+.globl __reset
+.type __reset, @function
 
 .section ".reset", "ax"
 .align 2
-_start:
+__reset:
 	# Disable global, all interrupts
 	csrw mstatus, zero
 	csrw mie, zero

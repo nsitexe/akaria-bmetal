@@ -54,7 +54,7 @@
 #endif /* CONFIG_XIP */
 
 OUTPUT_ARCH(riscv)
-ENTRY(_start)
+ENTRY(__reset)
 
 MEMORY
 {
