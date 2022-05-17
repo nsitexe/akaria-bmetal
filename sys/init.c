@@ -297,6 +297,9 @@ void __prep_main(void)
 	init_drivers();
 	init_proc();
 
+	/* Main core is running */
+	__cpu_set_running(__cpu_get_current(), 1);
+
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
