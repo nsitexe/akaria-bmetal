@@ -75,13 +75,8 @@ void __thread_idle_main(void)
 			ti = __cpu_get_thread_task(cpu);
 
 			/* Wait for notification from other cores */
-			__intr_enable_local();
 			drmb();
-			__intr_disable_local();
 		}
-
-		/* tentative */
-		printk("hello idle\n");
 
 		/* Switch to task thread from idle thread */
 		__arch_context_switch();
@@ -90,6 +85,10 @@ void __thread_idle_main(void)
 	r = __cpu_on_sleep(cpu);
 	if (r) {
 		printk("idle: failed to callback on_sleep.\n");
+	}
+
+	/* tentative: currently unreachable */
+	while (1) {
 	}
 }
 
@@ -156,14 +155,14 @@ int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu)
 {
 	ti->running = 1;
 	ti->cpu = cpu;
-	cpu->ti_task = ti;
+	__cpu_set_thread_task(cpu, ti);
 
 	return 0;
 }
 
 int __thread_stop(struct __thread_info *ti)
 {
-	ti->cpu->ti_task = NULL;
+	__cpu_set_thread_task(ti->cpu, NULL);
 	ti->cpu = NULL;
 	ti->running = 0;
 
@@ -194,7 +193,7 @@ struct __thread_info *__thread_get(pid_t tid)
 
 struct __thread_info *__thread_get_current(void)
 {
-	return __cpu_get_thread_task(__cpu_get_current());
+	return __cpu_get_thread(__cpu_get_current());
 }
 
 pid_t __thread_get_tid(void)

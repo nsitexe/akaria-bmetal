@@ -38,7 +38,7 @@ static const struct new_utsname uname = {
 
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
-	printk("unknown syscall %"PRIdPTR"\n", number);
+	printk("%d: unknown syscall %"PRIdPTR"\n", __arch_get_cpu_id(), number);
 
 	return -ENOTSUP;
 }
@@ -121,21 +121,28 @@ long __sys_exit(int status)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
+	uintptr_t v;
 	int r;
+
+	__smp_lock();
 
 	ti = __cpu_get_thread_task(cpu);
 	if (!ti) {
 		printk("sys_exit: cannot get task thread.\n");
+
+		__smp_unlock();
 		return -EINVAL;
 	}
 
 	r = __thread_stop(ti);
 	if (r) {
+		__smp_unlock();
 		return r;
 	}
 
 	r = __thread_destroy(ti);
 	if (r) {
+		__smp_unlock();
 		return r;
 	}
 
@@ -148,11 +155,13 @@ long __sys_exit(int status)
 	}
 
 	dwmb();
-	printk("exit!!\n");
+	__smp_unlock();
 
 	__sys_context_switch();
 
-	return cpu->regs->a0;
+	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+
+	return v;
 }
 
 void *__sys_brk(void *addr)
@@ -404,17 +413,34 @@ err_out:
 long __sys_context_switch(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti, *ti_idle, *ti_task;
 	uintptr_t v;
 
-	if (cpu->ti_task) {
+	__smp_lock();
+	drmb();
+
+	ti = __cpu_get_thread(cpu);
+	ti_idle = __cpu_get_thread_idle(cpu);
+	ti_task = __cpu_get_thread_task(cpu);
+
+	if (ti == ti_idle) {
+		kmemcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
+	}
+
+	if (ti && ti_task) {
 		/* Switch to task */
-		kmemcpy(cpu->regs, &cpu->ti_task->regs, sizeof(*cpu->regs));
+		kmemcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
+		__cpu_set_thread(cpu, ti_task);
 	} else {
 		/* Switch to idle */
-		kmemcpy(cpu->regs, &cpu->ti_idle->regs, sizeof(*cpu->regs));
+		kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
+		__cpu_set_thread(cpu, ti_idle);
 	}
 
 	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+
+	dwmb();
+	__smp_unlock();
 
 	return v;
 }

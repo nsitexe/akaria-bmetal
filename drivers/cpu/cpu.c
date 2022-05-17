@@ -29,6 +29,15 @@ void __cpu_set_running(struct __cpu_device *cpu, int r)
 	cpu->running = r;
 }
 
+struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu)
+{
+	return cpu->ti;
+}
+
+void __cpu_set_thread(struct __cpu_device *cpu, struct __thread_info *ti)
+{
+	cpu->ti = ti;
+}
 struct __thread_info *__cpu_get_thread_idle(struct __cpu_device *cpu)
 {
 	return cpu->ti_idle;
