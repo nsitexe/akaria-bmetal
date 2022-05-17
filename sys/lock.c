@@ -38,6 +38,7 @@ int __arch_gen_spinlock_lock(__arch_spinlock_t *lock)
 	while (r) {
 		r = __arch_gen_spinlock_trylock(lock);
 	}
+	lock->id = __arch_get_cpu_id();
 
 	return 0;
 }
@@ -54,6 +55,7 @@ int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock)
 int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock)
 {
 	lock->val = 0;
+	lock->id = -1;
 
 	return 0;
 }
