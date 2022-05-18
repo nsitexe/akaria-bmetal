@@ -233,7 +233,7 @@ static int init_args(int *argc)
 
 		load_argv(h_area, __comm_area + sz);
 		if (index_argv != h_area->num_args) {
-			printk("Illegal number of arguments (ind:%d != num_args:%d).\n",
+			printk("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
 				index_argv, h_area->num_args);
 		}
 	}
@@ -256,8 +256,8 @@ static int init_args(int *argc)
 	add_aux(AT_RANDOM, at_random);
 
 	if (__aux_start.valid) {
-		add_aux(AT_PHENT, (void *)__aux_start.phent);
-		add_aux(AT_PHNUM, (void *)__aux_start.phnum);
+		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start.phent);
+		add_aux(AT_PHNUM, (void *)(intptr_t)__aux_start.phnum);
 
 		char *p = (char *)&__aux_start;
 		p += sizeof(__aux_start);
