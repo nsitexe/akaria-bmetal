@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <inttypes.h>
-
 #include <bmetal/drivers/clk.h>
 #include <bmetal/init.h>
+#include <bmetal/inttypes.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/bindings/clk/sifive/prci.h>

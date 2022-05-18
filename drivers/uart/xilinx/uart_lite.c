@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
-#include <inttypes.h>
 
 #include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
+#include <bmetal/inttypes.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
 

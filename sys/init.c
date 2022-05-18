@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -8,6 +7,7 @@
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
 #include <bmetal/intr.h>
+#include <bmetal/inttypes.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>

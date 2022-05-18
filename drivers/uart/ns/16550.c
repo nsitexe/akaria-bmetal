@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
-#include <inttypes.h>
 
 #include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
+#include <bmetal/inttypes.h>
 #include <bmetal/printk.h>
 
 #define REG_RDR     0x00  /* Receiver data       */

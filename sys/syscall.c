@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
-#include <inttypes.h>
 #include <stdint.h>
 #include <unistd.h>
 
 #include <bmetal/syscall.h>
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
+#include <bmetal/inttypes.h>
 #include <bmetal/lock.h>
 #include <bmetal/mman.h>
 #include <bmetal/printk.h>
