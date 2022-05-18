@@ -237,7 +237,7 @@ static int init_args(int *argc)
 				index_argv, h_area->num_args);
 		}
 	}
-	if (argv[0] == NULL) {
+	if (index_argv == 0) {
 		printk("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
 		argv[0] = DEFAULT_KERNEL_NAME;
 		index_argv = 1;
