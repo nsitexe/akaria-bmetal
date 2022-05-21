@@ -34,6 +34,7 @@ long __sys_exit(int status);
 void *__sys_brk(void *addr);
 void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 int __sys_munmap(void *addr, size_t length);
+int __sys_madvise(void *addr, size_t length, int advice);
 int __sys_mprotect(void *addr, size_t length, int prot);
 #if defined(CONFIG_RISCV)
 long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);

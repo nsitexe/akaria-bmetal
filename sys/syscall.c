@@ -270,6 +270,32 @@ static size_t alloc_pages(size_t len)
 	return -1;
 }
 
+static int check_pages(void *start, size_t length)
+{
+	uintptr_t off_addr = start - heap_area_start();
+	size_t off_page = off_addr / __PAGE_SIZE;
+	size_t n_page = length / __PAGE_SIZE;
+	int failed = 0;
+
+	if (off_addr & (__PAGE_SIZE - 1)) {
+		n_page += 1;
+	}
+
+	for (size_t i = off_page; i < off_page + n_page; i++) {
+		if (!heap_used[i]) {
+			printk("check_pages: not allocated at %d.\n", (int)i);
+			failed = 1;
+		}
+	}
+	if (failed) {
+		dump_heap_pages();
+
+		return -EBADF;
+	}
+
+	return 0;
+}
+
 static int free_pages(void *start, size_t length)
 {
 	uintptr_t off_addr = start - heap_area_start();
@@ -352,6 +378,32 @@ int __sys_munmap(void *addr, size_t length)
 	__mmap_lock();
 	free_pages(addr, length);
 	__mmap_unlock();
+
+	return 0;
+}
+
+int __sys_madvise(void *addr, size_t length, int advice)
+{
+	int r;
+
+	switch (advice) {
+	case MADV_DONTNEED:
+		printk("sys_madvise: advice %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
+			(uintptr_t)addr, (uintptr_t)addr + length);
+
+		r = check_pages(addr, length);
+		if (r) {
+			return r;
+		}
+
+		kmemset(addr, length, 0);
+
+		break;
+	default:
+		printk("sys_madvise: advice %d is not supported.\n", advice);
+
+		return -EINVAL;
+	}
 
 	return 0;
 }

@@ -35,6 +35,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_brk, __sys_brk),
 	SYSCALL_P(SYS_mmap, __sys_mmap),
 	SYSCALL_P(SYS_munmap, __sys_munmap),
+	SYSCALL_P(SYS_madvise, __sys_madvise),
 	SYSCALL_P(SYS_mprotect, __sys_mprotect),
 	SYSCALL_P(SYS_clone, __sys_clone),
 
