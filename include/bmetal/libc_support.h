@@ -13,6 +13,4 @@
 #  include <bmetal/newlib/libc_support.h>
 #endif
 
-void __libc_init(int argc, char *argv[], char *envp[]);
-
 #endif /* BAREMETAL_CRT_LIBC_SUPPORT_H_ */

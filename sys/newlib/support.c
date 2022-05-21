@@ -21,7 +21,7 @@ int *__errno(void)
 	return &errno_real;
 }
 
-void __libc_init(int argc, char *argv[], char *envp[])
+static void __libc_init(int argc, char *argv[], char *envp[])
 {
 	atexit(__libc_fini_array);
 	__libc_init_array();
