@@ -9,7 +9,6 @@
 #include <bmetal/file.h>
 #include <bmetal/inttypes.h>
 #include <bmetal/lock.h>
-#include <bmetal/mman.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/string.h>
