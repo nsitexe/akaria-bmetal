@@ -5,6 +5,7 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/drivers/intc.h>
 
 static struct __cpu_device *cpus[CONFIG_NUM_CORES];
 static int uniq_id_cpu = 1;
@@ -253,15 +254,11 @@ int __cpu_sleep_all(void)
 	return res;
 }
 
-int __cpu_on_wakeup(struct __cpu_device *cpu)
+int __cpu_on_wakeup(void)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
-
-	if (__arch_get_cpu_id() != cpu->id_phys) {
-		__dev_err(__cpu_to_dev(cpu), "This cpu is %d not id_phys:%d.\n", __arch_get_cpu_id(), cpu->id_phys);
-		return -EINVAL;
-	}
 
 	if (drv && drv->ops && drv->ops->on_wakeup) {
 		r = drv->ops->on_wakeup(cpu);
@@ -280,15 +277,11 @@ int __cpu_on_wakeup(struct __cpu_device *cpu)
 	return 0;
 }
 
-int __cpu_on_sleep(struct __cpu_device *cpu)
+int __cpu_on_sleep(void)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
-
-	if (__arch_get_cpu_id() != cpu->id_phys) {
-		__dev_err(__cpu_to_dev(cpu), "This cpu is %d not id_phys:%d.\n", __arch_get_cpu_id(), cpu->id_phys);
-		return -EINVAL;
-	}
 
 	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_SLEEP);
 	if (r) {
