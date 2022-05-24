@@ -13,7 +13,7 @@ USE_SYSROOT ?= ./sysroot
 # 64bit
 CMNFLAGS = -march=rv64gc -mabi=lp64d -mcmodel=medany
 #CMNFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany
-CPPFLAGS = -Wall -O2 -g
+CPPFLAGS = -Wall -O2 -gdwarf-4
 CFLAGS   = $(CMNFLAGS)
 LDFLAGS  = $(CMNFLAGS)
 
