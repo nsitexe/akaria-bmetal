@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/string.h>
+#include <bmetal/sys/string.h>
 
 void *kmemset(void *s, int c, size_t n)
 {

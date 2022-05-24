@@ -6,7 +6,6 @@ prj_sources(
   intr.c
   lock.c
   printk.c
-  string.c
   smp.c
   syscall.c
   thread.c
@@ -16,3 +15,4 @@ prj_sources(
 add_subdirectory_ifdef(CONFIG_USE_GLIBC glibc)
 add_subdirectory_ifdef(CONFIG_USE_MUSL musl)
 add_subdirectory_ifdef(CONFIG_USE_NEWLIB newlib)
+add_subdirectory(sys)
