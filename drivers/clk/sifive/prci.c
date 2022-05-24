@@ -2,10 +2,10 @@
 
 #include <bmetal/drivers/clk.h>
 #include <bmetal/init.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/bindings/clk/sifive/prci.h>
+#include <bmetal/sys/inttypes.h>
 
 #define PRCI_HFXOSCCFG         0x00
 #define PRCI_COREPLLCFG0       0x04

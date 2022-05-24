@@ -5,9 +5,9 @@
 #include <bmetal/drivers/uart.h>
 #include <bmetal/drivers/clk.h>
 #include <bmetal/init.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/inttypes.h>
 
 #define UART_SIFIVE_DEFAULT_BAUD    9600
 

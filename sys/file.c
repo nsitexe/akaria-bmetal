@@ -6,8 +6,8 @@
 #include <bmetal/init.h>
 #include <bmetal/file.h>
 #include <bmetal/printk.h>
-#include <bmetal/string.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/string.h>
 
 static const struct __file_ops file_stdio_ops = {
 	.write = __file_stdio_write,

@@ -5,8 +5,8 @@
 
 #include <bmetal/io.h>
 #include <bmetal/device.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/inttypes.h>
 
 int __io_mmap_device(void *addr, struct __device *dev)
 {

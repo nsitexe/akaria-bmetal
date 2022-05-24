@@ -5,9 +5,9 @@
 
 #include <bmetal/bmetal.h>
 #include <bmetal/arch.h>
-#include <bmetal/string.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/string.h>
 
 void _start(void);
 

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_INTTYPES_H_
-#define BAREMETAL_CRT_INTTYPES_H_
+#ifndef BAREMETAL_CRT_SYS_INTTYPES_H_
+#define BAREMETAL_CRT_SYS_INTTYPES_H_
 
 #include <stdint.h>
 
@@ -123,4 +123,4 @@
 #define PRIXFAST32 __PREFIX32 "X"
 #define PRIXFAST64 __PREFIX64 "X"
 
-#endif /* BAREMETAL_CRT_INTTYPES_H_ */
+#endif /* BAREMETAL_CRT_SYS_INTTYPES_H_ */

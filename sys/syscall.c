@@ -7,12 +7,12 @@
 #include <bmetal/syscall.h>
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
-#include <bmetal/string.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/inttypes.h>
+#include <bmetal/sys/string.h>
 
 #if (CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0
 #  error Invalid heap size. It should be aligned page size. \

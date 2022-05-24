@@ -6,7 +6,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/intr.h>
 #include <bmetal/lock.h>
-#include <bmetal/string.h>
+#include <bmetal/sys/string.h>
 
 int inner_vprintf(const char *format, va_list va);
 int inner_vsnprintf(char *buffer, size_t count, const char *format, va_list va);

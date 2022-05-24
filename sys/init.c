@@ -7,13 +7,13 @@
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
 #include <bmetal/intr.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
-#include <bmetal/string.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/inttypes.h>
+#include <bmetal/sys/string.h>
 
 /* +1 is for sentinel, +10 for auxiliary vectors */
 #define MAX_ARGV    (CONFIG_COMM_MAX_ARGS + 1 + CONFIG_COMM_MAX_ENVS + 1 + 10)

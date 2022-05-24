@@ -6,10 +6,10 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/arch.h>
 #include <bmetal/init.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/sys/inttypes.h>
 
 atomic_uintptr_t __section(".noinit") __boot_proc;
 atomic_uintptr_t __boot_sp;

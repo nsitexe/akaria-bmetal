@@ -6,8 +6,8 @@
 
 #include <bmetal/intr.h>
 #include <bmetal/arch.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/inttypes.h>
 
 void __intr_enable_local(void)
 {

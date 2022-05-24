@@ -5,8 +5,8 @@
 #include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/inttypes.h>
 
 #define REG_RDR     0x00  /* Receiver data       */
 #define REG_THR     0x00  /* Transmitter holding */

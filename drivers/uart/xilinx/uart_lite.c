@@ -4,9 +4,9 @@
 
 #include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
-#include <bmetal/inttypes.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/inttypes.h>
 
 #define REG_RXFIFO    0x00  /* Receiver data FIFO */
 #define REG_TXFIFO    0x04  /* Transmit data FIFO */

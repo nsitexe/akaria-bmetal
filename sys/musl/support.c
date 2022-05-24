@@ -2,7 +2,6 @@
 
 #include <errno.h>
 #include <stddef.h>
-#include <stdlib.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall.h>

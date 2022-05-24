@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_STRING_H_
-#define BAREMETAL_CRT_STRING_H_
+#ifndef BAREMETAL_CRT_SYS_STRING_H_
+#define BAREMETAL_CRT_SYS_STRING_H_
 
 #include <stddef.h>
 
@@ -15,4 +15,4 @@ int kstrncmp(const char *s1, const char *s2, size_t n);
 int kstrcasecmp(const char *s1, const char *s2);
 int kstrncasecmp(const char *s1, const char *s2, size_t n);
 
-#endif /* BAREMETAL_CRT_STRING_H_ */
+#endif /* BAREMETAL_CRT_SYS_STRING_H_ */

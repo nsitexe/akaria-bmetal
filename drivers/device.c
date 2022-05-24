@@ -5,7 +5,7 @@
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
-#include <bmetal/string.h>
+#include <bmetal/sys/string.h>
 
 static struct __driver head = {
 	.type_vendor = "none",
