@@ -11,7 +11,10 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
 
-#define __dev_err(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+#define __dev_err(dev, fmt, ...)     printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+#define __dev_warn(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+#define __dev_info(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+#define __dev_dbg(dev, fmt, ...)     printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 
 #define EVENT_HANDLED            1
 #define EVENT_NOT_HANDLED        2
