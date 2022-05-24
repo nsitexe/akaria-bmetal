@@ -39,6 +39,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_madvise, __sys_madvise),
 	SYSCALL_P(SYS_mprotect, __sys_mprotect),
 	SYSCALL_P(SYS_clone, __sys_clone),
+	SYSCALL_P(SYS_futex, __sys_futex),
 
 	/* system dependent */
 	SYSCALL_P(SYS_context_switch, __sys_context_switch),

@@ -327,6 +327,53 @@ int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
 	return 0;
 }
 
+int __cpu_futex_wait(int *uaddr)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+
+	cpu->futex.uaddr = uaddr;
+	cpu->futex.wakeup = 0;
+
+	while (!cpu->futex.wakeup) {
+		/* Avoid spurious wake up */
+		__cpu_wait_interrupt();
+
+		drmb();
+	}
+
+	cpu->futex.uaddr = 0;
+
+	dwmb();
+
+	return 0;
+}
+
+int __cpu_futex_wake(int *uaddr, int val)
+{
+	int r, res = 0;
+
+	drmb();
+
+	for (int i = 0; i < CONFIG_NUM_CORES && res < val; i++) {
+		struct __cpu_device *cpu = cpus[i];
+
+		if (cpu->futex.uaddr == uaddr) {
+			cpu->futex.wakeup = 1;
+
+			dwmb();
+
+			r = __cpu_raise_ipi(cpu, NULL);
+			if (r) {
+				return r;
+			}
+
+			res++;
+		}
+	}
+
+	return res;
+}
+
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu)
 {
 	const char *cpu_name;

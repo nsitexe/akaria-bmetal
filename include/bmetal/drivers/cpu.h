@@ -17,6 +17,11 @@ enum __cpu_event {
 	CPU_EVENT_MAX,
 };
 
+struct __cpu_futex {
+	int *uaddr;
+	int wakeup;
+};
+
 struct __cpu_device;
 
 struct __cpu_driver_ops {
@@ -47,6 +52,7 @@ struct __cpu_device {
 	struct __thread_info *ti_idle;
 	struct __thread_info *ti_task;
 	struct __event_handler *handlers[CPU_EVENT_MAX];
+	struct __cpu_futex futex;
 };
 
 struct __cpu_priv_max {
@@ -122,6 +128,8 @@ int __cpu_on_wakeup(void);
 int __cpu_on_sleep(void);
 int __cpu_wait_interrupt(void);
 int __cpu_raise_ipi(struct __cpu_device *dest, void *arg);
+int __cpu_futex_wait(int *uaddr);
+int __cpu_futex_wake(int *uaddr, int val);
 
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu);
 

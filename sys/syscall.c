@@ -2,7 +2,6 @@
 
 #include <errno.h>
 #include <stdint.h>
-#include <unistd.h>
 
 #include <bmetal/syscall.h>
 #include <bmetal/comm.h>
@@ -11,8 +10,10 @@
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/futex.h>
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/mman.h>
+#include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
 #if (CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0
@@ -513,6 +514,52 @@ err_out:
 	__smp_unlock();
 
 	return r;
+}
+
+int __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
+{
+	int cmd = op & FUTEX_MASK;
+	int r;
+
+	if (!uaddr) {
+		return -EFAULT;
+	}
+
+	switch (cmd) {
+	case FUTEX_WAIT:
+		printk("%d: futex wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+
+		if (*uaddr != val) {
+			printk("%d: futex would block %p %d %d.\n", __arch_get_cpu_id(), uaddr, *uaddr, val);
+			return -EWOULDBLOCK;
+		}
+
+		r = __cpu_futex_wait(uaddr);
+		if (r) {
+			printk("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			return r;
+		}
+
+		printk("%d: futex fin  %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+
+		break;
+	case FUTEX_WAKE:
+		printk("%d: futex wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+
+		r = __cpu_futex_wake(uaddr, val);
+		if (r < 0) {
+			printk("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			return r;
+		}
+
+		return r;
+	default:
+		printk("sys_futex: op %d is not supported.\n", op);
+
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 long __sys_context_switch(void)

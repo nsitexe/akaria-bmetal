@@ -42,6 +42,7 @@ int __sys_mprotect(void *addr, size_t length, int prot);
 #if defined(CONFIG_RISCV)
 long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);
 #endif
+int __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3);
 long __sys_context_switch(void);
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */
