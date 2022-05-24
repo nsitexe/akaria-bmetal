@@ -446,14 +446,27 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 
 	r = __thread_run(ti, cpu);
 	if (r) {
-		goto err_out;
+		goto err_out2;
 	}
 
 	/* Notify */
 	dwmb();
 
+	r = __cpu_raise_ipi(ti->cpu, NULL);
+	if (r) {
+		goto err_out3;
+	}
+
+	__smp_unlock();
+
 	/* Return value for current thread */
-	r = ti->tid;
+	return ti->tid;
+
+err_out3:
+	__thread_stop(ti);
+
+err_out2:
+	__thread_destroy(ti);
 
 err_out:
 	__smp_unlock();
@@ -488,10 +501,10 @@ long __sys_context_switch(void)
 		__cpu_set_thread(cpu, ti_idle);
 	}
 
-	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
-
 	dwmb();
 	__smp_unlock();
+
+	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
 
 	return v;
 }

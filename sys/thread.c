@@ -64,25 +64,31 @@ void __thread_idle_main(void)
 	struct __thread_info *ti = NULL;
 	int r;
 
-	r = __cpu_on_wakeup(cpu);
+	r = __cpu_on_wakeup();
 	if (r) {
 		printk("idle: failed to callback on_wakeup.\n");
 	}
 
-	while (__cpu_get_running(cpu)) {
-		ti = NULL;
-		while (!ti) {
-			ti = __cpu_get_thread_task(cpu);
+	__intr_enable_local();
 
+	while (__cpu_get_running(cpu)) {
+		ti = __cpu_get_thread_task(cpu);
+		while (!ti) {
 			/* Wait for notification from other cores */
+			__asm volatile ("wfi");
+
 			drmb();
+
+			ti = __cpu_get_thread_task(cpu);
 		}
 
 		/* Switch to task thread from idle thread */
 		__arch_context_switch();
 	}
 
-	r = __cpu_on_sleep(cpu);
+	__intr_disable_local();
+
+	r = __cpu_on_sleep();
 	if (r) {
 		printk("idle: failed to callback on_sleep.\n");
 	}
