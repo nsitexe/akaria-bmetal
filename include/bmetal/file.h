@@ -3,9 +3,10 @@
 #ifndef BAREMETAL_CRT_FILE_H_
 #define BAREMETAL_CRT_FILE_H_
 
-#include <sys/types.h>
+#include <stddef.h>
 
 #include <bmetal/bmetal.h>
+#include <bmetal/sys/types.h>
 
 struct __file_desc;
 struct __proc_info;

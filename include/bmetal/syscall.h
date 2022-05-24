@@ -3,11 +3,12 @@
 #ifndef BAREMETAL_CRT_SYSCALL_H_
 #define BAREMETAL_CRT_SYSCALL_H_
 
+#include <stddef.h>
 #include <stdint.h>
-#include <unistd.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall_num.h>
+#include <bmetal/sys/time.h>
 
 #define SYSCALL_P(num, func)    [(num)] = (__syscall_func_t)(func)
 

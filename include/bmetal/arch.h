@@ -10,5 +10,7 @@
 #include <bmetal/arch/mman.h>
 #include <bmetal/arch/sync.h>
 #include <bmetal/arch/thread.h>
+#include <bmetal/arch/time.h>
+#include <bmetal/arch/types.h>
 
 #endif /* BAREMETAL_CRT_ARCH_H_ */

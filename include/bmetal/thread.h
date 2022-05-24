@@ -3,13 +3,11 @@
 #ifndef BAREMETAL_CRT_THREAD_H_
 #define BAREMETAL_CRT_THREAD_H_
 
-#include <sys/types.h>
-#include <unistd.h>
-
 #include <bmetal/bmetal.h>
 #include <bmetal/arch.h>
 #include <bmetal/file.h>
 #include <bmetal/lock.h>
+#include <bmetal/sys/types.h>
 
 struct __cpu_device;
 
