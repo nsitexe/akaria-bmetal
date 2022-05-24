@@ -10,6 +10,7 @@
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
+#include <bmetal/drivers/cpu.h>
 
 #define REG_MSIP(hart)        (0x0000 + (hart) * 4)
 #define REG_MTIMECMP(hart)    (0x4000 + (hart) * 8)
@@ -89,6 +90,16 @@ static int intc_clint_remove(struct __device *dev)
 	return 0;
 }
 
+static int intc_clint_raise_ipi(struct __intc_device *intc, struct __cpu_device *src, struct __cpu_device *dest, void *arg)
+{
+	struct __device *dev = __intc_to_dev(intc);
+	int id_phys = dest->id_phys;
+
+	__device_write32(dev, 1, REG_MSIP(id_phys));
+
+	return 0;
+}
+
 const static struct __device_driver_ops intc_clint_dev_ops = {
 	.add = intc_clint_add,
 	.remove = intc_clint_remove,
@@ -96,6 +107,7 @@ const static struct __device_driver_ops intc_clint_dev_ops = {
 };
 
 const static struct __intc_driver_ops intc_clint_intc_ops = {
+	.raise_ipi = intc_clint_raise_ipi,
 };
 
 static struct __intc_driver intc_clint_drv = {

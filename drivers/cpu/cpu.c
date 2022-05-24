@@ -300,6 +300,26 @@ int __cpu_on_sleep(void)
 	return 0;
 }
 
+int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->raise_ipi) {
+		r = drv->ops->raise_ipi(cpu, dest, arg);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "failed to raise IPI.\n");
+			return r;
+		}
+	} else {
+		__dev_err(__cpu_to_dev(cpu), "not supported to raise IPI.\n");
+		return -ENOTSUP;
+	}
+
+	return 0;
+}
+
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu)
 {
 	const char *cpu_name;

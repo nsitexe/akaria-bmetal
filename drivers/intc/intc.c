@@ -6,14 +6,65 @@
 #include <bmetal/drivers/intc.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/drivers/cpu.h>
+
+static struct __intc_device *intc_ipi;
+
+static struct __intc_device *intc_get_ipi(void)
+{
+	return intc_ipi;
+}
+
+int __intc_set_ipi(struct __intc_device *intc)
+{
+	intc_ipi = intc;
+
+	return 0;
+}
+
+int __intc_raise_ipi(struct __cpu_device *src, struct __cpu_device *dest, void *arg)
+{
+	struct __intc_device *intc = intc_get_ipi();
+	const struct __intc_driver *drv = __intc_get_drv(intc);
+	int r;
+
+	if (!intc) {
+		__dev_err(__cpu_to_dev(src), "not set IPI intc.\n");
+		return -ENOTSUP;
+	}
+
+	if (drv && drv->ops && drv->ops->raise_ipi) {
+		r = drv->ops->raise_ipi(intc, src, dest, arg);
+		if (r) {
+			__dev_err(__intc_to_dev(intc), "failed to raise IPI.\n");
+			return r;
+		}
+	} else {
+		__dev_err(__intc_to_dev(intc), "not supported to raise IPI.\n");
+		return -ENOTSUP;
+	}
+
+	return 0;
+}
 
 int __intc_add_device(struct __intc_device *intc, struct __bus *parent)
 {
+	struct __device *dev = __intc_to_dev(intc);
+	uint32_t val;
 	int r;
 
-	r = __device_add(__intc_to_dev(intc), parent);
+	r = __device_add(dev, parent);
 	if (IS_ERROR(r)) {
 		return r;
+	}
+
+	r = __device_read_conf_u32(dev, "ipi", &val, 0);
+	if (r) {
+		/* Not found, default value is 0 */
+		val = 0;
+	}
+	if (val) {
+		__intc_set_ipi(intc);
 	}
 
 	return 0;

@@ -27,6 +27,7 @@ struct __cpu_driver_ops {
 	/* Run on each CPU */
 	int (*on_wakeup)(struct __cpu_device *cpu);
 	int (*on_sleep)(struct __cpu_device *cpu);
+	int (*raise_ipi)(struct __cpu_device *cpu, struct __cpu_device *dest, void *arg);
 };
 
 struct __cpu_driver {
@@ -117,8 +118,9 @@ int __cpu_wakeup(struct __cpu_device *cpu);
 int __cpu_sleep(struct __cpu_device *cpu);
 int __cpu_wakeup_all(void);
 int __cpu_sleep_all(void);
-int __cpu_on_wakeup(struct __cpu_device *cpu);
-int __cpu_on_sleep(struct __cpu_device *cpu);
+int __cpu_on_wakeup(void);
+int __cpu_on_sleep(void);
+int __cpu_raise_ipi(struct __cpu_device *dest, void *arg);
 
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu);
 
