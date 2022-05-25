@@ -9,9 +9,10 @@
 static struct __event_handler *int_handlers[RV_CAUSE_INT_MAX_NUM];
 static struct __event_handler *exc_handlers[RV_CAUSE_EXC_MAX_NUM];
 
-int __arch_riscv_interrupt(int cause)
+int __arch_riscv_interrupt(uintptr_t mcause)
 {
 	struct __event_handler *h;
+	int cause = mcause & 0x7fffffff;
 	int r;
 
 	if (cause >= RV_CAUSE_INT_MAX_NUM) {
@@ -30,9 +31,10 @@ int __arch_riscv_interrupt(int cause)
 	return 0;
 }
 
-int __arch_riscv_exception(int cause)
+int __arch_riscv_exception(uintptr_t mcause)
 {
 	struct __event_handler *h;
+	int cause = mcause & 0x7fffffff;
 	int r;
 
 	if (cause >= RV_CAUSE_EXC_MAX_NUM) {

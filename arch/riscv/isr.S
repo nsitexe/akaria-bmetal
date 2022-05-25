@@ -83,8 +83,6 @@ __trap_interrupt:
 
 __trap_exception:
 	csrr a0, mcause
-	slli a0, a0, 1
-	srli a0, a0, 1
 	call __arch_riscv_exception
 	j    __trap_end
 
