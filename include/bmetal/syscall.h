@@ -9,6 +9,7 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall_num.h>
 #include <bmetal/sys/time.h>
+#include <bmetal/sys/uio.h>
 
 #define SYSCALL_P(num, func)    [(num)] = (__syscall_func_t)(func)
 
@@ -31,6 +32,7 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 int __sys_uname(struct new_utsname *name);
 int __sys_close(int fd);
 ssize_t __sys_write(int fd, const void *buf, size_t count);
+ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
 long __sys_exit(int status);
 void *__sys_brk(void *addr);
 void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
