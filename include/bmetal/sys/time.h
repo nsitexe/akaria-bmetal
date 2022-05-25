@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 #include <bmetal/bmetal.h>
-#include <bmetal/arch/time.h>
 #include <bmetal/sys/types.h>
 
 struct timespec {

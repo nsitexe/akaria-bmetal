@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_ARCH_GEN_MMAN_H_
-#define BAREMETAL_CRT_ARCH_GEN_MMAN_H_
+#ifndef BAREMETAL_CRT_SYS_MMAN_H_
+#define BAREMETAL_CRT_SYS_MMAN_H_
 
 #include <bmetal/bmetal.h>
 
@@ -40,4 +40,4 @@
 #define MADV_WILLNEED       3
 #define MADV_DONTNEED       4
 
-#endif /* BAREMETAL_CRT_ARCH_GEN_MMAN_H_ */
+#endif /* BAREMETAL_CRT_SYS_MMAN_H_ */

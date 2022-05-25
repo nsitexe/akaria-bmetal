@@ -12,6 +12,7 @@
 #include <bmetal/smp.h>
 #include <bmetal/thread.h>
 #include <bmetal/sys/inttypes.h>
+#include <bmetal/sys/mman.h>
 #include <bmetal/sys/string.h>
 
 #if (CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0
