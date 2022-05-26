@@ -5,6 +5,12 @@
 
 #include <bmetal/app/bmetal/bmetal.h>
 
+#ifdef __ASSEMBLER__
+
+#define BIT(x)    (1 << x)
+
+#else /* __ASSEMBLER__ */
+
 #define NABS(a)        (((a) > 0) ? (a) : -(a))
 #define NMAX(a, b)     (((a) > (b)) ? (a) : (b))
 #define NMIN(a, b)     (((a) < (b)) ? (a) : (b))
@@ -18,4 +24,5 @@
 
 #define BIT(x)    (1UL << x)
 
+#endif /* __ASSEMBLER__ */
 #endif /* BAREMETAL_CRT_BMETAL_H_ */

@@ -3,7 +3,7 @@
 #ifndef BAREMETAL_CRT_ARCH_RISCV_ARCH_ASM_H_
 #define BAREMETAL_CRT_ARCH_RISCV_ARCH_ASM_H_
 
-#include <bmetal/asm.h>
+#include <bmetal/bmetal.h>
 
 #define MSTATUS_FS    0x6000
 #define MHARTID_MAIN    CONFIG_MAIN_CORE
