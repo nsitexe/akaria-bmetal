@@ -15,6 +15,11 @@ int __arch_riscv_get_cpu_id(void)
 	return tmp;
 }
 
+void __arch_riscv_wait_interrupt(void)
+{
+	__asm volatile ("wfi");
+}
+
 int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t *val)
 {
 	uintptr_t v;

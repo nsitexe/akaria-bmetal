@@ -24,7 +24,7 @@ int __arch_riscv_interrupt(uintptr_t mcause)
 	if (h && h->func) {
 		r = h->func(cause, h);
 		if (r == EVENT_HANDLED) {
-			__asm volatile("csrc mip, %0" : : "r"(1 << cause));
+			__asm volatile ("csrc mip, %0" : : "r"(1 << cause));
 		}
 	}
 
@@ -52,7 +52,7 @@ int __arch_riscv_exception(uintptr_t mcause)
 
 	/* FIXME: for debug */
 	while (1) {
-		__asm volatile("wfi");
+		__asm volatile ("wfi");
 	}
 
 	return 0;

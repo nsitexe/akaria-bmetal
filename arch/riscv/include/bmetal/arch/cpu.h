@@ -9,6 +9,7 @@
 
 #define __arch_user_regs_t       __arch_riscv_user_regs_t
 #define __arch_get_cpu_id        __arch_riscv_get_cpu_id
+#define __arch_wait_interrupt    __arch_riscv_wait_interrupt
 #define __arch_get_arg           __arch_riscv_get_arg
 #define __arch_set_arg           __arch_riscv_set_arg
 
@@ -54,6 +55,7 @@ typedef struct __arch_riscv_user_regs {
 } __arch_riscv_user_regs_t;
 
 int __arch_riscv_get_cpu_id(void);
+void __arch_riscv_wait_interrupt(void);
 int __arch_riscv_get_context(__arch_riscv_user_regs_t *regs);
 int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t *val);
 int __arch_riscv_set_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t val);

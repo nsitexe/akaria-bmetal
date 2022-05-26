@@ -63,10 +63,10 @@ static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 
 	switch (event) {
 	case CPU_EVENT_ON_WAKEUP:
-		__asm volatile("csrs mie, %0" : : "r"(m));
+		__asm volatile ("csrs mie, %0" : : "r"(m));
 		break;
 	case CPU_EVENT_ON_SLEEP:
-		__asm volatile("csrc mie, %0" : : "r"(m));
+		__asm volatile ("csrc mie, %0" : : "r"(m));
 		break;
 	default:
 		return EVENT_NOT_HANDLED;

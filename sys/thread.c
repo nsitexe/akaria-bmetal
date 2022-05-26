@@ -75,7 +75,7 @@ void __thread_idle_main(void)
 		ti = __cpu_get_thread_task(cpu);
 		while (!ti) {
 			/* Wait for notification from other cores */
-			__asm volatile ("wfi");
+			__cpu_wait_interrupt();
 
 			drmb();
 

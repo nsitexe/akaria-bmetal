@@ -26,6 +26,10 @@ enum __arch_arg_type {
 #  error Please implement arch_get_cpu_id() function.
 #endif
 
+#ifndef __arch_wait_interrupt
+#  error Please implement arch_wait_interrupt() function.
+#endif
+
 #ifndef __arch_get_arg
 #  error Please implement arch_get_arg() function.
 #endif

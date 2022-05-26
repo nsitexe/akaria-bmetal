@@ -300,6 +300,13 @@ int __cpu_on_sleep(void)
 	return 0;
 }
 
+int __cpu_wait_interrupt(void)
+{
+	__arch_wait_interrupt();
+
+	return 0;
+}
+
 int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
