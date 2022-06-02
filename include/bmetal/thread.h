@@ -26,9 +26,11 @@ struct __thread_info {
 	int leader;
 	int running;
 
+	unsigned long flags;
 	char *sp;
-	long *ctid;
-	long *ptid;
+	pid_t *ctid;
+	pid_t *ptid;
+	void *tls;
 	__arch_user_regs_t regs;
 
 	struct __cpu_device *cpu;

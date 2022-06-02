@@ -462,7 +462,33 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
+	int need_ctid = 0, need_ptid = 0, need_tls = 0;
 	int r;
+
+	if (flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
+		if (!ctid) {
+			printk("sys_clone: Need ctid but ctid is NULL.\n");
+			r = -EFAULT;
+			goto err_out;
+		}
+		need_ctid = 1;
+	}
+	if (flags & CLONE_PARENT_SETTID) {
+		if (!ptid) {
+			printk("sys_clone: Need ptid but ptid is NULL.\n");
+			r = -EFAULT;
+			goto err_out;
+		}
+		need_ptid = 1;
+	}
+	if (flags & CLONE_SETTLS) {
+		if (!tls) {
+			printk("sys_clone: Need tls but tls is NULL.\n");
+			r = -EFAULT;
+			goto err_out;
+		}
+		need_tls = 1;
+	}
 
 	__smp_lock();
 
@@ -478,6 +504,20 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 		goto err_out;
 	}
 
+	ti->flags = flags;
+	ti->ctid = NULL;
+	if (need_ctid) {
+		ti->ctid = ctid;
+	}
+	ti->ptid = NULL;
+	if (need_ptid) {
+		ti->ptid = ptid;
+	}
+	ti->tls = NULL;
+	if (need_tls) {
+		ti->tls = tls;
+	}
+
 	/* Copy user regs to the initial stack of new thread */
 	ti->sp = child_stack;
 	kmemcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
@@ -485,19 +525,30 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 	/* Return value and stack for new thread */
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_RETVAL, 0);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
 
 	r = __thread_run(ti, cpu);
 	if (r) {
 		goto err_out2;
 	}
 
-	/* Notify */
+	/* Notify to other cores */
 	dwmb();
 
 	r = __cpu_raise_ipi(ti->cpu, NULL);
 	if (r) {
 		goto err_out3;
 	}
+
+	/* Notify to user space */
+	if (flags & CLONE_CHILD_SETTID) {
+		*ti->ctid = ti->tid;
+	}
+	if (flags & CLONE_PARENT_SETTID) {
+		*ti->ptid = ti->tid;
+	}
+
+	dwmb();
 
 	__smp_unlock();
 

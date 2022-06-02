@@ -16,6 +16,7 @@ enum __arch_arg_type {
 	__ARCH_ARG_TYPE_RETADDR,
 	__ARCH_ARG_TYPE_RETVAL,
 	__ARCH_ARG_TYPE_STACK,
+	__ARCH_ARG_TYPE_TLS,
 };
 
 #ifndef __arch_user_regs_t
