@@ -27,6 +27,7 @@ int __spinlock_unlock(struct __spinlock *s)
 int __arch_gen_spinlock_init(__arch_spinlock_t *lock)
 {
 	lock->val = 0;
+	lock->id = -1;
 
 	return 0;
 }
@@ -54,8 +55,8 @@ int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock)
 
 int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock)
 {
-	lock->val = 0;
 	lock->id = -1;
+	atomic_store(&lock->val, 0);
 
 	return 0;
 }
