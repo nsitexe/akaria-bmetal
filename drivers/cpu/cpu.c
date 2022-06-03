@@ -1,10 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <stdatomic.h>
 #include <errno.h>
 
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/smp.h>
 #include <bmetal/drivers/intc.h>
 
 static struct __cpu_device *cpus[CONFIG_NUM_CORES];
@@ -327,30 +329,62 @@ int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
 	return 0;
 }
 
-int __cpu_futex_wait(int *uaddr)
+int __cpu_futex_wait(int *uaddr, int val, int bitset)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
+	long st;
+	int res;
+
+	if (!bitset) {
+		__dev_err(__cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
+		return -EINVAL;
+	}
 
 	cpu->futex.uaddr = uaddr;
+	cpu->futex.bitset = bitset;
 	cpu->futex.wakeup = 0;
 
+	dwmb();
+
+	/* Avoid spurious wake up */
 	while (!cpu->futex.wakeup) {
-		/* Avoid spurious wake up */
+		/*
+		 * Pending IPI from "uaddr != val" to wait for interrupt(wfi).
+		 * If accept IPI before wfi IPI is cleared by interrupt handler
+		 * and wfi will never been returned.
+		 */
+		__intr_save_local(&st);
+		if (atomic_load(uaddr) != val) {
+			res = -EWOULDBLOCK;
+			break;
+		}
+		__smp_unlock();
+
 		__cpu_wait_interrupt();
+
+		__smp_lock();
+		__intr_restore_local(st);
 
 		drmb();
 	}
 
 	cpu->futex.uaddr = 0;
+	cpu->futex.bitset = 0;
 
 	dwmb();
 
-	return 0;
+	return res;
 }
 
-int __cpu_futex_wake(int *uaddr, int val)
+int __cpu_futex_wake(int *uaddr, int val, int bitset)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	int r, res = 0;
+
+	if (!bitset) {
+		__dev_err(__cpu_to_dev(cpu), "futex_wake bitmask is 0.\n");
+		return -EINVAL;
+	}
 
 	drmb();
 
@@ -358,6 +392,12 @@ int __cpu_futex_wake(int *uaddr, int val)
 		struct __cpu_device *cpu = cpus[i];
 
 		if (cpu->futex.uaddr == uaddr) {
+			if (!(cpu->futex.bitset & bitset)) {
+				continue;
+			}
+
+			cpu->futex.uaddr = 0;
+			cpu->futex.bitset = 0;
 			cpu->futex.wakeup = 1;
 
 			dwmb();

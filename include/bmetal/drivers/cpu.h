@@ -19,6 +19,7 @@ enum __cpu_event {
 
 struct __cpu_futex {
 	int *uaddr;
+	int bitset;
 	int wakeup;
 };
 
@@ -128,8 +129,8 @@ int __cpu_on_wakeup(void);
 int __cpu_on_sleep(void);
 int __cpu_wait_interrupt(void);
 int __cpu_raise_ipi(struct __cpu_device *dest, void *arg);
-int __cpu_futex_wait(int *uaddr);
-int __cpu_futex_wake(int *uaddr, int val);
+int __cpu_futex_wait(int *uaddr, int val, int bitset);
+int __cpu_futex_wake(int *uaddr, int val, int bitset);
 
 int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu);
 

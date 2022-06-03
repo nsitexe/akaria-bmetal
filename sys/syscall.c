@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <errno.h>
+#include <stdatomic.h>
 #include <stdint.h>
 
 #include <bmetal/syscall.h>
@@ -193,6 +194,16 @@ long __sys_exit(int status)
 
 		h_area->ret_main = status;
 		h_area->done = 1;
+	}
+
+	/* Notify to user space */
+	if (ti->flags & CLONE_CHILD_CLEARTID) {
+		*ti->ctid = 0;
+
+		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
+		if (r < 0) {
+			printk("sys_exit: futex error %d but ignored.\n", r);
+		}
 	}
 
 	dwmb();
@@ -570,47 +581,59 @@ err_out:
 int __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
 {
 	int cmd = op & FUTEX_MASK;
-	int r;
+	int ret = 0, r;
 
 	if (!uaddr) {
 		return -EFAULT;
 	}
 
+	__smp_lock();
+
 	switch (cmd) {
 	case FUTEX_WAIT:
-		printk("%d: futex wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
-
-		if (*uaddr != val) {
-			printk("%d: futex would block %p %d %d.\n", __arch_get_cpu_id(), uaddr, *uaddr, val);
-			return -EWOULDBLOCK;
+		val3 = FUTEX_BITSET_ANY;
+		/* fallthrough */
+	case FUTEX_WAIT_BITSET:
+		if (atomic_load(uaddr) != val) {
+			ret = -EWOULDBLOCK;
+			goto err_out;
 		}
 
-		r = __cpu_futex_wait(uaddr);
+		r = __cpu_futex_wait(uaddr, val, val3);
 		if (r) {
-			printk("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
-			return r;
-		}
+			if (r != -EWOULDBLOCK) {
+				printk("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			}
 
-		printk("%d: futex fin  %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			ret = r;
+			goto err_out;
+		}
 
 		break;
 	case FUTEX_WAKE:
-		printk("%d: futex wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
-
-		r = __cpu_futex_wake(uaddr, val);
+		val3 = FUTEX_BITSET_ANY;
+		/* fallthrough */
+	case FUTEX_WAKE_BITSET:
+		r = __cpu_futex_wake(uaddr, val, val3);
 		if (r < 0) {
 			printk("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
-			return r;
+
+			ret = r;
+			goto err_out;
 		}
 
-		return r;
+		ret = r;
+		break;
 	default:
-		printk("sys_futex: op %d is not supported.\n", op);
+		printk("sys_futex: cmd %d is not supported.\n", cmd);
 
-		return -EINVAL;
+		ret = -ENOSYS;
+		goto err_out;
 	}
 
-	return 0;
+err_out:
+	__smp_unlock();
+	return ret;
 }
 
 long __sys_context_switch(void)
