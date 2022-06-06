@@ -50,9 +50,15 @@ __start_for_main:
 __start_for_sub:
 	# Wait for notify
 	csrr  t0, mhartid
+1:
+	# Reduce memory bus bandwidth
+	nop
+	nop
+	nop
+	nop
 	la    t1, __boot_proc
 	OP_LD t1, (t1)
-	bne   t0, t1, __start_for_sub
+	bne   t0, t1, 1b
 
 	# Set stack/thread pointer
 	la    t0, __boot_sp
