@@ -83,4 +83,8 @@ __start_for_common:
 	csrs mstatus, t0
 	csrw fcsr, x0
 #endif
+#ifdef CONFIG_VPU
+	li   t0, MSTATUS_VS
+	csrs mstatus, t0
+#endif
 	ret

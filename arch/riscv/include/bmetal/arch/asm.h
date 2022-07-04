@@ -5,6 +5,7 @@
 
 #include <bmetal/bmetal.h>
 
+#define MSTATUS_VS    0x0600
 #define MSTATUS_FS    0x6000
 #define MHARTID_MAIN    CONFIG_MAIN_CORE
 
