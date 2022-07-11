@@ -15,18 +15,6 @@
 
 #define DEFAULT_KERNEL_NAME    "main"
 
-#ifndef __aligned
-#define __aligned(n)    __attribute__((aligned(n)))
-#endif
-
-#ifndef __section
-#define __section(n)    __attribute__((section(n)))
-#endif
-
-#ifndef __used
-#define __used          __attribute__((used))
-#endif
-
 #define define_stack(sym, size) \
 	char __section(".noinit") sym[size]
 

@@ -24,5 +24,17 @@
 
 #define BIT(x)    (1UL << x)
 
+#ifndef __aligned
+#define __aligned(n)    __attribute__((aligned(n)))
+#endif
+
+#ifndef __section
+#define __section(n)    __attribute__((section(n)))
+#endif
+
+#ifndef __used
+#define __used          __attribute__((used))
+#endif
+
 #endif /* __ASSEMBLER__ */
 #endif /* BAREMETAL_CRT_BMETAL_H_ */
