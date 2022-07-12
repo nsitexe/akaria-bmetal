@@ -17,9 +17,9 @@
 
 #define N    128
 
-double test_a = 55.66;
+float test_a = 55.66;
 
-double test_x[N] = {
+float test_x[N] = {
 	-0.4325648115282207, -1.6655843782380970, 0.1253323064748307,
 	0.2876764203585489,  -1.1464713506814637, 1.1909154656429988,
 	1.1891642016521031,  -0.0376332765933176, 0.3272923614086541,
@@ -33,7 +33,7 @@ double test_x[N] = {
 	-0.3998855777153632
 };
 
-double test_y[N] = {
+float test_y[N] = {
 	1.7491401329284098,  0.1325982188803279,  0.3252281811989881,
 	-0.7938091410349637, 0.3149236145048914,  -0.5272704888029532,
 	0.9322666565031119,  1.1646643544607362,  -2.0456694357357357,
@@ -47,7 +47,7 @@ double test_y[N] = {
 	0.2484350696132857
 };
 
-double test_y_expect[N] = {
+float test_y_expect[N] = {
 	1.7491401329284098,  0.1325982188803279,  0.3252281811989881,
 	-0.7938091410349637, 0.3149236145048914,  -0.5272704888029532,
 	0.9322666565031119,  1.1646643544607362,  -2.0456694357357357,
@@ -64,12 +64,12 @@ double test_y_expect[N] = {
 int test_n = N;
 
 #if __riscv_vector == 1
-void saxpy_rvv(const double a, const double *x, double *y, int n)
+void saxpy_rvv(const float a, const float *x, float *y, int n)
 {
 	vfloat32m1_t vx, vy;
 	size_t l;
 
-	printf("----- use rvv f64\n");
+	printf("----- use rvv f32\n");
 
 	for (; n > 0; n -= l) {
 		l = vsetvl_e32m1(n);
@@ -83,34 +83,34 @@ void saxpy_rvv(const double a, const double *x, double *y, int n)
 }
 #endif /* __riscv_vector == 1 */
 
-void saxpy_scalar(const double a, const double *x, double *y, int n)
+void saxpy_scalar(const float a, const float *x, float *y, int n)
 {
-	printf("----- use scalar f64\n");
+	printf("----- use scalar f32\n");
 
 	for (int i = 0; i < n; i++) {
 		y[i] = a * x[i] + y[i];
 	}
 }
 
-int fp_eq(double reference, double actual, double relErr)
+int fp_eq(float reference, float actual, float relErr)
 {
 	/* if near zero, do absolute error instead. */
-	double absErr = relErr * ((fabs(reference) > relErr) ? fabs(reference) : relErr);
-	return fabs(actual - reference) < absErr;
+	float absErr = relErr * ((fabsf(reference) > relErr) ? fabsf(reference) : relErr);
+	return fabsf(actual - reference) < absErr;
 }
 
 int main(int argc, char *argv[], char *envp[])
 {
-	double *a, *x, *y;
+	float *a, *x, *y;
 	int *n, check = 0;
 
 	printf("%s: saxpy start\n", argv[0]);
 
 	printf("argc: %d\n", argc);
 	if (argc > 4) {
-		a = (double *)argv[1];
-		x = (double *)argv[2];
-		y = (double *)argv[3];
+		a = (float *)argv[1];
+		x = (float *)argv[2];
+		y = (float *)argv[3];
 		n = (int *)argv[4];
 	} else {
 		/* Use test data */

@@ -15,74 +15,74 @@
 
 #define N    128
 
-double test_a[N] = {
+float test_a[N] = {
 	-10.21, -10.21, -10.21, -10.21, -10.21,
 	-85.81, -85.81, -85.81, -85.81, -85.81,
 	-100.001, -100.0001, -100.00001, -100.000001, -100.0000001,
 	100.001, 100.0001, 100.00001, 100.000001, 100.0000001,
 };
 
-double test_b[N] = {
+float test_b[N] = {
 	10.00, 10.20, 10.21, 10.30, 10.99,
 	85.00, 85.80, 85.81, 85.90, 85.99,
 	0.001, 0.0001, 0.00001, 0.000001, 0.0000001,
 	-0.001, -0.0001, -0.00001, -0.000001, -0.0000001,
 };
 
-double test_c[N];
-double test_c_expect[N];
+float test_c[N];
+float test_c_expect[N];
 
 int test_n = N;
 
 #if __riscv_vector == 1
-void vecadd_rvv(const double *a, const double *b, double *c, int n)
+void vecadd_rvv(const float *a, const float *b, float *c, int n)
 {
-	vfloat64m1_t va, vb, vc;
+	vfloat32m1_t va, vb, vc;
 	size_t l;
 
-	printf("----- use rvv f64\n");
+	printf("----- use rvv f32\n");
 
 	for (; n > 0; n -= l) {
-		l = vsetvl_e64m1(n);
-		va = vle64_v_f64m1(a, l);
+		l = vsetvl_e32m1(n);
+		va = vle32_v_f32m1(a, l);
 		a += l;
-		vb = vle64_v_f64m1(b, l);
+		vb = vle32_v_f32m1(b, l);
 		b += l;
-		vc = vfadd_vv_f64m1(va, vb, l);
-		vse64_v_f64m1(c, vc, l);
+		vc = vfadd_vv_f32m1(va, vb, l);
+		vse32_v_f32m1(c, vc, l);
 		c += l;
 	}
 }
 #endif /* __riscv_vector == 1 */
 
-void vecadd_scalar(const double *a, const double *b, double *c, int n)
+void vecadd_scalar(const float *a, const float *b, float *c, int n)
 {
-	printf("----- use scalar f64\n");
+	printf("----- use scalar f32\n");
 
 	for (int i = 0; i < n; i++) {
 		c[i] = a[i] + b[i];
 	}
 }
 
-int fp_eq(double reference, double actual, double relErr)
+int fp_eq(float reference, float actual, float relErr)
 {
 	/* if near zero, do absolute error instead. */
-	double absErr = relErr * ((fabs(reference) > relErr) ? fabs(reference) : relErr);
-	return fabs(actual - reference) < absErr;
+	float absErr = relErr * ((fabsf(reference) > relErr) ? fabsf(reference) : relErr);
+	return fabsf(actual - reference) < absErr;
 }
 
 int main(int argc, char *argv[], char *envp[])
 {
-	double *a, *b, *c;
+	float *a, *b, *c;
 	int *n, check = 0;
 
 	printf("%s: vecadd start\n", argv[0]);
 
 	printf("argc: %d\n", argc);
 	if (argc > 4) {
-		a = (double *)argv[1];
-		b = (double *)argv[2];
-		c = (double *)argv[3];
+		a = (float *)argv[1];
+		b = (float *)argv[2];
+		c = (float *)argv[3];
 		n = (int *)argv[4];
 	} else {
 		/* Use test data */
