@@ -66,18 +66,18 @@ int test_n = N;
 #if __riscv_vector == 1
 void saxpy_rvv(const double a, const double *x, double *y, int n)
 {
-	vfloat32m1_t vx, vy;
+	vfloat64m1_t vx, vy;
 	size_t l;
 
 	printf("----- use rvv f64\n");
 
 	for (; n > 0; n -= l) {
-		l = vsetvl_e32m1(n);
-		vx = vle32_v_f32m1(x, l);
+		l = vsetvl_e64m1(n);
+		vx = vle64_v_f64m1(x, l);
 		x += l;
-		vy = vle32_v_f32m1(y, l);
-		vy = vfmacc_vf_f32m1(vy, a, vx, l);
-		vse32_v_f32m1(y, vy, l);
+		vy = vle64_v_f64m1(y, l);
+		vy = vfmacc_vf_f64m1(vy, a, vx, l);
+		vse64_v_f64m1(y, vy, l);
 		y += l;
 	}
 }
