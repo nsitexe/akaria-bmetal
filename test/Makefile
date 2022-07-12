@@ -17,8 +17,7 @@ CPPFLAGS = -Wall -O2 -gdwarf-4
 CFLAGS   = $(CMNFLAGS)
 LDFLAGS  = $(CMNFLAGS)
 
-BINS = hello ctype vecadd
-OBJS = $(HELLO_OBJS) $(CTYPE_OBJS) $(PTHREAD_OBJS) $(VECADD_OBJS)
+BINS = hello ctype vecadd saxpy
 ifeq ($(USE_GLIBC),y)
 BINS += pthread
 endif
@@ -27,6 +26,13 @@ HELLO_OBJS = hello.o
 CTYPE_OBJS = ctype.o
 PTHREAD_OBJS = pthread.o
 VECADD_OBJS = vecadd.o
+SAXPY_OBJS = saxpy.o
+OBJS = \
+       $(HELLO_OBJS) \
+       $(CTYPE_OBJS) \
+       $(PTHREAD_OBJS) \
+       $(VECADD_OBJS) \
+       $(SAXPY_OBJS)
 
 all: $(BINS)
 
@@ -40,6 +46,9 @@ pthread: $(PTHREAD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
 
 vecadd: $(VECADD_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+saxpy: $(SAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 clean:
