@@ -229,6 +229,7 @@ void *__sys_brk(void *addr)
 		return INT_TO_PTR(-ENOMEM);
 	}
 
+	kmemset(brk_cur, 0, (char *)addr - brk_cur);
 	brk_cur = addr;
 
 	return addr;
