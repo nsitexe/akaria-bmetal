@@ -192,7 +192,7 @@ long __sys_exit(int status)
 	if (__thread_get_leader(ti)) {
 		struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 
-		h_area->ret_main = status;
+		h_area->ret_main = status & 0xff;
 		h_area->done = 1;
 	}
 
