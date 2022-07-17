@@ -32,18 +32,7 @@ static struct __file_desc fds[CONFIG_MAX_FD] = {
 
 ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count)
 {
-	const char *b = buf;
-	__putc_func f = __get_printk_out();
-
-	if (!f) {
-		return count;
-	}
-
-	for (size_t i = 0; i < count; i++) {
-		f(b[i]);
-	}
-
-	return count;
+	return __kwrite(buf, count);
 }
 
 int __file_stdio_init(struct __proc_info *pi)

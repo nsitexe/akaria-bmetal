@@ -12,6 +12,7 @@ typedef int (*__putc_func)(int c);
 
 int kputchar(int c);
 int kputs(const char *s);
+int __kwrite(const char *s, size_t count);
 int __attribute__((format(printf, 1, 2))) printk(const char *format, ...);
 int __attribute__((format(printf, 2, 3))) sprintk(char *buffer, const char *format, ...);
 int __attribute__((format(printf, 3, 4))) snprintk(char *buffer, size_t count, const char *format, ...);

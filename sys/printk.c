@@ -81,6 +81,21 @@ int kputs(const char *s)
 	return r;
 }
 
+int __kwrite(const char *s, size_t count)
+{
+	long st;
+
+	__intr_save_local(&st);
+	__spinlock_lock(&printk_lock);
+	for (size_t i = 0; i < count; i++) {
+		inner_putc(s[i]);
+	}
+	__spinlock_unlock(&printk_lock);
+	__intr_restore_local(st);
+
+	return count;
+}
+
 int printk(const char *format, ...)
 {
 	va_list va;
