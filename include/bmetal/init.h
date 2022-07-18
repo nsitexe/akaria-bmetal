@@ -40,4 +40,9 @@ struct __aux_data {
 	uint64_t phdr_size;
 };
 
+void __init_leader(void);
+void __fini_leader(int status);
+void __init_child(void);
+void __fini_child(int status);
+
 #endif /* BAREMETAL_CRT_INIT_H_ */

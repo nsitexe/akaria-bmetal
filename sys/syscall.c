@@ -7,6 +7,7 @@
 #include <bmetal/syscall.h>
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
+#include <bmetal/init.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
@@ -190,10 +191,9 @@ long __sys_exit(int status)
 
 	/* Notify to host when leader exit */
 	if (__thread_get_leader(ti)) {
-		struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
-
-		h_area->ret_main = status & 0xff;
-		h_area->done = 1;
+		__fini_leader(status);
+	} else {
+		__fini_child(status);
 	}
 
 	/* Notify to user space */

@@ -10,6 +10,7 @@
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
+#include <bmetal/syscall.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/sys/inttypes.h>
@@ -272,7 +273,7 @@ static int init_args(int *argc)
 	return 0;
 }
 
-void __prep_sub(void)
+void __init_child(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	size_t sp_pos = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
@@ -287,7 +288,11 @@ void __prep_sub(void)
 	__arch_context_switch();
 }
 
-void __prep_main(void)
+void __fini_child(int status)
+{
+}
+
+void __init_leader(void)
 {
 	int argc;
 
@@ -306,5 +311,16 @@ void __prep_main(void)
 	init_args(&argc);
 	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE]);
 
-	__prep_sub();
+	__init_child();
+}
+
+void __fini_leader(int status)
+{
+	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+	int st = status & 0xff;
+
+	h_area->ret_main = st;
+	h_area->done = 1;
+
+	__fini_child(st);
 }

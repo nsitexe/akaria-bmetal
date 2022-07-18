@@ -40,7 +40,7 @@ __start_for_main:
 	add  sp, t0, sp
 
 	call __start_for_common
-	call __prep_main
+	call __init_leader
 
 	# For error handling
 1:
@@ -69,7 +69,7 @@ __start_for_sub:
 	fence iorw, iorw
 
 	call __start_for_common
-	call __prep_sub
+	call __init_child
 
 	# For error handling
 1:
