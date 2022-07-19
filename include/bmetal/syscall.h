@@ -33,6 +33,7 @@ int __sys_uname(struct new_utsname *name);
 int __sys_close(int fd);
 ssize_t __sys_write(int fd, const void *buf, size_t count);
 ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
+long __sys_exit_group(int status);
 long __sys_exit(int status);
 void *__sys_brk(void *addr);
 void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);

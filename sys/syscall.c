@@ -160,6 +160,12 @@ ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
+long __sys_exit_group(int status)
+{
+	/* TODO: kill other threads in process group */
+	return __sys_exit(status);
+}
+
 long __sys_exit(int status)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
