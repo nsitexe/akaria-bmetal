@@ -269,7 +269,8 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 	if (drv && drv->ops && drv->ops->wakeup) {
 		r = drv->ops->wakeup(cpu);
 		if (r) {
-			printk("cpu_wakeup: id:%d(phys:%d) failed to wakeup.\n", cpu->id_cpu, cpu->id_phys);
+			__dev_err(__cpu_to_dev(cpu), "wakeup id:%d(phys:%d) failed.\n",
+				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
 	}
@@ -285,7 +286,8 @@ int __cpu_sleep(struct __cpu_device *cpu)
 	if (drv && drv->ops && drv->ops->sleep) {
 		r = drv->ops->sleep(cpu);
 		if (r) {
-			printk("cpu_sleep: id:%d(phys:%d) failed to sleep.\n", cpu->id_cpu, cpu->id_phys);
+			__dev_err(__cpu_to_dev(cpu), "sleep id:%d(phys:%d) failed.\n",
+				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
 	}
