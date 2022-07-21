@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <elf.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -45,6 +46,11 @@ extern char __sbss_start[], __sbss_end[];
 extern char __data_start[], __data_end[], __data_load[];
 extern char __sdata_start[], __sdata_end[], __sdata_load[];
 extern char __tdata_start[], __tdata_end[], __tdata_load[];
+#ifdef CONFIG_64BIT
+extern const Elf64_Ehdr __ehdr_start;
+#else
+extern const Elf32_Ehdr __ehdr_start;
+#endif /* CONFIG_64BIT */
 
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
