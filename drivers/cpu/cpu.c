@@ -145,6 +145,77 @@ int __cpu_remove(struct __cpu_device *cpu)
 	return __device_remove(__cpu_to_dev(cpu));
 }
 
+int __cpu_cache_get_line_size_i(struct __cpu_device *cpu)
+{
+	return cpu->line_size_i;
+}
+
+void __cpu_cache_set_line_size_i(struct __cpu_device *cpu, int sz)
+{
+	cpu->line_size_i = sz;
+}
+
+int __cpu_cache_get_line_size_d(struct __cpu_device *cpu)
+{
+	return cpu->line_size_d;
+}
+
+void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz)
+{
+	cpu->line_size_d = sz;
+}
+
+int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->clean_range) {
+		r = drv->ops->clean_range(cpu, start, sz);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "clean range:%p-%p failed.\n",
+				start, start + sz);
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->inv_range) {
+		r = drv->ops->inv_range(cpu, start, sz);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "invalidate range:%p-%p failed.\n",
+				start, start + sz);
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	int r;
+
+	if (drv && drv->ops && drv->ops->flush_range) {
+		r = drv->ops->flush_range(cpu, start, sz);
+		if (r) {
+			__dev_err(__cpu_to_dev(cpu), "flush range:%p-%p failed.\n",
+				start, start + sz);
+			return r;
+		}
+	}
+
+	return 0;
+}
+
 static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event ev)
 {
 	int r, res = 0;

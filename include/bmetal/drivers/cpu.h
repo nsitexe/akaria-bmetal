@@ -27,6 +27,9 @@ struct __cpu_device;
 
 struct __cpu_driver_ops {
 	/* Run on any CPUs */
+	int (*clean_range)(struct __cpu_device *cpu, const void *start, size_t sz);
+	int (*inv_range)(struct __cpu_device *cpu, const void *start, size_t sz);
+	int (*flush_range)(struct __cpu_device *cpu, const void *start, size_t sz);
 	int (*wakeup)(struct __cpu_device *cpu);
 	int (*sleep)(struct __cpu_device *cpu);
 
@@ -54,6 +57,9 @@ struct __cpu_device {
 	struct __thread_info *ti_task;
 	struct __event_handler *handlers[CPU_EVENT_MAX];
 	struct __cpu_futex futex;
+
+	int line_size_i;
+	int line_size_d;
 };
 
 struct __cpu_priv_max {
@@ -119,6 +125,13 @@ struct __cpu_device *__cpu_get_current(void);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
 int __cpu_remove_device(struct __cpu_device *cpu);
+int __cpu_cache_get_line_size_i(struct __cpu_device *cpu);
+void __cpu_cache_set_line_size_i(struct __cpu_device *cpu, int sz);
+int __cpu_cache_get_line_size_d(struct __cpu_device *cpu);
+void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz);
+int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz);
+int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz);
+int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_get_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler **hnd);
 int __cpu_set_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_wakeup(struct __cpu_device *cpu);
