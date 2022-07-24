@@ -192,20 +192,50 @@ static int add_aux(int typ, void *p)
 	return 0;
 }
 
-static int load_argv(const struct __comm_area_header *h, const char *buf_args)
+static int map_argv(const struct __comm_area_header *h, const char *buf_args)
 {
 	const struct __comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
 	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
+		struct __cpu_device *cpu = __cpu_get_current();
 		ha = (const struct __comm_arg_header *)buf;
 		buf += sizeof(struct __comm_arg_header);
+
+		r = __cpu_cache_inv_range(cpu, (void *)buf, ha->size);
+		if (r) {
+			printk("invalidate arg:%d is failed, arguments may be broken.\n", i);
+		}
 
 		r = add_argv((void *)buf);
 		if (r) {
 			printk("Too many argumnets, max:%d.\n", MAX_ARGV);
 		}
+		buf += ha->size;
+
+		buf = ALIGN_OF(buf, 8);
+	}
+
+	return 0;
+}
+
+static int unmap_argv(const struct __comm_area_header *h, const char *buf_args)
+{
+	const struct __comm_arg_header *ha;
+	uintptr_t buf = (uintptr_t)buf_args;
+	int r;
+
+	for (int i = 0; i < h->num_args; i++) {
+		struct __cpu_device *cpu = __cpu_get_current();
+		ha = (const struct __comm_arg_header *)buf;
+		buf += sizeof(struct __comm_arg_header);
+
+		r = __cpu_cache_flush_range(cpu, (void *)buf, ha->size);
+		if (r) {
+			printk("flush arg:%d is failed, arguments may be broken.\n", i);
+		}
+
 		buf += ha->size;
 
 		buf = ALIGN_OF(buf, 8);
@@ -232,7 +262,7 @@ static int init_args(int *argc)
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
-		load_argv(h_area, __comm_area + sz);
+		map_argv(h_area, __comm_area + sz);
 		if (index_argv != h_area->num_args) {
 			printk("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
 				index_argv, h_area->num_args);
@@ -269,6 +299,24 @@ static int init_args(int *argc)
 	}
 
 	add_aux(0, NULL);
+
+	return 0;
+}
+
+static int fini_args(void)
+{
+	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+
+	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
+		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
+
+		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
+			printk("Broken number of args (req:%" PRId32 ", max:%d)\n",
+				h_area->num_args, CONFIG_COMM_MAX_ARGS);
+		}
+
+		unmap_argv(h_area, __comm_area + sz);
+	}
 
 	return 0;
 }
@@ -316,11 +364,16 @@ void __init_leader(void)
 
 void __fini_leader(int status)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 	int st = status & 0xff;
 
+	__fini_child(st);
+
+	fini_args();
+
 	h_area->ret_main = st;
 	h_area->done = 1;
-
-	__fini_child(st);
+	__cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
+	__cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
 }
