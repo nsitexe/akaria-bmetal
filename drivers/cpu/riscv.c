@@ -51,6 +51,10 @@ static int cpu_riscv_add(struct __device *dev)
 	cpu->id_cpu = cpuid;
 	cpu->id_phys = hartid;
 
+	/* Zic64b requests that cache line size must be 64 bytes */
+	cpu->line_size_i = 64;
+	cpu->line_size_d = 64;
+
 	__cpu_set(cpuid, cpu);
 
 	return 0;
@@ -59,6 +63,63 @@ static int cpu_riscv_add(struct __device *dev)
 static int cpu_riscv_remove(struct __device *dev)
 {
 	return -ENOTSUP;
+}
+
+static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+#ifdef CONFIG_RISCV_CACHE
+	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	const char *p = start;
+
+	if (sz_line <= 0) {
+		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		return -EINVAL;
+	}
+
+	for (size_t i = 0; i < sz; i += sz_line) {
+		__asm volatile ("cbo.clean %0" :: "A"(p[i]));
+	}
+#endif /* CONFIG_RISCV_CACHE */
+
+	return 0;
+}
+
+static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+#ifdef CONFIG_RISCV_CACHE
+	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	const char *p = start;
+
+	if (sz_line <= 0) {
+		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		return -EINVAL;
+	}
+
+	for (size_t i = 0; i < sz; i += sz_line) {
+		__asm volatile ("cbo.inval %0" :: "A"(p[i]));
+	}
+#endif /* CONFIG_RISCV_CACHE */
+
+	return 0;
+}
+
+static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, size_t sz)
+{
+#ifdef CONFIG_RISCV_CACHE
+	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	const char *p = start;
+
+	if (sz_line <= 0) {
+		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		return -EINVAL;
+	}
+
+	for (size_t i = 0; i < sz; i += sz_line) {
+		__asm volatile ("cbo.flush %0" :: "A"(p[i]));
+	}
+#endif /* CONFIG_RISCV_CACHE */
+
+	return 0;
 }
 
 static int cpu_riscv_wakeup(struct __cpu_device *cpu)
@@ -115,6 +176,9 @@ const static struct __device_driver_ops cpu_riscv_dev_ops = {
 };
 
 const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
+	.clean_range = cpu_riscv_clean_range,
+	.inv_range = cpu_riscv_inv_range,
+	.flush_range = cpu_riscv_flush_range,
 	.wakeup = cpu_riscv_wakeup,
 	.sleep = cpu_riscv_sleep,
 	.raise_ipi = cpu_riscv_raise_ipi,
