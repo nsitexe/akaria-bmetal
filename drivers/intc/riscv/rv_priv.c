@@ -59,7 +59,8 @@ static int intc_priv_intr_sw(int event, struct __event_handler *hnd)
 
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 {
-	int m = XIX_SIX | XIX_TIX | XIX_EIX;
+	/* TODO: implement timer interrupt */
+	int m = XIX_SIX | XIX_EIX;
 
 	switch (event) {
 	case CPU_EVENT_ON_WAKEUP:
