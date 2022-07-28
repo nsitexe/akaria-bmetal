@@ -11,7 +11,7 @@
 
 #define CPU_CONF(N)    \
 	[N] = { \
-		{"hartid", 1, {N}}, \
+		PROP("hartid", N), \
 		{0}, \
 	}
 
@@ -45,7 +45,7 @@ static struct __cpu_device cpu[] = {
 
 #define INTC_CONF(N)    \
 	[N] = { \
-		{"cpu", 1, {UPTR("cpu" #N)}}, \
+		PROP("cpu", UPTR("cpu" #N)), \
 		{0}, \
 	}
 
@@ -78,9 +78,9 @@ static struct __intc_device rvintc[] = {
 };
 
 const static struct __device_config clint_conf[] = {
-	{"reg", 1, {0x2000000}},
-	{"reg-size", 1, {0x1000}},
-	{"interrupts", 16, {
+	PROP("reg", 0x2000000),
+	PROP("reg-size", 0x1000),
+	PROP("interrupts",
 		UPTR("rvintc0"), RV_IX_SIX,
 		UPTR("rvintc1"), RV_IX_SIX,
 		UPTR("rvintc2"), RV_IX_SIX,
@@ -88,8 +88,7 @@ const static struct __device_config clint_conf[] = {
 		UPTR("rvintc0"), RV_IX_TIX,
 		UPTR("rvintc1"), RV_IX_TIX,
 		UPTR("rvintc2"), RV_IX_TIX,
-		UPTR("rvintc3"), RV_IX_TIX,
-		}},
+		UPTR("rvintc3"), RV_IX_TIX),
 	{0},
 };
 
@@ -105,7 +104,7 @@ static struct __intc_device clint = {
 };
 
 const static struct __device_config hfclk_conf[] = {
-	{"frequency", 1, {33333333}},
+	PROP("frequency", 33333333),
 	{0},
 };
 
@@ -121,7 +120,7 @@ static struct __clk_device hfclk = {
 };
 
 const static struct __device_config rtclk_conf[] = {
-	{"frequency", 1, {1 * MHZ}},
+	PROP("frequency", 1 * MHZ),
 	{0},
 };
 
@@ -138,11 +137,11 @@ static struct __clk_device rtclk = {
 
 /* ddrctrlclk, tlclk, coreclk, gemgxlclk */
 const static struct __device_config prci_conf[] = {
-	{"reg", 1, {0x10000000}},
-	{"reg-size", 1, {0x1000}},
-	{"clocks", 2, {UPTR("hfclk"), 0}},
+	PROP("reg", 0x10000000),
+	PROP("reg-size", 0x1000),
+	PROP("clocks", UPTR("hfclk"), 0),
 	/* Cannot set tlclk (fixed as coreclk / 2) */
-	{"frequency", 4, {600 * MHZ, 0, 1 * GHZ, 125 * MHZ}},
+	PROP("frequency", 600 * MHZ, 0, 1 * GHZ, 125 * MHZ),
 	{0},
 };
 
@@ -158,16 +157,16 @@ static struct __clk_device prci = {
 };
 
 const static struct __device_config uart0_conf[] = {
-	{"reg", 1, {0x10010000}},
-	{"reg-size", 1, {0x1000}},
-	{"clocks", 2, {UPTR("prci"), PRCI_INDEX_TLCLK}},
+	PROP("reg", 0x10010000),
+	PROP("reg-size", 0x1000),
+	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
 	{0},
 };
 
 const static struct __device_config uart1_conf[] = {
-	{"reg", 1, {0x10011000}},
-	{"reg-size", 1, {0x1000}},
-	{"clocks", 2, {UPTR("prci"), PRCI_INDEX_TLCLK}},
+	PROP("reg", 0x10011000),
+	PROP("reg-size", 0x1000),
+	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
 	{0},
 };
 

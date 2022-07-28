@@ -16,6 +16,26 @@
 #define __dev_info(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 #define __dev_dbg(dev, fmt, ...)     printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 
+#define __STRINGIFY(x)    #x
+#define STRINGIFY(x)      __STRINGIFY(x)
+#define __CONCAT(x, y)    x##y
+#define CONCAT(x, y)      __CONCAT(x, y)
+
+#define PROP_REVSEQ    \
+	31, 30, 29, 28, 27, 26, 25, 24, \
+	23, 22, 21, 20, 19, 18, 17, 16, \
+	15, 14, 13, 12, 11, 10,  9,  8, \
+	 7,  6,  5,  4,  3,  2,  1,  0
+#define ____PROP_VA_ARGS_N(    \
+	      A1,  A2,  A3,  A4,  A5,  A6,  A7, \
+	 A8,  A9, A10, A11, A12, A13, A14, A15, \
+	A16, A17, A18, A19, A20, A21, A22, A23, \
+	A24, A25, A26, A27, A28, A29, A30, A31, \
+	N, ...)    N
+#define __PROP_VA_ARGS_N(...)  ____PROP_VA_ARGS_N(__VA_ARGS__)
+#define PROP_VA_ARGS_N(...)    __PROP_VA_ARGS_N(__VA_ARGS__, PROP_REVSEQ)
+#define PROP(NAME, ...)        {NAME, PROP_VA_ARGS_N(__VA_ARGS__), {__VA_ARGS__}}
+
 #define EVENT_HANDLED            1
 #define EVENT_NOT_HANDLED        2
 

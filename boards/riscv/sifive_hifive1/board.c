@@ -6,7 +6,7 @@
 #include <bmetal/drivers/uart.h>
 
 const static struct __device_config cpu0_conf[] = {
-	{"hartid", 1, {0}},
+	PROP("hartid", 0),
 	{0},
 };
 
@@ -22,14 +22,14 @@ static struct __cpu_device cpu0 = {
 };
 
 const static struct __device_config uart0_conf[] = {
-	{"reg", 1, {0x10013000}},
-	{"reg-size", 1, {0x1000}},
+	PROP("reg", 0x10013000),
+	PROP("reg-size", 0x1000),
 	{0},
 };
 
 const static struct __device_config uart1_conf[] = {
-	{"reg", 1, {0x10023000}},
-	{"reg-size", 1, {0x1000}},
+	PROP("reg", 0x10023000),
+	PROP("reg-size", 0x1000),
 	{0},
 };
 

@@ -9,7 +9,7 @@
 
 #define CPU_CONF(N)    \
 	[N] = { \
-		{"hartid", 1, {N}}, \
+		PROP("hartid", N), \
 		{0}, \
 	}
 
@@ -41,7 +41,7 @@ static struct __cpu_device cpu[] = {
 
 #define INTC_CONF(N)    \
 	[N] = { \
-		{"cpu", 1, {UPTR("cpu" #N)}}, \
+		PROP("cpu", UPTR("cpu" #N)), \
 		{0}, \
 	}
 
@@ -72,9 +72,9 @@ static struct __intc_device rvintc[] = {
 };
 
 const static struct __device_config clint_conf[] = {
-	{"reg", 1, {0x2000000}},
-	{"reg-size", 1, {0x1000}},
-	{"interrupts", 16, {
+	PROP("reg", 0x2000000),
+	PROP("reg-size", 0x1000),
+	PROP("interrupts",
 		UPTR("rvintc0"), RV_IX_SIX,
 		UPTR("rvintc1"), RV_IX_SIX,
 		UPTR("rvintc2"), RV_IX_SIX,
@@ -82,9 +82,8 @@ const static struct __device_config clint_conf[] = {
 		UPTR("rvintc0"), RV_IX_TIX,
 		UPTR("rvintc1"), RV_IX_TIX,
 		UPTR("rvintc2"), RV_IX_TIX,
-		UPTR("rvintc3"), RV_IX_TIX,
-		}},
-	{"ipi", 16, {1}},
+		UPTR("rvintc3"), RV_IX_TIX),
+	PROP("ipi", 1),
 	{0},
 };
 
@@ -100,14 +99,13 @@ static struct __intc_device clint = {
 };
 
 const static struct __device_config plic_conf[] = {
-	{"reg", 1, {0xc000000}},
-	{"reg-size", 1, {0x2000000}},
-	{"interrupts", 8, {
+	PROP("reg", 0xc000000),
+	PROP("reg-size", 0x2000000),
+	PROP("interrupts",
 		UPTR("rvintc0"), RV_IX_EIX,
 		UPTR("rvintc1"), RV_IX_EIX,
 		UPTR("rvintc2"), RV_IX_EIX,
-		UPTR("rvintc3"), RV_IX_EIX,
-		}},
+		UPTR("rvintc3"), RV_IX_EIX),
 	{0},
 };
 
@@ -123,9 +121,9 @@ static struct __intc_device plic = {
 };
 
 const static struct __device_config uart0_conf[] = {
-	{"reg", 1, {0x10000000}},
-	{"reg-size", 1, {0x100}},
-	{"reg-width", 1, {1}},
+	PROP("reg", 0x10000000),
+	PROP("reg-size", 0x100),
+	PROP("reg-width", 1),
 	{0},
 };
 
