@@ -92,8 +92,15 @@ static int intc_clint_remove(struct __device *dev)
 
 static int intc_clint_raise_ipi(struct __intc_device *intc, struct __cpu_device *src, struct __cpu_device *dest, void *arg)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	struct __device *dev = __intc_to_dev(intc);
-	int id_phys = dest->id_phys;
+	int id_phys = __cpu_get_id_phys(dest);
+
+	if (cpu != src) {
+		__dev_err(dev, "cannot send IPI, src:%d is not current CPU.\n",
+			__cpu_get_id_phys(src));
+		return -EINVAL;
+	}
 
 	__device_write32(dev, 1, REG_MSIP(id_phys));
 
