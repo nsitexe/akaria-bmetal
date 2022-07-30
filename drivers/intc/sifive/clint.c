@@ -12,9 +12,8 @@
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 #include <bmetal/drivers/cpu.h>
 
+/* Start address is 0x0000 of clint */
 #define REG_MSIP(hart)        (0x0000 + (hart) * 4)
-#define REG_MTIMECMP(hart)    (0x4000 + (hart) * 8)
-#define REG_MTIME             0xbff8
 
 struct intc_clint_priv {
 	struct __intc_device *intc;
