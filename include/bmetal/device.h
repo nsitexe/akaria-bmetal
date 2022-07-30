@@ -16,11 +16,6 @@
 #define __dev_info(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 #define __dev_dbg(dev, fmt, ...)     printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 
-#define __STRINGIFY(x)    #x
-#define STRINGIFY(x)      __STRINGIFY(x)
-#define __CONCAT(x, y)    x##y
-#define CONCAT(x, y)      __CONCAT(x, y)
-
 #define PROP_REVSEQ    \
 	31, 30, 29, 28, 27, 26, 25, 24, \
 	23, 22, 21, 20, 19, 18, 17, 16, \
