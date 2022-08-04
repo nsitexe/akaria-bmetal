@@ -154,6 +154,10 @@ SECTIONS
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
 		*(.got .got.plt)
+		/* for glibc */
+		*(__libc_subfreeres)
+		*(__libc_IO_vtables)
+		*(__libc_atexit)
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
@@ -181,6 +185,8 @@ SECTIONS
 		__bss_start = .;
 		*(.bss .bss.* .gnu.linkonce.b.*)
 		*(COMMON)
+		/* for glibc */
+		*(__libc_freeres_ptrs)
 		__bss_end = .;
 	} > DATA_AREA
 
