@@ -27,6 +27,9 @@ if(CONFIG_RISCV_COMPRESSED)
   set(RV_ARCH ${RV_ARCH}c)
 endif()
 
+# From binutils 2.38
+set(RV_ARCH ${RV_ARCH}_zicsr_zifencei)
+
 prj_compile_options(-march=${RV_ARCH})
 prj_compile_options(-mabi=${RV_MABI})
 
