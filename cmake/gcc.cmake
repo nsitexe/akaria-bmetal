@@ -12,7 +12,7 @@ prj_compile_options(
 # Assembler
 prj_compile_options($<$<COMPILE_LANGUAGE:ASM>:-DASMLANG>)
 
-# Architecture depenent
+# Architecture dependent
 set(SPACER "----")
 message("${SPACER} arch  is ${ARCH}")
 include(${CMAKE_SOURCE_DIR}/cmake/gcc_${ARCH}.cmake)
