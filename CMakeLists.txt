@@ -18,6 +18,11 @@ if(NOT DEFINED CROSS_COMPILE)
   message(FATAL_ERROR "CROSS_COMPILE is not defined. Please set -DCROSS_COMPILE= option.")
 endif()
 
+# Adjust find_something commands for cross compile
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
 # Common settings
 set(PRJ_LIB_NAME bmetal_crt)
 set(PRJ_CONFIG_NAME config_cur)
@@ -34,6 +39,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/tools.cmake)
 
 # Target: Library
 add_library(${PRJ_LIB_NAME} STATIC)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Default config directory
 set(CONF_DIR ${CMAKE_SOURCE_DIR}/configs)
