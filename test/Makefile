@@ -18,52 +18,54 @@ CFLAGS   = $(CMNFLAGS)
 LDFLAGS  = $(CMNFLAGS)
 
 BINS = \
-	hello ctype \
-	vecadd vecaddf \
-	saxpy saxpyf
+	ctype hello malloc \
+	saxpy saxpyf \
+	vecadd vecaddf
 ifeq ($(USE_GLIBC),y)
 BINS += pthread
 endif
 
-HELLO_OBJS = hello.o
 CTYPE_OBJS = ctype.o
+HELLO_OBJS = hello.o
+MALLOC_OBJS = malloc.o
 PTHREAD_OBJS = pthread.o
-VECADD_OBJS = vecadd.o
-VECADDF_OBJS = vecaddf.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
+VECADD_OBJS = vecadd.o
+VECADDF_OBJS = vecaddf.o
 OBJS = \
-       $(HELLO_OBJS) \
-       $(CTYPE_OBJS) \
-       $(VECADD_OBJS) \
-       $(VECADDF_OBJS) \
-       $(SAXPY_OBJS) \
-       $(SAXPYF_OBJS)
+       $(CTYPE_OBJS) $(HELLO_OBJS) $(MALLOC_OBJS) \
+       $(SAXPY_OBJS) $(SAXPYF_OBJS) \
+       $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
-OBJS += $(PTHREAD_OBJS)
+OBJS += \
+	$(PTHREAD_OBJS)
 endif
 
 all: $(BINS)
 
+ctype: $(CTYPE_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
 hello: $(HELLO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
-ctype: $(CTYPE_OBJS)
+malloc: $(MALLOC_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 pthread: $(PTHREAD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
 
-vecadd: $(VECADD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
-
-vecaddf: $(VECADDF_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
-
 saxpy: $(SAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 saxpyf: $(SAXPYF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+vecadd: $(VECADD_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+vecaddf: $(VECADDF_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 clean:

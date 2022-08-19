@@ -3,6 +3,7 @@
 # by Make
 /test/ctype
 /test/hello
+/test/malloc
 /test/pthread
 /test/saxpy
 /test/saxpyf
