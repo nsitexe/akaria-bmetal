@@ -5,6 +5,10 @@ project(baremetal_crt)
 cmake_minimum_required(VERSION 3.16)
 enable_language(C ASM)
 
+# Additional host tools
+# Need to add these dirs before changing CMAKE_C_COMPILER.
+add_subdirectory(tools)
+
 # Check ARCH
 if(NOT DEFINED ARCH)
   message(FATAL_ERROR "ARCH is not defined. Please set -DARCH= option.")
