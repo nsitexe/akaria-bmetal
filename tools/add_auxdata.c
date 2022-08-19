@@ -539,7 +539,6 @@ static int find_shs(struct elf_info *elf, const char *name, struct sec_header **
 
 	for (uint32_t i = 0; i < elf->e_shnum; i++) {
 		struct sec_header *s = &elf->shs[i];
-		const char *hoge = get_sh_name(elf, s->sh_name);
 
 		if (strcmp(get_sh_name(elf, s->sh_name), name) == 0) {
 			sec = s;
@@ -641,7 +640,7 @@ int elf_unload(struct elf_info *elf)
 	return res;
 }
 
-int embed_auxv(uint8_t *bin, size_t bin_sz)
+int embed_auxv(const char *fname, uint8_t *bin, size_t bin_sz)
 {
 	struct elf_info elf;
 	struct sec_header *sec;
@@ -673,8 +672,8 @@ int embed_auxv(uint8_t *bin, size_t bin_sz)
 			(int)sec->sh_size, (int)sz_req);
 		return -ENOMEM;
 	}
-	log_info("Write %d bytes into .auxdata (%d bytes) section.\n",
-		(int)sz_req, (int)sec->sh_size);
+	log_info("%s: Write %d bytes into .auxdata (%d bytes) section.\n",
+		fname, (int)sz_req, (int)sec->sh_size);
 
 	memcpy(dest, &aux, sizeof(aux));
 	dest += sizeof(aux);
@@ -689,45 +688,58 @@ int embed_auxv(uint8_t *bin, size_t bin_sz)
 	return 0;
 }
 
-int main(int argc, char *argv[])
+int embed_file(const char *fname)
 {
-	const char *fname = "a.out";
 	int fd, r;
 	struct stat st;
 	uint8_t *bin;
 	size_t bin_sz;
 
-	if (argc > 1) {
-		fname = argv[1];
-	}
-
 	fd = open(fname, O_RDWR);
 	if (fd == -1) {
 		perror("open");
-		return 0;
+		return -1;
 	}
 
 	r = fstat(fd, &st);
 	if (r != 0) {
 		perror("fstat");
-		return 0;
+		return r;
 	}
 
 	bin_sz = st.st_size;
 	bin = mmap(NULL, bin_sz, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (bin == MAP_FAILED) {
 		perror("mmap");
-		return 0;
+		return -1;
 	}
 
-	r = embed_auxv(bin, bin_sz);
+	r = embed_auxv(fname, bin, bin_sz);
 	if (r) {
-		log_err("failed to embed_auxv.\n");
-		return 0;
+		log_err("%s: failed to embed_auxv.\n", fname);
+		return r;
 	}
 
 	munmap(bin, bin_sz);
 	close(fd);
 
 	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	int r, ret = 0;
+
+	if (argc == 1) {
+		return embed_file("a.out");
+	}
+
+	for (int i = 1; i < argc; i++) {
+		r = embed_file(argv[i]);
+		if (r) {
+			ret = r;
+		}
+	}
+
+	return ret;
 }

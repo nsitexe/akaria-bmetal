@@ -9,6 +9,9 @@ set(PRJ_NAME add_auxdata)
 
 add_executable(${PRJ_NAME})
 
+target_compile_options(${PRJ_NAME}
+  PRIVATE -Wall
+  )
 target_sources(${PRJ_NAME}
   PRIVATE add_auxdata.c
   )
