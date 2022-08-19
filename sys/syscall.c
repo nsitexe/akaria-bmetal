@@ -226,6 +226,7 @@ void *__sys_brk(void *addr)
 {
 	void *brk_start = &brk_area[0];
 	void *brk_end = &brk_area[CONFIG_BRK_SIZE];
+	char *caddr = (char *)addr;
 
 	if (addr == NULL) {
 		return brk_cur;
@@ -235,7 +236,13 @@ void *__sys_brk(void *addr)
 		return INT_TO_PTR(-ENOMEM);
 	}
 
-	kmemset(brk_cur, 0, (char *)addr - brk_cur);
+	if (caddr > brk_cur) {
+		/* Expand: should zero clear by specification */
+		kmemset(brk_cur, 0, caddr - brk_cur);
+	} else {
+		/* Shrink: zero clear for security */
+		kmemset(addr, 0, brk_cur - caddr);
+	}
 	brk_cur = addr;
 
 	return addr;
