@@ -71,14 +71,18 @@ int main(int argc, char *argv[], char *envp[])
 {
 	int cpuid = __arch_riscv_get_cpu_id();
 	void *val;
-	int st = 0, r;
+	int st = 0, r, ret = 0;
 
 	printf("%s: test pthread\n", argv[0]);
+	fflush(stdout);
+
+	printf("pid:%d\n", getpid());
 	fflush(stdout);
 
 	r = pthread_attr_init(&attr);
 	if (r) {
 		printf("%d: pthread_attr_init: %s\n", cpuid, strerror(r));
+		ret = r;
 	}
 
 	//r = pthread_attr_setstacksize(&attr, 32768);
@@ -95,6 +99,7 @@ int main(int argc, char *argv[], char *envp[])
 			r = pthread_create(&th[i], NULL, thread_main, (void *)(intptr_t)i);
 			if (r) {
 				printf("%d: pthread_create: %s\n", cpuid, strerror(r));
+				ret = r;
 			}
 			fflush(stdout);
 		}
@@ -103,6 +108,7 @@ int main(int argc, char *argv[], char *envp[])
 			r = pthread_join(th[i], &val);
 			if (r) {
 				printf("%d: pthread_join: %s\n", cpuid, strerror(r));
+				ret = r;
 			}
 			fflush(stdout);
 		}
@@ -124,6 +130,7 @@ int main(int argc, char *argv[], char *envp[])
 			r = pthread_create(&th[i], NULL, thread_main, (void *)(intptr_t)i);
 			if (r) {
 				printf("%d: pthread_create: %s\n", cpuid, strerror(r));
+				ret = r;
 			}
 			fflush(stdout);
 		}
@@ -132,6 +139,7 @@ int main(int argc, char *argv[], char *envp[])
 			r = pthread_join(th[i], &val);
 			if (r) {
 				printf("%d: pthread_join: %s\n", cpuid, strerror(r));
+				ret = r;
 			}
 			fflush(stdout);
 		}
@@ -152,6 +160,7 @@ int main(int argc, char *argv[], char *envp[])
 		r = pthread_create(&th[i], NULL, thread_main, (void *)(intptr_t)i);
 		if (r) {
 			printf("%d: pthread_create: %s\n", cpuid, strerror(r));
+			ret = r;
 		}
 		fflush(stdout);
 	}
@@ -160,6 +169,7 @@ int main(int argc, char *argv[], char *envp[])
 		r = pthread_join(th[i], &val);
 		if (r) {
 			printf("%d: pthread_join: %s\n", cpuid, strerror(r));
+			ret = r;
 		}
 		fflush(stdout);
 	}
@@ -177,12 +187,14 @@ int main(int argc, char *argv[], char *envp[])
 		r = pthread_create(&th[st], NULL, parent_thread_main, (void *)(intptr_t)st);
 		if (r) {
 			printf("%d: pthread_create: %s\n", cpuid, strerror(r));
+			ret = r;
 		}
 		fflush(stdout);
 
 		r = pthread_join(th[st], &val);
 		if (r) {
 			printf("%d: pthread_join: %s\n", cpuid, strerror(r));
+			ret = r;
 		}
 		fflush(stdout);
 
@@ -194,5 +206,12 @@ int main(int argc, char *argv[], char *envp[])
 	printf("%d: -------- step3 joined\n", cpuid);
 	fflush(stdout);
 
-	return 0;
+	if (ret == 0) {
+		printf("%s: SUCCESS\n", argv[0]);
+	} else {
+		printf("%s: FAILED\n", argv[0]);
+	}
+	fflush(stdout);
+
+	return ret;
 }
