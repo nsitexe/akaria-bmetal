@@ -2,8 +2,8 @@
 ifeq ($(strip $(USE_SYSROOT)),)
   $(error USE_SYSROOT is empty. Please set a path of sysroot)
 endif
-ifeq ($(strip $(USE_NEWLIB)$(USE_MUSL)),)
-  $(error Neither USE_NEWLIB nor USE_MUSL is set)
+ifeq ($(strip $(USE_GLIBC)$(USE_MUSL)$(USE_NEWLIB)),nnn)
+  $(error Please set USE_GLIBC or USE_MUSL or USE_NEWLIB to y)
 endif
 
 # Make additional CFLAGS, LDFLAGS

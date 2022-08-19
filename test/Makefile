@@ -4,7 +4,7 @@ CC = $(CROSS_COMPILE)gcc
 # Config for bmetal.mk
 USE_GLIBC   ?= n
 USE_MUSL    ?= n
-USE_NEWLIB  ?= y
+USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
 # 32bit
