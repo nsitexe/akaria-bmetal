@@ -1,1 +1,10 @@
 *.o
+
+# by Make
+/test/ctype
+/test/hello
+/test/pthread
+/test/saxpy
+/test/saxpyf
+/test/vecadd
+/test/vecaddf
