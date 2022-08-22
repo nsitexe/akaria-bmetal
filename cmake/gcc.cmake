@@ -2,11 +2,11 @@
 
 # Common
 prj_compile_options(
-  -Wall -nostdlib -ffreestanding -gdwarf-4
-  $<$<CONFIG:Debug>:>
+  -Wall -nostdlib -ffreestanding
+  $<$<CONFIG:Debug>:-gdwarf-4>
   $<$<CONFIG:Release>:>
   $<$<CONFIG:MinSizeRel>:>
-  $<$<CONFIG:RelWithDebInfo>:>
+  $<$<CONFIG:RelWithDebInfo>:-gdwarf-4>
 )
 
 # Assembler
