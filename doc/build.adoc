@@ -58,7 +58,7 @@ $ cmake ../ -G Ninja \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
   -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
   -DARCH=riscv \
-  -DCROSS_COMPILE=riscv64-unknown-linux-gnu- \
+  -DCROSS_COMPILE=riscv64-unknown-elf- \
   -DCC=gcc \
   -DDEFCONF=riscv_qemu_virt_64_xip
 ----
@@ -106,7 +106,7 @@ $ ninja install
 ----
 $ cd test
 
-$ make
+$ make USE_NEWLIB=y
 ----
 
 You can use USE_SYSROOT option to specify sysroot (includes runtime libraries) if you have installed runtime into other directory.
