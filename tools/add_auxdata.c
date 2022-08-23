@@ -665,7 +665,7 @@ int embed_auxv(const char *fname, uint8_t *bin, size_t bin_sz)
 	aux.phdr_size = elf.e_phentsize * elf.e_phnum;
 
 	uint8_t *dest = elf.buf + sec->sh_offset;
-	size_t sz_req = sizeof(aux) + aux.phdr_size;
+	size_t sz_req = sizeof(aux) + elf.e_phoff + aux.phdr_size;
 
 	if (sec->sh_size < sz_req) {
 		log_err(".auxdata (%d bytes) is too small, needs %d bytes.\n",
@@ -677,7 +677,7 @@ int embed_auxv(const char *fname, uint8_t *bin, size_t bin_sz)
 
 	memcpy(dest, &aux, sizeof(aux));
 	dest += sizeof(aux);
-	memcpy(dest, elf.p_hdr_ent, aux.phdr_size);
+	memcpy(dest, elf.buf, elf.e_phoff + aux.phdr_size);
 
 	r = elf_unload(&elf);
 	if (r) {
