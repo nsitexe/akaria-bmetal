@@ -70,8 +70,7 @@ int main(int argc, char *argv[], char *envp[])
 {
 	int r, ret = 0;
 
-	printf("%s: malloc\n", argv[0]);
-	fflush(stdout);
+	printf("%s: test malloc start\n", argv[0]);
 
 	r = test_malloc1(32);
 	if (r) {
@@ -100,7 +99,6 @@ int main(int argc, char *argv[], char *envp[])
 	} else {
 		printf("%s: FAILED\n", argv[0]);
 	}
-	fflush(stdout);
 
 	return ret;
 }

@@ -1,7 +1,9 @@
 *.o
 
 # by Make
+/test/args
 /test/ctype
+/test/flush
 /test/hello
 /test/malloc
 /test/pthread

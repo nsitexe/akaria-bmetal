@@ -26,22 +26,19 @@ int main(int argc, char *argv[], char *envp[])
 {
 	int r, ret = 0;
 
-	printf("%s: hello ctype!\n", argv[0]);
-	fflush(stdout);
+	printf("%s: test ctype start\n", argv[0]);
 
 	r = test_ctype();
 	if (r) {
 		printf("%s: test_ctype failed.\n", argv[0]);
 		ret = r;
 	}
-	fflush(stdout);
 
 	if (ret == 0) {
 		printf("%s: SUCCESS\n", argv[0]);
 	} else {
 		printf("%s: FAILED\n", argv[0]);
 	}
-	fflush(stdout);
 
 	return ret;
 }

@@ -18,14 +18,17 @@ CFLAGS   = $(CMNFLAGS)
 LDFLAGS  = $(CMNFLAGS)
 
 BINS = \
-	ctype hello malloc \
+	args ctype flush hello \
+	malloc \
 	saxpy saxpyf \
 	vecadd vecaddf
 ifeq ($(USE_GLIBC),y)
 BINS += pthread
 endif
 
+ARGS_OBJS = args.o
 CTYPE_OBJS = ctype.o
+FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
 PTHREAD_OBJS = pthread.o
@@ -34,7 +37,8 @@ SAXPYF_OBJS = saxpyf.o
 VECADD_OBJS = vecadd.o
 VECADDF_OBJS = vecaddf.o
 OBJS = \
-       $(CTYPE_OBJS) $(HELLO_OBJS) $(MALLOC_OBJS) \
+       $(ARGS_OBJS) $(CTYPE_OBJS) $(FLUSH_OBJS) $(HELLO_OBJS) \
+       $(MALLOC_OBJS) \
        $(SAXPY_OBJS) $(SAXPYF_OBJS) \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
@@ -44,7 +48,13 @@ endif
 
 all: $(BINS)
 
+args: $(ARGS_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
 ctype: $(CTYPE_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+flush: $(FLUSH_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 hello: $(HELLO_OBJS)
