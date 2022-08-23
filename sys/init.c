@@ -296,8 +296,8 @@ static int init_args(int *argc)
 		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start.phent);
 		add_aux(AT_PHNUM, (void *)(intptr_t)__aux_start.phnum);
 
-		char *p = (char *)&__aux_start;
-		p += sizeof(__aux_start);
+		char *p = (char *)&__ehdr_start;
+		p += __ehdr_start.e_phoff;
 
 		add_aux(AT_PHDR, p);
 	} else {
