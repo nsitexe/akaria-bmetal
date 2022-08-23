@@ -107,6 +107,7 @@ SECTIONS
 
 	.auxdata : ALIGN_WITH_INPUT {
 		*(.auxdata .auxdata.*)
+		PROVIDE(__ehdr_start = .);
 		. += CONFIG_AUX_AREA_SIZE;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
