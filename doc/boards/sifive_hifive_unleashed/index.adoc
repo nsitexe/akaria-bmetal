@@ -1,0 +1,5 @@
+
+= SiFive HiFive Unleashed
+
+Config::
+  riscv_sifive_hifive_unleashed

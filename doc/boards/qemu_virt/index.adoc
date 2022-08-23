@@ -1,0 +1,5 @@
+
+= QEMU RISC-V virt board
+
+Config::
+  riscv_qemu_virt_64_xip

@@ -1,0 +1,25 @@
+
+= Device support
+
+== Config files
+
+There are pre-defined config samples in configs/ directory.
+You can select defconfig file by DEFCONF cmake option, for example:
+
+----
+-DDEFCONF=riscv_qemu_virt_64_xip
+----
+
+If you want to know full command example of cmake, please check xref:build.adoc[Build and install] document.
+
+
+== Virtual boards
+
+* xref:boards/qemu_virt/index.adoc[QEMU RISC-V virt board]
+
+
+== Real boards
+
+* xref:boards/sifive_hifive1/index.adoc[SiFive HiFive1 Rev.B]
+* xref:boards/sifive_hifive_unleashed/index.adoc[SiFive HiFive Unleashed]
+

@@ -1,0 +1,5 @@
+
+= SiFive HiFive1 Rev.B
+
+Config::
+  riscv_sifive_hifive1
