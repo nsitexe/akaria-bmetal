@@ -1,0 +1,7 @@
+
+= Special sections
+
+== .auxdata
+
+== .comm_area
+

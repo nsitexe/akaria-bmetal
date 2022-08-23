@@ -1,0 +1,4 @@
+
+= Internals
+
+1. xref:internals/section.adoc[Special sections]

@@ -9,4 +9,4 @@
 1. APIs for application
 1. APIs for runtime
 1. Porting guide
-1. Internals
+1. xref:internal.adoc[Internals]
