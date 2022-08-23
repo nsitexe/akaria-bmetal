@@ -155,10 +155,18 @@ SECTIONS
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
 		*(.got .got.plt)
+
 		/* for glibc */
+		__start___libc_subfreeres = .;
 		*(__libc_subfreeres)
+		__stop___libc_subfreeres = .;
+		__start___libc_IO_vtables = .;
 		*(__libc_IO_vtables)
+		__stop___libc_IO_vtables = .;
+		__start___libc_atexit = .;
 		*(__libc_atexit)
+		__stop___libc_atexit = .;
+
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
