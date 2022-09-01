@@ -89,7 +89,7 @@ int __cpu_alloc_id(void)
 struct __cpu_device *__cpu_get(int id)
 {
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		printk("cpu_get: id:%d is invalid.\n", id);
+		printk("cpu_get: id:%d is out of bounds.\n", id);
 		return NULL;
 	}
 
@@ -102,7 +102,7 @@ int __cpu_set(int id, struct __cpu_device *cpu)
 		return -EINVAL;
 	}
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		printk("cpu_set: id:%d is invalid.\n", id);
+		printk("cpu_set: id:%d is out of bounds.\n", id);
 		return -EINVAL;
 	}
 
@@ -114,6 +114,9 @@ int __cpu_set(int id, struct __cpu_device *cpu)
 struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 {
 	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
+		if (!cpus[i]) {
+			continue;
+		}
 		if (cpus[i]->id_phys == id_phys) {
 			return cpus[i];
 		}
@@ -303,6 +306,10 @@ int __cpu_wakeup_all(void)
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
 		struct __cpu_device *cpu = __cpu_get(i);
 
+		if (!cpu) {
+			continue;
+		}
+
 		r = __cpu_wakeup(cpu);
 		if (r) {
 			res = r;
@@ -319,6 +326,10 @@ int __cpu_sleep_all(void)
 	/* Main core (id:0) cannot sleep, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
 		struct __cpu_device *cpu = __cpu_get(i);
+
+		if (!cpu) {
+			continue;
+		}
 
 		r = __cpu_sleep(cpu);
 		if (r) {
@@ -462,7 +473,11 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 	drmb();
 
 	for (int i = 0; i < CONFIG_NUM_CORES && res < val; i++) {
-		struct __cpu_device *cpu = cpus[i];
+		struct __cpu_device *cpu = __cpu_get(i);
+
+		if (!cpu) {
+			continue;
+		}
 
 		if (cpu->futex.uaddr == uaddr) {
 			if (!(cpu->futex.bitset & bitset)) {
