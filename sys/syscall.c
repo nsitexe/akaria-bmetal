@@ -46,19 +46,19 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 	return -ENOTSUP;
 }
 
-int __sys_uname(struct new_utsname *name)
+long __sys_uname(struct new_utsname *name)
 {
 	kmemcpy(name, &uname, sizeof(uname));
 
 	return 0;
 }
 
-int __sys_getuid(void)
+long __sys_getuid(void)
 {
 	return 0;
 }
 
-int __sys_geteuid(void)
+long __sys_geteuid(void)
 {
 	return 0;
 }
@@ -91,7 +91,7 @@ static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
 	return olddesc;
 }
 
-int __sys_close(int fd)
+long __sys_close(int fd)
 {
 	struct __file_desc *desc = get_file_desc(fd);
 	int ret = 0;
@@ -446,7 +446,7 @@ void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t o
 	return anon_ptr;
 }
 
-int __sys_munmap(void *addr, size_t length)
+long __sys_munmap(void *addr, size_t length)
 {
 	if (addr < heap_area_start() || heap_area_end() < addr + length) {
 		return -EINVAL;
@@ -459,7 +459,7 @@ int __sys_munmap(void *addr, size_t length)
 	return 0;
 }
 
-int __sys_madvise(void *addr, size_t length, int advice)
+long __sys_madvise(void *addr, size_t length, int advice)
 {
 	int r;
 
@@ -485,7 +485,7 @@ int __sys_madvise(void *addr, size_t length, int advice)
 	return 0;
 }
 
-int __sys_mprotect(void *addr, size_t length, int prot)
+long __sys_mprotect(void *addr, size_t length, int prot)
 {
 	printk("sys_mprotect: ignore mprotect.\n");
 
@@ -602,7 +602,7 @@ err_out:
 	return r;
 }
 
-int __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
+long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
 {
 	int cmd = op & FUTEX_MASK;
 	int ret = 0, r;
