@@ -30,6 +30,8 @@ typedef intptr_t (*__syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
 
 int __sys_uname(struct new_utsname *name);
+int __sys_getuid(void);
+int __sys_geteuid(void);
 int __sys_close(int fd);
 ssize_t __sys_write(int fd, const void *buf, size_t count);
 ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);

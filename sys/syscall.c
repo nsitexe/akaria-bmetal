@@ -53,6 +53,16 @@ int __sys_uname(struct new_utsname *name)
 	return 0;
 }
 
+int __sys_getuid(void)
+{
+	return 0;
+}
+
+int __sys_geteuid(void)
+{
+	return 0;
+}
+
 static struct __file_desc *get_file_desc(int fd)
 {
 	struct __proc_info *pi = __proc_get_current();
