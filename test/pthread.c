@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <ctype.h>
 #include <inttypes.h>
 #include <pthread.h>
@@ -18,7 +20,7 @@ void *thread_main(void *arg)
 	int cpuid = __arch_riscv_get_cpu_id();
 	int v = (int)(intptr_t)arg * 10 + 1;
 
-	printf("%d: ---- thread step1 arg:%d %p\n", cpuid, v, &arg);
+	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), gettid());
 	fflush(stdout);
 	printf("%d: ---- thread step2 arg:%d %p\n", cpuid, v, &arg);
 	for (int i = 0; i < 1000000; i++) {
@@ -76,7 +78,7 @@ int main(int argc, char *argv[], char *envp[])
 	printf("%s: test pthread\n", argv[0]);
 	fflush(stdout);
 
-	printf("pid:%d\n", getpid());
+	printf("%d: pid:%d, tid:%d\n", cpuid, getpid(), gettid());
 	fflush(stdout);
 
 	r = pthread_attr_init(&attr);
