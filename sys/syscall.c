@@ -63,6 +63,26 @@ long __sys_geteuid(void)
 	return 0;
 }
 
+long __sys_getgid(void)
+{
+	return 0;
+}
+
+long __sys_getegid(void)
+{
+	return 0;
+}
+
+long __sys_getpid(void)
+{
+	return __proc_get_pid();
+}
+
+long __sys_gettid(void)
+{
+	return __thread_get_tid();
+}
+
 static struct __file_desc *get_file_desc(int fd)
 {
 	struct __proc_info *pi = __proc_get_current();
