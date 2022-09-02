@@ -618,6 +618,24 @@ err_out:
 	return ret;
 }
 
+long __sys_set_tid_address(int *tidptr)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti;
+
+	ti = __cpu_get_thread_task(cpu);
+	if (!ti) {
+		printk("sys_set_tid_address: cannot get task thread.\n");
+		return -EINVAL;
+	}
+
+	if (ti->flags & CLONE_CHILD_CLEARTID) {
+		ti->ctid = tidptr;
+	}
+
+	return 0;
+}
+
 long __sys_exit_group(int status)
 {
 	/* TODO: kill other threads in process group */

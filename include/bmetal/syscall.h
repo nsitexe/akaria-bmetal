@@ -48,6 +48,7 @@ long __sys_mprotect(void *addr, size_t length, int prot);
 long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);
 #endif
 long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3);
+long __sys_set_tid_address(int *tidptr);
 long __sys_exit_group(int status);
 long __sys_exit(int status);
 long __sys_context_switch(void);
