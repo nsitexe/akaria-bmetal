@@ -39,8 +39,6 @@ long __sys_gettid(void);
 long __sys_close(int fd);
 ssize_t __sys_write(int fd, const void *buf, size_t count);
 ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
-long __sys_exit_group(int status);
-long __sys_exit(int status);
 void *__sys_brk(void *addr);
 void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 long __sys_munmap(void *addr, size_t length);
@@ -50,6 +48,8 @@ long __sys_mprotect(void *addr, size_t length, int prot);
 long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);
 #endif
 long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3);
+long __sys_exit_group(int status);
+long __sys_exit(int status);
 long __sys_context_switch(void);
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */

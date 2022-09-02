@@ -190,68 +190,6 @@ ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
-long __sys_exit_group(int status)
-{
-	/* TODO: kill other threads in process group */
-	return __sys_exit(status);
-}
-
-long __sys_exit(int status)
-{
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __thread_info *ti;
-	uintptr_t v;
-	int r;
-
-	__smp_lock();
-
-	ti = __cpu_get_thread_task(cpu);
-	if (!ti) {
-		printk("sys_exit: cannot get task thread.\n");
-
-		__smp_unlock();
-		return -EINVAL;
-	}
-
-	r = __thread_stop(ti);
-	if (r) {
-		__smp_unlock();
-		return r;
-	}
-
-	r = __thread_destroy(ti);
-	if (r) {
-		__smp_unlock();
-		return r;
-	}
-
-	/* Notify to host when leader exit */
-	if (__thread_get_leader(ti)) {
-		__fini_leader(status);
-	} else {
-		__fini_child(status);
-	}
-
-	/* Notify to user space */
-	if (ti->flags & CLONE_CHILD_CLEARTID) {
-		*ti->ctid = 0;
-
-		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
-		if (r < 0) {
-			printk("sys_exit: futex error %d but ignored.\n", r);
-		}
-	}
-
-	dwmb();
-	__smp_unlock();
-
-	__sys_context_switch();
-
-	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
-
-	return v;
-}
-
 void *__sys_brk(void *addr)
 {
 	void *brk_start = &brk_area[0];
@@ -678,6 +616,68 @@ long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, in
 err_out:
 	__smp_unlock();
 	return ret;
+}
+
+long __sys_exit_group(int status)
+{
+	/* TODO: kill other threads in process group */
+	return __sys_exit(status);
+}
+
+long __sys_exit(int status)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti;
+	uintptr_t v;
+	int r;
+
+	__smp_lock();
+
+	ti = __cpu_get_thread_task(cpu);
+	if (!ti) {
+		printk("sys_exit: cannot get task thread.\n");
+
+		__smp_unlock();
+		return -EINVAL;
+	}
+
+	r = __thread_stop(ti);
+	if (r) {
+		__smp_unlock();
+		return r;
+	}
+
+	r = __thread_destroy(ti);
+	if (r) {
+		__smp_unlock();
+		return r;
+	}
+
+	/* Notify to host when leader exit */
+	if (__thread_get_leader(ti)) {
+		__fini_leader(status);
+	} else {
+		__fini_child(status);
+	}
+
+	/* Notify to user space */
+	if (ti->flags & CLONE_CHILD_CLEARTID) {
+		*ti->ctid = 0;
+
+		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
+		if (r < 0) {
+			printk("sys_exit: futex error %d but ignored.\n", r);
+		}
+	}
+
+	dwmb();
+	__smp_unlock();
+
+	__sys_context_switch();
+
+	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+
+	return v;
 }
 
 long __sys_context_switch(void)
