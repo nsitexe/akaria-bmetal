@@ -51,7 +51,6 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_getgid, __sys_getgid),
 	SYSCALL_P(SYS_getegid, __sys_getegid),
 	SYSCALL_P(SYS_getpid, __sys_getpid),
-	SYSCALL_P(SYS_gettid, __sys_gettid),
 	SYSCALL_P(SYS_close, __sys_close),
 	SYSCALL_P(SYS_write, __sys_write),
 	SYSCALL_P(SYS_writev, __sys_writev),
