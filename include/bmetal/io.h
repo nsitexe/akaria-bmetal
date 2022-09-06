@@ -33,6 +33,11 @@ static inline uint32_t __io_read32(volatile void *ptr)
 	return *(volatile uint32_t *)ptr;
 }
 
+static inline uint64_t __io_read64(volatile void *ptr)
+{
+	return *(volatile uint64_t *)ptr;
+}
+
 static inline void __io_write8(uint8_t dat, volatile void *ptr)
 {
 	*(volatile uint8_t *)ptr = dat;
@@ -46,6 +51,11 @@ static inline void __io_write16(uint16_t dat, volatile void *ptr)
 static inline void __io_write32(uint32_t dat, volatile void *ptr)
 {
 	*(volatile uint32_t *)ptr = dat;
+}
+
+static inline void __io_write64(uint64_t dat, volatile void *ptr)
+{
+	*(volatile uint64_t *)ptr = dat;
 }
 
 int __io_mmap_device(void *addr, struct __device *dev);

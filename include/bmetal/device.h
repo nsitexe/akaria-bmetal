@@ -95,9 +95,11 @@ struct __device_driver_ops {
 	uint8_t (*read8)(struct __device *dev, uintptr_t off);
 	uint16_t (*read16)(struct __device *dev, uintptr_t off);
 	uint32_t (*read32)(struct __device *dev, uintptr_t off);
+	uint64_t (*read64)(struct __device *dev, uintptr_t off);
 	void (*write8)(struct __device *dev, uint8_t dat, uintptr_t off);
 	void (*write16)(struct __device *dev, uint16_t dat, uintptr_t off);
 	void (*write32)(struct __device *dev, uint32_t dat, uintptr_t off);
+	void (*write64)(struct __device *dev, uint64_t dat, uintptr_t off);
 };
 
 struct __device_driver {
@@ -235,6 +237,21 @@ static inline uint32_t __device_read32(struct __device *dev, uintptr_t off)
 	return -1;
 }
 
+static inline uint64_t __device_read64(struct __device *dev, uintptr_t off)
+{
+	if (dev->virt) {
+		return __io_read64(dev->virt + off);
+	}
+
+	const struct __device_driver *devdrv = __device_get_drv(dev);
+
+	if (devdrv && devdrv->ops && devdrv->ops->read64) {
+		return devdrv->ops->read64(dev, off);
+	}
+
+	return -1;
+}
+
 static inline void __device_write8(struct __device *dev, uint8_t dat, uintptr_t off)
 {
 	if (dev->virt) {
@@ -276,6 +293,21 @@ static inline void __device_write32(struct __device *dev, uint32_t dat, uintptr_
 
 	if (devdrv && devdrv->ops && devdrv->ops->write32) {
 		devdrv->ops->write32(dev, dat, off);
+		return;
+	}
+}
+
+static inline void __device_write64(struct __device *dev, uint64_t dat, uintptr_t off)
+{
+	if (dev->virt) {
+		__io_write64(dat, dev->virt + off);
+		return;
+	}
+
+	const struct __device_driver *devdrv = __device_get_drv(dev);
+
+	if (devdrv && devdrv->ops && devdrv->ops->write64) {
+		devdrv->ops->write64(dev, dat, off);
 		return;
 	}
 }
