@@ -2,3 +2,4 @@
 = Internals
 
 1. xref:internals/section.adoc[Special sections]
+1. xref:internals/thread.adoc[Threads]
