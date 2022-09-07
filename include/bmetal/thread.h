@@ -52,5 +52,7 @@ struct __thread_info *__thread_get_raw(int n);
 struct __thread_info *__thread_get(pid_t tid);
 struct __thread_info *__thread_get_current(void);
 pid_t __thread_get_tid(void);
+int __thread_context_switch(void);
+int __thread_context_switch_nolock(void);
 
 #endif /* BAREMETAL_CRT_THREAD_H_ */

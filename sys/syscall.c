@@ -688,10 +688,13 @@ long __sys_exit(int status)
 		}
 	}
 
-	dwmb();
-	__smp_unlock();
+	r = __thread_context_switch_nolock();
+	if (r) {
+		__smp_unlock();
+		return r;
+	}
 
-	__sys_context_switch();
+	__smp_unlock();
 
 	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
 
@@ -701,32 +704,15 @@ long __sys_exit(int status)
 long __sys_context_switch(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	struct __thread_info *ti, *ti_idle, *ti_task;
 	uintptr_t v;
+	int r;
 
-	__smp_lock();
-	drmb();
-
-	ti = __cpu_get_thread(cpu);
-	ti_idle = __cpu_get_thread_idle(cpu);
-	ti_task = __cpu_get_thread_task(cpu);
-
-	if (ti == ti_idle) {
-		kmemcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
+	r = __thread_context_switch();
+	if (r) {
+		/* TODO: fatal error, panic? */
+		printk("sys_context_switch: failed to context_switch.\n");
+		return r;
 	}
-
-	if (ti && ti_task) {
-		/* Switch to task */
-		kmemcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
-		__cpu_set_thread(cpu, ti_task);
-	} else {
-		/* Switch to idle */
-		kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
-		__cpu_set_thread(cpu, ti_idle);
-	}
-
-	dwmb();
-	__smp_unlock();
 
 	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
 

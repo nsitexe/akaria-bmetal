@@ -7,7 +7,9 @@
 #include <bmetal/arch.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
+#include <bmetal/smp.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/string.h>
 
 static struct __proc_info __pi;
 /* Each CPU has 2 threads (idle and task) */
@@ -207,4 +209,52 @@ pid_t __thread_get_tid(void)
 	struct __thread_info *ti = __thread_get_current();
 
 	return ti->tid;
+}
+
+int __thread_context_switch(void)
+{
+	int r;
+
+	__smp_lock();
+	r = __thread_context_switch_nolock();
+	__smp_unlock();
+
+	return r;
+}
+
+int __thread_context_switch_nolock(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti, *ti_idle, *ti_task;
+
+	drmb();
+
+	ti = __cpu_get_thread(cpu);
+	ti_idle = __cpu_get_thread_idle(cpu);
+	ti_task = __cpu_get_thread_task(cpu);
+
+	/*
+	 * Save the thread context.
+	 *
+	 * idle to task: save context of the idle thread.
+	 * task to idle: currently we do not need to save context because the
+	 *   task thread will be destroy soon and never switch to task again.
+	 */
+	if (ti == ti_idle) {
+		kmemcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
+	}
+
+	if (ti && ti_task) {
+		/* Switch to task */
+		kmemcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
+		__cpu_set_thread(cpu, ti_task);
+	} else {
+		/* Switch to idle */
+		kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
+		__cpu_set_thread(cpu, ti_idle);
+	}
+
+	dwmb();
+
+	return 0;
 }
