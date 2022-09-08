@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include <bmetal/syscall.h>
+#include <bmetal/clock.h>
 #include <bmetal/comm.h>
 #include <bmetal/file.h>
 #include <bmetal/init.h>
@@ -81,6 +82,18 @@ long __sys_getpid(void)
 long __sys_gettid(void)
 {
 	return __thread_get_tid();
+}
+
+long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
+{
+	int r;
+
+	r = __clock_get_monotonic(tp);
+	if (r) {
+		return r;
+	}
+
+	return 0;
 }
 
 static struct __file_desc *get_file_desc(int fd)

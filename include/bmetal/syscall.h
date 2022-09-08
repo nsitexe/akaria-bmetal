@@ -37,6 +37,7 @@ long __sys_getegid(void);
 long __sys_getpid(void);
 long __sys_gettid(void);
 long __sys_close(int fd);
+long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp);
 ssize_t __sys_write(int fd, const void *buf, size_t count);
 ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
 void *__sys_brk(void *addr);
