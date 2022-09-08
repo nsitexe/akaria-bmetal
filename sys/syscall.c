@@ -548,6 +548,14 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 		ti->tls = tls;
 	}
 
+	/* Notify to user space */
+	if (flags & CLONE_CHILD_SETTID) {
+		*ti->ctid = ti->tid;
+	}
+	if (flags & CLONE_PARENT_SETTID) {
+		*ti->ptid = ti->tid;
+	}
+
 	/* Copy user regs to the initial stack of new thread */
 	ti->sp = child_stack;
 	kmemcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
@@ -562,23 +570,12 @@ long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, 
 		goto err_out2;
 	}
 
-	/* Notify to other cores */
 	dwmb();
 
 	r = __cpu_raise_ipi(ti->cpu, NULL);
 	if (r) {
 		goto err_out3;
 	}
-
-	/* Notify to user space */
-	if (flags & CLONE_CHILD_SETTID) {
-		*ti->ctid = ti->tid;
-	}
-	if (flags & CLONE_PARENT_SETTID) {
-		*ti->ptid = ti->tid;
-	}
-
-	dwmb();
 
 	__smp_unlock();
 
