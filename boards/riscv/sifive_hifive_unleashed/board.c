@@ -119,19 +119,19 @@ static struct __clk_device hfclk = {
 	},
 };
 
-const static struct __device_config rtclk_conf[] = {
+const static struct __device_config rtcclk_conf[] = {
 	PROP("frequency", 1 * MHZ),
 	{0},
 };
 
-static __clk_priv_t rtclk_priv;
-static struct __clk_device rtclk = {
+static __clk_priv_t rtcclk_priv;
+static struct __clk_device rtcclk = {
 	.base = {
-		.name = "rtclk",
+		.name = "rtcclk",
 		.type_vendor = "none",
 		.type_device = "clk_fixed",
-		.conf = rtclk_conf,
-		.priv = &rtclk_priv,
+		.conf = rtcclk_conf,
+		.priv = &rtcclk_priv,
 	},
 };
 
@@ -200,7 +200,7 @@ static int board_hifive_unleashed_init(void)
 	}
 	__intc_add_device(&clint, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
-	__clk_add_device(&rtclk, __bus_get_root());
+	__clk_add_device(&rtcclk, __bus_get_root());
 	__clk_add_device(&prci, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
