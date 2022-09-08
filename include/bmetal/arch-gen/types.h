@@ -27,6 +27,10 @@
 #define __UINT32_TYPE       uint32_t
 #define __UINT64_TYPE       uint64_t
 
+#ifndef __arch_clockid_t
+#define __arch_clockid_t    __SINT_TYPE
+#endif
+
 #ifndef __arch_loff_t
 #define __arch_loff_t    __SLONGLONG_TYPE
 #endif
@@ -45,6 +49,10 @@
 
 #ifndef __arch_pid_t
 #define __arch_pid_t    __SINT_TYPE
+#endif
+
+#ifndef __arch_suseconds_t
+#define __arch_suseconds_t    __SLONG_TYPE
 #endif
 
 #ifndef __arch_time_t
