@@ -2,6 +2,7 @@
 
 # by Make
 /test/args
+/test/clock
 /test/ctype
 /test/flush
 /test/hello
