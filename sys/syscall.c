@@ -88,6 +88,10 @@ long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 {
 	int r;
 
+	if (!tp) {
+		return -EFAULT;
+	}
+
 	r = __clock_get_monotonic(tp);
 	if (r) {
 		return r;
@@ -100,6 +104,10 @@ long __sys_gettimeofday(struct timeval *tp, void *tzp)
 {
 	struct timespec64 tsp;
 	int r;
+
+	if (!tp) {
+		return -EFAULT;
+	}
 
 	r = __clock_get_monotonic(&tsp);
 	if (r) {
