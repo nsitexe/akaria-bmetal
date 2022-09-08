@@ -3,8 +3,10 @@
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
+#include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
 #define CPU_CONF(N)    \
@@ -120,6 +122,41 @@ static struct __intc_device plic = {
 	}
 };
 
+const static struct __device_config rtcclk_conf[] = {
+	PROP("frequency", 1 * MHZ),
+	{0},
+};
+
+static __clk_priv_t rtcclk_priv;
+static struct __clk_device rtcclk = {
+	.base = {
+		.name = "rtcclk",
+		.type_vendor = "none",
+		.type_device = "clk_fixed",
+		.conf = rtcclk_conf,
+		.priv = &rtcclk_priv,
+	},
+};
+
+const static struct __device_config clint_timer_conf[] = {
+	PROP("reg", 0x2004000),
+	PROP("reg-size", 0x1000),
+	PROP("clocks", UPTR("rtcclk"), 0),
+	PROP("system", 1),
+	{0},
+};
+
+static __timer_priv_t clint_timer_priv;
+static struct __timer_device clint_timer = {
+	.base = {
+		.name = "clint_timer",
+		.type_vendor = "sifive",
+		.type_device = "clint0_timer",
+		.conf = clint_timer_conf,
+		.priv = &clint_timer_priv,
+	}
+};
+
 const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10000000),
 	PROP("reg-size", 0x100),
@@ -144,6 +181,8 @@ static int board_qemu_virt_init(void)
 	}
 	__intc_add_device(&plic, __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
+	__clk_add_device(&rtcclk, __bus_get_root());
+	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 
 	return 0;
