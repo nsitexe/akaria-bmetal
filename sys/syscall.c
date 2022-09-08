@@ -96,6 +96,22 @@ long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 	return 0;
 }
 
+long __sys_gettimeofday(struct timeval *tp, void *tzp)
+{
+	struct timespec64 tsp;
+	int r;
+
+	r = __clock_get_monotonic(&tsp);
+	if (r) {
+		return r;
+	}
+
+	tp->tv_sec = tsp.tv_sec;
+	tp->tv_usec = tsp.tv_nsec / 1000L;
+
+	return 0;
+}
+
 static struct __file_desc *get_file_desc(int fd)
 {
 	struct __proc_info *pi = __proc_get_current();
