@@ -140,7 +140,7 @@ static struct __clk_device rtcclk = {
 
 const static struct __device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
-	PROP("reg-size", 0x1000),
+	PROP("reg-size", 0xc000),
 	PROP("clocks", UPTR("rtcclk"), 0),
 	PROP("system", 1),
 	{0},
