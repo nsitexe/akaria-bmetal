@@ -15,6 +15,8 @@
 /* Start address is 0x4000 of clint */
 #define REG_MTIMECMP(hart)    (0x0000 + (hart) * 8)
 #define REG_MTIME             0x7ff8
+#define REG_MTIMEL            0x7ff8
+#define REG_MTIMEH            0x7ffc
 
 struct timer_clint_priv {
 	struct __timer_device *timer;
@@ -52,12 +54,12 @@ static int timer_clint_get_raw(struct __timer_device *tm, int index, uint64_t *c
 	uint32_t vh1, vh2, vl;
 
 	do {
-		vh1 = __device_read64(dev, REG_MTIME);
-		vl = __device_read64(dev, REG_MTIME);
-		vh2 = __device_read64(dev, REG_MTIME);
+		vh1 = __device_read32(dev, REG_MTIMEH);
+		vl = __device_read32(dev, REG_MTIMEL);
+		vh2 = __device_read32(dev, REG_MTIMEH);
 	} while (vh1 != vh2);
 
-	v = (vh1 << 32) | vl;
+	v = ((uint64_t)vh1 << 32) | vl;
 #endif /* CONFIG_64BIT */
 
 	if (count) {
