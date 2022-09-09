@@ -31,6 +31,7 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 		}
 
 		tmp.tv_sec = cnt / freq;
+		cnt -= tmp.tv_sec * freq;
 		tmp.tv_nsec = cnt * 1000000000ULL / freq;
 
 		if (tsp) {
