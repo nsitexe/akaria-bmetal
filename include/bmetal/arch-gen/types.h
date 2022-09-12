@@ -56,7 +56,7 @@
 #endif
 
 #ifndef __arch_time_t
-#define __arch_time_t    __SLONG_TYPE
+#define __arch_time_t    __SLONGLONG_TYPE
 #endif
 
 #ifndef __arch_uid_t
