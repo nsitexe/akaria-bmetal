@@ -417,7 +417,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	long st;
-	int res;
+	int res = 0;
 
 	if (!bitset) {
 		__dev_err(__cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
