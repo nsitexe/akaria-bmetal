@@ -99,6 +99,9 @@ prj_sources(
 if("${CC}" STREQUAL "gcc")
   include(${CMAKE_SOURCE_DIR}/cmake/gcc.cmake)
 endif()
+if("${CC}" STREQUAL "clang")
+  include(${CMAKE_SOURCE_DIR}/cmake/clang.cmake)
+endif()
 
 # Install, include settings
 install(
