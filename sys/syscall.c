@@ -661,7 +661,7 @@ long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, in
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAIT_BITSET:
-		if (atomic_load(uaddr) != val) {
+		if (atomic_load((atomic_int *)uaddr) != val) {
 			ret = -EWOULDBLOCK;
 			goto err_out;
 		}

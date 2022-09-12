@@ -438,7 +438,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		 * and wfi will never been returned.
 		 */
 		__intr_save_local(&st);
-		if (atomic_load(uaddr) != val) {
+		if (atomic_load((atomic_int *)uaddr) != val) {
 			res = -EWOULDBLOCK;
 			break;
 		}

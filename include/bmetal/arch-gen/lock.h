@@ -3,11 +3,13 @@
 #ifndef BAREMETAL_CRT_ARCH_GEN_LOCK_H_
 #define BAREMETAL_CRT_ARCH_GEN_LOCK_H_
 
+#include <stdatomic.h>
+
 #include <bmetal/bmetal.h>
 
 #ifndef __arch_spinlock_t
 typedef struct __arch_gen_spinlock {
-	int val;
+	atomic_int val;
 	int id;
 } __arch_gen_spinlock_t;
 #define __arch_spinlock_t    __arch_gen_spinlock_t
