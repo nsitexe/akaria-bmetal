@@ -1,11 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
-
 #include <bmetal/drivers/uart.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
 #define REG_RXFIFO    0x00  /* Receiver data FIFO */

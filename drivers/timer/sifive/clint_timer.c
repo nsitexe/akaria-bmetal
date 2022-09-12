@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdint.h>
 
 #include <bmetal/drivers/timer.h>
@@ -10,6 +9,7 @@
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/clk.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 
 /* Start address is 0x4000 of clint */

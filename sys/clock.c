@@ -3,6 +3,7 @@
 #include <bmetal/clock.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/timer.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 
 static struct timespec64 ts_realtime_off;

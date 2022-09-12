@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdint.h>
 
 #include <bmetal/arch/cpu.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 
 int __arch_riscv_get_cpu_id(void)
 {

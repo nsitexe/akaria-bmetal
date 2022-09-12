@@ -1,12 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
-
 #include <bmetal/drivers/uart.h>
 #include <bmetal/drivers/clk.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
 #define UART_SIFIVE_DEFAULT_BAUD    9600

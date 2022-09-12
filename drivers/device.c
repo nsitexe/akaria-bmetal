@@ -1,10 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
-
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
 static struct __driver head = {

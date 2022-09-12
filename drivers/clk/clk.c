@@ -3,6 +3,7 @@
 #include <bmetal/drivers/clk.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 
 int __clk_add_device(struct __clk_device *clk, struct __bus *parent)
 {

@@ -1,11 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdint.h>
 
 #include <bmetal/io.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
 int __io_mmap_device(void *addr, struct __device *dev)

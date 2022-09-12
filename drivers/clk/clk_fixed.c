@@ -4,6 +4,7 @@
 #include <bmetal/init.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/errno.h>
 
 struct clk_fixed_priv {
 	uint64_t freq;

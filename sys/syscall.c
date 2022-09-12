@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdatomic.h>
 #include <stdint.h>
 
@@ -13,6 +12,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/futex.h>
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/mman.h>

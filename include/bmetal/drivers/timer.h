@@ -3,12 +3,12 @@
 #ifndef BAREMETAL_CRT_DRIVERS_TIMER_H_
 #define BAREMETAL_CRT_DRIVERS_TIMER_H_
 
-#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <bmetal/device.h>
 #include <bmetal/intr.h>
+#include <bmetal/sys/errno.h>
 
 struct __timer_device;
 

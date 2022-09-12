@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <stdatomic.h>
-#include <errno.h>
 
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/sys/errno.h>
 
 static struct __cpu_device *cpus[CONFIG_NUM_CORES];
 static int uniq_id_cpu = 1;

@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdatomic.h>
 
 #include <bmetal/thread.h>
@@ -9,6 +8,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
 static struct __proc_info __pi;

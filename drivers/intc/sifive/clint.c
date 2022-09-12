@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdint.h>
 
 #include <bmetal/drivers/intc.h>
@@ -11,6 +10,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/errno.h>
 
 /* Start address is 0x0000 of clint */
 #define REG_MSIP(hart)        (0x0000 + (hart) * 4)

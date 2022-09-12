@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stddef.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/arch.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
 void _start(void);

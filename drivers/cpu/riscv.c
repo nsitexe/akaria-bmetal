@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdatomic.h>
 
 #include <bmetal/drivers/cpu.h>
@@ -9,6 +8,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
 atomic_uintptr_t __section(".noinit") __boot_proc;

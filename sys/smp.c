@@ -1,11 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
-
 #include <bmetal/smp.h>
 #include <bmetal/lock.h>
 #include <bmetal/printk.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/errno.h>
 
 static struct __spinlock lock_smp;
 

@@ -1,12 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
 #include <stdint.h>
 
 #include <bmetal/drivers/intc.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/errno.h>
 
 static struct __intc_device *intc_ipi;
 

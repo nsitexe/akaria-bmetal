@@ -1,10 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <errno.h>
-
 #include <bmetal/arch/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/arch/cpu.h>
+#include <bmetal/sys/errno.h>
 
 static struct __event_handler *int_handlers[RV_CAUSE_INT_MAX_NUM];
 static struct __event_handler *exc_handlers[RV_CAUSE_EXC_MAX_NUM];
