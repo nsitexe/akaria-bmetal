@@ -5,6 +5,46 @@
 #include <bmetal/drivers/timer.h>
 #include <bmetal/sys/time.h>
 
+static struct timespec64 ts_realtime_off;
+
+int __clock_get_realtime(struct timespec64 *tsp)
+{
+	struct timespec64 mono;
+	int r;
+
+	r = __clock_get_monotonic(&mono);
+	if (r) {
+		return r;
+	}
+
+	if (tsp) {
+		timespecadd(&ts_realtime_off, &mono, tsp);
+	}
+
+	return 0;
+}
+
+int __clock_set_realtime(const struct timespec64 *tsp)
+{
+	struct timespec64 mono;
+	int r;
+
+	if (!tsp) {
+		return -EFAULT;
+	}
+
+	r = __clock_get_monotonic(&mono);
+	if (r) {
+		return r;
+	}
+
+	if (tsp) {
+		timespecsub(tsp, &mono, &ts_realtime_off);
+	}
+
+	return 0;
+}
+
 int __clock_get_monotonic(struct timespec64 *tsp)
 {
 	struct __timer_device *tm = __timer_get_system();
