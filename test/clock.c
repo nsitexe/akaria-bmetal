@@ -46,7 +46,70 @@ int test_clock_gettime(void)
 	}
 
 	timespecsub(&ed, &st, &elapse);
-	printf("clock_gettime: elapsed: %d.%09d[s]\n", (int)elapse.tv_sec, (int)elapse.tv_nsec);
+	printf("clock_gettime: real: start  : %lld.%09d[s]\n",
+		(long long)st.tv_sec, (int)st.tv_nsec);
+	printf("clock_gettime: real: elapsed: %d.%09d[s]\n",
+		(int)elapse.tv_sec, (int)elapse.tv_nsec);
+
+	r = clock_gettime(CLOCK_MONOTONIC, &st);
+	if (r) {
+		printf("clock_gettime(MONOTONIC, start) is failed.\n");
+		return -1;
+	}
+
+	r = clock_gettime(CLOCK_MONOTONIC, &ed);
+	if (r) {
+		printf("clock_gettime(MONOTONIC, end) is failed.\n");
+		return -1;
+	}
+
+	timespecsub(&ed, &st, &elapse);
+	printf("clock_gettime: mono: start  : %lld.%09d[s]\n",
+		(long long)st.tv_sec, (int)st.tv_nsec);
+	printf("clock_gettime: mono: elapsed: %d.%09d[s]\n",
+		(int)elapse.tv_sec, (int)elapse.tv_nsec);
+
+	return 0;
+}
+
+int test_clock_settime(void)
+{
+	struct timespec ts_before, ts, ts_after;
+	int r;
+
+	r = clock_gettime(CLOCK_REALTIME, &ts_before);
+	if (r) {
+		printf("clock_gettime(REALTIME, before) is failed.\n");
+		return -1;
+	}
+
+	ts.tv_sec = 10000000000ULL;
+	ts.tv_nsec = 123456789;
+	r = clock_settime(CLOCK_REALTIME, &ts);
+	if (r) {
+		printf("clock_settime(REALTIME) is failed.\n");
+		return -1;
+	}
+
+	r = clock_gettime(CLOCK_REALTIME, &ts_after);
+	if (r) {
+		printf("clock_gettime(REALTIME, after) is failed.\n");
+		return -1;
+	}
+
+	printf("clock_settime: before: %lld.%09d[s]\n",
+		(long long)ts_before.tv_sec, (int)ts_before.tv_nsec);
+	printf("clock_settime: set   : %lld.%09d[s]\n",
+		(long long)ts.tv_sec, (int)ts.tv_nsec);
+	printf("clock_settime: after : %lld.%09d[s]\n",
+		(long long)ts_after.tv_sec, (int)ts_after.tv_nsec);
+
+	/* MONOTONIC clock is read only */
+	r = clock_settime(CLOCK_MONOTONIC, &ts);
+	if (!r) {
+		printf("clock_settime(MONOTONIC) is read only.\n");
+		return -1;
+	}
 
 	return 0;
 }
@@ -66,7 +129,7 @@ int test_clock_poll_5(void)
 			j++;
 		}
 
-		printf("%d: elapsed: %d.%09d[s] loop:%d\n",
+		printf("%d: poll clock: elapsed: %d.%09d[s] loop:%d\n",
 			i, (int)elapse.tv_sec, (int)elapse.tv_nsec, j);
 		fflush(stdout);
 	}
@@ -93,7 +156,10 @@ int test_gettimeofday(void)
 	}
 
 	timersub(&ed, &st, &elapse);
-	printf("gettimeofday: elapsed: %d.%06d[s]\n", (int)elapse.tv_sec, (int)elapse.tv_usec);
+	printf("gettimeofday: start  : %lld.%06d[s]\n",
+		(long long)st.tv_sec, (int)st.tv_usec);
+	printf("gettimeofday: elapsed: %d.%06d[s]\n",
+		(int)elapse.tv_sec, (int)elapse.tv_usec);
 
 	return 0;
 }
@@ -113,7 +179,7 @@ int test_time_poll_5(void)
 			j++;
 		}
 
-		printf("%d: elapsed: %d.%06d[s] loop:%d\n",
+		printf("%d: poll time : elapsed: %d.%06d[s] loop:%d\n",
 			i, (int)elapse.tv_sec, (int)elapse.tv_usec, j);
 		fflush(stdout);
 	}
@@ -131,6 +197,12 @@ int main(int argc, char *argv[], char *envp[])
 	r = test_clock_gettime();
 	if (r) {
 		printf("%s: test_clock_gettime failed.\n", argv[0]);
+		ret = r;
+	}
+
+	r = test_clock_settime();
+	if (r) {
+		printf("%s: test_clock_settime failed.\n", argv[0]);
 		ret = r;
 	}
 
