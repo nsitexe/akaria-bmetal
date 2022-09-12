@@ -5,12 +5,6 @@
 
 #include <bmetal/bmetal.h>
 
-/* from elf/elf.h */
-#define AT_PHDR      3
-#define AT_PHENT     4
-#define AT_PHNUM     5
-#define AT_RANDOM    25
-
 #define BAREMETAL_CRT_AUX_SECTION    ".auxdata"
 
 #define DEFAULT_KERNEL_NAME    "main"

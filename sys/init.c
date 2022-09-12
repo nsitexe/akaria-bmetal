@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <elf.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -14,6 +13,7 @@
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/sys/elf.h>
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/string.h>
 
