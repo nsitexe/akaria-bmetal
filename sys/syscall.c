@@ -92,7 +92,38 @@ long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 		return -EFAULT;
 	}
 
-	r = __clock_get_monotonic(tp);
+	switch (clock_id) {
+	case CLOCK_REALTIME:
+		r = __clock_get_realtime(tp);
+		break;
+	case CLOCK_MONOTONIC:
+		r = __clock_get_monotonic(tp);
+		break;
+	default:
+		return -EINVAL;
+	}
+	if (r) {
+		return r;
+	}
+
+	return 0;
+}
+
+long __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
+{
+	int r;
+
+	if (!tp) {
+		return -EFAULT;
+	}
+
+	switch (clock_id) {
+	case CLOCK_REALTIME:
+		r = __clock_set_realtime(tp);
+		break;
+	default:
+		return -EINVAL;
+	}
 	if (r) {
 		return r;
 	}
@@ -109,13 +140,33 @@ long __sys_gettimeofday(struct timeval *tp, void *tzp)
 		return -EFAULT;
 	}
 
-	r = __clock_get_monotonic(&tsp);
+	r = __clock_get_realtime(&tsp);
 	if (r) {
 		return r;
 	}
 
 	tp->tv_sec = tsp.tv_sec;
 	tp->tv_usec = tsp.tv_nsec / 1000L;
+
+	return 0;
+}
+
+long __sys_settimeofday(const struct timeval *tp, const void *tzp)
+{
+	struct timespec64 tsp;
+	int r;
+
+	if (!tp) {
+		return -EFAULT;
+	}
+
+	tsp.tv_sec = tp->tv_sec;
+	tsp.tv_nsec = tp->tv_usec * 1000L;
+
+	r = __clock_set_realtime(&tsp);
+	if (r) {
+		return r;
+	}
 
 	return 0;
 }
