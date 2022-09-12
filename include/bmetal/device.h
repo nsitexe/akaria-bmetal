@@ -3,12 +3,13 @@
 #ifndef BAREMETAL_CRT_DEVICE_H_
 #define BAREMETAL_CRT_DEVICE_H_
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
+#include <bmetal/sys/assert.h>
+#include <bmetal/sys/errno.h>
 
 #define __dev_err(dev, fmt, ...)     printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 #define __dev_warn(dev, fmt, ...)    printk("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
