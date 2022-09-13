@@ -23,7 +23,8 @@ BINS = \
 	saxpy saxpyf \
 	vecadd vecaddf
 ifeq ($(USE_GLIBC),y)
-BINS += pthread
+BINS += \
+	mt_clock pthread
 endif
 
 ARGS_OBJS = args.o
@@ -32,6 +33,7 @@ CTYPE_OBJS = ctype.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
+MT_CLOCK_OBJS = mt_clock.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
@@ -44,7 +46,7 @@ OBJS = \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
 OBJS += \
-	$(PTHREAD_OBJS)
+	$(MT_CLOCK_OBJS) $(PTHREAD_OBJS)
 endif
 
 all: $(BINS)
@@ -65,6 +67,9 @@ hello: $(HELLO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+mt_clock: $(MT_CLOCK_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 pthread: $(PTHREAD_OBJS)
