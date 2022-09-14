@@ -1,5 +1,6 @@
 
 CC = $(CROSS_COMPILE)gcc
+ADD_AUXDATA ?= $(USE_SYSROOT)/bin/add_auxdata
 
 # Config for bmetal.mk
 USE_GLIBC   ?= n
@@ -53,7 +54,11 @@ OBJS += \
 	$(MT_CLOCK_OBJS) $(PTHREAD_OBJS)
 endif
 
-all: $(BINS)
+all: all_auxdata
+
+# Add ELF and program headers into special section 'auxdata' of binary
+all_auxdata: $(BINS)
+	$(ADD_AUXDATA) $(BINS)
 
 args: $(ARGS_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
