@@ -74,44 +74,44 @@ SECTIONS
 	PROVIDE(_stext = .);
 
 	/* Special text section for reset vector */
-	.reset : ALIGN_WITH_INPUT {
+	.reset : {
 		. = ALIGN(4);
 		KEEP(*(.reset .reset.*))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.init : ALIGN_WITH_INPUT {
+	.init : {
 		KEEP(*(SORT_NONE(.init)))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.text : ALIGN_WITH_INPUT {
+	.text : {
 		. = ALIGN(4);
 		*(.text .text.*)
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.fini : ALIGN_WITH_INPUT {
+	.fini : {
 		KEEP(*(SORT_NONE(.fini)))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	PROVIDE(_etext = .);
 
-	.comm : ALIGN_WITH_INPUT {
+	.comm : {
 		KEEP(*(.comm_header .comm_header.*))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.initdata : ALIGN_WITH_INPUT {
+	.initdata : {
 		. = ALIGN(8);
 		__initcall_start = .;
 		KEEP(*(.initdata .initdata.*))
 		__initcall_end = .;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.auxdata : ALIGN_WITH_INPUT {
+	.auxdata : {
 		*(.auxdata .auxdata.*)
 		PROVIDE(__ehdr_start = .);
 		. += CONFIG_AUX_AREA_SIZE;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.rodata : ALIGN_WITH_INPUT {
+	.rodata : {
 		*(.rodata .rodata.*)
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
@@ -136,7 +136,7 @@ SECTIONS
 		__fini_array_end = .;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
-	.tdata : ALIGN_WITH_INPUT {
+	.tdata : {
 		__tdata_start = .;
 		*(.tdata .tdata.* .gnu.linkonce.td.*)
 		__tdata_end = .;
@@ -144,12 +144,12 @@ SECTIONS
 
 	__tdata_load = LOADADDR(.tdata);
 
-	.tbss (NOLOAD) : ALIGN_WITH_INPUT {
+	.tbss (NOLOAD) : {
 		*(.tbss .tbss.* .gnu.linkonce.tb.*)
 		*(.tcommon)
 	} > DATA_AREA
 
-	.data : ALIGN_WITH_INPUT {
+	.data : {
 		__data_start = .;
 		*(.data .data.* .gnu.linkonce.d.*)
 		*(.eh_frame .eh_frame.*)
@@ -172,7 +172,7 @@ SECTIONS
 
 	__data_load = LOADADDR(.data);
 
-	.sdata : ALIGN_WITH_INPUT {
+	.sdata : {
 		__sdata_start = .;
 		__global_pointer$ = . + 0x800;
 		*(.srodata .srodata.*)
