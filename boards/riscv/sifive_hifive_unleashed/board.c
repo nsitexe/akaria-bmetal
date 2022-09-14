@@ -10,13 +10,13 @@
 #include <bmetal/drivers/uart.h>
 
 #define CPU_CONF(N)    \
-	[N] = { \
+	{ \
 		PROP("hartid", N), \
 		{0}, \
 	}
 
 #define CPU_DEVICE(N)    \
-	[N] = { \
+	{ \
 		.base = { \
 			.name = "cpu" #N, \
 			.type_vendor = "none", \
@@ -42,15 +42,17 @@ static struct __cpu_device cpu[] = {
 	CPU_DEVICE(3),
 	CPU_DEVICE(4),
 };
+static_assert(ARRAY_OF(cpu) == ARRAY_OF(cpu_conf));
+static_assert(ARRAY_OF(cpu) == ARRAY_OF(cpu_priv));
 
 #define INTC_CONF(N)    \
-	[N] = { \
+	{ \
 		PROP("cpu", UPTR("cpu" #N)), \
 		{0}, \
 	}
 
 #define INTC_DEVICE(N)    \
-	[N] = { \
+	{ \
 		.base = { \
 			.name = "rvintc" #N, \
 			.type_vendor = "riscv", \
@@ -76,6 +78,8 @@ static struct __intc_device rvintc[] = {
 	INTC_DEVICE(3),
 	INTC_DEVICE(4),
 };
+static_assert(ARRAY_OF(rvintc) == ARRAY_OF(rvintc_conf));
+static_assert(ARRAY_OF(rvintc) == ARRAY_OF(rvintc_priv));
 
 const static struct __device_config clint_conf[] = {
 	PROP("reg", 0x2000000),
