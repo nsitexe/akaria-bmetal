@@ -86,6 +86,8 @@ SECTIONS
 	.text : {
 		. = ALIGN(4);
 		*(.text .text.*)
+		/* for glibc */
+		*(__libc_freeres_fn)
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	.fini : {
