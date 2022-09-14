@@ -8,14 +8,16 @@ USE_MUSL    ?= n
 USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
-APP_CPPFLAGS = -Wall -O2 -gdwarf-4
-APP_LDFLAGS  =
 # 32bit
-#APP_CFLAGS = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
-#APP_CFLAGS = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+#APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
 # 64bit
-APP_CFLAGS = -march=rv64gc -mabi=lp64d -mcmodel=medany
-#APP_CFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany
+APP_CFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#APP_CFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
+
+APP_CPPFLAGS = -Wall
+APP_CFLAGS   = -O2 -gdwarf-4 $(APP_CFLAGS_RV)
+APP_LDFLAGS  =
 
 CPPFLAGS = $(APP_CPPFLAGS)
 CFLAGS   = $(APP_CFLAGS)
