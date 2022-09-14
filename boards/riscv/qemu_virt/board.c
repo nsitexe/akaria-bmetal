@@ -123,7 +123,7 @@ static struct __intc_device plic = {
 };
 
 const static struct __device_config rtcclk_conf[] = {
-	PROP("frequency", 1 * MHZ),
+	PROP("frequency", 10 * MHZ),
 	{0},
 };
 
