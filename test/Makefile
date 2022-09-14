@@ -7,21 +7,25 @@ USE_MUSL    ?= n
 USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
+APP_CPPFLAGS = -Wall -O2 -gdwarf-4
+APP_LDFLAGS  =
 # 32bit
-#CMNFLAGS = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
-#CMNFLAGS = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_CFLAGS = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+#APP_CFLAGS = -march=rv32imac -mabi=ilp32 -mcmodel=medany
 # 64bit
-CMNFLAGS = -march=rv64gc -mabi=lp64d -mcmodel=medany
-#CMNFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany
-CPPFLAGS = -Wall -O2 -gdwarf-4
-CFLAGS   = $(CMNFLAGS)
-LDFLAGS  = $(CMNFLAGS)
+APP_CFLAGS = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#APP_CFLAGS = -march=rv64imac -mabi=lp64 -mcmodel=medany
+
+CPPFLAGS = $(APP_CPPFLAGS)
+CFLAGS   = $(APP_CFLAGS)
+LDFLAGS  = $(APP_LDFLAGS)
 
 BINS = \
 	args clock ctype \
 	flush hello malloc \
 	saxpy saxpyf \
-	vecadd vecaddf
+	vecadd vecaddf \
+	coremark/coremark
 ifeq ($(USE_GLIBC),y)
 BINS += \
 	mt_clock pthread
@@ -87,7 +91,18 @@ vecadd: $(VECADD_OBJS)
 vecaddf: $(VECADDF_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
+coremark/coremark:
+	USE_SYSROOT=../$(USE_SYSROOT) \
+	USE_GLIBC=$(USE_GLIBC) \
+	USE_NEWLIB=$(USE_NEWLIB) \
+	CC="$(CC)" \
+	CPPFLAGS="$(APP_CPPFLAGS)" \
+	CFLAGS="$(APP_CFLAGS)" \
+	LDFLAGS="$(APP_LDFLAGS)" \
+	$(MAKE) -C coremark
+
 clean:
 	rm -f $(BINS) $(OBJS)
+	$(MAKE) -C coremark $@
 
 include bmetal.mk
