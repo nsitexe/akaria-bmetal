@@ -12,3 +12,6 @@ target_compile_options(${PRJ_NAME}
 target_sources(${PRJ_NAME}
   PRIVATE add_auxdata.c
   )
+install(
+  TARGETS ${PRJ_NAME}
+  )
