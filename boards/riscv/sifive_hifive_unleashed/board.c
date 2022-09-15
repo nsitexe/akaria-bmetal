@@ -42,8 +42,8 @@ static struct __cpu_device cpu[] = {
 	CPU_DEVICE(3),
 	CPU_DEVICE(4),
 };
-static_assert(ARRAY_OF(cpu) == ARRAY_OF(cpu_conf));
-static_assert(ARRAY_OF(cpu) == ARRAY_OF(cpu_priv));
+CHECK_ELEM_SIZE(cpu, cpu_conf);
+CHECK_ELEM_SIZE(cpu, cpu_priv);
 
 #define INTC_CONF(N)    \
 	{ \
@@ -78,8 +78,8 @@ static struct __intc_device rvintc[] = {
 	INTC_DEVICE(3),
 	INTC_DEVICE(4),
 };
-static_assert(ARRAY_OF(rvintc) == ARRAY_OF(rvintc_conf));
-static_assert(ARRAY_OF(rvintc) == ARRAY_OF(rvintc_priv));
+CHECK_ELEM_SIZE(rvintc, rvintc_conf);
+CHECK_ELEM_SIZE(rvintc, rvintc_priv);
 
 const static struct __device_config clint_conf[] = {
 	PROP("reg", 0x2000000),

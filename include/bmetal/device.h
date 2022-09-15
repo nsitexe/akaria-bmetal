@@ -65,6 +65,7 @@ struct __event_handler {
 #define IS_ERROR(r)    ((r) != 0 && (r) != -EAGAIN)
 
 #define CHECK_PRIV_SIZE(typ, lim)    static_assert(sizeof(lim) >= sizeof(typ), "size of " #lim " is less than " #typ);
+#define CHECK_ELEM_SIZE(vala, valb)    static_assert(ARRAY_OF(vala) == ARRAY_OF(valb), "elements of " #vala " is not equal " #valb);
 
 struct __device;
 struct __bus;
