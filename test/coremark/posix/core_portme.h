@@ -69,7 +69,9 @@ Original Author: Shay Gal-on
 #include <windows.h>
 typedef size_t CORE_TICKS;
 #elif HAS_TIME_H
+#include <unistd.h>
 #include <time.h>
+#include <sys/time.h>
 typedef clock_t CORE_TICKS;
 #else
 #error \

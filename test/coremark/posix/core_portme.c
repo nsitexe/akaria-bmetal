@@ -106,7 +106,7 @@ volatile ee_s32 seed5_volatile = 0;
 #define TIMER_RES_DIVIDER 1000
 #endif
 #define SAMPLE_TIME_IMPLEMENTATION 1
-#elif HAS_TIME_H
+#elif HAS_TIME_H && defined(_POSIX_TIMERS)
 #define NSECS_PER_SEC        1000000000
 #define EE_TIMER_TICKER_RATE 1000
 #define CORETIMETYPE         struct timespec
@@ -117,6 +117,19 @@ volatile ee_s32 seed5_volatile = 0;
 /* setting to 1/1000 of a second resolution by default with linux */
 #ifndef TIMER_RES_DIVIDER
 #define TIMER_RES_DIVIDER 1000000
+#endif
+#define SAMPLE_TIME_IMPLEMENTATION 1
+#elif HAS_TIME_H
+#define NSECS_PER_SEC        1000000
+#define EE_TIMER_TICKER_RATE 1000
+#define CORETIMETYPE         struct timeval
+#define GETMYTIME(_t)        gettimeofday(_t, NULL)
+#define MYTIMEDIFF(fin, ini)                                         \
+    ((fin.tv_sec - ini.tv_sec) * (NSECS_PER_SEC / TIMER_RES_DIVIDER) \
+     + (fin.tv_usec - ini.tv_usec) / TIMER_RES_DIVIDER)
+/* setting to 1/1000 of a second resolution by default with linux */
+#ifndef TIMER_RES_DIVIDER
+#define TIMER_RES_DIVIDER 1000
 #endif
 #define SAMPLE_TIME_IMPLEMENTATION 1
 #else
