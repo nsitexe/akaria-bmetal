@@ -31,7 +31,9 @@ BINS = \
 	coremark/coremark
 ifeq ($(USE_GLIBC),y)
 BINS += \
-	mt_clock pthread
+	mt_clock \
+	mt_vecaddf \
+	pthread
 endif
 
 ARGS_OBJS = args.o
@@ -41,6 +43,7 @@ FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
 MT_CLOCK_OBJS = mt_clock.o
+MT_VECADDF_OBJS = mt_vecaddf.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
@@ -53,7 +56,9 @@ OBJS = \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
 OBJS += \
-	$(MT_CLOCK_OBJS) $(PTHREAD_OBJS)
+	$(MT_CLOCK_OBJS) \
+	$(MT_VECADDF_OBJS) \
+	$(PTHREAD_OBJS)
 endif
 
 all: all_auxdata
@@ -81,7 +86,10 @@ malloc: $(MALLOC_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+
+mt_vecaddf: $(MT_VECADDF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
 
 pthread: $(PTHREAD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@

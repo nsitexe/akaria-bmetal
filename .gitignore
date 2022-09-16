@@ -8,6 +8,8 @@
 /test/hello
 /test/malloc
 /test/mt_clock
+/test/mt_vecadd
+/test/mt_vecaddf
 /test/pthread
 /test/saxpy
 /test/saxpyf
