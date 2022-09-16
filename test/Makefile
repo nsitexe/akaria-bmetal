@@ -47,7 +47,7 @@ MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
-VECADD_OBJS = vecadd.o
+VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
        $(ARGS_OBJS) $(CLOCK_OBJS) $(CTYPE_OBJS) \

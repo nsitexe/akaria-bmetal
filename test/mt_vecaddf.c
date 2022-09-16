@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define USE_FLOAT
 #include "cmn_vecaddf.h"
 
 #define N               128
@@ -59,7 +60,7 @@ int main(int argc, char *argv[], char *envp[])
 	int off, rem, check = 0, r;
 	void *val;
 
-	printf("%s: mt_vecadd start\n", argv[0]);
+	printf("%s: mt_vecaddf start\n", argv[0]);
 
 	dbgprintf("argc: %d\n", argc);
 	if (argc > 5) {
@@ -134,26 +135,9 @@ int main(int argc, char *argv[], char *envp[])
 		}
 	}
 
-	for (int i = 0; i < *n; i++) {
-		if (i < 10) {
-			dbgprintf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
-		}
-	}
-
+	dump32(a, b, c, 10);
 	if (check) {
-		int pass = 1;
-
-		vecadd_scalar(a, b, test_c_expect, *n);
-
-		for (int i = 0; i < N; i++) {
-			if (!fp_eq(test_c_expect[i], c[i], 1e-6)) {
-				printf("failed, %f=!%f\n", test_c_expect[i], c[i]);
-				pass = 0;
-			}
-		}
-		if (pass) {
-			dbgprintf("passed\n");
-		}
+		check32(a, b, c, test_c_expect, N);
 	}
 
 	return 0;

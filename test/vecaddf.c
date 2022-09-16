@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define USE_FLOAT
 #include "cmn_vecaddf.h"
 
 #define N    128
@@ -27,17 +28,19 @@ int test_n = N;
 
 int main(int argc, char *argv[], char *envp[])
 {
-	float *a, *b, *c;
-	int *n, check = 0;
+	const float *a, *b;
+	float *c;
+	const int *n;
+	int check = 0;
 
-	printf("%s: vecadd start\n", argv[0]);
+	printf("%s: vecaddf start\n", argv[0]);
 
 	dbgprintf("argc: %d\n", argc);
 	if (argc > 4) {
-		a = (float *)argv[1];
-		b = (float *)argv[2];
+		a = (const float *)argv[1];
+		b = (const float *)argv[2];
 		c = (float *)argv[3];
-		n = (int *)argv[4];
+		n = (const int *)argv[4];
 	} else {
 		/* Use test data */
 		a = test_a;
@@ -50,26 +53,9 @@ int main(int argc, char *argv[], char *envp[])
 	dbgprintf("vector length: %d\n", *n);
 	vecadd(a, b, c, *n);
 
-	for (int i = 0; i < *n; i++) {
-		if (i < 10) {
-			dbgprintf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
-		}
-	}
-
+	dump32(a, b, c, 10);
 	if (check) {
-		int pass = 1;
-
-		vecadd_scalar(a, b, test_c_expect, *n);
-
-		for (int i = 0; i < N; i++) {
-			if (!fp_eq(test_c_expect[i], c[i], 1e-6)) {
-				printf("failed, %f=!%f\n", test_c_expect[i], c[i]);
-				pass = 0;
-			}
-		}
-		if (pass) {
-			dbgprintf("passed\n");
-		}
+		check32(a, b, c, test_c_expect, N);
 	}
 
 	return 0;

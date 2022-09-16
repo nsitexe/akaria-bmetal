@@ -2,16 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#if __riscv_vector == 1
-#include <riscv_vector.h>
-
-#define vecadd    vecadd_rvv
-#else /* __riscv_vector == 1 */
-#define vecadd    vecadd_scalar
-#endif /* __riscv_vector == 1 */
-
-#if __riscv_vector == 1
-#endif /* __riscv_vector == 1 */
+#define USE_DOUBLE
+#include "cmn_vecaddf.h"
 
 #define N    128
 
@@ -34,43 +26,6 @@ double test_c_expect[N];
 
 int test_n = N;
 
-#if __riscv_vector == 1
-void vecadd_rvv(const double *a, const double *b, double *c, int n)
-{
-	vfloat64m1_t va, vb, vc;
-	size_t l;
-
-	printf("----- use rvv f64\n");
-
-	for (; n > 0; n -= l) {
-		l = vsetvl_e64m1(n);
-		va = vle64_v_f64m1(a, l);
-		a += l;
-		vb = vle64_v_f64m1(b, l);
-		b += l;
-		vc = vfadd_vv_f64m1(va, vb, l);
-		vse64_v_f64m1(c, vc, l);
-		c += l;
-	}
-}
-#endif /* __riscv_vector == 1 */
-
-void vecadd_scalar(const double *a, const double *b, double *c, int n)
-{
-	printf("----- use scalar f64\n");
-
-	for (int i = 0; i < n; i++) {
-		c[i] = a[i] + b[i];
-	}
-}
-
-int fp_eq(double reference, double actual, double relErr)
-{
-	/* if near zero, do absolute error instead. */
-	double absErr = relErr * ((fabs(reference) > relErr) ? fabs(reference) : relErr);
-	return fabs(actual - reference) < absErr;
-}
-
 int main(int argc, char *argv[], char *envp[])
 {
 	double *a, *b, *c;
@@ -78,7 +33,7 @@ int main(int argc, char *argv[], char *envp[])
 
 	printf("%s: vecadd start\n", argv[0]);
 
-	printf("argc: %d\n", argc);
+	dbgprintf("argc: %d\n", argc);
 	if (argc > 4) {
 		a = (double *)argv[1];
 		b = (double *)argv[2];
@@ -93,29 +48,12 @@ int main(int argc, char *argv[], char *envp[])
 		check = 1;
 	}
 
-	printf("vector length: %d\n", *n);
+	dbgprintf("vector length: %d\n", *n);
 	vecadd(a, b, c, *n);
 
-	for (int i = 0; i < *n; i++) {
-		if (i < 10) {
-			printf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
-		}
-	}
-
+	dump64(a, b, c, 10);
 	if (check) {
-		int pass = 1;
-
-		vecadd_scalar(a, b, test_c_expect, *n);
-
-		for (int i = 0; i < N; i++) {
-			if (!fp_eq(test_c_expect[i], c[i], 1e-6)) {
-				printf("failed, %f=!%f\n", test_c_expect[i], c[i]);
-				pass = 0;
-			}
-		}
-		if (pass) {
-			printf("passed\n");
-		}
+		check64(a, b, c, test_c_expect, N);
 	}
 
 	return 0;
