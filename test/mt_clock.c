@@ -116,9 +116,9 @@ int test_main(int nt)
 		r = pthread_create(&th[i], NULL, thread_main, NULL);
 		if (r) {
 			printf("%d: pthread_create: %s\n", i, strerror(r));
+			fflush(stdout);
 			ret = r;
 		}
-		fflush(stdout);
 	}
 
 	if (nt > 0) {
@@ -129,9 +129,9 @@ int test_main(int nt)
 		r = pthread_join(th[i], &val);
 		if (r) {
 			printf("%d: pthread_join: %s\n", i, strerror(r));
+			fflush(stdout);
 			ret = r;
 		}
-		fflush(stdout);
 	}
 
 	return ret;
