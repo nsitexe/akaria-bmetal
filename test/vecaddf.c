@@ -2,16 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#if __riscv_vector == 1
-#include <riscv_vector.h>
-
-#define vecadd    vecadd_rvv
-#else /* __riscv_vector == 1 */
-#define vecadd    vecadd_scalar
-#endif /* __riscv_vector == 1 */
-
-#if __riscv_vector == 1
-#endif /* __riscv_vector == 1 */
+#include "cmn_vecaddf.h"
 
 #define N    128
 
@@ -34,43 +25,6 @@ float test_c_expect[N];
 
 int test_n = N;
 
-#if __riscv_vector == 1
-void vecadd_rvv(const float *a, const float *b, float *c, int n)
-{
-	vfloat32m1_t va, vb, vc;
-	size_t l;
-
-	printf("----- use rvv f32\n");
-
-	for (; n > 0; n -= l) {
-		l = vsetvl_e32m1(n);
-		va = vle32_v_f32m1(a, l);
-		a += l;
-		vb = vle32_v_f32m1(b, l);
-		b += l;
-		vc = vfadd_vv_f32m1(va, vb, l);
-		vse32_v_f32m1(c, vc, l);
-		c += l;
-	}
-}
-#endif /* __riscv_vector == 1 */
-
-void vecadd_scalar(const float *a, const float *b, float *c, int n)
-{
-	printf("----- use scalar f32\n");
-
-	for (int i = 0; i < n; i++) {
-		c[i] = a[i] + b[i];
-	}
-}
-
-int fp_eq(float reference, float actual, float relErr)
-{
-	/* if near zero, do absolute error instead. */
-	float absErr = relErr * ((fabsf(reference) > relErr) ? fabsf(reference) : relErr);
-	return fabsf(actual - reference) < absErr;
-}
-
 int main(int argc, char *argv[], char *envp[])
 {
 	float *a, *b, *c;
@@ -78,7 +32,7 @@ int main(int argc, char *argv[], char *envp[])
 
 	printf("%s: vecadd start\n", argv[0]);
 
-	printf("argc: %d\n", argc);
+	dbgprintf("argc: %d\n", argc);
 	if (argc > 4) {
 		a = (float *)argv[1];
 		b = (float *)argv[2];
@@ -93,12 +47,12 @@ int main(int argc, char *argv[], char *envp[])
 		check = 1;
 	}
 
-	printf("vector length: %d\n", *n);
+	dbgprintf("vector length: %d\n", *n);
 	vecadd(a, b, c, *n);
 
 	for (int i = 0; i < *n; i++) {
 		if (i < 10) {
-			printf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
+			dbgprintf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
 		}
 	}
 
@@ -114,7 +68,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 		}
 		if (pass) {
-			printf("passed\n");
+			dbgprintf("passed\n");
 		}
 	}
 

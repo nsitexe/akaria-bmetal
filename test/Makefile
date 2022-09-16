@@ -43,12 +43,12 @@ FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
 MT_CLOCK_OBJS = mt_clock.o
-MT_VECADDF_OBJS = mt_vecaddf.o
+MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
 VECADD_OBJS = vecadd.o
-VECADDF_OBJS = vecaddf.o
+VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
        $(ARGS_OBJS) $(CLOCK_OBJS) $(CTYPE_OBJS) \
        $(FLUSH_OBJS) $(HELLO_OBJS) $(MALLOC_OBJS) \

@@ -4,18 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#if __riscv_vector == 1
-#include <riscv_vector.h>
+#include "cmn_vecaddf.h"
 
-#define vecadd    vecadd_rvv
-#else /* __riscv_vector == 1 */
-#define vecadd    vecadd_scalar
-#endif /* __riscv_vector == 1 */
-
-#if __riscv_vector == 1
-#endif /* __riscv_vector == 1 */
-
-#define N               28
+#define N               128
 #define TEST_THREADS    3
 #define MAX_THREADS     16
 
@@ -51,43 +42,6 @@ const int test_t = TEST_THREADS;
 
 struct thread_arg th_test_args[MAX_THREADS];
 
-#if __riscv_vector == 1
-void vecadd_rvv(const float *a, const float *b, float *c, int n)
-{
-	vfloat32m1_t va, vb, vc;
-	size_t l;
-
-	printf("----- use rvv f32\n");
-
-	for (; n > 0; n -= l) {
-		l = vsetvl_e32m1(n);
-		va = vle32_v_f32m1(a, l);
-		a += l;
-		vb = vle32_v_f32m1(b, l);
-		b += l;
-		vc = vfadd_vv_f32m1(va, vb, l);
-		vse32_v_f32m1(c, vc, l);
-		c += l;
-	}
-}
-#endif /* __riscv_vector == 1 */
-
-void vecadd_scalar(const float *a, const float *b, float *c, int n)
-{
-	printf("----- use scalar f32\n");
-
-	for (int i = 0; i < n; i++) {
-		c[i] = a[i] + b[i];
-	}
-}
-
-int fp_eq(float reference, float actual, float relErr)
-{
-	/* if near zero, do absolute error instead. */
-	float absErr = relErr * ((fabsf(reference) > relErr) ? fabsf(reference) : relErr);
-	return fabsf(actual - reference) < absErr;
-}
-
 void *thread_main(void *p)
 {
 	struct thread_arg *arg = p;
@@ -107,27 +61,30 @@ int main(int argc, char *argv[], char *envp[])
 
 	printf("%s: mt_vecadd start\n", argv[0]);
 
-	printf("argc: %d\n", argc);
+	dbgprintf("argc: %d\n", argc);
+	if (argc > 5) {
+		t = (const int *)argv[5];
+	} else {
+		t = &test_t;
+	}
 	if (argc > 4) {
 		a = (const float *)argv[1];
 		b = (const float *)argv[2];
 		c = (float *)argv[3];
 		n = (const int *)argv[4];
-		t = (const int *)argv[5];
 	} else {
 		/* Use test data */
 		a = test_a;
 		b = test_b;
 		c = test_c;
 		n = &test_n;
-		t = &test_t;
 		check = 1;
 	}
 
-	printf("vector length: %d\n", *n);
-	printf("threads: %d\n", *t);
-	if (*t > MAX_THREADS) {
-		printf("exceed max threads: %d\n", MAX_THREADS);
+	dbgprintf("vector length: %d\n", *n);
+	dbgprintf("threads: %d\n", *t);
+	if (*t <= 0 || MAX_THREADS < *t) {
+		printf("invalid or exceed max threads:%d\n", MAX_THREADS);
 		return -1;
 	}
 
@@ -148,7 +105,7 @@ int main(int argc, char *argv[], char *envp[])
 	for (int i = 0; i < *t; i++) {
 		struct thread_arg *arg = &th_test_args[i];
 
-		printf("th %d: off:%d, n:%d\n", i, arg->off, arg->n);
+		dbgprintf("th %d: off:%d, n:%d\n", i, arg->off, arg->n);
 		arg->a = a + arg->off;
 		arg->b = b + arg->off;
 		arg->c = c + arg->off;
@@ -179,7 +136,7 @@ int main(int argc, char *argv[], char *envp[])
 
 	for (int i = 0; i < *n; i++) {
 		if (i < 10) {
-			printf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
+			dbgprintf("%d: a(%f) + b(%f) = c(%f)\n", i, a[i], b[i], c[i]);
 		}
 	}
 
@@ -195,7 +152,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 		}
 		if (pass) {
-			printf("passed\n");
+			dbgprintf("passed\n");
 		}
 	}
 
