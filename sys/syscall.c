@@ -100,6 +100,7 @@ long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 		r = __clock_get_monotonic(tp);
 		break;
 	default:
+		printk("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 	if (r) {
@@ -122,6 +123,7 @@ long __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
 		r = __clock_set_realtime(tp);
 		break;
 	default:
+		printk("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 	if (r) {
