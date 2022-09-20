@@ -37,10 +37,6 @@
 #  error Too small main stack size. Cannot put argv on stack. \
          Please check configs about MAIN_STACK_SIZE.
 #endif
-#if (CONFIG_MAIN_CORE >= CONFIG_NUM_CORES) != 0
-#  error Invalid main core. \
-         Please check configs about MAIN_CORE and NUM_CORES.
-#endif
 
 extern char __bss_start[], __bss_end[];
 extern char __sbss_start[], __sbss_end[];
