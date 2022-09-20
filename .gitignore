@@ -7,6 +7,7 @@
 /test/flush
 /test/hello
 /test/malloc
+/test/md5
 /test/mt_clock
 /test/mt_vecadd
 /test/mt_vecaddf

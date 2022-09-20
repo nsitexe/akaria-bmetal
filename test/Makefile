@@ -26,6 +26,7 @@ LDFLAGS  = $(APP_LDFLAGS)
 BINS = \
 	args clock ctype \
 	flush hello malloc \
+	md5 \
 	saxpy saxpyf \
 	vecadd vecaddf \
 	coremark/coremark
@@ -42,6 +43,7 @@ CTYPE_OBJS = ctype.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
+MD5_OBJS = md5.o
 MT_CLOCK_OBJS = mt_clock.o
 MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
@@ -52,6 +54,7 @@ VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
        $(ARGS_OBJS) $(CLOCK_OBJS) $(CTYPE_OBJS) \
        $(FLUSH_OBJS) $(HELLO_OBJS) $(MALLOC_OBJS) \
+       $(MD5_OBJS) \
        $(SAXPY_OBJS) $(SAXPYF_OBJS) \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
@@ -83,6 +86,9 @@ hello: $(HELLO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+md5: $(MD5_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
