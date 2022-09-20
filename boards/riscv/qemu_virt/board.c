@@ -15,14 +15,14 @@
 		{0}, \
 	}
 
-#define CPU_DEVICE(N)    \
+#define CPU_DEVICE(N, INDEX)    \
 	{ \
 		.base = { \
 			.name = "cpu" #N, \
 			.type_vendor = "none", \
 			.type_device = "cpu_riscv", \
-			.conf = cpu_conf[N], \
-			.priv = &cpu_priv[N], \
+			.conf = cpu_conf[INDEX], \
+			.priv = &cpu_priv[INDEX], \
 		}, \
 	}
 
@@ -35,10 +35,10 @@ const static struct __device_config cpu_conf[][2] = {
 
 static __cpu_priv_t cpu_priv[4];
 static struct __cpu_device cpu[] = {
-	CPU_DEVICE(0),
-	CPU_DEVICE(1),
-	CPU_DEVICE(2),
-	CPU_DEVICE(3),
+	CPU_DEVICE(0, 0),
+	CPU_DEVICE(1, 1),
+	CPU_DEVICE(2, 2),
+	CPU_DEVICE(3, 3),
 };
 CHECK_ELEM_SIZE(cpu, cpu_conf);
 CHECK_ELEM_SIZE(cpu, cpu_priv);
@@ -49,14 +49,14 @@ CHECK_ELEM_SIZE(cpu, cpu_priv);
 		{0}, \
 	}
 
-#define INTC_DEVICE(N)    \
+#define INTC_DEVICE(N, INDEX)    \
 	{ \
 		.base = { \
 			.name = "rvintc" #N, \
 			.type_vendor = "riscv", \
 			.type_device = "priv1_10", \
-			.conf = rvintc_conf[N], \
-			.priv = &rvintc_priv[N], \
+			.conf = rvintc_conf[INDEX], \
+			.priv = &rvintc_priv[INDEX], \
 		}, \
 	}
 
@@ -69,10 +69,10 @@ const static struct __device_config rvintc_conf[][2] = {
 
 static __intc_priv_t rvintc_priv[4];
 static struct __intc_device rvintc[] = {
-	INTC_DEVICE(0),
-	INTC_DEVICE(1),
-	INTC_DEVICE(2),
-	INTC_DEVICE(3),
+	INTC_DEVICE(0, 0),
+	INTC_DEVICE(1, 1),
+	INTC_DEVICE(2, 2),
+	INTC_DEVICE(3, 3),
 };
 CHECK_ELEM_SIZE(rvintc, rvintc_conf);
 CHECK_ELEM_SIZE(rvintc, rvintc_priv);
