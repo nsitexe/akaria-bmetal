@@ -33,7 +33,7 @@ BINS = \
 ifeq ($(USE_GLIBC),y)
 BINS += \
 	mt_clock \
-	mt_vecaddf \
+	mt_vecadd mt_vecaddf \
 	pthread
 endif
 
@@ -45,6 +45,7 @@ HELLO_OBJS = hello.o
 MALLOC_OBJS = malloc.o
 MD5_OBJS = md5.o
 MT_CLOCK_OBJS = mt_clock.o
+MT_VECADD_OBJS = mt_vecadd.o cmn_vecaddf.o
 MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
@@ -60,7 +61,7 @@ OBJS = \
 ifeq ($(USE_GLIBC),y)
 OBJS += \
 	$(MT_CLOCK_OBJS) \
-	$(MT_VECADDF_OBJS) \
+	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
 	$(PTHREAD_OBJS)
 endif
 
@@ -92,6 +93,9 @@ md5: $(MD5_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+
+mt_vecadd: $(MT_VECADD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
 
 mt_vecaddf: $(MT_VECADDF_OBJS)
