@@ -17,8 +17,13 @@ all: $(BINS)
 coremark: $(COREMARK_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
+.PHONY: clean
 clean:
 	rm -f $(BINS) $(OBJS)
+
+.PHONY: check
+check:
+	md5sum -c coremark.md5 
 
 ifdef USE_SYSROOT
 include ../bmetal.mk
