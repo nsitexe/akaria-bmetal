@@ -28,17 +28,19 @@ int test_n = N;
 
 int main(int argc, char *argv[], char *envp[])
 {
-	double *a, *b, *c;
-	int *n, check = 0;
+	const double *a, *b;
+	double *c;
+	const int *n;
+	int check = 0;
 
 	printf("%s: vecadd start\n", argv[0]);
 
 	dbgprintf("argc: %d\n", argc);
 	if (argc > 4) {
-		a = (double *)argv[1];
-		b = (double *)argv[2];
+		a = (const double *)argv[1];
+		b = (const double *)argv[2];
 		c = (double *)argv[3];
-		n = (int *)argv[4];
+		n = (const int *)argv[4];
 	} else {
 		/* Use test data */
 		a = test_a;
