@@ -362,7 +362,7 @@ static void MDTimeTrial(void)
 	struct timeval endTime, startTime, elapse;
 	uint8_t block[TEST_BLOCK_LEN], digest[16];
 	size_t i;
-	long bytes, mills;
+	long long bytes, mills;
 
 	printf("MD%d time trial. Digesting %d x %d-byte blocks ...", MD,
 		TEST_BLOCK_LEN, TEST_BLOCK_COUNT);
@@ -386,16 +386,16 @@ static void MDTimeTrial(void)
 	gettimeofday(&endTime, NULL);
 
 	timersub(&endTime, &startTime, &elapse);
-	bytes = (long)TEST_BLOCK_LEN * (long)TEST_BLOCK_COUNT;
-	mills = elapse.tv_sec * 1000 + elapse.tv_usec / 1000;
+	bytes = (long long)TEST_BLOCK_LEN * (long long)TEST_BLOCK_COUNT;
+	mills = (long long)elapse.tv_sec * 1000 + elapse.tv_usec / 1000;
 
 	printf(" done\n");
 	printf("Digest = ");
 	MDPrint(digest);
-	printf("\nTime = %ld.%03ld seconds\n",
-		mills / 1000, mills % 1000);
-	printf("Speed = %ld bytes/second\n",
-		bytes * 1000 / mills);
+	printf("\nTime = %d.%03d seconds\n",
+		(int)(mills / 1000), (int)(mills % 1000));
+	printf("Speed = %d bytes/second\n",
+		(int)(bytes * 1000 / mills));
 }
 
 /* Digests a reference suite of strings and prints the results.
