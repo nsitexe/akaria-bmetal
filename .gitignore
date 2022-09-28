@@ -6,6 +6,7 @@
 /test/ctype
 /test/flush
 /test/hello
+/test/hello_cpp
 /test/malloc
 /test/md5
 /test/mt_clock

@@ -1,5 +1,6 @@
 
-CC = $(CROSS_COMPILE)gcc
+CC  = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
 ADD_AUXDATA ?= $(USE_SYSROOT)/bin/add_auxdata
 
 # Config for bmetal.mk
@@ -17,16 +18,18 @@ APP_CFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
 
 APP_CPPFLAGS = -Wall
 APP_CFLAGS   = -O2 -gdwarf-4 $(APP_CFLAGS_RV)
-APP_LDFLAGS  =
+APP_CXXFLAGS = $(APP_CFLAGS)
+APP_LDFLAGS  = $(APP_CFLAGS_RV)
 
 CPPFLAGS = $(APP_CPPFLAGS)
 CFLAGS   = $(APP_CFLAGS)
+CXXFLAGS = $(APP_CXXFLAGS)
 LDFLAGS  = $(APP_LDFLAGS)
 
 BINS = \
 	args clock ctype \
-	flush hello malloc \
-	md5 \
+	flush hello hello_cpp \
+	malloc md5 \
 	saxpy saxpyf \
 	vecadd vecaddf \
 	coremark/coremark
@@ -42,6 +45,7 @@ CLOCK_OBJS = clock.o
 CTYPE_OBJS = ctype.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
+HELLO_CPP_OBJS = hello_cpp.o
 MALLOC_OBJS = malloc.o
 MD5_OBJS = md5.o
 MT_CLOCK_OBJS = mt_clock.o
@@ -54,8 +58,8 @@ VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
        $(ARGS_OBJS) $(CLOCK_OBJS) $(CTYPE_OBJS) \
-       $(FLUSH_OBJS) $(HELLO_OBJS) $(MALLOC_OBJS) \
-       $(MD5_OBJS) \
+       $(FLUSH_OBJS) $(HELLO_OBJS) $(HELLO_CPP_OBJS) \
+       $(MALLOC_OBJS) $(MD5_OBJS) \
        $(SAXPY_OBJS) $(SAXPYF_OBJS) \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
@@ -85,6 +89,9 @@ flush: $(FLUSH_OBJS)
 
 hello: $(HELLO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+hello_cpp: $(HELLO_CPP_OBJS)
+	$(CXX) $(LDFLAGS) $^ $(LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
