@@ -28,14 +28,14 @@ LDFLAGS  = $(APP_LDFLAGS)
 
 BINS = \
 	args clock ctype \
-	flush hello hello_cpp \
+	flush hello \
 	malloc md5 \
 	saxpy saxpyf \
 	vecadd vecaddf \
 	coremark/coremark
 ifeq ($(USE_GLIBC),y)
 BINS += \
-	mt_clock \
+	hello_cpp mt_clock \
 	mt_vecadd mt_vecaddf \
 	pthread
 endif
