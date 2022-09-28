@@ -47,44 +47,44 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 	return -ENOTSUP;
 }
 
-long __sys_uname(struct new_utsname *name)
+intptr_t __sys_uname(struct new_utsname *name)
 {
 	kmemcpy(name, &uname, sizeof(uname));
 
 	return 0;
 }
 
-long __sys_getuid(void)
+intptr_t __sys_getuid(void)
 {
 	return 0;
 }
 
-long __sys_geteuid(void)
+intptr_t __sys_geteuid(void)
 {
 	return 0;
 }
 
-long __sys_getgid(void)
+intptr_t __sys_getgid(void)
 {
 	return 0;
 }
 
-long __sys_getegid(void)
+intptr_t __sys_getegid(void)
 {
 	return 0;
 }
 
-long __sys_getpid(void)
+intptr_t __sys_getpid(void)
 {
 	return __proc_get_pid();
 }
 
-long __sys_gettid(void)
+intptr_t __sys_gettid(void)
 {
 	return __thread_get_tid();
 }
 
-long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
+intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 {
 	int r;
 
@@ -110,7 +110,7 @@ long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 	return 0;
 }
 
-long __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
+intptr_t __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
 {
 	int r;
 
@@ -133,7 +133,7 @@ long __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
 	return 0;
 }
 
-long __sys_gettimeofday(struct timeval *tp, void *tzp)
+intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp)
 {
 	struct timespec64 tsp;
 	int r;
@@ -153,7 +153,7 @@ long __sys_gettimeofday(struct timeval *tp, void *tzp)
 	return 0;
 }
 
-long __sys_settimeofday(const struct timeval *tp, const void *tzp)
+intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp)
 {
 	struct timespec64 tsp;
 	int r;
@@ -201,7 +201,7 @@ static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
 	return olddesc;
 }
 
-long __sys_close(int fd)
+intptr_t __sys_close(int fd)
 {
 	struct __file_desc *desc = get_file_desc(fd);
 	int ret = 0;
@@ -230,7 +230,7 @@ static ssize_t sys_write_nolock(struct __file_desc *desc, const void *buf, size_
 	return ret;
 }
 
-ssize_t __sys_write(int fd, const void *buf, size_t count)
+intptr_t __sys_write(int fd, const void *buf, size_t count)
 {
 	struct __file_desc *desc = get_file_desc(fd);
 	ssize_t ret = 0;
@@ -251,7 +251,7 @@ ssize_t __sys_write(int fd, const void *buf, size_t count)
 	return ret;
 }
 
-ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
+intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 {
 	struct __file_desc *desc = get_file_desc(fd);
 	ssize_t ret = 0, wr;
@@ -280,18 +280,18 @@ ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
-void *__sys_brk(void *addr)
+intptr_t __sys_brk(void *addr)
 {
 	void *brk_start = &brk_area[0];
 	void *brk_end = &brk_area[CONFIG_BRK_SIZE];
 	char *caddr = (char *)addr;
 
 	if (addr == NULL) {
-		return brk_cur;
+		return PTR_TO_INT(brk_cur);
 	}
 	if (addr < brk_start || brk_end < addr) {
 		printk("sys_brk: addr:%p is out of bounds.\n", addr);
-		return INT_TO_PTR(-ENOMEM);
+		return -ENOMEM;
 	}
 
 	if (caddr > brk_cur) {
@@ -303,7 +303,7 @@ void *__sys_brk(void *addr)
 	}
 	brk_cur = addr;
 
-	return addr;
+	return PTR_TO_INT(addr);
 }
 
 static int __mmap_lock(void)
@@ -367,7 +367,7 @@ static int set_page_flag(size_t off_page, size_t n_page, int val)
 	return 0;
 }
 
-static size_t alloc_pages(size_t len)
+static ssize_t alloc_pages(size_t len)
 {
 	size_t size_page = (len + __PAGE_SIZE - 1) / __PAGE_SIZE;
 	size_t i = 0;
@@ -450,7 +450,7 @@ static int free_pages(void *start, size_t length)
 	return 0;
 }
 
-void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
+intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
 	void *anon_ptr;
 	int prot_req = PROT_READ | PROT_WRITE;
@@ -477,7 +477,7 @@ void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t o
 	    (flags & flags_req) != flags_req ||
 	    fd != -1 || offset != 0) {
 		printk("sys_mmap: only support anonymous mmap.\n");
-		return INT_TO_PTR(-EINVAL);
+		return -EINVAL;
 	}
 
 	__mmap_lock();
@@ -485,16 +485,16 @@ void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t o
 	__mmap_unlock();
 	if (off_page == -1) {
 		printk("sys_mmap: no enough pages, len:%d.\n", (int)len);
-		return INT_TO_PTR(-ENOMEM);
+		return -ENOMEM;
 	}
 	anon_ptr = heap_area_start() + off_page * __PAGE_SIZE;
 
 	kmemset(anon_ptr, 0, len);
 
-	return anon_ptr;
+	return PTR_TO_INT(anon_ptr);
 }
 
-long __sys_munmap(void *addr, size_t length)
+intptr_t __sys_munmap(void *addr, size_t length)
 {
 	if (addr < heap_area_start() || heap_area_end() < addr + length) {
 		return -EINVAL;
@@ -507,7 +507,7 @@ long __sys_munmap(void *addr, size_t length)
 	return 0;
 }
 
-long __sys_madvise(void *addr, size_t length, int advice)
+intptr_t __sys_madvise(void *addr, size_t length, int advice)
 {
 	int r;
 
@@ -533,14 +533,14 @@ long __sys_madvise(void *addr, size_t length, int advice)
 	return 0;
 }
 
-long __sys_mprotect(void *addr, size_t length, int prot)
+intptr_t __sys_mprotect(void *addr, size_t length, int prot)
 {
 	printk("sys_mprotect: ignore mprotect.\n");
 
 	return 0;
 }
 
-long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
+intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
 {
 	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
 	struct __proc_info *pi = __proc_get_current();
@@ -647,7 +647,7 @@ err_out:
 	return r;
 }
 
-long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
+intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3)
 {
 	int cmd = op & FUTEX_MASK;
 	int ret = 0, r;
@@ -705,7 +705,7 @@ err_out:
 	return ret;
 }
 
-long __sys_set_tid_address(int *tidptr)
+intptr_t __sys_set_tid_address(int *tidptr)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
@@ -723,13 +723,13 @@ long __sys_set_tid_address(int *tidptr)
 	return 0;
 }
 
-long __sys_exit_group(int status)
+intptr_t __sys_exit_group(int status)
 {
 	/* TODO: kill other threads in process group */
 	return __sys_exit(status);
 }
 
-long __sys_exit(int status)
+intptr_t __sys_exit(int status)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
@@ -788,7 +788,7 @@ long __sys_exit(int status)
 	return v;
 }
 
-long __sys_context_switch(void)
+intptr_t __sys_context_switch(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	uintptr_t v;

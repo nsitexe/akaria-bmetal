@@ -29,32 +29,32 @@ typedef intptr_t (*__syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr
 
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
 
-long __sys_uname(struct new_utsname *name);
-long __sys_getuid(void);
-long __sys_geteuid(void);
-long __sys_getgid(void);
-long __sys_getegid(void);
-long __sys_getpid(void);
-long __sys_gettid(void);
-long __sys_close(int fd);
-long __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp);
-long __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp);
-long __sys_gettimeofday(struct timeval *tp, void *tzp);
-long __sys_settimeofday(const struct timeval *tp, const void *tzp);
-ssize_t __sys_write(int fd, const void *buf, size_t count);
-ssize_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
-void *__sys_brk(void *addr);
-void *__sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
-long __sys_munmap(void *addr, size_t length);
-long __sys_madvise(void *addr, size_t length, int advice);
-long __sys_mprotect(void *addr, size_t length, int prot);
+intptr_t __sys_uname(struct new_utsname *name);
+intptr_t __sys_getuid(void);
+intptr_t __sys_geteuid(void);
+intptr_t __sys_getgid(void);
+intptr_t __sys_getegid(void);
+intptr_t __sys_getpid(void);
+intptr_t __sys_gettid(void);
+intptr_t __sys_close(int fd);
+intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp);
+intptr_t __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp);
+intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp);
+intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp);
+intptr_t __sys_write(int fd, const void *buf, size_t count);
+intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
+intptr_t __sys_brk(void *addr);
+intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+intptr_t __sys_munmap(void *addr, size_t length);
+intptr_t __sys_madvise(void *addr, size_t length, int advice);
+intptr_t __sys_mprotect(void *addr, size_t length, int prot);
 #if defined(CONFIG_RISCV)
-long __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);
+intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid);
 #endif
-long __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3);
-long __sys_set_tid_address(int *tidptr);
-long __sys_exit_group(int status);
-long __sys_exit(int status);
-long __sys_context_switch(void);
+intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout, int *uaddr2, int val3);
+intptr_t __sys_set_tid_address(int *tidptr);
+intptr_t __sys_exit_group(int status);
+intptr_t __sys_exit(int status);
+intptr_t __sys_context_switch(void);
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */
