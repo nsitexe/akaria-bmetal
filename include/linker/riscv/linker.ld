@@ -156,6 +156,7 @@ SECTIONS
 		*(.data .data.* .gnu.linkonce.d.*)
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
+		*(.gcc_except_table .gcc_except_table.*)
 		*(.got .got.plt)
 
 		/* for glibc */
@@ -168,7 +169,6 @@ SECTIONS
 		__start___libc_atexit = .;
 		*(__libc_atexit)
 		__stop___libc_atexit = .;
-
 		__data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
@@ -202,9 +202,7 @@ SECTIONS
 	} > DATA_AREA
 
 	.noinit (NOLOAD) : {
-		__noinit_start = .;
 		*(.noinit .noinit.*)
-		__noinit_end = .;
 	} > DATA_AREA
 
 	.comm_area (NOLOAD) : {
