@@ -3,8 +3,49 @@
 #include <bmetal/drivers/uart.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/string.h>
 
 static struct __uart_device *uart_default;
+
+int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf)
+{
+	const struct __uart_driver *drv = __uart_get_drv(uart);
+	int r;
+
+	if (!uart) {
+		return -EINVAL;
+	}
+
+	if (drv && drv->ops && drv->ops->get_config) {
+		r = drv->ops->get_config(uart, conf);
+		if (r) {
+			__dev_err(__uart_to_dev(uart), "failed to get UART config.\n");
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+int __uart_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+{
+	const struct __uart_driver *drv = __uart_get_drv(uart);
+	int r;
+
+	if (!uart) {
+		return -EINVAL;
+	}
+
+	if (drv && drv->ops && drv->ops->set_config) {
+		r = drv->ops->set_config(uart, conf);
+		if (r) {
+			__dev_err(__uart_to_dev(uart), "failed to set UART config.\n");
+			return r;
+		}
+	}
+
+	return 0;
+}
 
 static int uart_putc(int c)
 {
@@ -33,6 +74,17 @@ int __uart_set_default_console(struct __uart_device *uart)
 	uart_default = uart;
 
 	__set_printk_out(uart_putc);
+
+	return 0;
+}
+
+int __uart_read_default_config(struct __uart_device *uart, struct __uart_config *conf)
+{
+	struct __device *dev = __uart_to_dev(uart);
+
+	kmemset(conf, 0, sizeof(*conf));
+
+	__device_read_conf_u32(dev, "baud", &conf->baud, 0);
 
 	return 0;
 }

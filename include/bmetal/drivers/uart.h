@@ -8,11 +8,17 @@
 
 #include <bmetal/device.h>
 
+struct __uart_config {
+	uint32_t baud;
+};
+
 struct __uart_device;
 
 struct __uart_driver_ops {
 	int (*char_in)(struct __uart_device *uart);
 	void (*char_out)(struct __uart_device *uart, int value);
+	int (*get_config)(struct __uart_device *uart, struct __uart_config *conf);
+	int (*set_config)(struct __uart_device *uart, const struct __uart_config *conf);
 };
 
 struct __uart_driver {
@@ -66,8 +72,11 @@ static inline int __uart_remove_driver(struct __uart_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
-int __uart_set_default_console(struct __uart_device *dev);
-int __uart_add_device(struct __uart_device *dev, struct __bus *parent, int set_default);
-int __uart_remove_device(struct __uart_device *dev);
+int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf);
+int __uart_set_config(struct __uart_device *uart, const struct __uart_config *conf);
+int __uart_set_default_console(struct __uart_device *uart);
+int __uart_read_default_config(struct __uart_device *uart, struct __uart_config *conf);
+int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_default);
+int __uart_remove_device(struct __uart_device *uart);
 
 #endif /* BAREMETAL_CRT_DRIVERS_UART_H_ */

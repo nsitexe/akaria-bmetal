@@ -33,28 +33,53 @@ struct uart_sifive_priv {
 	struct __clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
-	uint32_t baud;
+	struct __uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
 static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
 {
-	struct __device *dev= __uart_to_dev(uart);
+	struct __device *dev = __uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 	uint32_t d;
 
 	d = priv->freq_in / baud - 1;
 	__device_write32(dev, d, REG_DIV);
 
-	priv->baud = baud;
+	priv->conf.baud = baud;
 
 	return 0;
+}
+
+static int uart_sifive_get_config(struct __uart_device *uart, struct __uart_config *conf)
+{
+	struct __device *dev = __uart_to_dev(uart);
+	struct uart_sifive_priv *priv = dev->priv;
+
+	if (conf) {
+		*conf = priv->conf;
+	}
+
+	return 0;
+}
+
+static int uart_sifive_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+{
+	int r, res = 0;
+
+	r = uart_sifive_set_baud(uart, conf->baud);
+	if (r) {
+		res = r;
+	}
+
+	return res;
 }
 
 static int uart_sifive_add(struct __device *dev)
 {
 	struct __uart_device *uart = __uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
+	struct __uart_config conf;
 	uint32_t val;
 	int r;
 
@@ -92,7 +117,19 @@ static int uart_sifive_add(struct __device *dev)
 		(0 << RXCTRL_RXCNT_SHIFT);
 	__device_write32(dev, val, REG_RXCTRL);
 
-	uart_sifive_set_baud(uart, UART_SIFIVE_DEFAULT_BAUD);
+	/* Apply board default settings */
+	r = __uart_read_default_config(uart, &conf);
+	if (r) {
+		return r;
+	}
+	if (conf.baud == 0) {
+		conf.baud = UART_SIFIVE_DEFAULT_BAUD;
+	}
+
+	r = uart_sifive_set_config(uart, &conf);
+	if (r) {
+		return r;
+	}
 
 	return 0;
 }
@@ -127,6 +164,8 @@ const static struct __device_driver_ops uart_sifive_dev_ops = {
 const static struct __uart_driver_ops uart_sifive_uart_ops = {
 	.char_in = uart_sifive_char_in,
 	.char_out = uart_sifive_char_out,
+	.get_config = uart_sifive_get_config,
+	.set_config = uart_sifive_set_config,
 };
 
 static struct __uart_driver uart_sifive_drv = {
