@@ -11,19 +11,20 @@
 .section ".text", "ax"
 .align 2
 __trap_start:
+	csrrw sp, mscratch, sp
 	addi  sp, sp, -REGOFF_ALL
 	store_caller_regs
 	store_callee_regs
 	store_special_regs
 	store_status_regs t0
-	addi  t0, sp, REGOFF_ALL
+	csrr  t0, mscratch
 	OP_ST t0, REGOFF_SP(sp)
 
 	# Save pointer of user regs
 	addi  sp, sp, -REGOFF_ALL
 	store_caller_regs
-	addi a0, sp, REGOFF_ALL
-	call __cpu_set_current_user_regs
+	addi  a0, sp, REGOFF_ALL
+	call  __cpu_set_current_user_regs
 	load_caller_regs
 	addi  sp, sp, REGOFF_ALL
 
@@ -87,6 +88,8 @@ __trap_exception:
 	j    __trap_end
 
 __trap_end:
+	addi t0, sp, REGOFF_ALL
+	csrw mscratch, t0
 	load_status_regs t0
 	load_caller_regs
 	load_callee_regs

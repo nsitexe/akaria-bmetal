@@ -38,6 +38,7 @@ __start_for_main:
 	la   sp, __stack_intr
 	li   t0, CONFIG_INTR_STACK_SIZE
 	add  sp, t0, sp
+	csrw mscratch, sp
 
 	call __start_for_common
 	call __init_leader
@@ -63,6 +64,7 @@ __start_for_sub:
 	# Set stack/thread pointer
 	la    t0, __boot_sp
 	OP_LD sp, (t0)
+	csrw  mscratch, sp
 	la    t0, __boot_done
 	li    t1, 1
 	OP_ST t1, (t0)
