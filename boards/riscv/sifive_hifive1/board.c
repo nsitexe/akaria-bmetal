@@ -4,6 +4,8 @@
 #include <bmetal/init.h>
 #include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
+#include <bmetal/drivers/intc.h>
+#include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
 const static struct __device_config cpu0_conf[] = {
@@ -22,8 +24,80 @@ static struct __cpu_device cpu0 = {
 	},
 };
 
+const static struct __device_config rvintc0_conf[] = {
+	PROP("cpu", UPTR("cpu0")),
+	{0},
+};
+
+static __intc_priv_t rvintc0_priv;
+static struct __intc_device rvintc0 = {
+	.base = {
+		.name = "rvintc0",
+		.type_vendor = "riscv",
+		.type_device = "priv1_10",
+		.conf = rvintc0_conf,
+		.priv = &rvintc0_priv,
+	},
+};
+
+const static struct __device_config clint_conf[] = {
+	PROP("reg", 0x2000000),
+	PROP("reg-size", 0x1000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_SIX,
+		UPTR("rvintc0"), RV_IX_TIX),
+	PROP("ipi", 1),
+	{0},
+};
+
+static __intc_priv_t clint_priv;
+static struct __intc_device clint = {
+	.base = {
+		.name = "clint",
+		.type_vendor = "sifive",
+		.type_device = "clint0",
+		.conf = clint_conf,
+		.priv = &clint_priv,
+	}
+};
+
+const static struct __device_config lfclk_conf[] = {
+	PROP("frequency", 32 * KHZ),
+	{0},
+};
+
+static __clk_priv_t lfclk_priv;
+static struct __clk_device lfclk = {
+	.base = {
+		.name = "lfclk",
+		.type_vendor = "none",
+		.type_device = "clk_fixed",
+		.conf = lfclk_conf,
+		.priv = &lfclk_priv,
+	},
+};
+
+const static struct __device_config clint_timer_conf[] = {
+	PROP("reg", 0x2004000),
+	PROP("reg-size", 0xc000),
+	PROP("clocks", UPTR("lfclk"), 0),
+	PROP("system", 1),
+	{0},
+};
+
+static __timer_priv_t clint_timer_priv;
+static struct __timer_device clint_timer = {
+	.base = {
+		.name = "clint_timer",
+		.type_vendor = "sifive",
+		.type_device = "clint0_timer",
+		.conf = clint_timer_conf,
+		.priv = &clint_timer_priv,
+	}
+};
+
 const static struct __device_config hfclk_conf[] = {
-	PROP("frequency", 16000000),
+	PROP("frequency", 16 * MHZ),
 	{0},
 };
 
@@ -42,6 +116,7 @@ const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10013000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("hfclk"), 0),
+	PROP("baud", 115200),
 	{0},
 };
 
@@ -49,6 +124,7 @@ const static struct __device_config uart1_conf[] = {
 	PROP("reg", 0x10023000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("hfclk"), 0),
+	PROP("baud", 115200),
 	{0},
 };
 
@@ -77,7 +153,11 @@ static struct __uart_device uart1 = {
 static int board_hifive1_init(void)
 {
 	__cpu_add_device(&cpu0, __bus_get_root());
+	__intc_add_device(&rvintc0, __bus_get_root());
+	__intc_add_device(&clint, __bus_get_root());
+	__clk_add_device(&lfclk, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
+	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
 
