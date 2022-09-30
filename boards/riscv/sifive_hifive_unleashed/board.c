@@ -90,10 +90,12 @@ const static struct __device_config clint_conf[] = {
 		UPTR("rvintc1"), RV_IX_SIX,
 		UPTR("rvintc2"), RV_IX_SIX,
 		UPTR("rvintc3"), RV_IX_SIX,
+		UPTR("rvintc4"), RV_IX_SIX,
 		UPTR("rvintc0"), RV_IX_TIX,
 		UPTR("rvintc1"), RV_IX_TIX,
 		UPTR("rvintc2"), RV_IX_TIX,
-		UPTR("rvintc3"), RV_IX_TIX),
+		UPTR("rvintc3"), RV_IX_TIX,
+		UPTR("rvintc4"), RV_IX_TIX),
 	{0},
 };
 
@@ -184,6 +186,7 @@ const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10010000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
+	PROP("baud", 115200),
 	{0},
 };
 
@@ -191,6 +194,7 @@ const static struct __device_config uart1_conf[] = {
 	PROP("reg", 0x10011000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
+	PROP("baud", 115200),
 	{0},
 };
 
