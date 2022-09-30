@@ -7,6 +7,7 @@
 #include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
 #define CPU_CONF(N)    \
@@ -160,6 +161,25 @@ static struct __clk_device prci = {
 	},
 };
 
+const static struct __device_config clint_timer_conf[] = {
+	PROP("reg", 0x2004000),
+	PROP("reg-size", 0xc000),
+	PROP("clocks", UPTR("rtcclk"), 0),
+	PROP("system", 1),
+	{0},
+};
+
+static __timer_priv_t clint_timer_priv;
+static struct __timer_device clint_timer = {
+	.base = {
+		.name = "clint_timer",
+		.type_vendor = "sifive",
+		.type_device = "clint0_timer",
+		.conf = clint_timer_conf,
+		.priv = &clint_timer_priv,
+	}
+};
+
 const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10010000),
 	PROP("reg-size", 0x1000),
@@ -206,6 +226,7 @@ static int board_hifive_unleashed_init(void)
 	__clk_add_device(&hfclk, __bus_get_root());
 	__clk_add_device(&rtcclk, __bus_get_root());
 	__clk_add_device(&prci, __bus_get_root());
+	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
 
