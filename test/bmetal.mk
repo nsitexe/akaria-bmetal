@@ -13,10 +13,9 @@ BAREMETAL_CMNCFLAGS =
 BAREMETAL_CMNCXXFLAGS =
 BAREMETAL_CMNLDFLAGS = \
 	-static \
-	-Wl,-T,generated/linker_gen.ld \
-	-Wl,--print-memory-usage \
-	-L $(USE_SYSROOT)/include/bmetal \
-	-L $(USE_SYSROOT)/lib
+	-L $(USE_SYSROOT)/lib \
+	-Wl,-T,$(USE_SYSROOT)/include/bmetal/generated/linker_gen.ld \
+	-Wl,--print-memory-usage
 
 LDADD = -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
 ifeq ($(USE_GLIBC),y)
