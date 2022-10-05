@@ -280,16 +280,24 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
+void *__brk_area_start(void)
+{
+	return &brk_area[0];
+}
+
+void *__brk_area_end(void)
+{
+	return &brk_area[0] + CONFIG_BRK_SIZE;
+}
+
 intptr_t __sys_brk(void *addr)
 {
-	void *brk_start = &brk_area[0];
-	void *brk_end = &brk_area[CONFIG_BRK_SIZE];
 	char *caddr = (char *)addr;
 
 	if (addr == NULL) {
 		return PTR_TO_INT(brk_cur);
 	}
-	if (addr < brk_start || brk_end < addr) {
+	if (addr < __brk_area_start() || __brk_area_end() < addr) {
 		printk("sys_brk: addr:%p is out of bounds.\n", addr);
 		return -ENOMEM;
 	}
@@ -320,12 +328,12 @@ static int __mmap_unlock(void)
 	return 0;
 }
 
-static void *heap_area_start(void)
+void *__heap_area_start(void)
 {
 	return &heap_area[0];
 }
 
-static void *heap_area_end(void)
+void *__heap_area_end(void)
 {
 	return &heap_area[0] + CONFIG_HEAP_SIZE;
 }
@@ -397,7 +405,7 @@ static ssize_t alloc_pages(size_t len)
 
 static int check_pages(void *start, size_t length)
 {
-	uintptr_t off_addr = start - heap_area_start();
+	uintptr_t off_addr = start - __heap_area_start();
 	size_t off_page = off_addr / __PAGE_SIZE;
 	size_t n_page = length / __PAGE_SIZE;
 	int failed = 0;
@@ -423,7 +431,7 @@ static int check_pages(void *start, size_t length)
 
 static int free_pages(void *start, size_t length)
 {
-	uintptr_t off_addr = start - heap_area_start();
+	uintptr_t off_addr = start - __heap_area_start();
 	size_t off_page = off_addr / __PAGE_SIZE;
 	size_t n_page = length / __PAGE_SIZE;
 	int need_dump = 0;
@@ -487,7 +495,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 		printk("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}
-	anon_ptr = heap_area_start() + off_page * __PAGE_SIZE;
+	anon_ptr = __heap_area_start() + off_page * __PAGE_SIZE;
 
 	kmemset(anon_ptr, 0, len);
 
@@ -496,7 +504,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 
 intptr_t __sys_munmap(void *addr, size_t length)
 {
-	if (addr < heap_area_start() || heap_area_end() < addr + length) {
+	if (addr < __heap_area_start() || __heap_area_end() < addr + length) {
 		return -EINVAL;
 	}
 
