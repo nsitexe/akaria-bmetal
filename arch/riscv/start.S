@@ -35,10 +35,13 @@ __reset:
 
 __start_for_main:
 	# Stack pointer
-	la   sp, __stack_intr
-	li   t0, CONFIG_INTR_STACK_SIZE
+	la   sp, __stack_idle
+	li   t0, CONFIG_IDLE_STACK_SIZE
 	add  sp, t0, sp
-	csrw mscratch, sp
+	la   t0, __stack_intr
+	li   t1, CONFIG_INTR_STACK_SIZE
+	add  t0, t1, t0
+	csrw mscratch, t0
 
 	call __start_for_common
 	call __init_leader
@@ -57,18 +60,21 @@ __start_for_sub:
 	nop
 	nop
 	nop
+	fence ir, ir
 	la    t1, __boot_proc
 	OP_LD t1, (t1)
 	bne   t0, t1, 1b
 
 	# Set stack/thread pointer
-	la    t0, __boot_sp
+	la    t0, __boot_sp_idle
 	OP_LD sp, (t0)
-	csrw  mscratch, sp
+	la    t0, __boot_sp_intr
+	OP_LD t0, (t0)
+	csrw  mscratch, t0
 	la    t0, __boot_done
 	li    t1, 1
 	OP_ST t1, (t0)
-	fence iorw, iorw
+	fence ow, ow
 
 	call __start_for_common
 	call __init_child

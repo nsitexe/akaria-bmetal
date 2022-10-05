@@ -8,10 +8,16 @@
 .globl __trap_end
 .type __trap_end, @function
 
+#define XCAUSE_SYSCALL_M    0xb
+#define XSTATUS_MIE         BIT(3)
+
 .section ".text", "ax"
 .align 2
 __trap_start:
 	csrrw sp, mscratch, sp
+	beq   sp, x0, __trap_in_kernel
+
+__trap_in_user:
 	addi  sp, sp, -REGOFF_ALL
 	store_caller_regs
 	store_callee_regs
@@ -19,8 +25,25 @@ __trap_start:
 	store_status_regs t0
 	csrr  t0, mscratch
 	OP_ST t0, REGOFF_SP(sp)
+	addi  t0, sp, REGOFF_ALL
+	OP_ST t0, REGOFF_MSCRATCH(sp)
+	csrw  mscratch, x0
+	j     __trap_common
 
+__trap_in_kernel:
+	csrrw sp, mscratch, sp
+	addi  sp, sp, -REGOFF_ALL
+	store_caller_regs
+	store_callee_regs
+	store_special_regs
+	store_status_regs t0
+	addi  t0, sp, REGOFF_ALL
+	OP_ST t0, REGOFF_SP(sp)
+	j     __trap_common
+
+__trap_common:
 	# Save pointer of user regs
+	# This may break caller-saved regs
 	addi  sp, sp, -REGOFF_ALL
 	store_caller_regs
 	addi  a0, sp, REGOFF_ALL
@@ -30,7 +53,7 @@ __trap_start:
 
 	# Check syscall
 	csrr t0, mcause
-	li   t1, 0xb
+	li   t1, XCAUSE_SYSCALL_M
 	beq  t0, t1, __trap_syscall
 
 	# Check interrupt (mcause MSB = 1) or exception (MSB = 0)
@@ -88,8 +111,10 @@ __trap_exception:
 	j    __trap_end
 
 __trap_end:
-	addi t0, sp, REGOFF_ALL
-	csrw mscratch, t0
+	# Disable interrupt
+	li   t0, XSTATUS_MIE
+	csrs mstatus, t0
+
 	load_status_regs t0
 	load_caller_regs
 	load_callee_regs

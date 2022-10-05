@@ -12,7 +12,8 @@
 #include <bmetal/sys/inttypes.h>
 
 atomic_uintptr_t __section(".noinit") __boot_proc;
-atomic_uintptr_t __boot_sp;
+atomic_uintptr_t __boot_sp_idle;
+atomic_uintptr_t __boot_sp_intr;
 atomic_int __boot_done;
 
 struct cpu_riscv_priv {
@@ -124,14 +125,14 @@ static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, si
 
 static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 {
-	size_t sp_pos = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
+	size_t sp_idle_pos = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
+	size_t sp_intr_pos = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
 	__boot_done = 0;
-	__boot_sp = (uintptr_t)&__stack_intr[sp_pos];
+	__boot_sp_idle = (uintptr_t)&__stack_idle[sp_idle_pos];
+	__boot_sp_intr = (uintptr_t)&__stack_intr[sp_intr_pos];
 
 	cpu->running = 1;
-
-	dwmb();
 
 	while (!__boot_done) {
 		__boot_proc = cpu->id_phys;

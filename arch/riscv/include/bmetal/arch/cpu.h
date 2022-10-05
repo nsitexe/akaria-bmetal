@@ -52,6 +52,7 @@ typedef struct __arch_riscv_user_regs {
 	uintptr_t s11;
 	uintptr_t mepc;
 	uintptr_t mstatus;
+	uintptr_t mscratch;
 } __arch_riscv_user_regs_t;
 
 int __arch_riscv_get_cpu_id(void);
