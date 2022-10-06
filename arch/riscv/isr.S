@@ -117,7 +117,7 @@ __trap_exception:
 __trap_end:
 	# Disable interrupt
 	li   t0, XSTATUS_MIE
-	csrs mstatus, t0
+	csrc mstatus, t0
 
 	load_status_regs t0
 	load_caller_regs
