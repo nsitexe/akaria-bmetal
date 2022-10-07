@@ -100,7 +100,7 @@ static int init_proc(void)
 	return 0;
 }
 
-static int init_idle_thread(char *sp)
+static int init_idle_thread(char *sp_user, char *sp_intr)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
@@ -114,7 +114,8 @@ static int init_idle_thread(char *sp)
 	__thread_set_leader(ti, 0);
 
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
 
 	__cpu_set_thread_idle(cpu, ti);
@@ -122,7 +123,7 @@ static int init_idle_thread(char *sp)
 	return 0;
 }
 
-static int init_main_thread(int argc, char *argv[], char *envp[], char *sp)
+static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
@@ -134,7 +135,7 @@ static int init_main_thread(int argc, char *argv[], char *envp[], char *sp)
 		return -EAGAIN;
 	}
 
-	__init_main_thread_args(ti, argc, argv, envp, sp);
+	__init_main_thread_args(ti, argc, argv, envp, sp_user, sp_intr);
 	__thread_set_leader(ti, 1);
 
 	r = __thread_run(ti, cpu);
@@ -327,11 +328,12 @@ static int fini_args(void)
 void __init_child(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	size_t sp_pos = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
+	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
+	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
 	printk("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
-	init_idle_thread(&__stack_idle[sp_pos]);
+	init_idle_thread(&__stack_idle[pos_idle], &__stack_intr[pos_intr]);
 
 	dwmb();
 
@@ -360,7 +362,7 @@ void __init_leader(void)
 	__cpu_wakeup_all();
 
 	init_args(&argc);
-	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE]);
+	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], &__stack_intr[CONFIG_INTR_STACK_SIZE]);
 
 	__init_child();
 }

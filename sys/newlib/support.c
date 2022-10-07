@@ -30,14 +30,15 @@ static void __libc_init(int argc, char *argv[], char *envp[])
 	exit(r);
 }
 
-int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp)
+int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
-	sp = (void *)argv;
+	sp_user = (void *)argv;
 
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, argc);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_2, (uintptr_t)argv);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_3, (uintptr_t)envp);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__libc_init);
 
 	return 0;

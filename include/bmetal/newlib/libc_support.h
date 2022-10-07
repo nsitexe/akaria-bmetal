@@ -10,6 +10,6 @@
 #  error Include wrong libc support header.
 #endif
 
-int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp);
+int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr);
 
 #endif /* BAREMETAL_CRT_NEWLIB_LIBC_SUPPORT_H_ */

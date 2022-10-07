@@ -553,6 +553,7 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
+	size_t pos_intr;
 	int need_ctid = 0, need_ptid = 0, need_tls = 0;
 	int r;
 
@@ -621,9 +622,12 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	ti->sp = child_stack;
 	kmemcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
 
+	pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
+
 	/* Return value and stack for new thread */
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_RETVAL, 0);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&__stack_intr[pos_intr]);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
 
 	r = __thread_run(ti, cpu);

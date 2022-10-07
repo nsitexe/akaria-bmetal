@@ -50,6 +50,9 @@ int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t,
 	case __ARCH_ARG_TYPE_STACK:
 		v = regs->sp;
 		break;
+	case __ARCH_ARG_TYPE_STACK_INTR:
+		v = regs->mscratch;
+		break;
 	case __ARCH_ARG_TYPE_TLS:
 		v = regs->tp;
 		break;
@@ -97,6 +100,9 @@ int __arch_riscv_set_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t,
 		break;
 	case __ARCH_ARG_TYPE_STACK:
 		v = &regs->sp;
+		break;
+	case __ARCH_ARG_TYPE_STACK_INTR:
+		v = &regs->mscratch;
 		break;
 	case __ARCH_ARG_TYPE_TLS:
 		v = &regs->tp;

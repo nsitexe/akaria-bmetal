@@ -21,6 +21,8 @@ __arch_riscv_copy_current_context:
 	OP_ST t0, REGOFF_MEPC(a0)
 	csrr  t0, mstatus
 	OP_ST t0, REGOFF_MSTATUS(a0)
+	csrr  t0, mscratch
+	OP_ST t0, REGOFF_MSCRATCH(a0)
 	OP_LD t0, REGOFF_T0(a0)
 
 	ret

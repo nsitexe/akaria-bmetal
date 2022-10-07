@@ -11,17 +11,18 @@
 
 void _start(void);
 
-int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp)
+int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
 	uintptr_t v;
 
-	sp = (void *)argv;
-	sp -= sizeof(uintptr_t);
+	sp_user = (void *)argv;
+	sp_user -= sizeof(uintptr_t);
 	v = argc;
-	kmemcpy(sp, &v, sizeof(uintptr_t));
+	kmemcpy(sp_user, &v, sizeof(uintptr_t));
 
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, (uintptr_t)NULL);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)_start);
 
 	return 0;
