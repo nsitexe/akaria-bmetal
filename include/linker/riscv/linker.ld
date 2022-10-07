@@ -133,7 +133,8 @@ SECTIONS
 
 	.fini_array : {
 		__fini_array_start = .;
-		KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
+		KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*)
+			SORT_BY_INIT_PRIORITY(.dtors.*)))
 		KEEP(*(.fini_array EXCLUDE_FILE(*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
 		__fini_array_end = .;
 	} > TEXT_AREA AT > TEXT_AREA_AT
