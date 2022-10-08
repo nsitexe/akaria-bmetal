@@ -416,7 +416,6 @@ int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
 int __cpu_futex_wait(int *uaddr, int val, int bitset)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	long st;
 	int res = 0;
 
 	if (!bitset) {
@@ -430,30 +429,26 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 
 	dwmb();
 
-	/* Avoid spurious wake up */
+	__smp_unlock();
+
 	while (!cpu->futex.wakeup) {
-		/*
-		 * Pending IPI from "uaddr != val" to wait for interrupt(wfi).
-		 * If accept IPI before wfi IPI is cleared by interrupt handler
-		 * and wfi will never been returned.
-		 */
-		__intr_save_local(&st);
-		if (atomic_load((atomic_int *)uaddr) != val) {
+		if (*uaddr != val) {
 			res = -EWOULDBLOCK;
 			break;
 		}
-		__smp_unlock();
 
+		__intr_enable_local();
 		__cpu_wait_interrupt();
-
-		__smp_lock();
-		__intr_restore_local(st);
+		__intr_disable_local();
 
 		drmb();
 	}
 
+	__smp_lock();
+
 	cpu->futex.uaddr = 0;
 	cpu->futex.bitset = 0;
+	cpu->futex.wakeup = 0;
 
 	dwmb();
 
@@ -478,25 +473,43 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		if (!cpu) {
 			continue;
 		}
+		if (cpu->futex.uaddr != uaddr) {
+			continue;
+		}
+		if (!(cpu->futex.bitset & bitset)) {
+			continue;
+		}
 
-		if (cpu->futex.uaddr == uaddr) {
-			if (!(cpu->futex.bitset & bitset)) {
-				continue;
-			}
+		cpu->futex.uaddr = 0;
+		cpu->futex.bitset = 0;
+		cpu->futex.wakeup = 1;
 
-			cpu->futex.uaddr = 0;
-			cpu->futex.bitset = 0;
-			cpu->futex.wakeup = 1;
+		dwmb();
 
-			dwmb();
+		__smp_unlock();
 
+		r = __cpu_raise_ipi(cpu, NULL);
+		if (r) {
+			return r;
+		}
+
+		while (cpu->futex.wakeup) {
 			r = __cpu_raise_ipi(cpu, NULL);
 			if (r) {
 				return r;
 			}
 
-			res++;
+			/* FIXME: need suitable delay or wait */
+			for (int j = 0; j < 10000; j++) {
+				__asm__("nop");
+			}
+
+			drmb();
 		}
+
+		res++;
+
+		__smp_lock();
 	}
 
 	return res;
