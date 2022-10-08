@@ -6,9 +6,11 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#define LOOP_N    1000000
 int __arch_riscv_get_cpu_id(void);
 
 pthread_attr_t attr;
@@ -17,15 +19,24 @@ int n_threads = 3;
 
 void *thread_main(void *arg)
 {
+	struct timeval st, ed, elapse;
 	int cpuid = __arch_riscv_get_cpu_id();
 	int v = (int)(intptr_t)arg * 10 + 1;
 
 	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), gettid());
 	fflush(stdout);
-	printf("%d: ---- thread step2 arg:%d %p\n", cpuid, v, &arg);
-	for (int i = 0; i < 1000000; i++) {
+
+	printf("%d: ---- thread step2 st arg:%d %p\n", cpuid, v, &arg);
+	gettimeofday(&st, NULL);
+	for (int i = 0; i < LOOP_N; i++) {
 		fflush(stdout);
 	}
+	gettimeofday(&ed, NULL);
+	timersub(&ed, &st, &elapse);
+	printf("%d: ---- thread step2 ed arg:%d %p elapsed: %d.%06d[s] loop:%d\n",
+		cpuid, v, &arg, (int)elapse.tv_sec, (int)elapse.tv_usec, LOOP_N);
+	fflush(stdout);
+
 	printf("%d: ---- thread step3 arg:%d %p\n", cpuid, v, &arg);
 	fflush(stdout);
 
