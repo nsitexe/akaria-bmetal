@@ -673,9 +673,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAIT_BITSET:
-		__smp_lock();
 		r = __cpu_futex_wait(uaddr, val, val3);
-		__smp_unlock();
 		if (r) {
 			if (r != -EWOULDBLOCK) {
 				printk("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
@@ -690,9 +688,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAKE_BITSET:
-		__smp_lock();
 		r = __cpu_futex_wake(uaddr, val, val3);
-		__smp_unlock();
 		if (r < 0) {
 			printk("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
 

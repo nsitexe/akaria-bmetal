@@ -32,6 +32,38 @@ void __cpu_set_running(struct __cpu_device *cpu, int r)
 	cpu->running = r;
 }
 
+
+__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
+{
+	return cpu->regs;
+}
+
+void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs)
+{
+	cpu->regs = regs;
+}
+
+__arch_user_regs_t *__cpu_get_current_user_regs(void)
+{
+	return __cpu_get_user_regs(__cpu_get_current());
+}
+
+void __cpu_set_current_user_regs(__arch_user_regs_t *regs)
+{
+	__cpu_set_user_regs(__cpu_get_current(), regs);
+}
+
+
+int __cpu_lock(struct __cpu_device *cpu)
+{
+	return __spinlock_lock(&cpu->lock);
+}
+
+int __cpu_unlock(struct __cpu_device *cpu)
+{
+	return __spinlock_unlock(&cpu->lock);
+}
+
 struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu)
 {
 	return cpu->ti;
@@ -61,25 +93,6 @@ void __cpu_set_thread_task(struct __cpu_device *cpu, struct __thread_info *ti)
 	cpu->ti_task = ti;
 }
 
-__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
-{
-	return cpu->regs;
-}
-
-void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs)
-{
-	cpu->regs = regs;
-}
-
-__arch_user_regs_t *__cpu_get_current_user_regs(void)
-{
-	return __cpu_get_user_regs(__cpu_get_current());
-}
-
-void __cpu_set_current_user_regs(__arch_user_regs_t *regs)
-{
-	__cpu_set_user_regs(__cpu_get_current(), regs);
-}
 
 int __cpu_alloc_id(void)
 {
@@ -423,13 +436,15 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		return -EINVAL;
 	}
 
+	__cpu_lock(cpu);
+
 	cpu->futex.uaddr = uaddr;
 	cpu->futex.bitset = bitset;
 	cpu->futex.wakeup = 0;
 
 	dwmb();
 
-	__smp_unlock();
+	__cpu_unlock(cpu);
 
 	while (!cpu->futex.wakeup) {
 		if (*uaddr != val) {
@@ -444,7 +459,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		drmb();
 	}
 
-	__smp_lock();
+	__cpu_lock(cpu);
 
 	cpu->futex.uaddr = 0;
 	cpu->futex.bitset = 0;
@@ -452,16 +467,18 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 
 	dwmb();
 
+	__cpu_unlock(cpu);
+
 	return res;
 }
 
 int __cpu_futex_wake(int *uaddr, int val, int bitset)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct __cpu_device *cpu_cur = __cpu_get_current();
 	int r, res = 0;
 
 	if (!bitset) {
-		__dev_err(__cpu_to_dev(cpu), "futex_wake bitmask is 0.\n");
+		__dev_err(__cpu_to_dev(cpu_cur), "futex_wake bitmask is 0.\n");
 		return -EINVAL;
 	}
 
@@ -470,13 +487,14 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 	for (int i = 0; i < CONFIG_NUM_CORES && res < val; i++) {
 		struct __cpu_device *cpu = __cpu_get(i);
 
-		if (!cpu) {
+		if (!cpu || cpu->futex.uaddr != uaddr) {
 			continue;
 		}
-		if (cpu->futex.uaddr != uaddr) {
-			continue;
-		}
+
+		__cpu_lock(cpu);
+
 		if (!(cpu->futex.bitset & bitset)) {
+			__cpu_unlock(cpu);
 			continue;
 		}
 
@@ -486,7 +504,7 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 
 		dwmb();
 
-		__smp_unlock();
+		__cpu_unlock(cpu);
 
 		r = __cpu_raise_ipi(cpu, NULL);
 		if (r) {
@@ -508,8 +526,6 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		}
 
 		res++;
-
-		__smp_lock();
 	}
 
 	return res;

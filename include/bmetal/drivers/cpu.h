@@ -8,6 +8,7 @@
 
 #include <bmetal/device.h>
 #include <bmetal/arch.h>
+#include <bmetal/lock.h>
 #include <bmetal/thread.h>
 
 enum __cpu_event {
@@ -52,6 +53,7 @@ struct __cpu_device {
 	int id_phys;
 	int running;
 	__arch_user_regs_t *regs;
+	struct __spinlock lock;
 	struct __thread_info *ti;
 	struct __thread_info *ti_idle;
 	struct __thread_info *ti_task;
@@ -105,17 +107,20 @@ int __cpu_get_id(struct __cpu_device *cpu);
 int __cpu_get_id_phys(struct __cpu_device *cpu);
 int __cpu_get_running(struct __cpu_device *cpu);
 void __cpu_set_running(struct __cpu_device *cpu, int r);
+
+__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu);
+void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs);
+__arch_user_regs_t *__cpu_get_current_user_regs(void);
+void __cpu_set_current_user_regs(__arch_user_regs_t *regs);
+
+int __cpu_lock(struct __cpu_device *cpu);
+int __cpu_unlock(struct __cpu_device *cpu);
 struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu);
 void __cpu_set_thread(struct __cpu_device *cpu, struct __thread_info *ti);
 struct __thread_info *__cpu_get_thread_idle(struct __cpu_device *cpu);
 void __cpu_set_thread_idle(struct __cpu_device *cpu, struct __thread_info *ti);
 struct __thread_info *__cpu_get_thread_task(struct __cpu_device *cpu);
 void __cpu_set_thread_task(struct __cpu_device *cpu, struct __thread_info *ti);
-__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu);
-void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs);
-
-__arch_user_regs_t *__cpu_get_current_user_regs(void);
-void __cpu_set_current_user_regs(__arch_user_regs_t *regs);
 
 int __cpu_alloc_id(void);
 struct __cpu_device *__cpu_get(int id);
