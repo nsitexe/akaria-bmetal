@@ -27,7 +27,9 @@ CXXFLAGS = $(APP_CXXFLAGS)
 LDFLAGS  = $(APP_LDFLAGS)
 
 BINS = \
-	args clock ctype \
+	args clock \
+	crt_string \
+	ctype \
 	flush hello \
 	malloc md5 \
 	saxpy saxpyf \
@@ -42,6 +44,7 @@ endif
 
 ARGS_OBJS = args.o
 CLOCK_OBJS = clock.o
+CRT_STRING_OBJS = crt_string.o
 CTYPE_OBJS = ctype.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
@@ -57,7 +60,9 @@ SAXPYF_OBJS = saxpyf.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
-       $(ARGS_OBJS) $(CLOCK_OBJS) $(CTYPE_OBJS) \
+       $(ARGS_OBJS) $(CLOCK_OBJS) \
+       $(CRT_STRING_OBJS) \
+       $(CTYPE_OBJS) \
        $(FLUSH_OBJS) $(HELLO_OBJS) $(HELLO_CPP_OBJS) \
        $(MALLOC_OBJS) $(MD5_OBJS) \
        $(SAXPY_OBJS) $(SAXPYF_OBJS) \
@@ -79,6 +84,9 @@ args: $(ARGS_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 clock: $(CLOCK_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+crt_string: $(CRT_STRING_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 ctype: $(CTYPE_OBJS)

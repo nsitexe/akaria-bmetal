@@ -3,6 +3,7 @@
 # by Make
 /test/args
 /test/clock
+/test/crt_string
 /test/ctype
 /test/flush
 /test/hello
