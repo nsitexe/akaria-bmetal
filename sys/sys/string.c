@@ -1,28 +1,81 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#include <stdint.h>
 #include <bmetal/sys/string.h>
+
+#define is_aligned(p, n)    (((uintptr_t)(p) % (n)) == 0)
+
+#ifdef CONFIG_64BIT
+#define OPT_T        uint64_t
+#define OPT_BYTES    8
+#else /* CONFIG_64BIT */
+#define OPT_T        uint32_t
+#define OPT_BYTES    4
+#endif /* CONFIG_64BIT */
 
 void *kmemset(void *s, int c, size_t n)
 {
-	char *p = s;
+	void *s_org = s;
 
-	for (; n; n--, p++) {
-		*p = c;
+	for (; !is_aligned(s, OPT_BYTES) && n; n--, s++) {
+		*(char *)s = c;
 	}
 
-	return s;
+	if (is_aligned(s, OPT_BYTES)) {
+		OPT_T c2 = (uint8_t)c;
+
+		c2 |= c2 << 8;
+		c2 |= c2 << 16;
+		if (OPT_BYTES > 4) {
+			/* Avoid warning even if OPT_T is 32bits */
+			c2 |= (c2 << 16) << 16;
+		}
+		for (; n > OPT_BYTES * 4; n -= OPT_BYTES * 4, s += OPT_BYTES * 4) {
+			OPT_T *ps = s;
+
+			ps[0] = c2;
+			ps[1] = c2;
+			ps[2] = c2;
+			ps[3] = c2;
+		}
+		for (; n > OPT_BYTES; n -= OPT_BYTES, s += OPT_BYTES) {
+			*(OPT_T *)s = c2;
+		}
+	}
+
+	for (; n; n--, s++) {
+		*(char *)s = c;
+	}
+
+	return s_org;
 }
 
 void *kmemcpy(void *dest, const void *src, size_t n)
 {
-	char *pd = dest;
-	const char *ps = src;
+	void *dest_org = dest;
 
-	for (; n; n--, pd++, ps++) {
-		*pd = *ps;
+	if (is_aligned(dest, OPT_BYTES) && is_aligned(src, OPT_BYTES)) {
+		const size_t step = OPT_BYTES * 4;
+
+		for (; n > step; n -= step, dest += step, src += step) {
+			const OPT_T *psrc = src;
+			OPT_T *pdest = dest;
+
+			pdest[0] = psrc[0];
+			pdest[1] = psrc[1];
+			pdest[2] = psrc[2];
+			pdest[3] = psrc[3];
+		}
+		for (; n > OPT_BYTES; n -= OPT_BYTES, dest += OPT_BYTES, src += OPT_BYTES) {
+			*(OPT_T *)dest = *(const OPT_T *)src;
+		}
 	}
 
-	return dest;
+	for (; n; n--, dest++, src++) {
+		*(char *)dest = *(const char *)src;
+	}
+
+	return dest_org;
 }
 
 size_t kstrlen(const char *s)
