@@ -94,6 +94,10 @@ int kstrcmp(const char *s1, const char *s2)
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
 
+	if (s1 == s2) {
+		return 0;
+	}
+
 	while (*p1 != '\0' && *p1 == *p2) {
 		p1++;
 		p2++;
@@ -106,6 +110,10 @@ int kstrncmp(const char *s1, const char *s2, size_t n)
 {
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
+
+	if (s1 == s2) {
+		return 0;
+	}
 
 	while (n > 0 && *p1 == *p2) {
 		if (n == 0 || *p1 == '\0') {
@@ -135,6 +143,10 @@ int kstrcasecmp(const char *s1, const char *s2)
 {
 	int c1, c2, d = 0;
 
+	if (s1 == s2) {
+		return 0;
+	}
+
 	while (1) {
 		c1 = ktolower(*s1);
 		c2 = ktolower(*s2);
@@ -153,6 +165,10 @@ int kstrcasecmp(const char *s1, const char *s2)
 int kstrncasecmp(const char *s1, const char *s2, size_t n)
 {
 	int c1, c2, d = 0;
+
+	if (s1 == s2) {
+		return 0;
+	}
 
 	while (n > 0) {
 		c1 = ktolower(*s1);
