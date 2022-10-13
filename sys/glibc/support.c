@@ -30,6 +30,7 @@ int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], ch
 
 const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_uname, __sys_uname),
+	SYSCALL_P(SYS_prlimit64, __sys_prlimit64),
 	SYSCALL_P(SYS_getuid, __sys_getuid),
 	SYSCALL_P(SYS_geteuid, __sys_geteuid),
 	SYSCALL_P(SYS_getgid, __sys_getgid),

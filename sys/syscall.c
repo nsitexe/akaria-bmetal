@@ -16,6 +16,7 @@
 #include <bmetal/sys/futex.h>
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/mman.h>
+#include <bmetal/sys/resource.h>
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
@@ -50,6 +51,32 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 intptr_t __sys_uname(struct new_utsname *name)
 {
 	kmemcpy(name, &uname, sizeof(uname));
+
+	return 0;
+}
+
+intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim, struct rlimit64 *old_lim)
+{
+	struct rlimit64 old;
+
+	if (new_lim) {
+		printk("prlimit64: not support to set new rlimit.\n");
+		return -EPERM;
+	}
+
+	switch (resource) {
+	case RLIMIT_STACK:
+		old.rlim_cur = CONFIG_MAIN_STACK_SIZE;
+		old.rlim_max = ~0;
+		break;
+	default:
+		printk("prlimit64: not support to resource %d.\n", resource);
+		return -EINVAL;
+	}
+
+	if (old_lim) {
+		*old_lim = old;
+	}
 
 	return 0;
 }

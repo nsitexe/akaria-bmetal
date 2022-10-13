@@ -8,6 +8,7 @@
 
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall_num.h>
+#include <bmetal/sys/resource.h>
 #include <bmetal/sys/time.h>
 #include <bmetal/sys/uio.h>
 
@@ -30,6 +31,7 @@ typedef intptr_t (*__syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
 
 intptr_t __sys_uname(struct new_utsname *name);
+intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim, struct rlimit64 *old_lim);
 intptr_t __sys_getuid(void);
 intptr_t __sys_geteuid(void);
 intptr_t __sys_getgid(void);

@@ -39,6 +39,10 @@
 #define __arch_off_t     __SLONG_TYPE
 #endif
 
+#ifndef __arch_rlim_t
+#define __arch_rlim_t     __ULONG_TYPE
+#endif
+
 #ifndef __arch_ssize_t
 #if UINTPTR_MAX == UINT64_MAX
 #define __arch_ssize_t      __SLONG_TYPE

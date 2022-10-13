@@ -9,6 +9,7 @@
 typedef __arch_clockid_t clockid_t;
 typedef __arch_loff_t loff_t;
 typedef __arch_off_t off_t;
+typedef __arch_rlim_t rlim_t;
 typedef __arch_ssize_t ssize_t;
 typedef __arch_suseconds_t suseconds_t;
 typedef __arch_time_t time_t;
