@@ -30,7 +30,7 @@ void *kmemset(void *s, int c, size_t n)
 			/* Avoid warning even if OPT_T is 32bits */
 			c2 |= (c2 << 16) << 16;
 		}
-		for (; n > OPT_BYTES * 4; n -= OPT_BYTES * 4, s += OPT_BYTES * 4) {
+		for (; n >= OPT_BYTES * 4; n -= OPT_BYTES * 4, s += OPT_BYTES * 4) {
 			OPT_T *ps = s;
 
 			ps[0] = c2;
@@ -38,7 +38,7 @@ void *kmemset(void *s, int c, size_t n)
 			ps[2] = c2;
 			ps[3] = c2;
 		}
-		for (; n > OPT_BYTES; n -= OPT_BYTES, s += OPT_BYTES) {
+		for (; n >= OPT_BYTES; n -= OPT_BYTES, s += OPT_BYTES) {
 			*(OPT_T *)s = c2;
 		}
 	}
@@ -57,7 +57,7 @@ void *kmemcpy(void *dest, const void *src, size_t n)
 	if (is_aligned(dest, OPT_BYTES) && is_aligned(src, OPT_BYTES)) {
 		const size_t step = OPT_BYTES * 4;
 
-		for (; n > step; n -= step, dest += step, src += step) {
+		for (; n >= step; n -= step, dest += step, src += step) {
 			const OPT_T *psrc = src;
 			OPT_T *pdest = dest;
 
@@ -66,7 +66,7 @@ void *kmemcpy(void *dest, const void *src, size_t n)
 			pdest[2] = psrc[2];
 			pdest[3] = psrc[3];
 		}
-		for (; n > OPT_BYTES; n -= OPT_BYTES, dest += OPT_BYTES, src += OPT_BYTES) {
+		for (; n >= OPT_BYTES; n -= OPT_BYTES, dest += OPT_BYTES, src += OPT_BYTES) {
 			*(OPT_T *)dest = *(const OPT_T *)src;
 		}
 	}
