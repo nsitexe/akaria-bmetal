@@ -16,6 +16,7 @@
 /test/pthread
 /test/saxpy
 /test/saxpyf
+/test/sgemm
 /test/vecadd
 /test/vecaddf
 /test/coremark/coremark

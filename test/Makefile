@@ -33,6 +33,7 @@ BINS = \
 	flush hello \
 	malloc md5 \
 	saxpy saxpyf \
+	sgemm \
 	vecadd vecaddf \
 	coremark/coremark
 ifeq ($(USE_GLIBC),y)
@@ -57,6 +58,7 @@ MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
 SAXPY_OBJS = saxpy.o
 SAXPYF_OBJS = saxpyf.o
+SGEMM_OBJS = sgemm.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
@@ -66,6 +68,7 @@ OBJS = \
        $(FLUSH_OBJS) $(HELLO_OBJS) $(HELLO_CPP_OBJS) \
        $(MALLOC_OBJS) $(MD5_OBJS) \
        $(SAXPY_OBJS) $(SAXPYF_OBJS) \
+       $(SGEMM_OBJS) \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
 OBJS += \
@@ -123,6 +126,9 @@ saxpy: $(SAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 saxpyf: $(SAXPYF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+sgemm: $(SGEMM_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 vecadd: $(VECADD_OBJS)
