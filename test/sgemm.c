@@ -151,7 +151,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 		}
 	}
-	printf("time: %d.06%d\n", (int)ela.tv_sec, (int)ela.tv_usec);
+	printf("time: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
 
 	if (check) {
 		float *c_ex;
