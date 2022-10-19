@@ -97,7 +97,7 @@ int check_result(const float *c, const float *c_ex, int n)
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (!fp_eq(c_ex[i * n + j], c[i * n + j], 1e-9)) {
+			if (!fp_eq(c_ex[i * n + j], c[i * n + j], 1e-6)) {
 				if (cnt >= 10) {
 					continue;
 				}
