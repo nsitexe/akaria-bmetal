@@ -35,13 +35,23 @@ static inline int __attribute__((format(printf, 1, 2))) noprintf(const char *for
 #if __riscv_vector == 1
 void sgemm_rvv(const float *a, const float *b, float *c, int n)
 {
-	dbgprintf("----- use rvv f32 (not yet)\n");
+	vfloat32m1_t va, vb, vc, vt;
+	size_t l;
+
+	dbgprintf("----- use rvv f32\n");
 
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			c[i * n + j] = 0.0f;
-			for (int k = 0; k < n; k++) {
-				c[i * n + j] += a[i * n + k] * b[k * n + j];
+			for (int k = 0; k < n; k += l) {
+				l = vsetvl_e32m1(n - k);
+				va = vle32_v_f32m1(&a[i * n + k], l);
+				vb = vlse32_v_f32m1(&b[k * n + j], n * sizeof(float), l);
+				vc = vle32_v_f32m1(&c[i * n + j], 1);
+
+				vt = vfmul_vv_f32m1(va, vb, l);
+				vc = vfredusum_vs_f32m1_f32m1(vc, vt, vc, l);
+				vse32_v_f32m1(&c[i * n + j], vc, 1);
 			}
 		}
 	}
