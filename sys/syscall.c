@@ -200,6 +200,22 @@ intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp)
 	return 0;
 }
 
+intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags)
+{
+	if (!buf || buflen == 0) {
+		return -EINVAL;
+	}
+
+	char *p = buf;
+
+	/* TODO: randomize */
+	for (size_t i = 0; i < buflen; i++) {
+		p[i] = i;
+	}
+
+	return 0;
+}
+
 static struct __file_desc *get_file_desc(int fd)
 {
 	struct __proc_info *pi = __proc_get_current();

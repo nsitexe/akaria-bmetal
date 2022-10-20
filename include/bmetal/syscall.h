@@ -17,6 +17,11 @@
 #define __NEW_UTS_LEN 64
 #define __PAGE_SIZE   4096
 
+/* Flags for sys_getrandom */
+#define GRND_NONBLOCK    0x0001
+#define GRND_RANDOM      0x0002
+#define GRND_INSECURE    0x0004
+
 struct new_utsname {
 	char sysname[__NEW_UTS_LEN + 1];
 	char nodename[__NEW_UTS_LEN + 1];
@@ -38,11 +43,12 @@ intptr_t __sys_getgid(void);
 intptr_t __sys_getegid(void);
 intptr_t __sys_getpid(void);
 intptr_t __sys_gettid(void);
-intptr_t __sys_close(int fd);
 intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp);
 intptr_t __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp);
 intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp);
 intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp);
+intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags);
+intptr_t __sys_close(int fd);
 intptr_t __sys_write(int fd, const void *buf, size_t count);
 intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
 void *__brk_area_start(void);
