@@ -488,7 +488,6 @@ static int free_pages(void *start, size_t length)
 intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
 	void *anon_ptr;
-	int prot_req = PROT_READ | PROT_WRITE;
 	int flags_req = MAP_PRIVATE | MAP_ANONYMOUS;
 	size_t off_page;
 	size_t len = length;
@@ -503,13 +502,11 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 
 	/*
 	 * Only support anonymous mmap.
-	 *   - PROT_READ || PROT_WRITE
 	 *   - MAP_PRIVATE && MAP_ANONYMOUS
 	 *   - fd = -1
 	 *   - offset = 0
 	 */
-	if ((prot & prot_req) != 0 ||
-	    (flags & flags_req) != flags_req ||
+	if ((flags & flags_req) != flags_req ||
 	    fd != -1 || offset != 0) {
 		printk("sys_mmap: only support anonymous mmap.\n");
 		return -EINVAL;
