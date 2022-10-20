@@ -28,7 +28,7 @@
 static struct __spinlock lock_mmap;
 static char __section(".noinit") brk_area[CONFIG_BRK_SIZE];
 static char *brk_cur = brk_area;
-static char __section(".noinit") heap_area[CONFIG_HEAP_SIZE];
+static char __section(".noinit") __aligned(__PAGE_SIZE) heap_area[CONFIG_HEAP_SIZE];
 static char heap_used[CONFIG_HEAP_SIZE / __PAGE_SIZE];
 static int dbg_heap_num = 1;
 
