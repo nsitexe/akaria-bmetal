@@ -323,6 +323,8 @@ int __driver_add(struct __driver *driver);
 int __driver_remove(struct __driver *driver);
 
 struct __device *__device_get_root(void);
+int __device_get_probe_all_enabled(void);
+int __device_set_probe_all_enabled(int en);
 int __device_probe_all(void);
 int __device_add(struct __device *dev, struct __bus *parent);
 int __device_remove(struct __device *dev);

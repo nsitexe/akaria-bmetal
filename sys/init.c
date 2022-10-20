@@ -151,6 +151,8 @@ static int init_drivers(void)
 	int cnt = __initcall_end - __initcall_start;
 	int res = 0;
 
+	__device_set_probe_all_enabled(0);
+
 	for (int i = 0; i < cnt; i++) {
 		int r;
 
@@ -160,6 +162,9 @@ static int init_drivers(void)
 			res = r;
 		}
 	}
+
+	__device_set_probe_all_enabled(1);
+	__device_probe_all();
 
 	return res;
 }

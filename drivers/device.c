@@ -39,6 +39,7 @@ static struct __bus bus_root = {
 
 static struct __event_handler device_evt_handlers[CONFIG_MAX_EVENT_HANDLERS];
 static int device_evt_handler_stat[CONFIG_MAX_EVENT_HANDLERS];
+static int probe_all_enabled = 0;
 
 static int device_probe(struct __device *dev);
 static int bus_probe(struct __bus *bus);
@@ -185,8 +186,24 @@ struct __device *__device_get_root(void)
 	return &dev_root;
 }
 
+int __device_get_probe_all_enabled(void)
+{
+	return probe_all_enabled;
+}
+
+int __device_set_probe_all_enabled(int en)
+{
+	probe_all_enabled = en;
+
+	return 0;
+}
+
 int __device_probe_all(void)
 {
+	if (!__device_get_probe_all_enabled()) {
+		return -EAGAIN;
+	}
+
 	return device_probe(&dev_root);
 }
 
