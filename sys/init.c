@@ -331,7 +331,7 @@ void __init_child(void)
 	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
-	printk("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	//printk("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	init_idle_thread(&__stack_idle[pos_idle], &__stack_intr[pos_intr]);
 
