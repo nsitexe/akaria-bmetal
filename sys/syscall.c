@@ -396,12 +396,12 @@ static void dump_heap_pages(void)
 	printk("\n");
 }
 
-static size_t get_cont_pages_num(size_t off_page)
+static size_t get_cont_pages_num(size_t off_page, size_t lim_page)
 {
 	size_t r = 1;
 
 	for (size_t i = off_page; i < ARRAY_OF(heap_used); i++, r++) {
-		if (heap_used[i]) {
+		if (heap_used[i] || r >= lim_page) {
 			break;
 		}
 	}
@@ -429,7 +429,7 @@ static ssize_t alloc_pages(size_t len)
 			continue;
 		}
 
-		size_t n_page = get_cont_pages_num(i);
+		size_t n_page = get_cont_pages_num(i, size_page);
 		if (n_page >= size_page) {
 			set_page_flag(i, size_page, dbg_heap_num);
 			dbg_heap_num += 1;
