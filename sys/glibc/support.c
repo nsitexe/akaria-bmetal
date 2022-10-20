@@ -51,6 +51,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_mprotect, __sys_mprotect),
 	SYSCALL_P(SYS_clone, __sys_clone),
 	SYSCALL_P(SYS_futex, __sys_futex),
+	SYSCALL_P(SYS_set_robust_list, __sys_set_robust_list),
 	SYSCALL_P(SYS_set_tid_address, __sys_set_tid_address),
 	SYSCALL_P(SYS_exit_group, __sys_exit_group),
 	SYSCALL_P(SYS_exit, __sys_exit),

@@ -733,6 +733,27 @@ err_out:
 	return ret;
 }
 
+intptr_t __sys_set_robust_list(void *head, size_t len)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	struct __thread_info *ti;
+
+	if (len == 0) {
+		return -EINVAL;
+	}
+
+	ti = __cpu_get_thread_task(cpu);
+	if (!ti) {
+		printk("sys_robust_list: cannot get task thread.\n");
+		return -EINVAL;
+	}
+
+	ti->robust_list = head;
+	ti->robust_len = len;
+
+	return 0;
+}
+
 intptr_t __sys_set_tid_address(int *tidptr)
 {
 	struct __cpu_device *cpu = __cpu_get_current();

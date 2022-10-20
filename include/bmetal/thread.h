@@ -28,6 +28,8 @@ struct __thread_info {
 
 	unsigned long flags;
 	char *sp;
+	void *robust_list;
+	size_t robust_len;
 	pid_t *ctid;
 	pid_t *ptid;
 	void *tls;
