@@ -707,6 +707,10 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 	if (!uaddr) {
 		return -EFAULT;
 	}
+	if (timeout) {
+		printk("sys_futex: timeout %d.%09d is not support.\n",
+			(int)timeout->tv_sec, (int)timeout->tv_nsec);
+	}
 
 	switch (cmd) {
 	case FUTEX_WAIT:
