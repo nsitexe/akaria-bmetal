@@ -16,6 +16,7 @@
 #include <bmetal/sys/futex.h>
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/mman.h>
+#include <bmetal/sys/random.h>
 #include <bmetal/sys/resource.h>
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
