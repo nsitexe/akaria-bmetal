@@ -304,7 +304,7 @@ static int init_args(int *argc)
 
 		add_aux(AT_PHDR, p);
 	} else {
-		pri_info("Missing program header. AT_PHDR is not available.\n");
+		pri_warn("Missing program header. AT_PHDR is not available.\n");
 	}
 
 	add_aux(0, NULL);
