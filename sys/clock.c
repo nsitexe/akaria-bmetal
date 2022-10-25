@@ -54,7 +54,7 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 	int r;
 
 	if (!tm) {
-		printk("system timer is not found.\n");
+		pri_info("system timer is not found.\n");
 		return -ENOTSUP;
 	}
 

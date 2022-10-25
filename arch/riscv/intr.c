@@ -15,7 +15,7 @@ int __arch_riscv_interrupt(uintptr_t mcause)
 	int r;
 
 	if (cause >= RV_CAUSE_INT_MAX_NUM) {
-		printk("arch_riscv_interrupt: illegal interrupt number %d.\n", cause);
+		pri_warn("arch_riscv_interrupt: illegal interrupt number %d.\n", cause);
 		return 0;
 	}
 
@@ -37,7 +37,7 @@ int __arch_riscv_exception(uintptr_t mcause)
 	int r;
 
 	if (cause >= RV_CAUSE_EXC_MAX_NUM) {
-		printk("arch_riscv_exception: illegal exception number %d.\n", cause);
+		pri_warn("arch_riscv_exception: illegal exception number %d.\n", cause);
 		return 0;
 	}
 
@@ -74,7 +74,7 @@ int __arch_riscv_get_intr_handler(int event, struct __event_handler **hnd)
 		h = int_handlers[event];
 		break;
 	default:
-		printk("get_intr_handler: unknown event number %d.\n", event);
+		pri_warn("get_intr_handler: unknown event number %d.\n", event);
 		return -EINVAL;
 	}
 
@@ -100,7 +100,7 @@ int __arch_riscv_set_intr_handler(int event, struct __event_handler *hnd)
 		int_handlers[event] = hnd;
 		break;
 	default:
-		printk("set_intr_handler: unknown event number %d.\n", event);
+		pri_warn("set_intr_handler: unknown event number %d.\n", event);
 		return -EINVAL;
 	}
 
@@ -129,7 +129,7 @@ int __arch_riscv_get_exc_handler(int event, struct __event_handler **hnd)
 		h = exc_handlers[event];
 		break;
 	default:
-		printk("get_exc_handler: unknown event number %d.\n", event);
+		pri_warn("get_exc_handler: unknown event number %d.\n", event);
 		return -EINVAL;
 	}
 
@@ -160,7 +160,7 @@ int __arch_riscv_set_exc_handler(int event, struct __event_handler *hnd)
 		exc_handlers[event] = hnd;
 		break;
 	default:
-		printk("set_exc_handler: unknown event number %d.\n", event);
+		pri_warn("set_exc_handler: unknown event number %d.\n", event);
 		return -EINVAL;
 	}
 

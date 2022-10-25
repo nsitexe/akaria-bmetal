@@ -102,7 +102,7 @@ int __cpu_alloc_id(void)
 struct __cpu_device *__cpu_get(int id)
 {
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		printk("cpu_get: id:%d is out of bounds.\n", id);
+		pri_warn("cpu_get: id:%d is out of bounds.\n", id);
 		return NULL;
 	}
 
@@ -115,7 +115,7 @@ int __cpu_set(int id, struct __cpu_device *cpu)
 		return -EINVAL;
 	}
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		printk("cpu_set: id:%d is out of bounds.\n", id);
+		pri_warn("cpu_set: id:%d is out of bounds.\n", id);
 		return -EINVAL;
 	}
 
@@ -134,7 +134,7 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 			return cpus[i];
 		}
 	}
-	printk("cpu_get_by_physical_id: id_phys:%d is not found.\n", id_phys);
+	pri_warn("cpu_get_by_physical_id: id_phys:%d is not found.\n", id_phys);
 
 	return NULL;
 }

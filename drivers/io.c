@@ -15,13 +15,13 @@ int __io_mmap_device(void *addr, struct __device *dev)
 
 	r = __device_read_conf_u64(dev, "reg", &reg, 0);
 	if (r) {
-		printk("io_mmap_device: config 'reg' is not found.\n");
+		pri_warn("io_mmap_device: config 'reg' is not found.\n");
 		return -EINVAL;
 	}
 
 	r = __device_read_conf_u64(dev, "reg-size", &size, 0);
 	if (r) {
-		printk("io_mmap_device: config 'reg-size' is not found.\n");
+		pri_warn("io_mmap_device: config 'reg-size' is not found.\n");
 		return -EINVAL;
 	}
 	dev->io_base.addr = reg;
@@ -36,7 +36,7 @@ int __io_mmap_device(void *addr, struct __device *dev)
 	}
 	if (dev->virt == __IO_MAP_FAILED) {
 		dev->virt = NULL;
-		printk("io_mmap_device: map '0x%08"PRIx64"' failed.\n", reg);
+		pri_warn("io_mmap_device: map '0x%08"PRIx64"' failed.\n", reg);
 		return -EIO;
 	}
 
