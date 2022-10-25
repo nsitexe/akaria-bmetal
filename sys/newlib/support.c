@@ -1,45 +1,32 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/arch.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
+#include <bmetal/sys/errno.h>
+#include <bmetal/sys/string.h>
 
-void __libc_init_array(void);
-void __libc_fini_array(void);
-int atexit(void (*function)(void));
-void exit(int status);
-int main(int argc, char *argv[], char *envp[]);
-
-int errno_real = 0;
-
-int *__errno(void)
-{
-	return &errno_real;
-}
-
-static void __libc_init(int argc, char *argv[], char *envp[])
-{
-	atexit(__libc_fini_array);
-	__libc_init_array();
-
-	int r = main(argc, argv, envp);
-
-	exit(r);
-}
+void _crt_start(void);
 
 int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
+	intptr_t v;
+
 	sp_user = (void *)argv;
+	sp_user -= sizeof(intptr_t);
+	v = argc;
+	kmemcpy(sp_user, &v, sizeof(intptr_t));
 
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, argc);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_2, (uintptr_t)argv);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_3, (uintptr_t)envp);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__libc_init);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)_crt_start);
 
 	return 0;
 }
