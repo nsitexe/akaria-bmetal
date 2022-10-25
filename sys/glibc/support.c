@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include <bmetal/bmetal.h>
 #include <bmetal/arch.h>
@@ -13,12 +14,12 @@ void _start(void);
 
 int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
-	uintptr_t v;
+	intptr_t v;
 
 	sp_user = (void *)argv;
-	sp_user -= sizeof(uintptr_t);
+	sp_user -= sizeof(intptr_t);
 	v = argc;
-	kmemcpy(sp_user, &v, sizeof(uintptr_t));
+	kmemcpy(sp_user, &v, sizeof(intptr_t));
 
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, (uintptr_t)NULL);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
