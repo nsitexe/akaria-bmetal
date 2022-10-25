@@ -44,7 +44,7 @@ static const struct new_utsname uname = {
 
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
-	printk("%d: unknown syscall %"PRIdPTR"\n", __arch_get_cpu_id(), number);
+	pri_info("%d: unknown syscall %"PRIdPTR"\n", __arch_get_cpu_id(), number);
 
 	return -ENOTSUP;
 }
@@ -61,7 +61,7 @@ intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim
 	struct rlimit64 old;
 
 	if (new_lim) {
-		printk("prlimit64: not support to set new rlimit.\n");
+		pri_warn("prlimit64: not support to set new rlimit.\n");
 		return -EPERM;
 	}
 
@@ -71,7 +71,7 @@ intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim
 		old.rlim_max = ~0;
 		break;
 	default:
-		printk("prlimit64: not support to resource %d.\n", resource);
+		pri_warn("prlimit64: not support to resource %d.\n", resource);
 		return -EINVAL;
 	}
 
@@ -128,7 +128,7 @@ intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 		r = __clock_get_monotonic(tp);
 		break;
 	default:
-		printk("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
+		pri_warn("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 	if (r) {
@@ -151,7 +151,7 @@ intptr_t __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
 		r = __clock_set_realtime(tp);
 		break;
 	default:
-		printk("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
+		pri_warn("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 	if (r) {
@@ -222,7 +222,7 @@ static struct __file_desc *get_file_desc(int fd)
 	struct __proc_info *pi = __proc_get_current();
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		printk("get_file_desc: fd %d is invalid\n", fd);
+		pri_info("get_file_desc: fd %d is invalid\n", fd);
 		return NULL;
 	}
 
@@ -235,7 +235,7 @@ static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
 	struct __file_desc *olddesc;
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		printk("set_file_desc: fd %d is invalid\n", fd);
+		pri_info("set_file_desc: fd %d is invalid\n", fd);
 		return NULL;
 	}
 
@@ -286,7 +286,7 @@ intptr_t __sys_write(int fd, const void *buf, size_t count)
 		return 0;
 	}
 
-	//printk("sys_write: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
+	pri_dbg("sys_write: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
 
 	__spinlock_lock(&desc->lock);
 	ret = sys_write_nolock(desc, buf, count);
@@ -315,7 +315,7 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 		if (wr > 0) {
 			ret += wr;
 		} else {
-			printk("sys_writev: failed at %d, fd:%d len:%d.\n",
+			pri_warn("sys_writev: failed at %d, fd:%d len:%d.\n",
 				i, fd, (int)iov[i].iov_len);
 		}
 	}
@@ -342,7 +342,7 @@ intptr_t __sys_brk(void *addr)
 		return PTR_TO_INT(brk_cur);
 	}
 	if (addr < __brk_area_start() || __brk_area_end() < addr) {
-		printk("sys_brk: addr:%p is out of bounds.\n", addr);
+		pri_info("sys_brk: addr:%p is out of bounds.\n", addr);
 		return -ENOMEM;
 	}
 
@@ -384,17 +384,19 @@ void *__heap_area_end(void)
 
 static void dump_heap_pages(void)
 {
-	printk("dump_heap_pages:\n");
+#ifdef CONFIG_DEBUG_HEAP
+	pri_dbg("dump_heap_pages:\n");
 	for (size_t i = 0; i < ARRAY_OF(heap_used); i++) {
 		if (i % 16 == 0) {
-			printk("  %4d: ", (int)i);
+			pri_dbg("  %4d: ", (int)i);
 		}
-		printk("%2x ", heap_used[i]);
+		pri_dbg("%2x ", heap_used[i]);
 		if (i % 16 == 15) {
-			printk("\n");
+			pri_dbg("\n");
 		}
 	}
-	printk("\n");
+	pri_dbg("\n");
+#endif
 }
 
 static size_t get_cont_pages_num(size_t off_page, size_t lim_page)
@@ -435,9 +437,9 @@ static ssize_t alloc_pages(size_t len)
 			set_page_flag(i, size_page, dbg_heap_num);
 			dbg_heap_num += 1;
 
-			printk("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
+			pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
 				(int)i, (int)(i + size_page - 1), (int)(size_page * __PAGE_SIZE / 1024));
-			//dump_heap_pages();
+			dump_heap_pages();
 			return i;
 		}
 
@@ -460,7 +462,7 @@ static int check_pages(void *start, size_t length)
 
 	for (size_t i = off_page; i < off_page + n_page; i++) {
 		if (!heap_used[i]) {
-			printk("check_pages: not allocated at %d.\n", (int)i);
+			pri_warn("check_pages: not allocated at %d.\n", (int)i);
 			failed = 1;
 		}
 	}
@@ -486,7 +488,7 @@ static int free_pages(void *start, size_t length)
 
 	for (size_t i = off_page; i < off_page + n_page; i++) {
 		if (!heap_used[i]) {
-			printk("free_pages: double free at %d.\n", (int)i);
+			pri_warn("free_pages: double free at %d.\n", (int)i);
 			need_dump = 1;
 		}
 	}
@@ -496,7 +498,7 @@ static int free_pages(void *start, size_t length)
 
 	set_page_flag(off_page, n_page, 0);
 
-	printk("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
+	pri_info("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
 		(int)(off_page + n_page - 1), (int)(n_page * __PAGE_SIZE / 1024));
 
 	return 0;
@@ -525,7 +527,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	 */
 	if ((flags & flags_req) != flags_req ||
 	    fd != -1 || offset != 0) {
-		printk("sys_mmap: only support anonymous mmap.\n");
+		pri_warn("sys_mmap: only support anonymous mmap.\n");
 		return -EINVAL;
 	}
 
@@ -533,7 +535,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	off_page = alloc_pages(len);
 	__mmap_unlock();
 	if (off_page == -1) {
-		printk("sys_mmap: no enough pages, len:%d.\n", (int)len);
+		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}
 	anon_ptr = __heap_area_start() + off_page * __PAGE_SIZE;
@@ -562,7 +564,7 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 
 	switch (advice) {
 	case MADV_DONTNEED:
-		printk("sys_madvise: advice %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
+		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
 		r = check_pages(addr, length);
@@ -574,7 +576,7 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 
 		break;
 	default:
-		printk("sys_madvise: advice %d is not supported.\n", advice);
+		pri_warn("sys_madvise: advice %d is not supported.\n", advice);
 
 		return -EINVAL;
 	}
@@ -584,7 +586,7 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 
 intptr_t __sys_mprotect(void *addr, size_t length, int prot)
 {
-	printk("sys_mprotect: ignore mprotect.\n");
+	pri_info("sys_mprotect: ignore mprotect.\n");
 
 	return 0;
 }
@@ -600,7 +602,7 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	if (flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
 		if (!ctid) {
-			printk("sys_clone: Need ctid but ctid is NULL.\n");
+			pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
 			r = -EFAULT;
 			goto err_out;
 		}
@@ -608,7 +610,7 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	}
 	if (flags & CLONE_PARENT_SETTID) {
 		if (!ptid) {
-			printk("sys_clone: Need ptid but ptid is NULL.\n");
+			pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
 			r = -EFAULT;
 			goto err_out;
 		}
@@ -616,7 +618,7 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	}
 	if (flags & CLONE_SETTLS) {
 		if (!tls) {
-			printk("sys_clone: Need tls but tls is NULL.\n");
+			pri_warn("sys_clone: Need tls but tls is NULL.\n");
 			r = -EFAULT;
 			goto err_out;
 		}
@@ -709,7 +711,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 		return -EFAULT;
 	}
 	if (timeout) {
-		printk("sys_futex: timeout %d.%09d is not support.\n",
+		pri_warn("sys_futex: timeout %d.%09d is not support.\n",
 			(int)timeout->tv_sec, (int)timeout->tv_nsec);
 	}
 
@@ -721,7 +723,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 		r = __cpu_futex_wait(uaddr, val, val3);
 		if (r) {
 			if (r != -EWOULDBLOCK) {
-				printk("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+				pri_warn("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
 			}
 
 			ret = r;
@@ -735,7 +737,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 	case FUTEX_WAKE_BITSET:
 		r = __cpu_futex_wake(uaddr, val, val3);
 		if (r < 0) {
-			printk("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			pri_warn("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -744,7 +746,7 @@ intptr_t __sys_futex(int *uaddr, int op, int val, const struct timespec *timeout
 		ret = r;
 		break;
 	default:
-		printk("sys_futex: cmd %d is not supported.\n", cmd);
+		pri_warn("sys_futex: cmd %d is not supported.\n", cmd);
 
 		ret = -ENOSYS;
 		goto err_out;
@@ -765,7 +767,7 @@ intptr_t __sys_set_robust_list(void *head, size_t len)
 
 	ti = __cpu_get_thread_task(cpu);
 	if (!ti) {
-		printk("sys_robust_list: cannot get task thread.\n");
+		pri_err("sys_robust_list: cannot get task thread.\n");
 		return -EINVAL;
 	}
 
@@ -782,7 +784,7 @@ intptr_t __sys_set_tid_address(int *tidptr)
 
 	ti = __cpu_get_thread_task(cpu);
 	if (!ti) {
-		printk("sys_set_tid_address: cannot get task thread.\n");
+		pri_err("sys_set_tid_address: cannot get task thread.\n");
 		return -EINVAL;
 	}
 
@@ -810,7 +812,7 @@ intptr_t __sys_exit(int status)
 
 	ti = __cpu_get_thread_task(cpu);
 	if (!ti) {
-		printk("sys_exit: cannot get task thread.\n");
+		pri_err("sys_exit: cannot get task thread.\n");
 
 		__smp_unlock();
 		return -EINVAL;
@@ -841,7 +843,7 @@ intptr_t __sys_exit(int status)
 
 		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
 		if (r < 0) {
-			printk("sys_exit: futex error %d but ignored.\n", r);
+			pri_warn("sys_exit: futex error %d but ignored.\n", r);
 		}
 	}
 
@@ -867,7 +869,7 @@ intptr_t __sys_context_switch(void)
 	r = __thread_context_switch();
 	if (r) {
 		/* TODO: fatal error, panic? */
-		printk("sys_context_switch: failed to context_switch.\n");
+		pri_err("sys_context_switch: failed to context_switch.\n");
 		return r;
 	}
 

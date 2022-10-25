@@ -24,7 +24,7 @@ static int alloc_tid(void)
 struct __proc_info *__proc_create(void)
 {
 	if (__pi.avail) {
-		printk("proc_create: already created.\n");
+		pri_warn("proc_create: already created.\n");
 		return NULL;
 	}
 
@@ -36,7 +36,7 @@ struct __proc_info *__proc_create(void)
 struct __proc_info *__proc_get_current(void)
 {
 	if (!__pi.avail) {
-		printk("proc_get_current: no process.\n");
+		pri_err("proc_get_current: no process.\n");
 		return NULL;
 	}
 
@@ -68,7 +68,7 @@ void __thread_idle_main(void)
 
 	r = __cpu_on_wakeup();
 	if (r) {
-		printk("idle: failed to callback on_wakeup.\n");
+		pri_warn("idle: failed to callback on_wakeup.\n");
 	}
 
 	__intr_enable_local();
@@ -92,7 +92,7 @@ void __thread_idle_main(void)
 
 	r = __cpu_on_sleep();
 	if (r) {
-		printk("idle: failed to callback on_sleep.\n");
+		pri_warn("idle: failed to callback on_sleep.\n");
 	}
 
 	/* tentative: currently unreachable */
@@ -116,7 +116,7 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 		}
 	}
 	if (!found) {
-		printk("create_thread: reach to limit.\n");
+		pri_warn("create_thread: reach to limit.\n");
 
 		__spinlock_unlock(&pi->lock);
 		return NULL;
@@ -133,7 +133,7 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 
 	r = __arch_thread_init(ti);
 	if (r) {
-		printk("create_thread: failed to arch_thread_init.\n");
+		pri_warn("create_thread: failed to arch_thread_init.\n");
 
 		__spinlock_unlock(&pi->lock);
 		return NULL;
@@ -150,7 +150,7 @@ int __thread_destroy(struct __thread_info *ti)
 		return -EINVAL;
 	}
 	if (ti->running) {
-		printk("destroy_thread: thread %d is running.\n", ti->tid);
+		pri_warn("destroy_thread: thread %d is running.\n", ti->tid);
 		return -EBUSY;
 	}
 

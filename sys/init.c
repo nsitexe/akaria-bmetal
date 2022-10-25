@@ -158,7 +158,7 @@ static int init_drivers(void)
 
 		r = __initcall_start[i]();
 		if (r) {
-			printk("Initcall failed.\n");
+			pri_err("Initcall failed.\n");
 			res = r;
 		}
 	}
@@ -172,7 +172,7 @@ static int init_drivers(void)
 static int add_argv(void *p)
 {
 	if (index_argv >= MAX_ARGV) {
-		printk("Exceed number of argv max:%d.\n", MAX_ARGV);
+		pri_warn("Exceed number of argv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -190,7 +190,7 @@ static int add_env(void *p)
 static int add_aux(int typ, void *p)
 {
 	if (index_argv >= MAX_ARGV - 1) {
-		printk("Exceed number of auxv max:%d.\n", MAX_ARGV);
+		pri_warn("Exceed number of auxv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -214,12 +214,12 @@ static int map_argv(const struct __comm_area_header *h, const char *buf_args)
 
 		r = __cpu_cache_inv_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			printk("invalidate arg:%d is failed, arguments may be broken.\n", i);
+			pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		r = add_argv((void *)buf);
 		if (r) {
-			printk("Too many argumnets, max:%d.\n", MAX_ARGV);
+			pri_warn("Too many argumnets, max:%d.\n", MAX_ARGV);
 		}
 		buf += ha->size;
 
@@ -242,7 +242,7 @@ static int unmap_argv(const struct __comm_area_header *h, const char *buf_args)
 
 		r = __cpu_cache_flush_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			printk("flush arg:%d is failed, arguments may be broken.\n", i);
+			pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		buf += ha->size;
@@ -267,18 +267,18 @@ static int init_args(int *argc)
 		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			printk("Exceed number of args (req:%" PRId32 ", max:%d)\n",
+			pri_warn("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
 		map_argv(h_area, __comm_area + sz);
 		if (index_argv != h_area->num_args) {
-			printk("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
+			pri_warn("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
 				index_argv, h_area->num_args);
 		}
 	}
 	if (index_argv == 0) {
-		printk("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
+		pri_info("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
 		argv[0] = DEFAULT_KERNEL_NAME;
 		index_argv = 1;
 	}
@@ -304,7 +304,7 @@ static int init_args(int *argc)
 
 		add_aux(AT_PHDR, p);
 	} else {
-		printk("Missing program header. AT_PHDR is not available.\n");
+		pri_info("Missing program header. AT_PHDR is not available.\n");
 	}
 
 	add_aux(0, NULL);
@@ -320,7 +320,7 @@ static int fini_args(void)
 		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			printk("Broken number of args (req:%" PRId32 ", max:%d)\n",
+			pri_warn("Broken number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
@@ -336,7 +336,7 @@ void __init_child(void)
 	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
-	//printk("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	init_idle_thread(&__stack_idle[pos_idle], &__stack_intr[pos_intr]);
 
