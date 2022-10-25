@@ -98,18 +98,18 @@ int main(int argc, char *argv[], char *envp[])
 		ret = r;
 	}
 
-	//r = pthread_attr_setstacksize(&attr, 32768);
-	//if (r) {
-	//	printf("%d: pthread_attr_setstacksize: %s\n", cpuid, strerror(r));
-	//}
-	//fflush(stdout);
+	r = pthread_attr_setstacksize(&attr, 32768);
+	if (r) {
+		printf("%d: pthread_attr_setstacksize: %s\n", cpuid, strerror(r));
+	}
+	fflush(stdout);
 
 	printf("%d: -------- step1-1 1threads start\n", cpuid);
 	fflush(stdout);
 
 	if (n_threads >= 1) {
 		for (int i = st; i < st + 1; i++) {
-			r = pthread_create(&th[i], NULL, thread_main, (void *)(intptr_t)i);
+			r = pthread_create(&th[i], &attr, thread_main, (void *)(intptr_t)i);
 			if (r) {
 				printf("%d: pthread_create: %s\n", cpuid, strerror(r));
 				ret = r;
