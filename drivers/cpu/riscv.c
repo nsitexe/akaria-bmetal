@@ -80,6 +80,8 @@ static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, si
 	for (size_t i = 0; i < sz; i += sz_line) {
 		__asm volatile ("cbo.clean %0" :: "A"(p[i]));
 	}
+
+	dwmb();
 #endif /* CONFIG_RISCV_CACHE */
 
 	return 0;
@@ -99,6 +101,8 @@ static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size
 	for (size_t i = 0; i < sz; i += sz_line) {
 		__asm volatile ("cbo.inval %0" :: "A"(p[i]));
 	}
+
+	dwmb();
 #endif /* CONFIG_RISCV_CACHE */
 
 	return 0;
@@ -118,6 +122,8 @@ static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, si
 	for (size_t i = 0; i < sz; i += sz_line) {
 		__asm volatile ("cbo.flush %0" :: "A"(p[i]));
 	}
+
+	dwmb();
 #endif /* CONFIG_RISCV_CACHE */
 
 	return 0;
