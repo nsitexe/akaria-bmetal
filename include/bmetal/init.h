@@ -9,8 +9,19 @@
 
 #define DEFAULT_KERNEL_NAME    "main"
 
+#define define_brk(sym, size) \
+	char sym[size] \
+	__section(".noinit")
+
+#define define_heap(sym, size) \
+	char sym[size] \
+	__aligned(__PAGE_SIZE) \
+	__section(".noinit")
+
 #define define_stack(sym, size) \
-	char __section(".noinit") sym[size]
+	char sym[size] \
+	__aligned(CONFIG_STACK_ALIGN) \
+	__section(".noinit")
 
 #define define_init_func(fn) \
 	const __init_func_t __init_func__##fn \
