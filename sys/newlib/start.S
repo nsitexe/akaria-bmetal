@@ -15,6 +15,7 @@
 #endif
 
 .global _crt_start
+.type _crt_start, @function
 
 _crt_start:
 	/* Load gp */
