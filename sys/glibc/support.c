@@ -14,14 +14,14 @@ void _start(void);
 
 int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
-	intptr_t v;
+	intptr_t *v;
 
 	sp_user = (void *)argv;
 	sp_user -= sizeof(intptr_t);
-	v = argc;
-	kmemcpy(sp_user, &v, sizeof(intptr_t));
+	v = (intptr_t *)sp_user;
+	*v = argc;
 
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, (uintptr_t)NULL);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)_start);
