@@ -443,7 +443,6 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 	cpu->futex.wakeup = 0;
 
 	dwmb();
-
 	__cpu_unlock(cpu);
 
 	while (!cpu->futex.wakeup) {
@@ -466,7 +465,6 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 	cpu->futex.wakeup = 0;
 
 	dwmb();
-
 	__cpu_unlock(cpu);
 
 	return res;
@@ -482,18 +480,17 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		return -EINVAL;
 	}
 
-	drmb();
-
 	for (int i = 0; i < CONFIG_NUM_CORES && res < val; i++) {
 		struct __cpu_device *cpu = __cpu_get(i);
 
-		if (!cpu || cpu->futex.uaddr != uaddr) {
+		if (!cpu || cpu == cpu_cur) {
 			continue;
 		}
 
 		__cpu_lock(cpu);
+		drmb();
 
-		if (!(cpu->futex.bitset & bitset)) {
+		if (cpu->futex.uaddr != uaddr || !(cpu->futex.bitset & bitset)) {
 			__cpu_unlock(cpu);
 			continue;
 		}
@@ -503,7 +500,6 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		cpu->futex.wakeup = 1;
 
 		dwmb();
-
 		__cpu_unlock(cpu);
 
 		r = __cpu_raise_ipi(cpu, NULL);
