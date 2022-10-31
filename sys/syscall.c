@@ -629,8 +629,13 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	r = __smp_find_idle_cpu(&cpu);
 	if (r) {
-		goto err_out;
+		__smp_unlock();
+		return r;
 	}
+
+	__smp_unlock();
+
+	__cpu_lock(cpu);
 
 	/* Init thread info */
 	ti = __thread_create(pi);
@@ -679,25 +684,24 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	}
 
 	dwmb();
+	__cpu_unlock(cpu);
 
 	r = __cpu_raise_ipi(ti->cpu, NULL);
 	if (r) {
-		goto err_out3;
-	}
+		__thread_stop(ti);
+		__thread_destroy(ti);
 
-	__smp_unlock();
+		return r;
+	}
 
 	/* Return value for current thread */
 	return ti->tid;
-
-err_out3:
-	__thread_stop(ti);
 
 err_out2:
 	__thread_destroy(ti);
 
 err_out:
-	__smp_unlock();
+	__cpu_unlock(cpu);
 
 	return r;
 }
@@ -808,25 +812,25 @@ intptr_t __sys_exit(int status)
 	uintptr_t v;
 	int r;
 
-	__smp_lock();
+	__cpu_lock(cpu);
 
 	ti = __cpu_get_thread_task(cpu);
 	if (!ti) {
 		pri_err("sys_exit: cannot get task thread.\n");
 
-		__smp_unlock();
+		__cpu_unlock(cpu);
 		return -EINVAL;
 	}
 
 	r = __thread_stop(ti);
 	if (r) {
-		__smp_unlock();
+		__cpu_unlock(cpu);
 		return r;
 	}
 
 	r = __thread_destroy(ti);
 	if (r) {
-		__smp_unlock();
+		__cpu_unlock(cpu);
 		return r;
 	}
 
@@ -849,11 +853,12 @@ intptr_t __sys_exit(int status)
 
 	r = __thread_context_switch_nolock();
 	if (r) {
-		__smp_unlock();
+		__cpu_unlock(cpu);
 		return r;
 	}
 
-	__smp_unlock();
+	dwmb();
+	__cpu_unlock(cpu);
 
 	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
 

@@ -227,8 +227,6 @@ int __thread_context_switch_nolock(void)
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti, *ti_idle, *ti_task;
 
-	drmb();
-
 	ti = __cpu_get_thread(cpu);
 	ti_idle = __cpu_get_thread_idle(cpu);
 	ti_task = __cpu_get_thread_task(cpu);
@@ -253,8 +251,6 @@ int __thread_context_switch_nolock(void)
 		kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
 		__cpu_set_thread(cpu, ti_idle);
 	}
-
-	dwmb();
 
 	return 0;
 }
