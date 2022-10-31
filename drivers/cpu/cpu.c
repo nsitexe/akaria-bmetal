@@ -499,19 +499,24 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		cpu->futex.bitset = 0;
 		cpu->futex.wakeup = 1;
 
-		dwmb();
-		__cpu_unlock(cpu);
-
 		r = __cpu_raise_ipi(cpu, NULL);
 		if (r) {
 			return r;
 		}
 
+		dwmb();
+		__cpu_unlock(cpu);
+
 		while (cpu->futex.wakeup) {
+			__cpu_lock(cpu);
+
 			r = __cpu_raise_ipi(cpu, NULL);
 			if (r) {
 				return r;
 			}
+
+			dwmb();
+			__cpu_unlock(cpu);
 
 			/* FIXME: need suitable delay or wait */
 			for (int j = 0; j < 10000; j++) {

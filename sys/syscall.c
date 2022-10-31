@@ -683,19 +683,19 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 		goto err_out2;
 	}
 
+	r = __cpu_raise_ipi(ti->cpu, NULL);
+	if (r) {
+		goto err_out3;
+	}
+
 	dwmb();
 	__cpu_unlock(cpu);
 
-	r = __cpu_raise_ipi(ti->cpu, NULL);
-	if (r) {
-		__thread_stop(ti);
-		__thread_destroy(ti);
-
-		return r;
-	}
-
 	/* Return value for current thread */
 	return ti->tid;
+
+err_out3:
+	__thread_stop(ti);
 
 err_out2:
 	__thread_destroy(ti);
