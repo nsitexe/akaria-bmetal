@@ -111,16 +111,16 @@ md5: $(MD5_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_vecadd: $(MT_VECADD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 mt_vecaddf: $(MT_VECADDF_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 pthread: $(PTHREAD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -lpthread -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 saxpy: $(SAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@

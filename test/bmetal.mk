@@ -20,6 +20,7 @@ BAREMETAL_CMNLDFLAGS = \
 LDADD = -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
 ifeq ($(USE_GLIBC),y)
   CROSS_COMPILE ?= riscv64-unknown-linux-gnu-
+  LDADD += -lpthread
 endif
 ifeq ($(USE_MUSL),y)
   CROSS_COMPILE ?= riscv64-unknown-linux-musl-
