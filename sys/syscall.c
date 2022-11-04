@@ -603,24 +603,21 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	if (flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
 		if (!ctid) {
 			pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
-			r = -EFAULT;
-			goto err_out;
+			return -EFAULT;
 		}
 		need_ctid = 1;
 	}
 	if (flags & CLONE_PARENT_SETTID) {
 		if (!ptid) {
 			pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
-			r = -EFAULT;
-			goto err_out;
+			return -EFAULT;
 		}
 		need_ptid = 1;
 	}
 	if (flags & CLONE_SETTLS) {
 		if (!tls) {
 			pri_warn("sys_clone: Need tls but tls is NULL.\n");
-			r = -EFAULT;
-			goto err_out;
+			return -EFAULT;
 		}
 		need_tls = 1;
 	}
