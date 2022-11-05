@@ -165,15 +165,18 @@ const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10000000),
 	PROP("reg-size", 0x100),
 	PROP("reg-width", 1),
+	PROP("clocks", UPTR("rtcclk"), 0),
 	{0},
 };
 
+static __uart_priv_t uart0_priv;
 static struct __uart_device uart0 = {
 	.base = {
 		.name = "uart0",
 		.type_vendor = "ns",
 		.type_device = "ns16550",
 		.conf = uart0_conf,
+		.priv = &uart0_priv,
 	},
 };
 
