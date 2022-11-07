@@ -108,20 +108,24 @@ static int device_probe(struct __device *dev)
 				dev->probed = 1;
 			} else if (r == -EAGAIN) {
 				/* Probe again in the next time */
-			} else if (r != 0) {
+			} else {
 				dev->failed = 1;
 			}
 		} else {
 			/* Always succeed */
+			r = 0;
 			dev->probed = 1;
 		}
-	}
-	if (!dev->probed) {
-		goto err_out;
+		if (r) {
+			goto err_out;
+		}
 	}
 
 	if (dev->probed && dev->bus_child) {
-		bus_probe(dev->bus_child);
+		r = bus_probe(dev->bus_child);
+		if (r) {
+			goto err_out;
+		}
 	}
 
 	return 0;
@@ -151,16 +155,17 @@ static int bus_probe(struct __bus *bus)
 				bus->probed = 1;
 			} else if (r == -EAGAIN) {
 				/* Probe again in the next time */
-			} else if (r != 0) {
+			} else {
 				bus->failed = 1;
 			}
 		} else {
 			/* Always succeed */
+			r = 0;
 			bus->probed = 1;
 		}
-	}
-	if (!bus->probed) {
-		goto err_out;
+		if (r) {
+			goto err_out;
+		}
 	}
 
 	if (!bus->dev_child) {
@@ -168,11 +173,19 @@ static int bus_probe(struct __bus *bus)
 	}
 
 	for_each_device (dev, bus->dev_child) {
-		int r = device_probe(dev);
-		if (IS_ERROR(r)) {
+		int s = device_probe(dev);
+		if (IS_ERROR(s)) {
 			pri_warn("bus:%d probe: Failed to probe dev:%d '%s'.\n",
 				bus->id, dev->id, "");
+			r = s;
+			break;
+		} else if (s == -EAGAIN) {
+			/* Do not break here, try to probe all devices */
+			r = -EAGAIN;
 		}
+	}
+	if (r) {
+		goto err_out;
 	}
 
 	return 0;

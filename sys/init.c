@@ -149,13 +149,11 @@ static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user,
 static int init_drivers(void)
 {
 	int cnt = __initcall_end - __initcall_start;
-	int res = 0;
+	int r, res = 0;
 
 	__device_set_probe_all_enabled(0);
 
 	for (int i = 0; i < cnt; i++) {
-		int r;
-
 		r = __initcall_start[i]();
 		if (r) {
 			pri_err("Initcall failed.\n");
@@ -164,7 +162,13 @@ static int init_drivers(void)
 	}
 
 	__device_set_probe_all_enabled(1);
-	__device_probe_all();
+	do {
+		r = __device_probe_all();
+		if (IS_ERROR(r)) {
+			res = r;
+			break;
+		}
+	} while (r == -EAGAIN);
 
 	return res;
 }
