@@ -72,11 +72,49 @@ static inline int __uart_remove_driver(struct __uart_driver *drv)
 	return __driver_remove(&drv->base.base);
 }
 
+#ifdef CONFIG_UART
+
 int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf);
 int __uart_set_config(struct __uart_device *uart, const struct __uart_config *conf);
 int __uart_set_default_console(struct __uart_device *uart);
 int __uart_read_default_config(struct __uart_device *uart, struct __uart_config *conf);
+
 int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_default);
 int __uart_remove_device(struct __uart_device *uart);
+
+#else /* CONFIG_UART */
+
+static inline int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf)
+{
+	return -ENOTSUP;
+}
+
+static inline int __uart_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+{
+	return -ENOTSUP;
+}
+
+static inline int __uart_set_default_console(struct __uart_device *uart)
+{
+	return -ENOTSUP;
+}
+
+static inline int __uart_read_default_config(struct __uart_device *uart, struct __uart_config *conf)
+{
+	return -ENOTSUP;
+}
+
+
+static inline int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_default)
+{
+	return -ENOTSUP;
+}
+
+static inline int __uart_remove_device(struct __uart_device *uart)
+{
+	return -ENOTSUP;
+}
+
+#endif /* CONFIG_UART */
 
 #endif /* BAREMETAL_CRT_DRIVERS_UART_H_ */
