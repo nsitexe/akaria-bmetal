@@ -807,7 +807,7 @@ intptr_t __sys_exit(int status)
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
 	uintptr_t v;
-	int r;
+	int f_wake = 0, r;
 
 	__cpu_lock(cpu);
 
@@ -841,11 +841,7 @@ intptr_t __sys_exit(int status)
 	/* Notify to user space */
 	if (ti->flags & CLONE_CHILD_CLEARTID) {
 		*ti->ctid = 0;
-
-		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
-		if (r < 0) {
-			pri_warn("sys_exit: futex error %d but ignored.\n", r);
-		}
+		f_wake = 1;
 	}
 
 	r = __thread_context_switch_nolock();
@@ -854,10 +850,17 @@ intptr_t __sys_exit(int status)
 		return r;
 	}
 
+	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+
 	dwmb();
 	__cpu_unlock(cpu);
 
-	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+	if (f_wake) {
+		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
+		if (r) {
+			pri_warn("sys_exit: futex error %d but ignored.\n", r);
+		}
+	}
 
 	return v;
 }
