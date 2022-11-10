@@ -4,6 +4,7 @@
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
+#include <bmetal/drivers/intc.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
@@ -25,30 +26,26 @@
 #define CTRL_RST_RX          BIT(1)
 #define CTRL_ENA_INTR        BIT(4)
 
-static int uart_lite_add(struct __device *dev)
+struct uart_lite_priv {
+	struct __intc_device *intc;
+	struct __event_handler *hnd_irq;
+	int num_irq;
+};
+CHECK_PRIV_SIZE_UART(struct uart_lite_priv);
+
+static int uart_lite_intr(int event, struct __event_handler *hnd)
 {
-	int r;
+	struct uart_lite_priv *priv = hnd->priv;
 
-	r = __io_mmap_device(NULL, dev);
-	if (r) {
-		return r;
-	}
-
-	return 0;
+	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
 }
 
-static int uart_lite_remove(struct __device *dev)
-{
-	/* TODO: to be implemented */
-	return -ENOTSUP;
-}
-
-int uart_lite_char_in(struct __uart_device *uart)
+static int uart_lite_char_in(struct __uart_device *uart)
 {
 	return 0;
 }
 
-void uart_lite_char_out(struct __uart_device *uart, int value)
+static void uart_lite_char_out(struct __uart_device *uart, int value)
 {
 	struct __device *dev = __uart_to_dev(uart);
 
@@ -56,6 +53,107 @@ void uart_lite_char_out(struct __uart_device *uart, int value)
 	}
 
 	__device_write32(dev, value, REG_TXFIFO);
+}
+
+static int uart_lite_enable_intr(struct __uart_device *uart)
+{
+	struct __device *dev = __uart_to_dev(uart);
+	uint32_t v;
+
+	v = __device_read32(dev, REG_CTRL);
+	v |= CTRL_ENA_INTR;
+	__device_write32(dev, v, REG_CTRL);
+
+	return 0;
+}
+
+static int uart_lite_disable_intr(struct __uart_device *uart)
+{
+	struct __device *dev = __uart_to_dev(uart);
+	uint32_t v;
+
+	v = __device_read32(dev, REG_CTRL);
+	v &= ~CTRL_ENA_INTR;
+	__device_write32(dev, v, REG_CTRL);
+
+	return 0;
+}
+
+static int uart_lite_add(struct __device *dev)
+{
+	struct __uart_device *uart = __uart_from_dev(dev);
+	struct uart_lite_priv *priv = dev->priv;
+	int r;
+
+	if (priv == NULL) {
+		__dev_err(dev, "priv is NULL\n");
+		return -EINVAL;
+	}
+
+	r = __io_mmap_device(NULL, dev);
+	if (r) {
+		return r;
+	}
+
+	/* Interrupt setting */
+	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
+	if (r) {
+		__dev_warn(dev, "intc is not found, use polling.\n");
+		priv->intc = NULL;
+	}
+
+	if (priv->intc) {
+		r = __device_alloc_event_handler(dev, &priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		priv->hnd_irq->func = uart_lite_intr;
+		priv->hnd_irq->priv = priv;
+
+		r = __intc_add_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		r = uart_lite_enable_intr(uart);
+		if (r) {
+			return r;
+		}
+	}
+
+	return 0;
+}
+
+static int uart_lite_remove(struct __device *dev)
+{
+	struct __uart_device *uart = __uart_from_dev(dev);
+	struct uart_lite_priv *priv = dev->priv;
+	int r;
+
+	if (priv->intc) {
+		r = uart_lite_disable_intr(uart);
+		if (r) {
+			return r;
+		}
+
+		r = __intc_remove_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		r = __device_free_event_handler(dev, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+		priv->hnd_irq = NULL;
+
+		priv->num_irq = 0;
+		priv->intc = NULL;
+	}
+
+	/* TODO: to be implemented */
+	return -ENOTSUP;
 }
 
 const static struct __device_driver_ops lite_dev_ops = {
