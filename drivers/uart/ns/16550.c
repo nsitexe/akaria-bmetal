@@ -5,6 +5,7 @@
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/clk.h>
+#include <bmetal/drivers/intc.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
@@ -26,6 +27,11 @@
 #define REG_DLM     0x01  /* Divisor latch (MSB) */
 #define REG_AFR     0x02  /* Alternate function  */
 
+#define IER_ERBFI              BIT(0) /* Receive data available */
+#define IER_ETBEI              BIT(1) /* Transmitter empty */
+#define IER_ELSI               BIT(2) /* Line status */
+#define IER_EDSSI              BIT(3) /* Modem status */
+
 #define LSR_RX_READY           BIT(0)
 #define LSR_RX_OVERRUN_ERR     BIT(1)
 #define LSR_RX_PARITY_ERR      BIT(2)
@@ -39,9 +45,15 @@
 
 struct uart_ns16550_priv {
 	uint32_t addr_shift;
+
 	struct __clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
+
+	struct __intc_device *intc;
+	struct __event_handler *hnd_irq;
+	int num_irq;
+
 	struct __uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_ns16550_priv);
@@ -87,7 +99,14 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 	}
 }
 
-int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
+static int uart_ns16550_intr(int event, struct __event_handler *hnd)
+{
+	struct uart_ns16550_priv *priv = hnd->priv;
+
+	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
+}
+
+static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
 {
 	struct __device *dev = __uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
@@ -120,17 +139,39 @@ int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
 	return 0;
 }
 
-int uart_ns16550_char_in(struct __uart_device *uart)
+static int uart_ns16550_char_in(struct __uart_device *uart)
 {
 	return 0;
 }
 
-void uart_ns16550_char_out(struct __uart_device *uart, int value)
+static void uart_ns16550_char_out(struct __uart_device *uart, int value)
 {
 	while ((uart_read(uart, REG_LSR) & LSR_THR_EMPTY) == 0) {
 	}
 
 	uart_write(uart, value, REG_THR);
+}
+
+static int uart_ns16550_enable_intr(struct __uart_device *uart)
+{
+	uint8_t v;
+
+	v = uart_read(uart, REG_IER);
+	v |= IER_ERBFI | IER_ETBEI;
+	uart_write(uart, v, REG_IER);
+
+	return 0;
+}
+
+static int uart_ns16550_disable_intr(struct __uart_device *uart)
+{
+	uint8_t v;
+
+	v = uart_read(uart, REG_IER);
+	v &= ~(IER_ERBFI | IER_ETBEI);
+	uart_write(uart, v, REG_IER);
+
+	return 0;
 }
 
 static int uart_ns16550_get_config(struct __uart_device *uart, struct __uart_config *conf)
@@ -170,22 +211,7 @@ static int uart_ns16550_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
-	if (r) {
-		return r;
-	}
-
-	r = __clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
-	if (r) {
-		__dev_err(dev, "clock freq is unknown.\n");
-		return r;
-	}
-
-	r = __clk_enable(priv->clk, priv->index_clk);
-	if (r) {
-		return r;
-	}
-
+	/* Registers */
 	r = __io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
@@ -215,6 +241,50 @@ static int uart_ns16550_add(struct __device *dev)
 		return -EINVAL;
 	}
 
+	/* Clock settings */
+	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
+	if (r) {
+		return r;
+	}
+
+	r = __clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
+	if (r) {
+		__dev_err(dev, "clock freq is unknown.\n");
+		return r;
+	}
+
+	r = __clk_enable(priv->clk, priv->index_clk);
+	if (r) {
+		return r;
+	}
+
+	/* Interrupt settings */
+	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
+	if (r) {
+		__dev_warn(dev, "intc is not found, use polling.\n");
+		priv->intc = NULL;
+	}
+
+	if (priv->intc) {
+		r = __device_alloc_event_handler(dev, &priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		priv->hnd_irq->func = uart_ns16550_intr;
+		priv->hnd_irq->priv = priv;
+
+		r = __intc_add_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		r = uart_ns16550_enable_intr(uart);
+		if (r) {
+			return r;
+		}
+	}
+
 	/* Apply board default UART settings */
 	r = __uart_read_default_config(uart, &conf);
 	if (r) {
@@ -234,6 +304,31 @@ static int uart_ns16550_add(struct __device *dev)
 
 static int uart_ns16550_remove(struct __device *dev)
 {
+	struct __uart_device *uart = __uart_from_dev(dev);
+	struct uart_ns16550_priv *priv = dev->priv;
+	int r;
+
+	if (priv->intc) {
+		r = uart_ns16550_disable_intr(uart);
+		if (r) {
+			return r;
+		}
+
+		r = __intc_remove_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		r = __device_free_event_handler(dev, priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+		priv->hnd_irq = NULL;
+
+		priv->num_irq = 0;
+		priv->intc = NULL;
+	}
+
 	/* TODO: to be implemented */
 	return -ENOTSUP;
 }
