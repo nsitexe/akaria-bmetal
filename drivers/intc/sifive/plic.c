@@ -25,6 +25,16 @@ static int intc_plic_intr(int event, struct __event_handler *hnd)
 	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
 }
 
+static int intc_plic_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+{
+	return 0;
+}
+
+static int intc_plic_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+{
+	return 0;
+}
+
 static int intc_plic_add(struct __device *dev)
 {
 	struct intc_plic_priv *priv = dev->priv;
@@ -86,6 +96,8 @@ const static struct __device_driver_ops intc_plic_dev_ops = {
 };
 
 const static struct __intc_driver_ops intc_plic_intc_ops = {
+	.add_handler = intc_plic_add_handler,
+	.remove_handler = intc_plic_remove_handler,
 };
 
 static struct __intc_driver intc_plic_drv = {
