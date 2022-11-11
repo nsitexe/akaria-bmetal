@@ -857,7 +857,7 @@ intptr_t __sys_exit(int status)
 
 	if (f_wake) {
 		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
-		if (r) {
+		if (r < 0) {
 			pri_warn("sys_exit: futex error %d but ignored.\n", r);
 		}
 	}
