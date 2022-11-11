@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define LOOP_N    1000000
+#define LOOP_N    300000
 int __arch_riscv_get_cpu_id(void);
 
 pthread_attr_t attr;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[], char *envp[])
 	}
 	fflush(stdout);
 
-	printf("%d: -------- step1-1 1threads start\n", cpuid);
+	printf("%d: -------- step1-1 main + 1threads start\n", cpuid);
 	fflush(stdout);
 
 	if (n_threads >= 1) {
@@ -117,6 +117,8 @@ int main(int argc, char *argv[], char *envp[])
 			fflush(stdout);
 		}
 
+		thread_main((void *)(intptr_t)(st + 1));
+
 		for (int i = st; i < st + 1; i++) {
 			r = pthread_join(th[i], &val);
 			if (r) {
@@ -126,7 +128,7 @@ int main(int argc, char *argv[], char *envp[])
 			fflush(stdout);
 		}
 
-		st += 1;
+		st += 1 + 1;
 	} else {
 		printf("%d: -------- skipped.\n", cpuid);
 	}
@@ -135,7 +137,7 @@ int main(int argc, char *argv[], char *envp[])
 	fflush(stdout);
 
 
-	printf("%d: -------- step1-2 2threads start\n", cpuid);
+	printf("%d: -------- step1-2 main + 2threads start\n", cpuid);
 	fflush(stdout);
 
 	if (n_threads >= 2) {
@@ -148,6 +150,8 @@ int main(int argc, char *argv[], char *envp[])
 			fflush(stdout);
 		}
 
+		thread_main((void *)(intptr_t)(st + 2));
+
 		for (int i = st; i < st + 2; i++) {
 			r = pthread_join(th[i], &val);
 			if (r) {
@@ -157,7 +161,7 @@ int main(int argc, char *argv[], char *envp[])
 			fflush(stdout);
 		}
 
-		st += 2;
+		st += 1 + 2;
 	} else {
 		printf("%d: -------- skipped.\n", cpuid);
 	}
@@ -166,7 +170,7 @@ int main(int argc, char *argv[], char *envp[])
 	fflush(stdout);
 
 
-	printf("%d: -------- step2 all threads start\n", cpuid);
+	printf("%d: -------- step2 main + all start\n", cpuid);
 	fflush(stdout);
 
 	for (int i = st; i < st + n_threads; i++) {
@@ -178,6 +182,8 @@ int main(int argc, char *argv[], char *envp[])
 		fflush(stdout);
 	}
 
+	thread_main((void *)(intptr_t)(st + n_threads));
+
 	for (int i = st; i < st + n_threads; i++) {
 		r = pthread_join(th[i], &val);
 		if (r) {
@@ -187,13 +193,13 @@ int main(int argc, char *argv[], char *envp[])
 		fflush(stdout);
 	}
 
-	st += n_threads;
+	st += 1 + n_threads;
 
 	printf("%d: -------- step2 joined\n", cpuid);
 	fflush(stdout);
 
 
-	printf("%d: -------- step3 thread from thread start\n", cpuid);
+	printf("%d: -------- step3 main + parent + all start\n", cpuid);
 	fflush(stdout);
 
 	if (n_threads >= 1) {
@@ -204,6 +210,8 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		fflush(stdout);
 
+		thread_main((void *)(intptr_t)(st + n_threads));
+
 		r = pthread_join(th[st], &val);
 		if (r) {
 			printf("%d: pthread_join: %s\n", cpuid, strerror(r));
@@ -211,7 +219,7 @@ int main(int argc, char *argv[], char *envp[])
 		}
 		fflush(stdout);
 
-		st = st + n_threads;
+		st += 1 + n_threads;
 	} else {
 		printf("-------- skipped.\n");
 	}
