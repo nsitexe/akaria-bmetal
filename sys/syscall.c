@@ -17,6 +17,7 @@
 #include <bmetal/sys/inttypes.h>
 #include <bmetal/sys/mman.h>
 #include <bmetal/sys/random.h>
+#include <bmetal/sys/reboot.h>
 #include <bmetal/sys/resource.h>
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
@@ -863,6 +864,25 @@ intptr_t __sys_exit(int status)
 	}
 
 	return v;
+}
+
+intptr_t __sys_reboot(int magic1, int magic2, int cmd)
+{
+	if (magic1 != REBOOT_MAGIC1 ||
+	    magic2 != REBOOT_MAGIC2) {
+		return -EINVAL;
+	}
+
+	switch (cmd) {
+	case RB_AUTOBOOT:
+	case RB_POWER_OFF:
+		break;
+	default:
+		pri_warn("sys_reboot: cmd %d is not supported.\n", cmd);
+		return -EINVAL;
+	}
+
+	return 0;
 }
 
 intptr_t __sys_context_switch(void)

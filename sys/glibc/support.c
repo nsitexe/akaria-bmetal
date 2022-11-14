@@ -57,6 +57,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_set_tid_address, __sys_set_tid_address),
 	SYSCALL_P(SYS_exit_group, __sys_exit_group),
 	SYSCALL_P(SYS_exit, __sys_exit),
+	SYSCALL_P(SYS_reboot, __sys_reboot),
 
 	/* system dependent */
 	SYSCALL_P(SYS_context_switch, __sys_context_switch),

@@ -63,6 +63,7 @@ intptr_t __sys_set_robust_list(void *head, size_t len);
 intptr_t __sys_set_tid_address(int *tidptr);
 intptr_t __sys_exit_group(int status);
 intptr_t __sys_exit(int status);
+intptr_t __sys_reboot(int magic, int magic2, int cmd);
 intptr_t __sys_context_switch(void);
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */
