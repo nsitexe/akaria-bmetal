@@ -875,7 +875,10 @@ intptr_t __sys_reboot(int magic1, int magic2, int cmd)
 
 	switch (cmd) {
 	case RB_AUTOBOOT:
+		pri_err("Restarting system.\n");
+		break;
 	case RB_POWER_OFF:
+		pri_err("Power down.\n");
 		break;
 	default:
 		pri_warn("sys_reboot: cmd %d is not supported.\n", cmd);
