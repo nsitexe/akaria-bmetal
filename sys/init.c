@@ -111,8 +111,6 @@ static int init_idle_thread(char *sp_user, char *sp_intr)
 		return -EAGAIN;
 	}
 
-	__thread_set_leader(ti, 0);
-
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
@@ -136,7 +134,11 @@ static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user,
 	}
 
 	__init_main_thread_args(ti, argc, argv, envp, sp_user, sp_intr);
-	__thread_set_leader(ti, 1);
+
+	r = __proc_set_leader(pi, ti);
+	if (r) {
+		return r;
+	}
 
 	r = __thread_run(ti, cpu);
 	if (r) {

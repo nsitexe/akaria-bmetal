@@ -806,6 +806,7 @@ intptr_t __sys_exit_group(int status)
 intptr_t __sys_exit(int status)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
+	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
 	uintptr_t v;
 	int f_wake = 0, r;
@@ -833,7 +834,7 @@ intptr_t __sys_exit(int status)
 	}
 
 	/* Notify to host when leader exit */
-	if (__thread_get_leader(ti)) {
+	if (__proc_get_leader(pi) == ti) {
 		__fini_leader(status);
 	} else {
 		__fini_child(status);

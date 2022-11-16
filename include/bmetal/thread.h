@@ -15,6 +15,7 @@ struct __proc_info {
 	pid_t pid;
 	int avail;
 	struct __spinlock lock;
+	struct __thread_info *leader;
 
 	struct __file_desc *fdset[CONFIG_MAX_FD];
 };
@@ -23,7 +24,6 @@ struct __thread_info {
 	struct __proc_info *pi;
 	pid_t tid;
 	int avail;
-	int leader;
 	int running;
 
 	unsigned long flags;
@@ -41,9 +41,8 @@ struct __thread_info {
 struct __proc_info *__proc_create(void);
 struct __proc_info *__proc_get_current(void);
 pid_t __proc_get_pid(void);
-
-int __thread_get_leader(struct __thread_info *ti);
-void __thread_set_leader(struct __thread_info *ti, int l);
+struct __thread_info *__proc_get_leader(struct __proc_info *pi);
+int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti);
 
 void __thread_idle_main(void);
 struct __thread_info *__thread_create(struct __proc_info *pi);

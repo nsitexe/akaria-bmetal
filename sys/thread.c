@@ -50,14 +50,16 @@ pid_t __proc_get_pid(void)
 	return pi->pid;
 }
 
-int __thread_get_leader(struct __thread_info *ti)
+struct __thread_info *__proc_get_leader(struct __proc_info *pi)
 {
-	return ti->leader;
+	return pi->leader;
 }
 
-void __thread_set_leader(struct __thread_info *ti, int l)
+int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti)
 {
-	ti->leader = l;
+	pi->leader = ti;
+
+	return 0;
 }
 
 void __thread_idle_main(void)
