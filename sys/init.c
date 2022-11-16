@@ -71,8 +71,10 @@ static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION
 
 static void clear_bss(void)
 {
+#ifdef CONFIG_CLEAR_BSS
 	kmemset(__bss_start, 0, __bss_end - __bss_start);
 	kmemset(__sbss_start, 0, __sbss_end - __sbss_start);
+#endif /* CONFIG_CLEAR_BSS */
 }
 
 static void copy_data(void)
