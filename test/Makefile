@@ -30,10 +30,10 @@ BINS = \
 	args clock \
 	crt_string \
 	ctype \
+	daxpy \
 	flush hello \
 	malloc md5 \
-	saxpy saxpyf \
-	sgemm \
+	saxpy sgemm \
 	vecadd vecaddf \
 	coremark/coremark
 ifeq ($(USE_GLIBC),y)
@@ -47,6 +47,7 @@ ARGS_OBJS = args.o
 CLOCK_OBJS = clock.o
 CRT_STRING_OBJS = crt_string.o
 CTYPE_OBJS = ctype.o
+DAXPY_OBJS = daxpy.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 HELLO_CPP_OBJS = hello_cpp.o
@@ -58,7 +59,6 @@ MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
 REBOOT_OBJS = reboot.o
 SAXPY_OBJS = saxpy.o
-SAXPYF_OBJS = saxpyf.o
 SGEMM_OBJS = sgemm.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
@@ -66,10 +66,10 @@ OBJS = \
        $(ARGS_OBJS) $(CLOCK_OBJS) \
        $(CRT_STRING_OBJS) \
        $(CTYPE_OBJS) \
+       $(DAXPY_OBJS) \
        $(FLUSH_OBJS) $(HELLO_OBJS) $(HELLO_CPP_OBJS) \
        $(MALLOC_OBJS) $(MD5_OBJS) \
-       $(SAXPY_OBJS) $(SAXPYF_OBJS) \
-       $(SGEMM_OBJS) \
+       $(SAXPY_OBJS) $(SGEMM_OBJS) \
        $(VECADD_OBJS) $(VECADDF_OBJS)
 ifeq ($(USE_GLIBC),y)
 OBJS += \
@@ -94,6 +94,9 @@ crt_string: $(CRT_STRING_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 ctype: $(CTYPE_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+daxpy: $(DAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 flush: $(FLUSH_OBJS)
@@ -127,9 +130,6 @@ reboot: $(REBOOT_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 saxpy: $(SAXPY_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
-
-saxpyf: $(SAXPYF_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 sgemm: $(SGEMM_OBJS)

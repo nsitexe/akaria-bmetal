@@ -5,6 +5,7 @@
 /test/clock
 /test/crt_string
 /test/ctype
+/test/daxpy
 /test/flush
 /test/hello
 /test/hello_cpp
@@ -16,7 +17,6 @@
 /test/pthread
 /test/reboot
 /test/saxpy
-/test/saxpyf
 /test/sgemm
 /test/vecadd
 /test/vecaddf
