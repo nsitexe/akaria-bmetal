@@ -179,6 +179,7 @@ int main(int argc, char *argv[], char *envp[])
 	int check = 0, m, n, k, r;
 
 	printf("%s: sgemm start\n", argv[0]);
+	fflush(stdout);
 
 	dbgprintf("argc: %d\n", argc);
 	if (argc > 4) {
@@ -205,7 +206,9 @@ int main(int argc, char *argv[], char *envp[])
 	sgemm(a, b, c, m, n, k);
 	gettimeofday(&ed, NULL);
 	timersub(&ed, &st, &ela);
+	printf("time: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
 
+#if 0
 	for (int i = 0; i < m; i++) {
 		for (int j = 0; j < n; j++) {
 			if (i < 4 && j < 4) {
@@ -214,7 +217,7 @@ int main(int argc, char *argv[], char *envp[])
 			}
 		}
 	}
-	printf("time: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
+#endif
 
 	if (check) {
 		float *c_ex;
@@ -222,17 +225,23 @@ int main(int argc, char *argv[], char *envp[])
 
 		c_ex = malloc(m * n * sizeof(float));
 
+		gettimeofday(&st, NULL);
 #ifdef USE_CBLAS
 		// C = alpha AB + beta C
 		float alpha = 1.0f, beta = 0.0f;
 		int lda = k, ldb = n, ldc = n;
 
-		dbgprintf("use CBLAS\n");
+		dbgprintf("----- use CBLAS\n");
 		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
 			m, n, k, alpha, a, lda, b, ldb, beta, c_ex, ldc);
 #else
+		dbgprintf("----- use scalar\n");
 		sgemm_naive(a, b, c_ex, m, n, k);
 #endif
+		gettimeofday(&ed, NULL);
+		timersub(&ed, &st, &ela);
+		dbgprintf("verify: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
+
 		r = check_result(c, c_ex, m, n, k);
 		if (r) {
 			pass = 0;
