@@ -129,3 +129,19 @@ add_subdirectory(arch)
 add_subdirectory(sys)
 add_subdirectory(boards)
 add_subdirectory(drivers)
+
+# Document settings
+set(DOXYGEN_GENERATE_HTML YES)
+set(DOXYGEN_GENERATE_MAN NO)
+
+find_package(
+  Doxygen
+  REQUIRED dot
+  )
+
+if (DEFINED DOXYGEN_FOUND)
+  doxygen_add_docs(
+    doxygen
+    arch boards drivers include sys
+    )
+endif()
