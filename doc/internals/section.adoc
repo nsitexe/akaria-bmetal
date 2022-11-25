@@ -3,5 +3,73 @@
 
 == .auxdata
 
+This section includes ELF program headers of the application.
+
+[plantuml]
+----
+@startuml
+object auxdata {
+    uint32_t valid
+    uint32_t phent
+    uint32_t phnum
+    uint32_t phdr_size
+}
+@enduml
+----
+
+
+=== add_aux tool
+
+Currently, we need to use the special tool (name is 'add_aux') after you build applications of device side.
+
+This tool inserts ELF program headers into '.auxdata' special section of applications because some libc (ex. GNU libc) need program headers information that have TLS (thread local storage) initial data and size.
+
+Usually ELF and program headers are placed on memory in front of ELF text sections in Linux environment.
+But this runtime environment has some restricts of memory layout.
+For example, we needs to place reset vector on the top of memory and there is no space for ELF headers.
+
+Current solution is:
+
+* Create special section '.auxdata' in the application at linking
+** Refer linker scripts under include directory
+* Special section has ELF headers
+* Runtime pass the pointer of ELF headers to GNU libc
+
+So current implementation of runtime with some libc requires the special section which holds ELF headers and to use the special tool to write ELF headers into special section.
+
 == .comm_area
 
+This section includes arguments of device side application in accelerator mode.
+
+[plantuml]
+----
+@startuml
+object comm_area_header {
+    uint32_t magic
+    uint32_t num_args
+    uint32_t done
+    uint32_t ret_main
+}
+
+object comm_arg_header {
+    uint32_t arg_type
+    uint32_t index
+    uint64_t size
+}
+
+map comm_arg {
+    header *-> comm_arg_header
+    value => (binary data)
+}
+
+map comm_area {
+    header *-> comm_area_header
+    args0 => comm_arg
+    args1 => comm_arg
+    args2 => comm_arg
+    ... => comm_arg
+}
+
+comm_area::args0 --> comm_arg
+@enduml
+----
