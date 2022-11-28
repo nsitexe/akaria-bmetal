@@ -35,9 +35,9 @@ CHECK_PRIV_SIZE_UART(struct uart_lite_priv);
 
 static int uart_lite_intr(int event, struct __event_handler *hnd)
 {
-	struct uart_lite_priv *priv = hnd->priv;
+	//struct uart_lite_priv *priv = hnd->priv;
 
-	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
+	return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int uart_lite_char_in(struct __uart_device *uart)
@@ -103,7 +103,7 @@ static int uart_lite_add(struct __device *dev)
 	}
 
 	if (priv->intc) {
-		r = __device_alloc_event_handler(dev, &priv->hnd_irq);
+		r = __event_alloc_handler(&priv->hnd_irq);
 		if (r) {
 			return r;
 		}
@@ -142,7 +142,7 @@ static int uart_lite_remove(struct __device *dev)
 			return r;
 		}
 
-		r = __device_free_event_handler(dev, priv->hnd_irq);
+		r = __event_free_handler(priv->hnd_irq);
 		if (r) {
 			return r;
 		}

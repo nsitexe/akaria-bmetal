@@ -3,6 +3,7 @@
 #include <bmetal/drivers/intc.h>
 #include <bmetal/arch.h>
 #include <bmetal/device.h>
+#include <bmetal/event.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
@@ -39,21 +40,21 @@ static int intc_priv_intr_ex(int event, struct __event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
 
-	return __intc_handle_generic_event(priv->intc, event, priv->hnd_ex.hnd_next);
+	return __event_handle_generic(event, priv->hnd_ex.hnd_next);
 }
 
 static int intc_priv_intr_tm(int event, struct __event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
 
-	return __intc_handle_generic_event(priv->intc, event, priv->hnd_tm.hnd_next);
+	return __event_handle_generic(event, priv->hnd_tm.hnd_next);
 }
 
 static int intc_priv_intr_sw(int event, struct __event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
 
-	return __intc_handle_generic_event(priv->intc, event, priv->hnd_sw.hnd_next);
+	return __event_handle_generic(event, priv->hnd_sw.hnd_next);
 }
 
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
@@ -169,7 +170,7 @@ static int intc_priv_add_handler(struct __intc_device *intc, int event, struct _
 		return -EINVAL;
 	}
 
-	r = __device_add_event_handler(dev, head, handler);
+	r = __event_add_handler(head, handler);
 	if (r) {
 		return r;
 	}
@@ -205,7 +206,7 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 		return -EINVAL;
 	}
 
-	r = __device_remove_event_handler(dev, head, handler);
+	r = __event_remove_handler(head, handler);
 	if (r) {
 		return r;
 	}

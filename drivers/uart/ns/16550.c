@@ -85,13 +85,13 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 
 	switch (priv->addr_shift) {
 	case 0:
-		__device_write8(__uart_to_dev(uart), dat, shifted);
+		__device_write8(dev, dat, shifted);
 		break;
 	case 1:
-		__device_write16(__uart_to_dev(uart), dat, shifted);
+		__device_write16(dev, dat, shifted);
 		break;
 	case 2:
-		__device_write32(__uart_to_dev(uart), dat, shifted);
+		__device_write32(dev, dat, shifted);
 		break;
 	default:
 		/* BUG */
@@ -101,9 +101,9 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 
 static int uart_ns16550_intr(int event, struct __event_handler *hnd)
 {
-	struct uart_ns16550_priv *priv = hnd->priv;
+	//struct uart_ns16550_priv *priv = hnd->priv;
 
-	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
+	return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
@@ -266,7 +266,7 @@ static int uart_ns16550_add(struct __device *dev)
 	}
 
 	if (priv->intc) {
-		r = __device_alloc_event_handler(dev, &priv->hnd_irq);
+		r = __event_alloc_handler(&priv->hnd_irq);
 		if (r) {
 			return r;
 		}
@@ -319,7 +319,7 @@ static int uart_ns16550_remove(struct __device *dev)
 			return r;
 		}
 
-		r = __device_free_event_handler(dev, priv->hnd_irq);
+		r = __event_free_handler(priv->hnd_irq);
 		if (r) {
 			return r;
 		}

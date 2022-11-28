@@ -2,6 +2,7 @@
 
 prj_sources(
   clock.c
+  event.c
   file.c
   init.c
   intr.c

@@ -5,6 +5,7 @@
 
 #include <bmetal/bmetal.h>
 #include <bmetal/device.h>
+#include <bmetal/event.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 
 /* mstatus, sstatus */

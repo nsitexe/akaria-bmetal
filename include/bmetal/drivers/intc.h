@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include <bmetal/device.h>
+#include <bmetal/event.h>
 #include <bmetal/intr.h>
 #include <bmetal/sys/errno.h>
 
@@ -79,7 +80,6 @@ int __intc_add_device(struct __intc_device *intc, struct __bus *parent);
 int __intc_remove_device(struct __intc_device *intc);
 int __intc_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler);
 int __intc_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler);
-int __intc_handle_generic_event(struct __intc_device *intc, int event, struct __event_handler *hnd_head);
 
 int __intc_get_conf_length(struct __device *dev, int *len);
 int __intc_get_intc_from_config(struct __device *dev, int index, struct __intc_device **intc, int *num_irq);

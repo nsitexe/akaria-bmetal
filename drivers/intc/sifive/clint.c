@@ -5,6 +5,7 @@
 #include <bmetal/drivers/intc.h>
 #include <bmetal/arch.h>
 #include <bmetal/device.h>
+#include <bmetal/event.h>
 #include <bmetal/init.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
@@ -32,7 +33,7 @@ static int intc_clint_intr(int event, struct __event_handler *hnd)
 		break;
 	}
 
-	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
+	return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int intc_clint_add(struct __device *dev)
@@ -67,7 +68,7 @@ static int intc_clint_add(struct __device *dev)
 			return r;
 		}
 
-		r = __device_alloc_event_handler(dev, &hnd);
+		r = __event_alloc_handler(&hnd);
 		if (r) {
 			return r;
 		}

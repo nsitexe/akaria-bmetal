@@ -113,23 +113,6 @@ int __intc_remove_handler(struct __intc_device *intc, int event, struct __event_
 	return r;
 }
 
-int __intc_handle_generic_event(struct __intc_device *intc, int event, struct __event_handler *hnd_head)
-{
-	int r, res = EVENT_NOT_HANDLED;
-
-	for_each_handler (h, hnd_head) {
-		/* h->func is not NULL because checked at add function */
-		if (h->event == event) {
-			r = h->func(event, h);
-			if (r == EVENT_HANDLED) {
-				res = EVENT_HANDLED;
-			}
-		}
-	}
-
-	return res;
-}
-
 int __intc_get_conf_length(struct __device *dev, int *len)
 {
 	int v, r;

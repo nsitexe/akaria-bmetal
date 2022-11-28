@@ -2,6 +2,7 @@
 
 #include <bmetal/drivers/intc.h>
 #include <bmetal/device.h>
+#include <bmetal/event.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
 
@@ -12,7 +13,7 @@ CHECK_PRIV_SIZE_INTC(struct intc_plic_priv);
 
 static int intc_plic_intr(int event, struct __event_handler *hnd)
 {
-	struct intc_plic_priv *priv = hnd->priv;
+	//struct intc_plic_priv *priv = hnd->priv;
 	//struct __device *dev = __intc_to_dev(priv->intc);
 	//int id_phys = __arch_get_cpu_id();
 
@@ -22,7 +23,7 @@ static int intc_plic_intr(int event, struct __event_handler *hnd)
 		//break;
 	//}
 
-	return __intc_handle_generic_event(priv->intc, event, hnd->hnd_next);
+	return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int intc_plic_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
@@ -67,7 +68,7 @@ static int intc_plic_add(struct __device *dev)
 			return r;
 		}
 
-		r = __device_alloc_event_handler(dev, &hnd);
+		r = __event_alloc_handler(&hnd);
 		if (r) {
 			return r;
 		}
