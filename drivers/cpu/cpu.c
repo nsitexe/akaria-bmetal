@@ -232,47 +232,82 @@ int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t 
 	return 0;
 }
 
-static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event ev)
+static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler **head)
 {
-	int r, res = 0;
+	struct __device *dev = __cpu_to_dev(cpu);
+	struct __event_handler *h;
 
-	if (CPU_EVENT_MAX <= ev) {
-		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
+	if (CPU_EVENT_MAX <= event) {
+		__dev_err(dev, "CPU event %d is too large.\n", event);
 		return -EINVAL;
 	}
 
-	if (cpu->handlers[ev] && cpu->handlers[ev]->func) {
-		r = cpu->handlers[ev]->func(ev, cpu->handlers[ev]);
-		if (r != EVENT_HANDLED) {
-			res = -EINVAL;
-		}
-	}
-
-	return res;
-}
-
-int __cpu_get_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler **hnd)
-{
-	if (CPU_EVENT_MAX <= ev) {
-		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
+	switch (event) {
+	case CPU_EVENT_ON_WAKEUP:
+	case CPU_EVENT_ON_SLEEP:
+		h = &cpu->handlers[event];
+		break;
+	default:
+		__dev_err(dev, "CPU event %d is unknown.\n", event);
 		return -EINVAL;
 	}
 
-	if (hnd) {
-		*hnd = cpu->handlers[ev];
+	if (head) {
+		*head = h;
 	}
 
 	return 0;
 }
 
-int __cpu_set_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd)
+static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event event)
 {
-	if (CPU_EVENT_MAX <= ev) {
-		__dev_err(__cpu_to_dev(cpu), "cpu event %d is unknown.\n", ev);
-		return -EINVAL;
+	struct __event_handler *head;
+	int r;
+
+	r = __cpu_get_handler_head(cpu, event, &head);
+	if (r) {
+		return r;
 	}
 
-	cpu->handlers[ev] = hnd;
+	if (__event_has_next(head)) {
+		__event_handle_generic(event, head->hnd_next);
+	}
+
+	return 0;
+}
+
+int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler *handler)
+{
+	struct __event_handler *head;
+	int r;
+
+	r = __cpu_get_handler_head(cpu, event, &head);
+	if (r) {
+		return r;
+	}
+
+	r = __event_add_handler(head, handler);
+	if (r) {
+		return r;
+	}
+
+	return 0;
+}
+
+int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler *handler)
+{
+	struct __event_handler *head;
+	int r;
+
+	r = __cpu_get_handler_head(cpu, event, &head);
+	if (r) {
+		return r;
+	}
+
+	r = __event_remove_handler(head, handler);
+	if (r) {
+		return r;
+	}
 
 	return 0;
 }
@@ -356,20 +391,21 @@ int __cpu_sleep_all(void)
 int __cpu_on_wakeup(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
+	struct __device *dev = __cpu_to_dev(cpu);
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->on_wakeup) {
 		r = drv->ops->on_wakeup(cpu);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "failed to callback on_wakeup.\n");
+			__dev_err(dev, "failed to callback on_wakeup.\n");
 			return r;
 		}
 	}
 
 	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_WAKEUP);
 	if (r) {
-		__dev_err(__cpu_to_dev(cpu), "failed to handle event of on_wakeup.\n");
+		__dev_err(dev, "failed to handle event of on_wakeup.\n");
 		return r;
 	}
 
@@ -379,19 +415,20 @@ int __cpu_on_wakeup(void)
 int __cpu_on_sleep(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
+	struct __device *dev = __cpu_to_dev(cpu);
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
 
 	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_SLEEP);
 	if (r) {
-		__dev_err(__cpu_to_dev(cpu), "failed to handle event of on_sleep.\n");
+		__dev_err(dev, "failed to handle event of on_sleep.\n");
 		return r;
 	}
 
 	if (drv && drv->ops && drv->ops->on_sleep) {
 		r = drv->ops->on_sleep(cpu);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "failed to callback on_sleep.\n");
+			__dev_err(dev, "failed to callback on_sleep.\n");
 			return r;
 		}
 	}

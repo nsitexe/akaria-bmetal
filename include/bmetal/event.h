@@ -29,6 +29,11 @@ struct __event_handler {
 	struct __event_handler *hnd_next;
 };
 
+static inline int __event_has_next(const struct __event_handler *handler)
+{
+	return handler->hnd_next != NULL;
+}
+
 int __event_alloc_handler(struct __event_handler **handler);
 int __event_free_handler(struct __event_handler *handler);
 int __event_add_handler(struct __event_handler *head, struct __event_handler *handler);

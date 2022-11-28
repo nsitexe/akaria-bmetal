@@ -57,7 +57,7 @@ struct __cpu_device {
 	struct __thread_info *ti;
 	struct __thread_info *ti_idle;
 	struct __thread_info *ti_task;
-	struct __event_handler *handlers[CPU_EVENT_MAX];
+	struct __event_handler handlers[CPU_EVENT_MAX];
 	struct __cpu_futex futex;
 
 	int line_size_i;
@@ -137,8 +137,8 @@ void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz);
 int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz);
-int __cpu_get_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler **hnd);
-int __cpu_set_event_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
+int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
+int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_wakeup(struct __cpu_device *cpu);
 int __cpu_sleep(struct __cpu_device *cpu);
 int __cpu_wakeup_all(void);

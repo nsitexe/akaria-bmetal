@@ -124,12 +124,12 @@ static int intc_priv_add(struct __device *dev)
 	priv->hnd_cpu.func  = intc_priv_cpu_event;
 	priv->hnd_cpu.priv  = priv;
 
-	r = __cpu_set_event_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_cpu);
+	r = __cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_cpu);
 	if (r) {
 		return r;
 	}
 
-	r = __cpu_set_event_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_cpu);
+	r = __cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_cpu);
 	if (r) {
 		return r;
 	}
@@ -139,6 +139,19 @@ static int intc_priv_add(struct __device *dev)
 
 static int intc_priv_remove(struct __device *dev)
 {
+	struct intc_priv_priv *priv = dev->priv;
+	int r;
+
+	r = __cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_cpu);
+	if (r) {
+		return r;
+	}
+
+	r = __cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_cpu);
+	if (r) {
+		return r;
+	}
+
 	return -ENOTSUP;
 }
 
