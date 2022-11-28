@@ -33,7 +33,7 @@ struct __intc_device {
 };
 
 struct __intc_priv_max {
-	char dummy[144];
+	char dummy[160];
 };
 typedef struct __intc_priv_max    __intc_priv_t;
 #define CHECK_PRIV_SIZE_INTC(typ)    CHECK_PRIV_SIZE(typ, __intc_priv_t);

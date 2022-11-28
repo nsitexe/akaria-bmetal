@@ -33,6 +33,10 @@ struct intc_priv_priv {
 	struct __event_handler hnd_tm;
 	struct __event_handler hnd_sw;
 	struct __event_handler hnd_cpu;
+
+	int enabled_ex:1;
+	int enabled_tm:1;
+	int enabled_sw:1;
 };
 CHECK_PRIV_SIZE_INTC(struct intc_priv_priv);
 
@@ -59,8 +63,18 @@ static int intc_priv_intr_sw(int event, struct __event_handler *hnd)
 
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 {
-	/* TODO: implement timer interrupt */
-	int m = XIX_SIX | XIX_EIX;
+	struct intc_priv_priv *priv = hnd->priv;
+	int m = 0;
+
+	if (priv->enabled_ex) {
+		m |= XIX_EIX;
+	}
+	if (priv->enabled_tm) {
+		m |= XIX_TIX;
+	}
+	if (priv->enabled_sw) {
+		m |= XIX_SIX;
+	}
 
 	switch (event) {
 	case CPU_EVENT_ON_WAKEUP:
@@ -188,6 +202,10 @@ static int intc_priv_add_handler(struct __intc_device *intc, int event, struct _
 		return r;
 	}
 
+	priv->enabled_ex = __event_has_next(&priv->hnd_ex);
+	priv->enabled_tm = __event_has_next(&priv->hnd_tm);
+	priv->enabled_sw = __event_has_next(&priv->hnd_sw);
+
 	return 0;
 }
 
@@ -223,6 +241,10 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 	if (r) {
 		return r;
 	}
+
+	priv->enabled_ex = __event_has_next(&priv->hnd_ex);
+	priv->enabled_tm = __event_has_next(&priv->hnd_tm);
+	priv->enabled_sw = __event_has_next(&priv->hnd_sw);
 
 	return 0;
 }
