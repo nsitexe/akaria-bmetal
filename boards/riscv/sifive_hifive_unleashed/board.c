@@ -90,12 +90,7 @@ const static struct __device_config clint_conf[] = {
 		UPTR("rvintc1"), RV_IX_SIX,
 		UPTR("rvintc2"), RV_IX_SIX,
 		UPTR("rvintc3"), RV_IX_SIX,
-		UPTR("rvintc4"), RV_IX_SIX,
-		UPTR("rvintc0"), RV_IX_TIX,
-		UPTR("rvintc1"), RV_IX_TIX,
-		UPTR("rvintc2"), RV_IX_TIX,
-		UPTR("rvintc3"), RV_IX_TIX,
-		UPTR("rvintc4"), RV_IX_TIX),
+		UPTR("rvintc4"), RV_IX_SIX),
 	{0},
 };
 
@@ -166,6 +161,12 @@ static struct __clk_device prci = {
 const static struct __device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
 	PROP("reg-size", 0xc000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_TIX,
+		UPTR("rvintc1"), RV_IX_TIX,
+		UPTR("rvintc2"), RV_IX_TIX,
+		UPTR("rvintc3"), RV_IX_TIX,
+		UPTR("rvintc4"), RV_IX_TIX),
 	PROP("clocks", UPTR("rtcclk"), 0),
 	PROP("system", 1),
 	{0},

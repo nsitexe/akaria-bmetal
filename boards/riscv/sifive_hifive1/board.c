@@ -44,8 +44,7 @@ const static struct __device_config clint_conf[] = {
 	PROP("reg", 0x2000000),
 	PROP("reg-size", 0x1000),
 	PROP("interrupts",
-		UPTR("rvintc0"), RV_IX_SIX,
-		UPTR("rvintc0"), RV_IX_TIX),
+		UPTR("rvintc0"), RV_IX_SIX),
 	PROP("ipi", 1),
 	{0},
 };
@@ -80,6 +79,8 @@ static struct __clk_device lfclk = {
 const static struct __device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
 	PROP("reg-size", 0xc000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_TIX),
 	PROP("clocks", UPTR("lfclk"), 0),
 	PROP("system", 1),
 	{0},
