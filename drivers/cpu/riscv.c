@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <stdatomic.h>
-
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/arch.h>
 #include <bmetal/init.h>
@@ -11,10 +9,10 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
-atomic_uintptr_t __section(".noinit") __boot_proc;
-atomic_uintptr_t __boot_sp_idle;
-atomic_uintptr_t __boot_sp_intr;
-atomic_int __boot_done;
+uintptr_t __section(".noinit") __boot_proc;
+uintptr_t __boot_sp_idle;
+uintptr_t __boot_sp_intr;
+int __boot_done;
 
 struct cpu_riscv_priv {
 };
@@ -139,6 +137,8 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 	__boot_sp_intr = (uintptr_t)&__stack_intr[pos_intr];
 
 	cpu->running = 1;
+
+	dwmb();
 
 	while (!__boot_done) {
 		__boot_proc = cpu->id_phys;
