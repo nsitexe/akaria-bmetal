@@ -51,7 +51,7 @@ struct uart_ns16550_priv {
 	uint64_t freq_in;
 
 	struct __intc_device *intc;
-	struct __event_handler *hnd_irq;
+	struct __event_handler hnd_irq;
 	int num_irq;
 
 	struct __uart_config conf;
@@ -266,15 +266,10 @@ static int uart_ns16550_add(struct __device *dev)
 	}
 
 	if (priv->intc) {
-		r = __event_alloc_handler(&priv->hnd_irq);
-		if (r) {
-			return r;
-		}
+		priv->hnd_irq.func = uart_ns16550_intr;
+		priv->hnd_irq.priv = priv;
 
-		priv->hnd_irq->func = uart_ns16550_intr;
-		priv->hnd_irq->priv = priv;
-
-		r = __intc_add_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		r = __intc_add_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
 		if (r) {
 			return r;
 		}
@@ -314,16 +309,13 @@ static int uart_ns16550_remove(struct __device *dev)
 			return r;
 		}
 
-		r = __intc_remove_handler(priv->intc, priv->num_irq, priv->hnd_irq);
+		r = __intc_remove_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
 		if (r) {
 			return r;
 		}
 
-		r = __event_free_handler(priv->hnd_irq);
-		if (r) {
-			return r;
-		}
-		priv->hnd_irq = NULL;
+		priv->hnd_irq.func = NULL;
+		priv->hnd_irq.priv = NULL;
 
 		priv->num_irq = 0;
 		priv->intc = NULL;
