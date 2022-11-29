@@ -3,6 +3,7 @@
 #include <bmetal/drivers/uart.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
+#include <bmetal/sys/stdio.h>
 #include <bmetal/sys/string.h>
 
 static struct __uart_device *uart_default;
@@ -47,6 +48,24 @@ int __uart_set_config(struct __uart_device *uart, const struct __uart_config *co
 	return 0;
 }
 
+static int uart_getc(void)
+{
+	struct __device *uart_default_dev = __uart_to_dev(uart_default);
+	int c = EOF;
+
+	if (!uart_default || !uart_default_dev->probed) {
+		return EOF;
+	}
+
+	const struct __uart_driver *drv = __uart_get_drv(uart_default);
+
+	if (drv && drv->ops && drv->ops->char_in) {
+		c = drv->ops->char_in(uart_default);
+	}
+
+	return c;
+}
+
 static int uart_putc(int c)
 {
 	struct __device *uart_default_dev = __uart_to_dev(uart_default);
@@ -73,6 +92,7 @@ int __uart_set_default_console(struct __uart_device *uart)
 {
 	uart_default = uart;
 
+	__set_printk_in(uart_getc);
 	__set_printk_out(uart_putc);
 
 	return 0;
