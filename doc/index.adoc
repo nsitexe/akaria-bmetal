@@ -10,3 +10,4 @@
 1. APIs for runtime
 1. Porting guide
 1. xref:internal.adoc[Internals]
+1. xref:test.adoc[Examples and tests]

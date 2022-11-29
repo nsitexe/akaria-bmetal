@@ -1,0 +1,71 @@
+
+= Examples and tests
+
+== Sources
+
+Source codes of example and tests in test/ directory.
+
+
+== How to use
+
+Set one of USE_XYZ variable to 'y'.
+
+For example, set USE_NEWLIB=y if you build runtime with CONFIG_USE_NEWLIB. Set USE_GLIBC=y if you use CONFIG_USE_GLIBC.
+
+[source,sh]
+----
+USE_GLIBC=y make
+----
+
+
+== Use with additional libraries
+
+Some tests depend on external libraries.
+You need to set WITH_XYZ options to 'y' because these are disabled by default and also need to build and install libraries into sysroot directory before build and run such tests.
+
+=== Eigen
+
+* Libary: https://gitlab.com/libeigen/eigen
+* Test: hello_eigen
+* Make option: WITH_EIGEN=y
+
+Build and install:
+
+[source,sh]
+----
+mkdir build
+cd build
+
+cmake ../ -G Ninja -DCMAKE_INSTALL_PREFIX=path/to/sysroot
+ninja install
+----
+
+=== OpenBLAS
+
+* Library: https://github.com/xianyi/OpenBLAS
+* Test: sgemm
+* Make option: WITH_OPENBLAS=y
+
+This test usually use own naive sgemm function to verify the result, but it can switch to OpenBLAS library to perform sgemm if defined USE_CBLAS macro.
+
+Build and install:
+
+[source,sh]
+----
+make \
+  TARGET=RISCV64_GENERIC \
+  CC="riscv64-unknown-linux-gnu-gcc -g -march=rv64gcv" \
+  HOSTCC=gcc \
+  BINARY=64 \
+  CROSS=1 \
+  NO_FORTRAN=1 \
+  NO_SHARED=1 \
+  USE_THREAD=0
+
+make \
+  PREFIX=path/to/sysroot \
+  CROSS=1 \
+  NO_SHARED=1 \
+  NO_FORTRAN=1 \
+  install
+----
