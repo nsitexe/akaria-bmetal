@@ -6,6 +6,7 @@
 /test/crt_string
 /test/ctype
 /test/daxpy
+/test/echo
 /test/flush
 /test/hello
 /test/hello_cpp

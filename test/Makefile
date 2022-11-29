@@ -21,17 +21,17 @@ APP_CFLAGS   = -O2 -gdwarf-4 $(APP_CFLAGS_RV)
 APP_CXXFLAGS = $(APP_CFLAGS)
 APP_LDFLAGS  = $(APP_CFLAGS_RV)
 
-CPPFLAGS = $(APP_CPPFLAGS)
-CFLAGS   = $(APP_CFLAGS)
-CXXFLAGS = $(APP_CXXFLAGS)
-LDFLAGS  = $(APP_LDFLAGS)
+CPPFLAGS = $(APP_CPPFLAGS) $(EXT_CPPFLAGS)
+CFLAGS   = $(APP_CFLAGS)   $(EXT_CFLAGS)
+CXXFLAGS = $(APP_CXXFLAGS) $(EXT_CXXFLAGS)
+LDFLAGS  = $(APP_LDFLAGS)  $(EXT_LDFLAGS)
 
 BINS = \
 	args clock \
 	crt_string \
 	ctype \
 	daxpy \
-	flush hello \
+	echo flush hello \
 	malloc md5 \
 	saxpy sgemm \
 	vecadd vecaddf \
@@ -48,6 +48,7 @@ CLOCK_OBJS = clock.o
 CRT_STRING_OBJS = crt_string.o
 CTYPE_OBJS = ctype.o
 DAXPY_OBJS = daxpy.o
+ECHO_OBJS = echo.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 HELLO_CPP_OBJS = hello_cpp.o
@@ -63,20 +64,18 @@ SGEMM_OBJS = sgemm.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
-       $(ARGS_OBJS) $(CLOCK_OBJS) \
-       $(CRT_STRING_OBJS) \
-       $(CTYPE_OBJS) \
-       $(DAXPY_OBJS) \
-       $(FLUSH_OBJS) $(HELLO_OBJS) $(HELLO_CPP_OBJS) \
-       $(MALLOC_OBJS) $(MD5_OBJS) \
-       $(SAXPY_OBJS) $(SGEMM_OBJS) \
-       $(VECADD_OBJS) $(VECADDF_OBJS)
-ifeq ($(USE_GLIBC),y)
-OBJS += \
+	$(ARGS_OBJS) $(CLOCK_OBJS) \
+	$(CRT_STRING_OBJS) \
+	$(CTYPE_OBJS) \
+	$(DAXPY_OBJS) \
+	$(ECHO_OBJS) $(FLUSH_OBJS) \
+	$(HELLO_OBJS) $(HELLO_CPP_OBJS) \
+	$(MALLOC_OBJS) $(MD5_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
-	$(PTHREAD_OBJS) $(REBOOT_OBJS)
-endif
+	$(PTHREAD_OBJS) $(REBOOT_OBJS) \
+	$(SAXPY_OBJS) $(SGEMM_OBJS) \
+	$(VECADD_OBJS) $(VECADDF_OBJS)
 
 all: all_auxdata
 
@@ -97,6 +96,9 @@ ctype: $(CTYPE_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 daxpy: $(DAXPY_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+
+echo: $(ECHO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 flush: $(FLUSH_OBJS)
