@@ -141,7 +141,10 @@ static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
 
 static int uart_ns16550_char_in(struct __uart_device *uart)
 {
-	return 0;
+	while ((uart_read(uart, REG_LSR) & LSR_RX_READY) == 0) {
+	}
+
+	return uart_read(uart, REG_RBR);
 }
 
 static void uart_ns16550_char_out(struct __uart_device *uart, int value)
