@@ -44,6 +44,7 @@ intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp);
 intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp);
 intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags);
 intptr_t __sys_close(int fd);
+intptr_t __sys_read(int fd, void *buf, size_t count);
 intptr_t __sys_write(int fd, const void *buf, size_t count);
 intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt);
 void *__brk_area_start(void);

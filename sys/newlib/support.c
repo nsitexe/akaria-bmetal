@@ -38,6 +38,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_getpid, __sys_getpid),
 	SYSCALL_P(SYS_gettimeofday, __sys_gettimeofday),
 	SYSCALL_P(SYS_close, __sys_close),
+	SYSCALL_P(SYS_read, __sys_read),
 	SYSCALL_P(SYS_write, __sys_write),
 	SYSCALL_P(SYS_writev, __sys_writev),
 	SYSCALL_P(SYS_brk, __sys_brk),

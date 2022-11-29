@@ -264,6 +264,38 @@ intptr_t __sys_close(int fd)
 	return ret;
 }
 
+static ssize_t sys_read_nolock(struct __file_desc *desc, void *buf, size_t count)
+{
+	ssize_t ret = 0;
+
+	if (desc->ops && desc->ops->read) {
+		ret = desc->ops->read(desc, buf, count);
+	}
+
+	return ret;
+}
+
+intptr_t __sys_read(int fd, void *buf, size_t count)
+{
+	struct __file_desc *desc = get_file_desc(fd);
+	ssize_t ret = 0;
+
+	if (!desc || !desc->ops || !desc->ops->read) {
+		return -EBADF;
+	}
+	if (count == 0) {
+		return -EINVAL;
+	}
+
+	pri_dbg("sys_read: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
+
+	__spinlock_lock(&desc->lock);
+	ret = sys_read_nolock(desc, buf, count);
+	__spinlock_unlock(&desc->lock);
+
+	return ret;
+}
+
 static ssize_t sys_write_nolock(struct __file_desc *desc, const void *buf, size_t count)
 {
 	ssize_t ret = 0;
