@@ -10,6 +10,7 @@
 #include <bmetal/sys/string.h>
 
 static const struct __file_ops file_stdio_ops = {
+	.read = __file_stdio_read,
 	.write = __file_stdio_write,
 };
 
@@ -29,6 +30,11 @@ static struct __file_desc fds[CONFIG_MAX_FD] = {
 		.ops = &file_stdio_ops,
 	},
 };
+
+ssize_t __file_stdio_read(struct __file_desc *desc, void *buf, size_t count)
+{
+	return __kread(buf, count);
+}
 
 ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count)
 {
