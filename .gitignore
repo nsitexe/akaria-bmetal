@@ -10,6 +10,7 @@
 /test/flush
 /test/hello
 /test/hello_cpp
+/test/hello_eigen
 /test/malloc
 /test/md5
 /test/mt_clock

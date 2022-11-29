@@ -35,7 +35,7 @@ hello h_global;
 
 int main(int argc, char *argv[], char *envp[])
 {
-	std::cout << "hello world!" << std::endl;
+	std::cout << "hello C++!" << std::endl;
 	
 	{
 		hello h_local;
@@ -47,7 +47,7 @@ int main(int argc, char *argv[], char *envp[])
 		h_local.func(20);
 	}
 
-	std::cout << "good bye world!" << std::endl;
+	std::cout << "good bye C++!" << std::endl;
 
 	return 0;
 }

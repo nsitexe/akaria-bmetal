@@ -9,6 +9,10 @@ USE_MUSL    ?= n
 USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
+# Test with additional libraries (please read doc/test.adoc)
+WITH_EIGEN ?= n
+WITH_OPENBLAS ?= n
+
 # 32bit
 #APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
 #APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
@@ -43,6 +47,21 @@ BINS += \
 	pthread reboot
 endif
 
+ifeq ($(WITH_EIGEN),y)
+BINS += \
+	hello_eigen
+EXT_CPPFLAGS += \
+	-I $(USE_SYSROOT)/include/eigen3
+endif
+ifeq ($(WITH_OPENBLAS),y)
+EXT_CFLAGS += \
+	-DUSE_CBLAS
+EXT_CXXFLAGS += \
+	-DUSE_CBLAS
+EXT_LDFLAGS += \
+	-lopenblas
+endif
+
 ARGS_OBJS = args.o
 CLOCK_OBJS = clock.o
 CRT_STRING_OBJS = crt_string.o
@@ -52,6 +71,7 @@ ECHO_OBJS = echo.o
 FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 HELLO_CPP_OBJS = hello_cpp.o
+HELLO_EIGEN_OBJS = hello_eigen.o
 MALLOC_OBJS = malloc.o
 MD5_OBJS = md5.o
 MT_CLOCK_OBJS = mt_clock.o
@@ -69,7 +89,7 @@ OBJS = \
 	$(CTYPE_OBJS) \
 	$(DAXPY_OBJS) \
 	$(ECHO_OBJS) $(FLUSH_OBJS) \
-	$(HELLO_OBJS) $(HELLO_CPP_OBJS) \
+	$(HELLO_OBJS) $(HELLO_CPP_OBJS) $(HELLO_EIGEN_OBJS) \
 	$(MALLOC_OBJS) $(MD5_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
@@ -108,6 +128,9 @@ hello: $(HELLO_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
 
 hello_cpp: $(HELLO_CPP_OBJS)
+	$(CXX) $(LDFLAGS) $^ $(LDADD) -o $@
+
+hello_eigen: $(HELLO_EIGEN_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
