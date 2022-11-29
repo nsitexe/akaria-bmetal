@@ -36,10 +36,12 @@
 #define pri_info(fmt, ...)    __pri_level(PRI_LV_INFO, fmt, ##__VA_ARGS__)
 #define pri_dbg(fmt, ...)     __pri_level(PRI_LV_DBG, fmt, ##__VA_ARGS__)
 
+typedef int (*__getc_func)(void);
 typedef int (*__putc_func)(int c);
 
 int kputchar(int c);
 int kputs(const char *s);
+int __kread(char *s, size_t count);
 int __kwrite(const char *s, size_t count);
 int __attribute__((format(printf, 1, 2))) printk(const char *format, ...);
 int __attribute__((format(printf, 2, 3))) sprintk(char *buffer, const char *format, ...);
@@ -49,6 +51,8 @@ int vsprintk(char *buffer, const char *format, va_list va);
 int vsnprintk(char *buffer, size_t count, const char *format, va_list va);
 int __attribute__((format(printf, 3, 4))) fctprintk(void (*out)(char character, void *arg), void *arg, const char *format, ...);
 
+__getc_func __get_printk_in(void);
+int __set_printk_in(__getc_func f);
 __putc_func __get_printk_out(void);
 int __set_printk_out(__putc_func f);
 
