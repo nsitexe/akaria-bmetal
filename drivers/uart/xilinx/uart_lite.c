@@ -42,7 +42,12 @@ static int uart_lite_intr(int event, struct __event_handler *hnd)
 
 static int uart_lite_char_in(struct __uart_device *uart)
 {
-	return 0;
+	struct __device *dev = __uart_to_dev(uart);
+
+	while ((__device_read32(dev, REG_STAT) & STAT_RXFIFO_VALID) == 0) {
+	}
+
+	return __device_read32(dev, REG_RXFIFO);
 }
 
 static void uart_lite_char_out(struct __uart_device *uart, int value)
