@@ -58,7 +58,7 @@ EXT_CFLAGS += \
 	-DUSE_CBLAS
 EXT_CXXFLAGS += \
 	-DUSE_CBLAS
-EXT_LDFLAGS += \
+EXT_LDADD += \
 	-lopenblas
 endif
 
@@ -104,67 +104,67 @@ all_auxdata: $(BINS)
 	$(ADD_AUXDATA) $(BINS)
 
 args: $(ARGS_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 clock: $(CLOCK_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 crt_string: $(CRT_STRING_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 ctype: $(CTYPE_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 daxpy: $(DAXPY_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 echo: $(ECHO_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 flush: $(FLUSH_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello: $(HELLO_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello_cpp: $(HELLO_CPP_OBJS)
-	$(CXX) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello_eigen: $(HELLO_EIGEN_OBJS)
-	$(CXX) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 md5: $(MD5_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 mt_vecadd: $(MT_VECADD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 mt_vecaddf: $(MT_VECADDF_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 pthread: $(PTHREAD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 reboot: $(REBOOT_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 saxpy: $(SAXPY_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 sgemm: $(SGEMM_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 vecadd: $(VECADD_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 vecaddf: $(VECADDF_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 coremark/coremark:
 	USE_SYSROOT=../$(USE_SYSROOT) \
