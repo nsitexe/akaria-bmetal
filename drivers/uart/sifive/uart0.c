@@ -20,6 +20,8 @@
 
 #define TXDATA_FULL    BIT(31)
 
+#define RXDATA_EMPTY   BIT(31)
+
 #define TXCTRL_TXEN           BIT(0)
 #define TXCTRL_NSTOP          BIT(1)
 #define TXCTRL_TXCNT_SHIFT    16
@@ -36,6 +38,27 @@ struct uart_sifive_priv {
 	struct __uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
+
+int uart_sifive_char_in(struct __uart_device *uart)
+{
+	struct __device *d = __uart_to_dev(uart);
+	uint32_t v;
+
+	while (((v = __device_read32(d, REG_RXDATA)) & RXDATA_EMPTY) != 0) {
+	}
+
+	return v & 0xffU;
+}
+
+void uart_sifive_char_out(struct __uart_device *uart, int value)
+{
+	struct __device *d = __uart_to_dev(uart);
+
+	while ((__device_read32(d, REG_TXDATA) & TXDATA_FULL) != 0) {
+	}
+
+	__device_write32(d, value & 0xffU, REG_TXDATA);
+}
 
 static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
 {
@@ -138,21 +161,6 @@ static int uart_sifive_remove(struct __device *dev)
 {
 	/* TODO: to be implemented */
 	return -ENOTSUP;
-}
-
-int uart_sifive_char_in(struct __uart_device *uart)
-{
-	return 0;
-}
-
-void uart_sifive_char_out(struct __uart_device *uart, int value)
-{
-	struct __device *d = __uart_to_dev(uart);
-
-	while ((__device_read32(d, REG_TXDATA) & TXDATA_FULL) != 0) {
-	}
-
-	__device_write32(d, value & 0xffU, REG_TXDATA);
 }
 
 const static struct __device_driver_ops uart_sifive_dev_ops = {
