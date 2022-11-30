@@ -268,6 +268,13 @@ static ssize_t sys_read_nolock(struct __file_desc *desc, void *buf, size_t count
 {
 	ssize_t ret = 0;
 
+	if (!buf) {
+		return -EINVAL;
+	}
+	if (count == 0) {
+		return -EINVAL;
+	}
+
 	if (desc->ops && desc->ops->read) {
 		ret = desc->ops->read(desc, buf, count);
 	}
@@ -283,9 +290,6 @@ intptr_t __sys_read(int fd, void *buf, size_t count)
 	if (!desc || !desc->ops || !desc->ops->read) {
 		return -EBADF;
 	}
-	if (count == 0) {
-		return -EINVAL;
-	}
 
 	pri_dbg("sys_read: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
 
@@ -299,6 +303,13 @@ intptr_t __sys_read(int fd, void *buf, size_t count)
 static ssize_t sys_write_nolock(struct __file_desc *desc, const void *buf, size_t count)
 {
 	ssize_t ret = 0;
+
+	if (!buf) {
+		return -EINVAL;
+	}
+	if (count == 0) {
+		return 0;
+	}
 
 	if (desc->ops && desc->ops->write) {
 		ret = desc->ops->write(desc, buf, count);
@@ -314,9 +325,6 @@ intptr_t __sys_write(int fd, const void *buf, size_t count)
 
 	if (!desc || !desc->ops || !desc->ops->write) {
 		return -EBADF;
-	}
-	if (count == 0) {
-		return 0;
 	}
 
 	pri_dbg("sys_write: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
@@ -336,9 +344,12 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	if (!desc || !desc->ops || !desc->ops->write) {
 		return -EBADF;
 	}
-	if (iov < 0) {
+	if (!iov) {
 		return -EINVAL;
-	} else if (iov == 0) {
+	}
+	if (iovcnt < 0) {
+		return -EINVAL;
+	} else if (iovcnt == 0) {
 		return 0;
 	}
 
@@ -347,9 +358,13 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 		wr = sys_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
 		if (wr > 0) {
 			ret += wr;
+		} else if (wr < iov[i].iov_len) {
+			break;
 		} else {
 			pri_warn("sys_writev: failed at %d, fd:%d len:%d.\n",
 				i, fd, (int)iov[i].iov_len);
+			ret = wr;
+			break;
 		}
 	}
 	__spinlock_unlock(&desc->lock);
