@@ -846,7 +846,42 @@ intptr_t __sys_set_tid_address(int *tidptr)
 
 intptr_t __sys_exit_group(int status)
 {
+	struct __cpu_device *cur = __cpu_get_current();
+	struct __proc_info *pi = __proc_get_current();
+	struct __thread_info *ti;
+
+	__cpu_lock(cur);
+
+	ti = __cpu_get_thread_task(cur);
+	if (!ti) {
+		pri_err("sys_exit_group: cannot get current task thread.\n");
+		__cpu_unlock(cur);
+		return -EINVAL;
+	}
+
+	if (__proc_get_leader(pi) != ti) {
+		__cpu_unlock(cur);
+		return __sys_exit(status);
+	}
+
+	__cpu_unlock(cur);
+
 	/* TODO: kill other threads in process group */
+
+	/* Wait for children */
+	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
+		struct __cpu_device *cpu = __cpu_get(i);
+
+		if (!cpu) {
+			continue;
+		}
+
+		/* TODO: avoid busy loop */
+		while (__cpu_get_thread_task(cpu)) {
+			drmb();
+		}
+	}
+
 	return __sys_exit(status);
 }
 
