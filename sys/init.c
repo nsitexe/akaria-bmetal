@@ -102,18 +102,26 @@ static int init_proc(void)
 	return 0;
 }
 
-static int init_idle_thread(char *sp_user, char *sp_intr)
+static int fini_proc(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	return 0;
+}
+
+static int init_idle_thread(struct __cpu_device *cpu, int leader)
+{
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
+	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
+	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
+	char *sp_user = &__stack_idle[pos_idle];
+	char *sp_intr = &__stack_intr[pos_intr];
 
 	ti = __thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
+	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, leader);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
@@ -175,6 +183,11 @@ static int init_drivers(void)
 	} while (r == -EAGAIN);
 
 	return res;
+}
+
+static int fini_drivers(void)
+{
+	return 0;
 }
 
 static int add_argv(void *p)
@@ -320,8 +333,9 @@ static int init_args(int *argc)
 	return 0;
 }
 
-static int fini_args(void)
+static int fini_args(int st)
 {
+	struct __cpu_device *cpu = __cpu_get_current();
 	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
@@ -333,20 +347,75 @@ static int fini_args(void)
 		}
 
 		unmap_argv(h_area, __comm_area + sz);
+
+		h_area->ret_main = st;
+		h_area->done = 1;
+		__cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
+		__cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
 	}
 
 	return 0;
 }
 
-void __init_child(void)
+void __init_system(void)
+{
+	clear_bss();
+	copy_data();
+
+	init_drivers();
+	init_proc();
+}
+
+void __fini_system(void)
+{
+	fini_proc();
+	fini_drivers();
+}
+
+void __init_leader(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
-	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
-	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
+	int argc;
 
 	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
-	init_idle_thread(&__stack_idle[pos_idle], &__stack_intr[pos_intr]);
+	/* Main core is enabled */
+	__cpu_set_running(cpu, 1);
+
+	/* Boot other cores */
+	__cpu_wakeup_all();
+
+	init_args(&argc);
+	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], &__stack_intr[CONFIG_INTR_STACK_SIZE]);
+	init_idle_thread(cpu, 1);
+
+	dwmb();
+
+	/* Switch to idle/main thread */
+	__arch_context_switch();
+}
+
+void __fini_leader(int status)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+	int st = status & 0xff;
+
+	fini_args(st);
+
+	/* Stop other cores */
+	__cpu_sleep_all();
+
+	/* Main core is disabled */
+	__cpu_set_running(cpu, 0);
+}
+
+void __init_child(void)
+{
+	struct __cpu_device *cpu = __cpu_get_current();
+
+	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+
+	init_idle_thread(cpu, 0);
 
 	dwmb();
 
@@ -356,42 +425,4 @@ void __init_child(void)
 
 void __fini_child(int status)
 {
-}
-
-void __init_leader(void)
-{
-	int argc;
-
-	clear_bss();
-	copy_data();
-
-	init_drivers();
-	init_proc();
-
-	/* Main core is running */
-	__cpu_set_running(__cpu_get_current(), 1);
-
-	/* Boot other cores */
-	__cpu_wakeup_all();
-
-	init_args(&argc);
-	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], &__stack_intr[CONFIG_INTR_STACK_SIZE]);
-
-	__init_child();
-}
-
-void __fini_leader(int status)
-{
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
-	int st = status & 0xff;
-
-	__fini_child(st);
-
-	fini_args();
-
-	h_area->ret_main = st;
-	h_area->done = 1;
-	__cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
-	__cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
 }

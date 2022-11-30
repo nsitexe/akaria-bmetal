@@ -326,6 +326,9 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 		}
 	}
 
+	cpu->running = 1;
+	dwmb();
+
 	return 0;
 }
 
@@ -333,6 +336,9 @@ int __cpu_sleep(struct __cpu_device *cpu)
 {
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
+
+	cpu->running = 0;
+	dwmb();
 
 	if (drv && drv->ops && drv->ops->sleep) {
 		r = drv->ops->sleep(cpu);
@@ -362,6 +368,11 @@ int __cpu_wakeup_all(void)
 		if (r) {
 			res = r;
 		}
+
+		r = __cpu_raise_ipi(cpu, NULL);
+		if (r) {
+			res = r;
+		}
 	}
 
 	return res;
@@ -380,6 +391,11 @@ int __cpu_sleep_all(void)
 		}
 
 		r = __cpu_sleep(cpu);
+		if (r) {
+			res = r;
+		}
+
+		r = __cpu_raise_ipi(cpu, NULL);
 		if (r) {
 			res = r;
 		}

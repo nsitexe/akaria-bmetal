@@ -136,8 +136,6 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 	__boot_sp_idle = (uintptr_t)&__stack_idle[pos_idle];
 	__boot_sp_intr = (uintptr_t)&__stack_intr[pos_intr];
 
-	cpu->running = 1;
-
 	dwmb();
 
 	while (!__boot_done) {
@@ -145,15 +143,14 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 		dmb();
 	}
 
+	__boot_proc = -1;
+	dwmb();
+
 	return 0;
 }
 
 static int cpu_riscv_sleep(struct __cpu_device *cpu)
 {
-	cpu->running = 0;
-
-	dwmb();
-
 	return 0;
 }
 

@@ -846,8 +846,8 @@ intptr_t __sys_set_tid_address(int *tidptr)
 
 intptr_t __sys_exit_group(int status)
 {
-	struct __cpu_device *cur = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
+	struct __cpu_device *cur = __cpu_get_current();
 	struct __thread_info *ti;
 
 	__cpu_lock(cur);
@@ -887,8 +887,8 @@ intptr_t __sys_exit_group(int status)
 
 intptr_t __sys_exit(int status)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
+	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
 	uintptr_t v;
 	int f_wake = 0, r;

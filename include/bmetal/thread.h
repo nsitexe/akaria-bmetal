@@ -44,7 +44,7 @@ pid_t __proc_get_pid(void);
 struct __thread_info *__proc_get_leader(struct __proc_info *pi);
 int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti);
 
-void __thread_idle_main(void);
+void __thread_idle_main(int leader);
 struct __thread_info *__thread_create(struct __proc_info *pi);
 int __thread_destroy(struct __thread_info *ti);
 int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu);

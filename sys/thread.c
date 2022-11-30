@@ -4,6 +4,7 @@
 
 #include <bmetal/thread.h>
 #include <bmetal/arch.h>
+#include <bmetal/init.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
@@ -62,7 +63,7 @@ int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti)
 	return 0;
 }
 
-void __thread_idle_main(void)
+static void thread_idle_common(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti = NULL;
@@ -77,7 +78,7 @@ void __thread_idle_main(void)
 
 	while (__cpu_get_running(cpu)) {
 		ti = __cpu_get_thread_task(cpu);
-		while (!ti) {
+		while (__cpu_get_running(cpu) && !ti) {
 			/* Wait for notification from other cores */
 			__cpu_wait_interrupt();
 
@@ -96,9 +97,18 @@ void __thread_idle_main(void)
 	if (r) {
 		pri_warn("idle: failed to callback on_sleep.\n");
 	}
+}
 
-	/* tentative: currently unreachable */
+void __thread_idle_main(int leader)
+{
+	thread_idle_common();
+
+	if (leader) {
+		__fini_system();
+	}
+
 	while (1) {
+		__cpu_wait_interrupt();
 	}
 }
 

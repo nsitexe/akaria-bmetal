@@ -44,6 +44,7 @@ __start_for_main:
 	csrw mscratch, t0
 
 	call __start_for_common
+	call __init_system
 	call __init_leader
 
 	# For error handling

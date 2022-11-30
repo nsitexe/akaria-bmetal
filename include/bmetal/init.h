@@ -45,6 +45,8 @@ struct __aux_data {
 	uint64_t phdr_size;
 };
 
+void __init_system(void);
+void __fini_system(void);
 void __init_leader(void);
 void __fini_leader(int status);
 void __init_child(void);
