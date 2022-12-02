@@ -14,7 +14,9 @@
 int __arch_riscv_get_cpu_id(void);
 
 pthread_attr_t attr;
-pthread_t th[12];
+pthread_t th[20];
+pthread_barrier_t barrier1;
+pthread_barrier_t barrier2;
 int n_threads = 3;
 
 void *thread_main(void *arg)
@@ -78,6 +80,46 @@ void *parent_thread_main(void *arg)
 	}
 
 	return ret;
+}
+
+void *thread_barrier_main(void *arg)
+{
+	struct timeval st, ed, elapse;
+	int cpuid = __arch_riscv_get_cpu_id();
+	int v = (int)(intptr_t)arg * 10 + 1;
+	int r;
+
+	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), gettid());
+	fflush(stdout);
+
+	printf("%d: ---- thread step2 st arg:%d %p\n", cpuid, v, &arg);
+	gettimeofday(&st, NULL);
+	for (int i = 0; i < LOOP_N; i++) {
+		fflush(stdout);
+	}
+	gettimeofday(&ed, NULL);
+	timersub(&ed, &st, &elapse);
+	printf("%d: ---- thread step2 ed arg:%d %p elapsed: %d.%06d[s] loop:%d\n",
+		cpuid, v, &arg, (int)elapse.tv_sec, (int)elapse.tv_usec, LOOP_N);
+	fflush(stdout);
+
+	printf("%d: ---- thread step3 arg:%d %p\n", cpuid, v, &arg);
+	fflush(stdout);
+
+	r = pthread_barrier_wait(&barrier1);
+	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
+		printf("%d: pthread_barrier_wait: 1 %s\n", cpuid, strerror(r));
+	}
+
+	r = pthread_barrier_wait(&barrier2);
+	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
+		printf("%d: pthread_barrier_wait: 2 %s\n", cpuid, strerror(r));
+	}
+
+	printf("%d: ---- thread step4 arg:%d %p\n", cpuid, v, &arg);
+	fflush(stdout);
+
+	return NULL;
 }
 
 int main(int argc, char *argv[], char *envp[])
@@ -226,6 +268,48 @@ int main(int argc, char *argv[], char *envp[])
 
 	printf("%d: -------- step3 joined\n", cpuid);
 	fflush(stdout);
+
+
+	printf("%d: -------- step4 main + all (barrier) start\n", cpuid);
+	fflush(stdout);
+
+	r = pthread_barrier_init(&barrier1, NULL, n_threads + 1);
+	if (r) {
+		printf("%d: pthread_barrier_init: 1 %s\n", cpuid, strerror(r));
+		ret = r;
+	}
+
+	r = pthread_barrier_init(&barrier2, NULL, n_threads + 1);
+	if (r) {
+		printf("%d: pthread_barrier_init: 2 %s\n", cpuid, strerror(r));
+		ret = r;
+	}
+
+	for (int i = st; i < st + n_threads; i++) {
+		r = pthread_create(&th[i], NULL, thread_barrier_main, (void *)(intptr_t)i);
+		if (r) {
+			printf("%d: pthread_create: %s\n", cpuid, strerror(r));
+			ret = r;
+		}
+		fflush(stdout);
+	}
+
+	thread_barrier_main((void *)(intptr_t)(st + n_threads));
+
+	for (int i = st; i < st + n_threads; i++) {
+		r = pthread_join(th[i], &val);
+		if (r) {
+			printf("%d: pthread_join: %s\n", cpuid, strerror(r));
+			ret = r;
+		}
+		fflush(stdout);
+	}
+
+	st += 1 + n_threads;
+
+	printf("%d: -------- step4 joined\n", cpuid);
+	fflush(stdout);
+
 
 	if (ret == 0) {
 		printf("%s: SUCCESS\n", argv[0]);
