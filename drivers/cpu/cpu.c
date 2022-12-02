@@ -317,6 +317,9 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
 
+	cpu->running = 1;
+	dwmb();
+
 	if (drv && drv->ops && drv->ops->wakeup) {
 		r = drv->ops->wakeup(cpu);
 		if (r) {
@@ -326,9 +329,6 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 		}
 	}
 
-	cpu->running = 1;
-	dwmb();
-
 	return 0;
 }
 
@@ -336,9 +336,6 @@ int __cpu_sleep(struct __cpu_device *cpu)
 {
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
-
-	cpu->running = 0;
-	dwmb();
 
 	if (drv && drv->ops && drv->ops->sleep) {
 		r = drv->ops->sleep(cpu);
@@ -348,6 +345,9 @@ int __cpu_sleep(struct __cpu_device *cpu)
 			return r;
 		}
 	}
+
+	cpu->running = 0;
+	dwmb();
 
 	return 0;
 }
