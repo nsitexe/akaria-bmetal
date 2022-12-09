@@ -19,6 +19,15 @@ pthread_barrier_t barrier1;
 pthread_barrier_t barrier2;
 int n_threads = 3;
 
+int get_core_id(void)
+{
+	int ret = -1;
+#if defined(__riscv)
+	__asm volatile ("csrr %0, mhartid" : "=r"(ret));
+#endif
+	return ret;
+}
+
 int get_thread_id(void)
 {
 	int ret = -1;
@@ -33,7 +42,7 @@ int get_thread_id(void)
 void *thread_main(void *arg)
 {
 	struct timeval st, ed, elapse;
-	int cpuid = __arch_riscv_get_cpu_id();
+	int cpuid = get_core_id();
 	int v = (int)(intptr_t)arg * 10 + 1;
 
 	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), get_thread_id());
@@ -58,7 +67,7 @@ void *thread_main(void *arg)
 
 void *parent_thread_main(void *arg)
 {
-	int cpuid = __arch_riscv_get_cpu_id();
+	int cpuid = get_core_id();
 	int v = (int)(intptr_t)arg;
 	void *val, *ret;
 	int st, r;
@@ -96,7 +105,7 @@ void *parent_thread_main(void *arg)
 void *thread_barrier_main(void *arg)
 {
 	struct timeval st, ed, elapse;
-	int cpuid = __arch_riscv_get_cpu_id();
+	int cpuid = get_core_id();
 	int v = (int)(intptr_t)arg * 10 + 1;
 	int r;
 
@@ -135,7 +144,7 @@ void *thread_barrier_main(void *arg)
 
 int main(int argc, char *argv[], char *envp[])
 {
-	int cpuid = __arch_riscv_get_cpu_id();
+	int cpuid = get_core_id();
 	void *val;
 	int st = 0, r, ret = 0;
 
