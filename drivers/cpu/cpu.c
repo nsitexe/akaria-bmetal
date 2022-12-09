@@ -496,10 +496,13 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 	cpu->futex.wakeup = 0;
 
 	dwmb();
-	__cpu_unlock(cpu);
 
 	while (!cpu->futex.wakeup) {
-		if (*uaddr != val) {
+		volatile int *p = uaddr;
+
+		__cpu_unlock(cpu);
+
+		if (*p != val) {
 			res = -EWOULDBLOCK;
 			break;
 		}
@@ -508,10 +511,9 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		__cpu_wait_interrupt();
 		__intr_disable_local();
 
+		__cpu_lock(cpu);
 		drmb();
 	}
-
-	__cpu_lock(cpu);
 
 	cpu->futex.uaddr = 0;
 	cpu->futex.bitset = 0;
@@ -552,32 +554,32 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 		cpu->futex.bitset = 0;
 		cpu->futex.wakeup = 1;
 
-		r = __cpu_raise_ipi(cpu, NULL);
-		if (r) {
-			return r;
-		}
-
 		dwmb();
-		__cpu_unlock(cpu);
 
 		while (cpu->futex.wakeup) {
-			__cpu_lock(cpu);
-
 			r = __cpu_raise_ipi(cpu, NULL);
 			if (r) {
+				__cpu_unlock(cpu);
 				return r;
 			}
 
-			dwmb();
-			__cpu_unlock(cpu);
-
 			/* FIXME: need suitable delay or wait */
-			for (int j = 0; j < 10000; j++) {
-				__asm__("nop");
-			}
+			for (int j = 0; j < 10; j++) {
+				if (!cpu->futex.wakeup) {
+					goto loop_out;
+				}
+				__cpu_unlock(cpu);
 
-			drmb();
+				for (int k = 0; k < 1000; k++) {
+					__asm__("nop");
+				}
+
+				__cpu_lock(cpu);
+				drmb();
+			}
 		}
+loop_out:
+		__cpu_unlock(cpu);
 
 		res++;
 	}
