@@ -19,13 +19,24 @@ pthread_barrier_t barrier1;
 pthread_barrier_t barrier2;
 int n_threads = 3;
 
+int get_thread_id(void)
+{
+	int ret = -1;
+#if defined(HAVE_PTHREAD_GETTHREADID_NP)
+	ret = pthread_getthreadid_np();
+#elif defined(__linux)
+	ret = gettid();
+#endif
+	return ret;
+}
+
 void *thread_main(void *arg)
 {
 	struct timeval st, ed, elapse;
 	int cpuid = __arch_riscv_get_cpu_id();
 	int v = (int)(intptr_t)arg * 10 + 1;
 
-	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), gettid());
+	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), get_thread_id());
 	fflush(stdout);
 
 	printf("%d: ---- thread step2 st arg:%d %p\n", cpuid, v, &arg);
@@ -89,7 +100,7 @@ void *thread_barrier_main(void *arg)
 	int v = (int)(intptr_t)arg * 10 + 1;
 	int r;
 
-	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), gettid());
+	printf("%d: ---- thread step1 arg:%d %p, pid:%d, tid:%d\n", cpuid, v, &arg, getpid(), get_thread_id());
 	fflush(stdout);
 
 	printf("%d: ---- thread step2 st arg:%d %p\n", cpuid, v, &arg);
@@ -131,7 +142,7 @@ int main(int argc, char *argv[], char *envp[])
 	printf("%s: test pthread\n", argv[0]);
 	fflush(stdout);
 
-	printf("%d: pid:%d, tid:%d\n", cpuid, getpid(), gettid());
+	printf("%d: pid:%d, tid:%d\n", cpuid, getpid(), get_thread_id());
 	fflush(stdout);
 
 	r = pthread_attr_init(&attr);
