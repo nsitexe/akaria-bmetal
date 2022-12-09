@@ -91,6 +91,7 @@ const static struct __device_config clint_conf[] = {
 		UPTR("rvintc2"), RV_IX_SIX,
 		UPTR("rvintc3"), RV_IX_SIX,
 		UPTR("rvintc4"), RV_IX_SIX),
+	PROP("ipi", 1),
 	{0},
 };
 
