@@ -20,6 +20,7 @@ enum __cpu_event {
 
 struct __cpu_futex {
 	int *uaddr;
+	int val;
 	int bitset;
 	int wakeup;
 };
