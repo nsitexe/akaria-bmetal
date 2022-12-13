@@ -317,7 +317,7 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
 
-	cpu->running = 1;
+	__cpu_set_running(cpu, 1);
 	dwmb();
 
 	if (drv && drv->ops && drv->ops->wakeup) {
@@ -346,7 +346,7 @@ int __cpu_sleep(struct __cpu_device *cpu)
 		}
 	}
 
-	cpu->running = 0;
+	__cpu_set_running(cpu, 0);
 	dwmb();
 
 	return 0;
@@ -354,11 +354,21 @@ int __cpu_sleep(struct __cpu_device *cpu)
 
 int __cpu_wakeup_all(void)
 {
+	struct __cpu_device *cpu;
 	int r, res = 0;
+
+	/* Main core is enabled */
+	cpu = __cpu_get(0);
+	if (!cpu) {
+		pri_err("cpu_wakeup_all: cannot get main core.\n");
+		return -ENOMEM;
+	}
+
+	__cpu_set_running(cpu, 1);
 
 	/* Main core (id:0) already booted, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
-		struct __cpu_device *cpu = __cpu_get(i);
+		cpu = __cpu_get(i);
 
 		if (!cpu) {
 			continue;
@@ -380,11 +390,12 @@ int __cpu_wakeup_all(void)
 
 int __cpu_sleep_all(void)
 {
+	struct __cpu_device *cpu;
 	int r, res = 0;
 
 	/* Main core (id:0) cannot sleep, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
-		struct __cpu_device *cpu = __cpu_get(i);
+		cpu = __cpu_get(i);
 
 		if (!cpu) {
 			continue;
@@ -400,6 +411,15 @@ int __cpu_sleep_all(void)
 			res = r;
 		}
 	}
+
+	/* Main core is disabled */
+	cpu = __cpu_get(0);
+	if (!cpu) {
+		pri_err("cpu_sleep_all: cannot get main core.\n");
+		return -ENOMEM;
+	}
+
+	__cpu_set_running(cpu, 0);
 
 	return res;
 }

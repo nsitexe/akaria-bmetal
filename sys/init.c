@@ -379,9 +379,6 @@ void __init_leader(void)
 
 	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
-	/* Main core is enabled */
-	__cpu_set_running(cpu, 1);
-
 	/* Boot other cores */
 	__cpu_wakeup_all();
 
@@ -397,16 +394,12 @@ void __init_leader(void)
 
 void __fini_leader(int status)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
 	int st = status & 0xff;
 
 	fini_args(st);
 
 	/* Stop other cores */
 	__cpu_sleep_all();
-
-	/* Main core is disabled */
-	__cpu_set_running(cpu, 0);
 }
 
 void __init_child(void)
