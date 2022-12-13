@@ -63,7 +63,7 @@ int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti)
 	return 0;
 }
 
-static void thread_idle_common(void)
+void __thread_idle_main(int leader)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti = NULL;
@@ -97,11 +97,6 @@ static void thread_idle_common(void)
 	if (r) {
 		pri_warn("idle: failed to callback on_sleep.\n");
 	}
-}
-
-void __thread_idle_main(int leader)
-{
-	thread_idle_common();
 
 	if (leader) {
 		__fini_system();
