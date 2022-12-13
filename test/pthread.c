@@ -128,12 +128,22 @@ void *thread_barrier_main(void *arg)
 
 	r = pthread_barrier_wait(&barrier1);
 	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
-		printf("%d: pthread_barrier_wait: 1 %s\n", cpuid, strerror(r));
+		printf("%d: pthread_barrier_wait: 1-1 %s\n", cpuid, strerror(r));
 	}
 
 	r = pthread_barrier_wait(&barrier2);
 	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
-		printf("%d: pthread_barrier_wait: 2 %s\n", cpuid, strerror(r));
+		printf("%d: pthread_barrier_wait: 2-1 %s\n", cpuid, strerror(r));
+	}
+
+	r = pthread_barrier_wait(&barrier2);
+	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
+		printf("%d: pthread_barrier_wait: 2-2 %s\n", cpuid, strerror(r));
+	}
+
+	r = pthread_barrier_wait(&barrier1);
+	if (r && r != PTHREAD_BARRIER_SERIAL_THREAD) {
+		printf("%d: pthread_barrier_wait: 1-2 %s\n", cpuid, strerror(r));
 	}
 
 	printf("%d: ---- thread step4 arg:%d %p\n", cpuid, v, &arg);
