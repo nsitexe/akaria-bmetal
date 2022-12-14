@@ -17,6 +17,7 @@
 /test/mt_vecadd
 /test/mt_vecaddf
 /test/pthread
+/test/pthread_barrier
 /test/reboot
 /test/saxpy
 /test/sgemm

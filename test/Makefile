@@ -44,7 +44,7 @@ ifeq ($(USE_GLIBC),y)
 BINS += \
 	hello_cpp mt_clock \
 	mt_vecadd mt_vecaddf \
-	pthread reboot
+	pthread pthread_barrier reboot
 endif
 
 ifeq ($(WITH_EIGEN),y)
@@ -78,6 +78,7 @@ MT_CLOCK_OBJS = mt_clock.o
 MT_VECADD_OBJS = mt_vecadd.o cmn_vecaddf.o
 MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
 PTHREAD_OBJS = pthread.o
+PTHREAD_BARRIER_OBJS = pthread_barrier.o
 REBOOT_OBJS = reboot.o
 SAXPY_OBJS = saxpy.o
 SGEMM_OBJS = sgemm.o
@@ -93,7 +94,7 @@ OBJS = \
 	$(MALLOC_OBJS) $(MD5_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
-	$(PTHREAD_OBJS) $(REBOOT_OBJS) \
+	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(REBOOT_OBJS) \
 	$(SAXPY_OBJS) $(SGEMM_OBJS) \
 	$(VECADD_OBJS) $(VECADDF_OBJS)
 
@@ -149,6 +150,9 @@ mt_vecaddf: $(MT_VECADDF_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 pthread: $(PTHREAD_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+pthread_barrier: $(PTHREAD_BARRIER_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 reboot: $(REBOOT_OBJS)
