@@ -25,4 +25,9 @@
 #define dwmb() dmb()
 #endif
 
+#ifndef noop
+/* No operation */
+#define noop()
+#endif
+
 #endif /* BAREMETAL_CRT_ARCH_GEN_SYNC_H_ */

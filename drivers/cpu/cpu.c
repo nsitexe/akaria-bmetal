@@ -529,8 +529,11 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		__intr_enable_local();
 		/* FIXME: need suitable delay or wait */
 		//__cpu_wait_interrupt();
-		for (int k = 0; k < 1000; k++) {
-			__asm__("nop");
+		for (int k = 0; k < 250; k++) {
+			noop();
+			noop();
+			noop();
+			noop();
 		}
 		__intr_disable_local();
 

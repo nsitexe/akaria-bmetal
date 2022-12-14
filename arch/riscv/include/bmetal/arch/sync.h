@@ -6,13 +6,15 @@
 #include <bmetal/bmetal.h>
 
 /* Instruction memory barrier */
-#define imb()     __asm volatile("fence.i" : : : "memory")
+#define imb()     __asm volatile ("fence.i" : : : "memory")
 /* Data memory barrier */
-#define dmb()     __asm volatile("fence iorw, iorw" : : : "memory")
+#define dmb()     __asm volatile ("fence iorw, iorw" : : : "memory")
 /* Data memory barrier for read */
-#define drmb()    __asm volatile("fence ir, ir" : : : "memory")
+#define drmb()    __asm volatile ("fence ir, ir" : : : "memory")
 /* Data memory barrier for write */
-#define dwmb()    __asm volatile("fence ow, ow" : : : "memory")
+#define dwmb()    __asm volatile ("fence ow, ow" : : : "memory")
+/* No operation */
+#define noop()    __asm volatile ("nop")
 
 #include <bmetal/arch-gen/sync.h>
 
