@@ -3,9 +3,13 @@
 #ifndef BAREMETAL_CRT_ARCH_GEN_LOCK_H_
 #define BAREMETAL_CRT_ARCH_GEN_LOCK_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stdatomic.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
+
+#if !defined(__ASSEMBLER__)
 
 #ifndef __arch_spinlock_t
 typedef struct __arch_gen_spinlock {
@@ -34,5 +38,7 @@ int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock);
 #define __arch_spinlock_unlock    __arch_gen_spinlock_unlock
 int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock);
 #endif
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_ARCH_GEN_LOCK_H_ */

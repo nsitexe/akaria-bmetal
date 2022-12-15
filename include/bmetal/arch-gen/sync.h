@@ -5,6 +5,8 @@
 
 #include <bmetal/bmetal.h>
 
+#if !defined(__ASSEMBLER__)
+
 #ifndef imb
 /* Instruction memory barrier */
 #define imb()
@@ -29,5 +31,7 @@
 /* No operation */
 #define noop()
 #endif
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_ARCH_GEN_SYNC_H_ */

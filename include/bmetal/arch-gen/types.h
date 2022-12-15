@@ -3,9 +3,13 @@
 #ifndef BAREMETAL_CRT_ARCH_GEN_TYPES_H_
 #define BAREMETAL_CRT_ARCH_GEN_TYPES_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
+
+#if !defined(__ASSEMBLER__)
 
 #define __SCHAR_TYPE        signed char
 #define __SSHORT_TYPE       signed short
@@ -66,5 +70,7 @@
 #ifndef __arch_uid_t
 #define __arch_uid_t    __UINT_TYPE
 #endif
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_ARCH_GEN_TYPES_H_ */

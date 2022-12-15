@@ -5,6 +5,8 @@
 
 #include <bmetal/bmetal.h>
 
+#if !defined(__ASSEMBLER__)
+
 enum __arch_arg_type {
 	__ARCH_ARG_TYPE_1,
 	__ARCH_ARG_TYPE_2,
@@ -51,5 +53,7 @@ enum __arch_arg_type {
 #ifndef __arch_get_cpu_id
 #  error Please implement arch_get_cpu_id() function.
 #endif
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_ARCH_GEN_CPU_H_ */
