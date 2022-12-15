@@ -13,7 +13,7 @@
 #define THREADS    4
 #define BUFSIZE    10
 
-pthread_t th[4];
+pthread_t th[THREADS];
 pthread_barrier_t barrier;
 
 int get_core_id(void)
@@ -138,11 +138,12 @@ int main(int argc, char *argv[], char *envp[])
 	printf("%s: test pthread_barrier\n", argv[0]);
 	fflush(stdout);
 
-	int n_threads = 4;
+	int n_threads = THREADS;
 
 	r = pthread_barrier_init(&barrier, NULL, n_threads);
 	if (r) {
 		printf("%d: pthread_barrier_init: %s\n", cpuid, strerror(r));
+		fflush(stdout);
 	}
 
 	for (int i = 0; i < n_threads - 1; i++) {
