@@ -5,6 +5,8 @@
 
 #include <bmetal/bmetal.h>
 
+#if !defined(__ASSEMBLER__)
+
 /* Instruction memory barrier */
 #define imb()     __asm volatile ("fence.i" : : : "memory")
 /* Data memory barrier */
@@ -15,6 +17,9 @@
 #define dwmb()    __asm volatile ("fence ow, ow" : : : "memory")
 /* No operation */
 #define noop()    __asm volatile ("nop")
+
+#endif /* !__ASSEMBLER__ */
+
 
 #include <bmetal/arch-gen/sync.h>
 

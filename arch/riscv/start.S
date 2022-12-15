@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/arch/asm.h>
+#include <bmetal/arch/cpu.h>
+#include <bmetal/bindings/intc/riscv/rv_priv.h>
+
+#define MSTATUS_VS    0x0600
+#define MSTATUS_FS    0x6000
 
 .globl __reset
 .type __reset, @function

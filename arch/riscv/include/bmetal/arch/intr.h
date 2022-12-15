@@ -8,6 +8,8 @@
 #include <bmetal/event.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 
+#if !defined(__ASSEMBLER__)
+
 /* mstatus, sstatus */
 #define XSTATUS_UIE         BIT(RV_STATUS_UIE )
 #define XSTATUS_SIE         BIT(RV_STATUS_SIE )
@@ -52,7 +54,13 @@
 #define __arch_intr_restore_local    __arch_riscv_intr_restore_local
 #define __arch_intr_save_local       __arch_riscv_intr_save_local
 
+#endif /* !__ASSEMBLER__ */
+
+
 #include <bmetal/arch-gen/intr.h>
+
+
+#if !defined(__ASSEMBLER__)
 
 int __arch_riscv_get_intr_handler(int event, struct __event_handler **hnd);
 int __arch_riscv_set_intr_handler(int event, struct __event_handler *hnd);
@@ -62,5 +70,7 @@ void __arch_riscv_intr_enable_local(void);
 void __arch_riscv_intr_disable_local(void);
 void __arch_riscv_intr_restore_local(const long status);
 void __arch_riscv_intr_save_local(long *status);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_ARCH_RISCV_ARCH_INTR_H_ */
