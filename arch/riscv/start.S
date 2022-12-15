@@ -3,9 +3,6 @@
 #include <bmetal/arch/cpu.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 
-#define MSTATUS_VS    0x0600
-#define MSTATUS_FS    0x6000
-
 .globl __reset
 .type __reset, @function
 
@@ -92,12 +89,12 @@ __start_for_sub:
 __start_for_common:
 	# Enable FPU
 #ifdef CONFIG_FPU
-	li   t0, MSTATUS_FS
+	li   t0, RV_STATUS_FS_DIRTY
 	csrs mstatus, t0
 	csrw fcsr, x0
 #endif
 #ifdef CONFIG_VPU
-	li   t0, MSTATUS_VS
+	li   t0, RV_STATUS_VS_DIRTY
 	csrs mstatus, t0
 #endif
 	ret

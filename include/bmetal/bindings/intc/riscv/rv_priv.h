@@ -27,6 +27,16 @@
 #define RV_STATUS_UXL     32
 #define RV_STATUS_SXL     34
 
+#define RV_STATUS_VS_INITIAL    0x00200
+#define RV_STATUS_VS_CLEAN      0x00400
+#define RV_STATUS_VS_DIRTY      0x00600
+#define RV_STATUS_FS_INITIAL    0x02000
+#define RV_STATUS_FS_CLEAN      0x04000
+#define RV_STATUS_FS_DIRTY      0x06000
+#define RV_STATUS_XS_INITIAL    0x08000
+#define RV_STATUS_XS_CLEAN      0x10000
+#define RV_STATUS_XS_DIRTY      0x18000
+
 /* mie, mip, sie, sip */
 /* User software interrupt enable/pending */
 #define RV_IX_USIX       0
