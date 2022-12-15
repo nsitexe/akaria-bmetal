@@ -3,9 +3,13 @@
 #ifndef BAREMETAL_CRT_SYS_INTTYPES_H_
 #define BAREMETAL_CRT_SYS_INTTYPES_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
+
+#if !defined(__ASSEMBLER__)
 
 #if CONFIG_USE_NEWLIB && (UINTPTR_MAX == UINT32_MAX)
 #define __PREFIX32 "l"
@@ -122,5 +126,7 @@
 #define PRIXFAST16 "X"
 #define PRIXFAST32 __PREFIX32 "X"
 #define PRIXFAST64 __PREFIX64 "X"
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_SYS_INTTYPES_H_ */

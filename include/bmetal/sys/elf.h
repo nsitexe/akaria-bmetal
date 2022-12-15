@@ -3,9 +3,25 @@
 #ifndef BAREMETAL_CRT_SYS_ELF_H_
 #define BAREMETAL_CRT_SYS_ELF_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
+
+/* ELF header */
+#define EI_NIDENT    16
+
+/* Auxiliary vector */
+#define AT_NULL      0
+#define AT_IGNORE    1
+#define AT_EXECFD    2
+#define AT_PHDR      3
+#define AT_PHENT     4
+#define AT_PHNUM     5
+#define AT_RANDOM    25
+
+#if !defined(__ASSEMBLER__)
 
 /* ELF32/64 */
 typedef unsigned char Elf_Byte;
@@ -29,9 +45,6 @@ typedef int32_t     Elf64_Sword;
 typedef uint32_t    Elf64_Word;
 typedef int64_t     Elf64_Sxword;
 typedef uint64_t    Elf64_Xword;
-
-/* ELF header */
-#define EI_NIDENT    16
 
 typedef struct elf32_ehdr {
 	unsigned char e_ident[EI_NIDENT];
@@ -115,12 +128,6 @@ typedef struct elf64_shdr {
 	Elf64_Xword    sh_entsize;
 } Elf64_Shdr;
 
-#define AT_NULL      0
-#define AT_IGNORE    1
-#define AT_EXECFD    2
-#define AT_PHDR      3
-#define AT_PHENT     4
-#define AT_PHNUM     5
-#define AT_RANDOM    25
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_SYS_ELF_H_ */

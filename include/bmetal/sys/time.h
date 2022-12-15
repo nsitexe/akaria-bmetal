@@ -3,10 +3,26 @@
 #ifndef BAREMETAL_CRT_SYS_TIME_H_
 #define BAREMETAL_CRT_SYS_TIME_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
 #include <bmetal/sys/types.h>
+
+/* IDs of clockid_t (use same value as Linux) */
+#define CLOCK_REALTIME              0
+#define CLOCK_MONOTONIC             1
+#define CLOCK_PROCESS_CPUTIME_ID    2
+#define CLOCK_THREAD_CPUTIME_ID     3
+#define CLOCK_MONOTONIC_RAW         4
+#define CLOCK_REALTIME_COARSE       5
+#define CLOCK_MONOTONIC_COARSE      6
+#define CLOCK_BOOTTIME              7
+#define CLOCK_REALTIME_ALARM        8
+#define CLOCK_BOOTTIME_ALARM        9
+
+#if !defined(__ASSEMBLER__)
 
 struct timespec {
 	time_t tv_sec;
@@ -27,18 +43,6 @@ struct timeval {
 	time_t tv_sec;
 	suseconds_t tv_usec;
 };
-
-/* IDs of clockid_t (use same value as Linux) */
-#define CLOCK_REALTIME              0
-#define CLOCK_MONOTONIC             1
-#define CLOCK_PROCESS_CPUTIME_ID    2
-#define CLOCK_THREAD_CPUTIME_ID     3
-#define CLOCK_MONOTONIC_RAW         4
-#define CLOCK_REALTIME_COARSE       5
-#define CLOCK_MONOTONIC_COARSE      6
-#define CLOCK_BOOTTIME              7
-#define CLOCK_REALTIME_ALARM        8
-#define CLOCK_BOOTTIME_ALARM        9
 
 #ifndef timespecadd
 /* Same as timeradd() for struct timespec */
@@ -87,5 +91,7 @@ struct timeval {
 		((a)->tv_nsec cmp (b)->tv_nsec) : \
 		((a)->tv_sec cmp (b)->tv_sec)
 #endif /* timespecclear */
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_SYS_TIME_H_ */
