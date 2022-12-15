@@ -18,6 +18,7 @@
 /test/mt_vecaddf
 /test/pthread
 /test/pthread_barrier
+/test/pthread_cond
 /test/reboot
 /test/saxpy
 /test/sgemm
