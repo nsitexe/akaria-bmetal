@@ -113,6 +113,8 @@ static uint8_t PADDING[64] = {
 	0, 0, 0, 0
 };
 
+static uint8_t g_block[TEST_BLOCK_LEN];
+
 /* MD5 initialization. Begins an MD5 operation, writing a new context. */
 void MD5Init(MD5_CTX *context)
 {
@@ -360,7 +362,8 @@ static void MDTimeTrial(void)
 {
 	MD5_CTX context;
 	struct timeval endTime, startTime, elapse;
-	uint8_t block[TEST_BLOCK_LEN], digest[16];
+	uint8_t *block = g_block;
+	uint8_t digest[16];
 	size_t i;
 	long long bytes, mills;
 
