@@ -3,8 +3,10 @@
 #ifndef BAREMETAL_CRT_SYSCALL_H_
 #define BAREMETAL_CRT_SYSCALL_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stddef.h>
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall_num.h>
@@ -16,6 +18,8 @@
 
 #define __NEW_UTS_LEN 64
 #define __PAGE_SIZE   4096
+
+#if !defined(__ASSEMBLER__)
 
 struct new_utsname {
 	char sysname[__NEW_UTS_LEN + 1];
@@ -66,5 +70,7 @@ intptr_t __sys_exit_group(int status);
 intptr_t __sys_exit(int status);
 intptr_t __sys_reboot(int magic, int magic2, int cmd);
 intptr_t __sys_context_switch(void);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_SYSCALL_H_ */

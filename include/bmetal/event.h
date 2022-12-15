@@ -3,8 +3,10 @@
 #ifndef BAREMETAL_CRT_EVENT_H_
 #define BAREMETAL_CRT_EVENT_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stddef.h>
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
@@ -12,6 +14,8 @@
 
 #define EVENT_HANDLED            1
 #define EVENT_NOT_HANDLED        2
+
+#if !defined(__ASSEMBLER__)
 
 #define for_each_handler(x, head)    for (struct __event_handler *x = (head); x; x = x->hnd_next)
 
@@ -39,5 +43,7 @@ int __event_free_handler(struct __event_handler *handler);
 int __event_add_handler(struct __event_handler *head, struct __event_handler *handler);
 int __event_remove_handler(struct __event_handler *head, struct __event_handler *handler);
 int __event_handle_generic(int event, struct __event_handler *hnd_head);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_EVENT_H_ */

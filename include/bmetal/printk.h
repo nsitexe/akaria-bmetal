@@ -25,6 +25,8 @@
 #define PRI_LV_CUR     PRI_LV_DBG
 #endif
 
+#if !defined(__ASSEMBLER__)
+
 #define __pri_level(lv, fmt, ...)                   \
 	do {                                        \
 		if (PRI_LV_CUR <= lv) {             \
@@ -55,5 +57,7 @@ __getc_func __get_printk_in(void);
 int __set_printk_in(__getc_func f);
 __putc_func __get_printk_out(void);
 int __set_printk_out(__putc_func f);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_PRINTK_H_ */

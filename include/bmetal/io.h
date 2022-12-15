@@ -7,6 +7,8 @@
 
 #include <bmetal/bmetal.h>
 
+#if !defined(__ASSEMBLER__)
+
 #define __IO_MAP_FAILED    ((void *)(-1))
 #define __IO_FROM_PTR(v)   ((uintptr_t)(v))
 #define __IO_TO_PTR(v)     ((void *)(v))
@@ -60,5 +62,7 @@ static inline void __io_write64(uint64_t dat, volatile void *ptr)
 
 int __io_mmap_device(void *addr, struct __device *dev);
 int __io_munmap_device(void *addr, struct __device *dev);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_IO_H_ */

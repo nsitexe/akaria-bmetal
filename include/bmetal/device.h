@@ -3,13 +3,17 @@
 #ifndef BAREMETAL_CRT_DEVICE_H_
 #define BAREMETAL_CRT_DEVICE_H_
 
+#if !defined(__ASSEMBLER__)
 #include <stddef.h>
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #include <bmetal/bmetal.h>
 #include <bmetal/io.h>
 #include <bmetal/sys/assert.h>
 #include <bmetal/sys/errno.h>
+
+#if !defined(__ASSEMBLER__)
 
 #define __dev_err(dev, fmt, ...)     pri_err("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
 #define __dev_warn(dev, fmt, ...)    pri_warn("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
@@ -322,5 +326,7 @@ int __bus_remove(struct __bus *bus);
 int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev);
 
 void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_DEVICE_H_ */

@@ -9,6 +9,8 @@
 
 #define DEFAULT_KERNEL_NAME    "main"
 
+#if !defined(__ASSEMBLER__)
+
 #define define_brk(sym, size) \
 	char sym[size] \
 	__section(".noinit")
@@ -51,5 +53,7 @@ void __init_leader(void);
 void __fini_leader(int status);
 void __init_child(void);
 void __fini_child(int status);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_INIT_H_ */

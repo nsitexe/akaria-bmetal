@@ -9,6 +9,8 @@
 #include <bmetal/lock.h>
 #include <bmetal/sys/types.h>
 
+#if !defined(__ASSEMBLER__)
+
 struct __cpu_device;
 
 struct __proc_info {
@@ -55,5 +57,7 @@ struct __thread_info *__thread_get_current(void);
 pid_t __thread_get_tid(void);
 int __thread_context_switch(void);
 int __thread_context_switch_nolock(void);
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_THREAD_H_ */

@@ -3,11 +3,21 @@
 #ifndef BAREMETAL_CRT_DRV_COMM
 #define BAREMETAL_CRT_DRV_COMM
 
+#if !defined(__ASSEMBLER__)
 #include <stdint.h>
+#endif /* !__ASSEMBLER__ */
 
 #define BAREMETAL_CRT_COMM_SECTION         ".comm"
 #define BAREMETAL_CRT_COMM_AREA_SECTION    ".comm_area"
 #define BAREMETAL_CRT_COMM_MAGIC           0xbadcafe5
+
+#define __COMM_ARG_NOTUSED    0
+/* Direct value */
+#define __COMM_ARG_VAL        1
+/* cl_mem */
+#define __COMM_ARG_MEM        2
+
+#if !defined(__ASSEMBLER__)
 
 struct __comm_section {
 	uint32_t magic;
@@ -60,13 +70,9 @@ struct __comm_arg_header {
 	uint64_t size;
 };
 
-#define __COMM_ARG_NOTUSED    0
-/* Direct value */
-#define __COMM_ARG_VAL        1
-/* cl_mem */
-#define __COMM_ARG_MEM        2
-
 /* Communication area for host */
 extern char __comm_area[];
+
+#endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_DRV_COMM */

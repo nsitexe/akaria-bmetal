@@ -36,5 +36,6 @@
 #define __used          __attribute__((used))
 #endif
 
-#endif /* __ASSEMBLER__ */
+#endif /* !__ASSEMBLER__ */
+
 #endif /* BAREMETAL_CRT_BMETAL_H_ */
