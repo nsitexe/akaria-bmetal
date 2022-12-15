@@ -11,7 +11,6 @@
 #include <unistd.h>
 
 #define LOOP_N    300000
-int __arch_riscv_get_cpu_id(void);
 
 pthread_attr_t attr;
 pthread_t th[20];
