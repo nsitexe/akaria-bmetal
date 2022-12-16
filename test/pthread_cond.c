@@ -17,7 +17,11 @@ int n_threads = THREADS;
 pthread_condattr_t cond_attr;
 pthread_cond_t cond;
 pthread_mutex_t cond_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond_fin;
+pthread_mutex_t cond_fin_mutex = PTHREAD_MUTEX_INITIALIZER;
 int v_common = 0;
+int v_common_s = 0;
+int v_common_e = 0;
 
 int get_core_id(void)
 {
@@ -39,24 +43,27 @@ int get_thread_id(void)
 	return ret;
 }
 
-void *thread_main(void *arg)
+void *thread_broadcast(void *arg)
 {
 	int cpuid = get_core_id();
 	int tid = get_thread_id();
 	int v = (int)(intptr_t)arg;
 	int v_s = v * LOOP_N, v_e = (v + 1) * LOOP_N;
 	int v_fin = n_threads * LOOP_N;
+	int wake = 0;
 
-	printf("%d: tid:%d: step1-1 prep %05d-%05d\n", cpuid, tid, v_s, v_e);
+	printf("%d: tid:%d: step1-1 prep\n", cpuid, tid);
 	fflush(stdout);
 
 	pthread_mutex_lock(&cond_mutex);
 	while (v_common < v_s) {
 		pthread_cond_wait(&cond, &cond_mutex);
+		wake++;
 	}
 	pthread_mutex_unlock(&cond_mutex);
 
-	printf("%d: tid:%d: step1-2 cnt  %05d-%05d \n", cpuid, tid, v_s, v_e);
+	printf("%d: tid:%d: step1-2 cnt  %05d-%05d wake:%d\n",
+		cpuid, tid, v_s, v_e + LOOP_N, wake);
 	fflush(stdout);
 
 	while (1) {
@@ -70,7 +77,7 @@ void *thread_main(void *arg)
 		pthread_mutex_unlock(&cond_mutex);
 	}
 
-	printf("%d: tid:%d: step1-3 wait %05d-%05d\n", cpuid, tid, v_s, v_e);
+	printf("%d: tid:%d: step1-3 wait %05d\n", cpuid, tid, v_fin);
 	fflush(stdout);
 
 	pthread_mutex_lock(&cond_mutex);
@@ -79,31 +86,94 @@ void *thread_main(void *arg)
 	}
 	pthread_mutex_unlock(&cond_mutex);
 
-	printf("%d: tid:%d: step1-4 fin  %05d-%05d\n", cpuid, tid, v_s, v_e);
+	printf("%d: tid:%d: step1-4 fin\n", cpuid, tid);
 	fflush(stdout);
 
 	return NULL;
 }
 
-int main(int argc, char *argv[], char *envp[])
+void *thread_signal(void *arg)
+{
+	int cpuid = get_core_id();
+	int tid = get_thread_id();
+	int v_fin = n_threads * LOOP_N;
+	int wake = 0;
+
+	printf("%d: tid:%d: step1-1 prep\n", cpuid, tid);
+	fflush(stdout);
+
+	pthread_mutex_lock(&cond_mutex);
+	while (v_common < v_common_s) {
+		pthread_cond_wait(&cond, &cond_mutex);
+		wake++;
+	}
+	v_common_s += LOOP_N;
+	pthread_mutex_unlock(&cond_mutex);
+
+	printf("%d: tid:%d: step1-2 cnt  %05d-%05d wake:%d\n",
+		cpuid, tid, v_common_s, v_common_e + LOOP_N, wake);
+	fflush(stdout);
+
+	while (1) {
+		pthread_mutex_lock(&cond_mutex);
+		if (v_common >= v_common_e) {
+			v_common_e += LOOP_N;
+			pthread_cond_signal(&cond);
+			pthread_mutex_unlock(&cond_mutex);
+			break;
+		}
+		v_common++;
+		pthread_mutex_unlock(&cond_mutex);
+	}
+
+	pthread_mutex_lock(&cond_fin_mutex);
+	pthread_cond_broadcast(&cond_fin);
+	pthread_mutex_unlock(&cond_fin_mutex);
+
+	printf("%d: tid:%d: step1-3 wait %05d\n", cpuid, tid, v_fin);
+	fflush(stdout);
+
+	wake = 0;
+
+	pthread_mutex_lock(&cond_fin_mutex);
+	while (v_common < v_fin) {
+		pthread_cond_wait(&cond_fin, &cond_fin_mutex);
+		wake++;
+	}
+	pthread_mutex_unlock(&cond_fin_mutex);
+
+	printf("%d: tid:%d: step1-4 fin  wake:%d\n", cpuid, tid, wake);
+	fflush(stdout);
+
+	return NULL;
+}
+
+
+int test_main(void *(*thread_main)(void *))
 {
 	int cpuid = get_core_id();
 	void *val;
 	int r, ret = 0;
 
-	printf("%s: test pthread_cond\n", argv[0]);
-	fflush(stdout);
-
+/*
 	r = pthread_condattr_init(&cond_attr);
 	if (r) {
 		printf("%d: pthread_condattr_init: %s\n", cpuid, strerror(r));
 		ret = r;
 		goto err_out;
 	}
+*/
 
-	r = pthread_cond_init(&cond, &cond_attr);
+	r = pthread_cond_init(&cond, NULL);
 	if (r) {
-		printf("%d: pthread_cond_init: %s\n", cpuid, strerror(r));
+		printf("%d: pthread_cond_init(cond): %s\n", cpuid, strerror(r));
+		ret = r;
+		goto err_out;
+	}
+
+	r = pthread_cond_init(&cond_fin, NULL);
+	if (r) {
+		printf("%d: pthread_cond_init(cond_fin): %s\n", cpuid, strerror(r));
 		ret = r;
 		goto err_out;
 	}
@@ -126,6 +196,44 @@ int main(int argc, char *argv[], char *envp[])
 			ret = r;
 		}
 		fflush(stdout);
+	}
+
+err_out:
+	return ret;
+}
+
+int main(int argc, char *argv[], char *envp[])
+{
+	int cpuid = get_core_id();
+	int r, ret = 0;
+
+	printf("%s: test pthread_cond\n", argv[0]);
+	fflush(stdout);
+
+	printf("%s: part 1: broadcast\n", argv[0]);
+	fflush(stdout);
+
+	v_common = 0;
+
+	r = test_main(thread_broadcast);
+	if (r) {
+		printf("%d: test_broadcast: %s\n", cpuid, strerror(r));
+		ret = r;
+		goto err_out;
+	}
+
+	printf("%s: part 2: signal\n", argv[0]);
+	fflush(stdout);
+
+	v_common = 0;
+	v_common_s = 0;
+	v_common_e = LOOP_N;
+
+	r = test_main(thread_signal);
+	if (r) {
+		printf("%d: test_signal: %s\n", cpuid, strerror(r));
+		ret = r;
+		goto err_out;
 	}
 
 err_out:
