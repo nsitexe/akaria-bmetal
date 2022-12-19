@@ -1,0 +1,19 @@
+
+[[prerequisites]]
+== Prerequisites
+
+OS::
+  * Debian Testing
+  * Ubuntu 20.04 LTS
+Cross compiler::
+  * GCC
+  ** Need to build manually.
+  ** Use helper tool such as Crosstool-NG or RISC-V GNU toolchain to easy to build.
+  *** Crosstool-NG: https://github.com/crosstool-ng/crosstool-ng
+  *** RISC-V GNU toolchain: https://github.com/riscv-collab/riscv-gnu-toolchain
+Emulator::
+  * QEMU
+  ** Need to build manually if you use Ubuntu 20.04 LTS.
+  *** QEMU: https://github.com/qemu/qemu
+Tools::
+  * CMake, Ninja

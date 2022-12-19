@@ -1,11 +1,66 @@
 
 = Configs
 
-== Toolchain
+== Device side runtime
 
-=== GCC + newlib
+This is an example of cmake configuration for device side runtime.
+
+[source,sh]
+----
+$ mkdir build
+$ cd build
+$ cmake ../ -G Ninja \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
+  -DARCH=riscv \
+  -DCROSS_COMPILE=riscv64-unknown-elf- \
+  -DCC=gcc \
+  -DDEFCONF=riscv_qemu_virt_64_xip
+----
+
+Project specific options::
+  ARCH:::
+    Specify architecture type. Currently supported types are:
++
+----
+riscv
+----
+  CROSS_COMPILE:::
+    Specify prefix of cross compiler.
+  CC:::
+    Specify compiler name. Currently supported types are:
++
+----
+gcc
+----
+  DEFCONF:::
+    Specify default config name. Please specify one of filename under configs/ directory.
+
+CMake standard options::
+  CMAKE_BUILD_TYPE:::
+    Specify build type. Currently supported types are:
++
+----
+Debug, Release, RelWithDebInfo, MinSizeRel
+----
+  CMAKE_INSTALL_PREFIX:::
+    Specify path for install directory.
+    In this example install runtime for test applications under test/ directory.
 
 
-=== GCC + glibc
+== Device side test applications
 
+This is an example of cmake configuration for device side runtime.
 
+[source,sh]
+----
+$ make USE_NEWLIB=y USE_SYSROOT=/path/to/sysroot
+----
+
+Project specific options::
+  USE_NEWLIB:::
+    Use gcc toolchain with newlib.
+  USE_GLIBC:::
+    Use gcc toolchain with glibc.
+  USE_SYSROOT:::
+    Specify sysroot (includes runtime libraries) if you have installed runtime into other directory. Default value is "./sysroot".

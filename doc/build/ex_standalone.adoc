@@ -1,0 +1,69 @@
+
+[[ex_standalone_qemu]]
+== Build and run examples (Standalone mode with QEMU)
+
+=== Build device side runtime
+
+Run cmake to configure this project.
+
+[source,sh]
+----
+$ mkdir build
+$ cd build
+$ cmake ../ -G Ninja \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
+  -DARCH=riscv \
+  -DCROSS_COMPILE=riscv64-unknown-elf- \
+  -DCC=gcc \
+  -DDEFCONF=riscv_qemu_virt_64_xip
+----
+
+Build and install runtime libraries to sysroot.
+
+[source,sh]
+----
+$ ninja
+$ ninja install
+----
+
+=== Build device side application
+
+[source,sh]
+----
+$ cd test
+
+$ make USE_NEWLIB=y
+----
+
+You can use USE_SYSROOT option to specify sysroot (includes runtime libraries) if you have installed runtime into other directory.
+
+[source,sh]
+----
+$ cd test
+
+$ make USE_SYSROOT=/path_to/sysroot
+----
+
+If build is succeeded, some application binaries (includes "hello") are generated in current directory.
+
+=== Run device side application
+
+[source,sh]
+----
+$ qemu-system-riscv64 \
+  -machine virt \
+  -kernel hello \
+  -bios none \
+  -net none \
+  -nographic \
+  -chardev stdio,id=con,mux=on \
+  -serial chardev:con \
+  -mon chardev=con,mode=readline \
+  -smp 4 \
+  -s
+
+Missing kernel name. Use default 'main'.
+Missing program header. AT_PHDR is not available.
+main: hello world!
+----

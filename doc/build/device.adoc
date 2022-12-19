@@ -1,0 +1,24 @@
+
+[[device_qemu]]
+== Setup RISC-V simulator (QEMU)
+
+[source,sh]
+----
+$ git clone https://github.com/qemu/qemu
+$ cd qemu
+
+$ mkdir build
+$ cd build
+$ ../configure \
+  --target-list=riscv32-softmmu,riscv32-linux-user,riscv64-softmmu,riscv64-linux-user \
+  --enable-debug \
+  --disable-docs
+$ ninja
+----
+
+=== Environment variables
+
+[source,sh]
+----
+$ export PATH=$PATH:/path_to/qemu
+----
