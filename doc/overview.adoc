@@ -1,0 +1,41 @@
+= Overview
+
+== Basic concept
+
+This runtime is designed for accelerator side applications.
+Here is an example usecase of host and accelerator.
+
+[plantuml]
+----
+@startuml
+participant "Host" as Host
+participant "Accelerator" as Acc
+
+activate Host
+
+Host -> Acc : App + Runtime
+Host -> Acc : Put input data/parameters
+Host -> Acc : Run accelerator
+activate Acc
+deactivate Host
+
+Acc -> Acc : Do heavy task
+
+Acc -> Host : Notify finished
+activate Host
+deactivate Acc
+Host -> Acc : Get output data/results
+@enduml
+----
+
+== Goals
+
+* Easy to use
+  ** Fully support POSIX APIs by C library for Linux
+  ** Reuse almost build environment for Linux
+* Lightweigt
+  ** Implement minimum features for smaller footprint than Linux
+  ** Limit maximum number of threads up to physical cores to remove the thread scheduler (and it's overhead) from runtime
+* Single task
+  ** Concentrate to run the heavy calculation task
+  ** Accept to drop some typical OS features (I/O, signals, ...)
