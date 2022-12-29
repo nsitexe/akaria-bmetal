@@ -1,3 +1,4 @@
+
 = Overview
 
 == Basic concept
@@ -28,10 +29,10 @@ Host -> Acc : Get output data/results
 @enduml
 ----
 
-== Goals
+== Degisn goals
 
 * Easy to use
-  ** Fully support POSIX APIs by C library for Linux
+  ** Fully support POSIX APIs by full C library for Linux
   ** Reuse almost build environment for Linux
 * Lightweigt
   ** Implement minimum features for smaller footprint than Linux
@@ -39,3 +40,74 @@ Host -> Acc : Get output data/results
 * Single task
   ** Concentrate to run the heavy calculation task
   ** Accept to drop some typical OS features (I/O, signals, ...)
+
+
+== Pros and Cons (vs. baremetal, RTOS)
+
+This runtime versus typical baremetal environment.
+
+Pros
+
+* Minimum porting effert
+  ** Programmers can use Linux application program environment
+  ** No special headers, no strange defines, no API layer limitations from programmers point of view
+
+Cons
+
+* Overhead
+  ** An application uses runtime service directly (or with low overhead) when run on RTOS
+  ** On the other hand this runtime services are slower than RTOS because an application need to use services via system calls same as Linux
+  ** Need large ROM (for text, read only data) and RAM area size mainly required by full C library
+
+
+== Non-supported features
+
+Currently we dropped some typical OS features. It is better to use RTOS or rich OSes if you need them.
+
+* MMU, virtual memory
+* Multiple priviledged mode
+* Multiple processes
+* Filesystem
+
+
+== Special rules for application build
+
+Need to add some linker options into Linux application build script when you build the applications for this runtime.
+
+* Statically linked
+  ** Not support PIC
+* Use special linker script
+  ** Use fixed entry point
+  ** Use special entry function _reset() for detail please refer internal documents
+  ** Use configured memory maps for each HW
+* Additional library for runtime
+  ** Use "whole-archive" option
+
+This is an example of hello world application for this runtime.
+Normal build process for RISC-V Linux is here:
+
+[source,sh]
+----
+riscv64-unknown-linux-gnu-gcc -Wall -O2 hello.c -mcmodel=medany
+----
+
+Need 4 options to build an application for this runtime.
+
+* Statically linked
+  ** -static option
+* Use special linker script
+  ** -Wl,-T option: Specify the path to linker script
+  ** This linker script is automatically generated when you build runtime library
+* Additional library for runtime
+  ** -L option: Specify the path to runtime library
+  ** -Wl,--whole-archive option: Specify runtime library and use whole symbols in the library if no one refer them
+
+[source,sh]
+----
+DIR_SYSROOT=./sysroot \
+riscv64-unknown-linux-gnu-gcc -Wall -O2 hello.c -mcmodel=medany \
+  -static \
+  -L ${DIR_SYSROOT}/lib \
+  -Wl,-T,${DIR_SYSROOT}/include/bmetal/generated/linker_gen.ld \
+  -Wl,--whole-archive,-lbmetal_crt,--no-whole-archive
+----
