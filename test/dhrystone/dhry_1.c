@@ -58,6 +58,10 @@ extern long     time();
 extern clock_t	clock();
 #define Too_Small_Time (2*HZ)
 #endif
+#ifdef POSIX
+struct timeval tv_info;
+#define Too_Small_Time (2*HZ)
+#endif
 
 uint64_t        Begin_Time,
                 End_Time,
@@ -143,6 +147,10 @@ int main(void)
 #ifdef MSC_CLOCK
   Begin_Time = clock();
 #endif
+#ifdef POSIX
+  gettimeofday(&tv_info, NULL);
+  Begin_Time = tv_info.tv_sec * 1000000 + tv_info.tv_usec;
+#endif
 
   for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
   {
@@ -203,6 +211,10 @@ int main(void)
 #endif
 #ifdef MSC_CLOCK
   End_Time = clock();
+#endif
+#ifdef POSIX
+  gettimeofday(&tv_info, NULL);
+  End_Time = tv_info.tv_sec * 1000000 + tv_info.tv_usec;
 #endif
 
   printf ("Execution ends\n");

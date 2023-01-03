@@ -367,6 +367,12 @@
                 /* for "times" */
 #endif
 
+#ifdef POSIX
+#include <sys/time.h>
+#define HZ	1000000
+#endif
+		/* Use POSIX gettimeofday */
+
 #define Mic_secs_Per_Second     1000000.0
                 /* Berkeley UNIX C returns process times in seconds/HZ */
 

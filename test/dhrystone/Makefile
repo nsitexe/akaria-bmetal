@@ -9,7 +9,7 @@ OBJS = $(DHRYSTONE_OBJS)
 
 CPPFLAGS += \
 	-I ./ \
-	-DTIMES
+	-DPOSIX
 
 all: $(BINS)
 
