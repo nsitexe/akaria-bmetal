@@ -9,7 +9,8 @@ OBJS = $(DHRYSTONE_OBJS)
 
 CPPFLAGS += \
 	-I ./ \
-	-DPOSIX
+	-DPOSIX \
+	-DFIXED_RUNS=1000000
 
 all: $(BINS)
 

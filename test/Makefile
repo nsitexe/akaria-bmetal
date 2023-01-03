@@ -15,7 +15,9 @@ WITH_OPENBLAS ?= n
 
 # 32bit
 #APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
-#APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+# For NS31
+#APP_CFLAGS_RV = -march=rv32im -mabi=ilp32 -mcmodel=medany
+
 # 64bit
 APP_CFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
 #APP_CFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
@@ -39,7 +41,8 @@ BINS = \
 	malloc md5 \
 	saxpy sgemm \
 	vecadd vecaddf \
-	coremark/coremark
+	coremark/coremark \
+	dhrystone/dhrystone
 ifeq ($(USE_GLIBC),y)
 BINS += \
 	hello_cpp mt_clock \
@@ -186,8 +189,19 @@ coremark/coremark:
 	LDFLAGS="$(APP_LDFLAGS)" \
 	$(MAKE) -C coremark
 
+dhrystone/dhrystone:
+	USE_SYSROOT=../$(USE_SYSROOT) \
+	USE_GLIBC=$(USE_GLIBC) \
+	USE_NEWLIB=$(USE_NEWLIB) \
+	CC="$(CC)" \
+	CPPFLAGS="$(APP_CPPFLAGS)" \
+	CFLAGS="$(APP_CFLAGS)" \
+	LDFLAGS="$(APP_LDFLAGS)" \
+	$(MAKE) -C dhrystone
+
 clean:
 	rm -f $(BINS) $(OBJS)
 	$(MAKE) -C coremark $@
+	$(MAKE) -C dhrystone $@
 
 include bmetal.mk
