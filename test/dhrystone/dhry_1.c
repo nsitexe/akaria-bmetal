@@ -1,3 +1,4 @@
+
 /*
  ****************************************************************************
  *
@@ -28,8 +29,6 @@ char            Ch_1_Glob,
 int             Arr_1_Glob [50];
 int             Arr_2_Glob [50] [50];
 
-extern char     *malloc ();
-Enumeration     Func_1 ();
   /* forward declaration necessary since Enumeration may not simply be int */
 
 #ifndef REG
@@ -45,7 +44,6 @@ Enumeration     Func_1 ();
 
 #ifdef TIMES
 struct tms      time_info;
-extern  int     times ();
                 /* see library function "times" */
 #define Too_Small_Time (2*HZ)
                 /* Measurements should last at least about 2 seconds */
@@ -61,7 +59,7 @@ extern clock_t	clock();
 #define Too_Small_Time (2*HZ)
 #endif
 
-long            Begin_Time,
+uint64_t        Begin_Time,
                 End_Time,
                 User_Time;
 float           Microseconds,
@@ -69,8 +67,7 @@ float           Microseconds,
 
 /* end of variables for time measurement */
 
-
-main ()
+int main(void)
 /*****/
 
   /* main program, corresponds to procedures        */
@@ -118,6 +115,9 @@ main ()
     printf ("Program compiled without 'register' attribute\n");
     printf ("\n");
   }
+#ifdef FIXED_RUNS
+  Number_Of_Runs = FIXED_RUNS;
+#else
   printf ("Please give the number of runs through the benchmark: ");
   {
     int n;
@@ -125,6 +125,7 @@ main ()
     Number_Of_Runs = n;
   }
   printf ("\n");
+#endif
 
   printf ("Execution starts, %d runs through Dhrystone\n", Number_Of_Runs);
 
@@ -221,7 +222,7 @@ main ()
   printf ("Arr_2_Glob[8][7]:    %d\n", Arr_2_Glob[8][7]);
   printf ("        should be:   Number_Of_Runs + 10\n");
   printf ("Ptr_Glob->\n");
-  printf ("  Ptr_Comp:          %d\n", (int) Ptr_Glob->Ptr_Comp);
+  printf ("  Ptr_Comp:          %p\n", Ptr_Glob->Ptr_Comp);
   printf ("        should be:   (implementation-dependent)\n");
   printf ("  Discr:             %d\n", Ptr_Glob->Discr);
   printf ("        should be:   %d\n", 0);
@@ -232,7 +233,7 @@ main ()
   printf ("  Str_Comp:          %s\n", Ptr_Glob->variant.var_1.Str_Comp);
   printf ("        should be:   DHRYSTONE PROGRAM, SOME STRING\n");
   printf ("Next_Ptr_Glob->\n");
-  printf ("  Ptr_Comp:          %d\n", (int) Next_Ptr_Glob->Ptr_Comp);
+  printf ("  Ptr_Comp:          %p\n", Next_Ptr_Glob->Ptr_Comp);
   printf ("        should be:   (implementation-dependent), same as above\n");
   printf ("  Discr:             %d\n", Next_Ptr_Glob->Discr);
   printf ("        should be:   %d\n", 0);
@@ -278,20 +279,17 @@ main ()
                         / (float) User_Time;
 #endif
     printf ("Microseconds for one run through Dhrystone: ");
-    printf ("%6.1f \n", Microseconds);
+    printf ("%d \n", (int)Microseconds);
     printf ("Dhrystones per Second:                      ");
-    printf ("%6.1f \n", Dhrystones_Per_Second);
+    printf ("%d \n", (int)Dhrystones_Per_Second);
     printf ("\n");
   }
   
 }
 
 
-Proc_1 (Ptr_Val_Par)
-/******************/
-
-REG Rec_Pointer Ptr_Val_Par;
-    /* executed once */
+/* executed once */
+void Proc_1 (Rec_Pointer Ptr_Val_Par)
 {
   REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
                                         /* == Ptr_Glob_Next */
@@ -321,12 +319,9 @@ REG Rec_Pointer Ptr_Val_Par;
 } /* Proc_1 */
 
 
-Proc_2 (Int_Par_Ref)
-/******************/
-    /* executed once */
-    /* *Int_Par_Ref == 1, becomes 4 */
-
-One_Fifty   *Int_Par_Ref;
+/* executed once */
+/* *Int_Par_Ref == 1, becomes 4 */
+void Proc_2 (One_Fifty *Int_Par_Ref)
 {
   One_Fifty  Int_Loc;  
   Enumeration   Enum_Loc;
@@ -344,13 +339,9 @@ One_Fifty   *Int_Par_Ref;
 } /* Proc_2 */
 
 
-Proc_3 (Ptr_Ref_Par)
-/******************/
-    /* executed once */
-    /* Ptr_Ref_Par becomes Ptr_Glob */
-
-Rec_Pointer *Ptr_Ref_Par;
-
+/* executed once */
+/* Ptr_Ref_Par becomes Ptr_Glob */
+void Proc_3 (Rec_Pointer *Ptr_Ref_Par)
 {
   if (Ptr_Glob != Null)
     /* then, executed */
@@ -359,9 +350,9 @@ Rec_Pointer *Ptr_Ref_Par;
 } /* Proc_3 */
 
 
-Proc_4 () /* without parameters */
-/*******/
-    /* executed once */
+/* without parameters */
+/* executed once */
+void Proc_4 (void)
 {
   Boolean Bool_Loc;
 
@@ -371,9 +362,9 @@ Proc_4 () /* without parameters */
 } /* Proc_4 */
 
 
-Proc_5 () /* without parameters */
-/*******/
-    /* executed once */
+/* without parameters */
+/* executed once */
+void Proc_5 (void)
 {
   Ch_1_Glob = 'A';
   Bool_Glob = false;
