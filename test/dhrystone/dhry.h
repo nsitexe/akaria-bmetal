@@ -346,13 +346,6 @@
 
 /* Compiler and system dependent definitions: */
 
-#ifndef TIME
-#undef TIMES
-#define TIMES
-#endif
-                /* Use times(2) time function unless    */
-                /* explicitly defined otherwise         */
-
 #ifdef MSC_CLOCK
 #undef HZ
 #undef TIMES
