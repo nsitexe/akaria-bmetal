@@ -43,7 +43,15 @@ BINS = \
 	vecadd vecaddf \
 	coremark/coremark \
 	dhrystone/dhrystone
+
 ifeq ($(USE_GLIBC),y)
+ADD_MT=y
+endif
+ifeq ($(USE_MUSL),y)
+ADD_MT=y
+endif
+
+ifeq ($(ADD_MT),y)
 BINS += \
 	hello_cpp mt_clock \
 	mt_vecadd mt_vecaddf \
