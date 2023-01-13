@@ -355,6 +355,10 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 
 	__spinlock_lock(&desc->lock);
 	for (int i = 0; i < iovcnt; i++) {
+		if (iov[i].iov_len == 0) {
+			continue;
+		}
+
 		wr = sys_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
 		if (wr > 0) {
 			ret += wr;
