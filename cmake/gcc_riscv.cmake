@@ -14,7 +14,7 @@ if(CONFIG_RISCV_ATOMIC)
 endif()
 
 if(CONFIG_FPU)
-  if(CONFIG_64BIT)
+  if(CONFIG_FPU_DOUBLE)
     set(RV_ARCH ${RV_ARCH}fd)
     set(RV_MABI ${RV_MABI}d)
   else()
