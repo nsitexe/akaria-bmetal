@@ -22,17 +22,20 @@
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
-#if (CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0
+#if defined(CONFIG_HEAP) && ((CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0)
 #  error Invalid heap size. It should be aligned page size. \
          Please check configs about HEAP_SIZE.
 #endif
 
-static struct __spinlock lock_mmap;
 static define_brk(brk_area, CONFIG_BRK_SIZE);
 static char *brk_cur = brk_area;
+
+#ifdef CONFIG_HEAP
+static struct __spinlock lock_mmap;
 static define_heap(heap_area, CONFIG_HEAP_SIZE);
 static char heap_used[CONFIG_HEAP_SIZE / __PAGE_SIZE];
 static int dbg_heap_num = 1;
+#endif /* CONFIG_HEAP */
 
 static const struct new_utsname uname = {
 	.sysname    = "Linux",
@@ -410,6 +413,8 @@ intptr_t __sys_brk(void *addr)
 	return PTR_TO_INT(addr);
 }
 
+#ifdef CONFIG_HEAP
+
 static int __mmap_lock(void)
 {
 	__spinlock_lock(&lock_mmap);
@@ -556,8 +561,11 @@ static int free_pages(void *start, size_t length)
 	return 0;
 }
 
+#endif /* CONFIG_HEAP */
+
 intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
+#ifdef CONFIG_HEAP
 	void *anon_ptr;
 	int flags_req = MAP_PRIVATE | MAP_ANONYMOUS;
 	size_t off_page;
@@ -595,10 +603,16 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	kmemset(anon_ptr, 0, len);
 
 	return PTR_TO_INT(anon_ptr);
+#else
+	pri_warn("sys_mmap: heap is disabled.\n");
+
+	return -ENOTSUP;
+#endif /* CONFIG_HEAP */
 }
 
 intptr_t __sys_munmap(void *addr, size_t length)
 {
+#ifdef CONFIG_HEAP
 	if (addr < __heap_area_start() || __heap_area_end() < addr + length) {
 		return -EINVAL;
 	}
@@ -608,14 +622,20 @@ intptr_t __sys_munmap(void *addr, size_t length)
 	__mmap_unlock();
 
 	return 0;
+#else
+	pri_warn("sys_munmap: heap is disabled.\n");
+
+	return -ENOTSUP;
+#endif /* CONFIG_HEAP */
 }
 
 intptr_t __sys_madvise(void *addr, size_t length, int advice)
 {
-	int r;
-
 	switch (advice) {
 	case MADV_DONTNEED:
+#ifdef CONFIG_HEAP
+		int r;
+
 		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
@@ -627,6 +647,11 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 		kmemset(addr, length, 0);
 
 		break;
+#else
+		pri_warn("sys_madvise: heap is disabled.\n");
+
+		return -ENOTSUP;
+#endif /* CONFIG_HEAP */
 	default:
 		pri_warn("sys_madvise: advice %d is not supported.\n", advice);
 
