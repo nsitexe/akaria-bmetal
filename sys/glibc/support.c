@@ -60,7 +60,12 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_madvise, __sys_madvise),
 	SYSCALL_P(SYS_mprotect, __sys_mprotect),
 	SYSCALL_P(SYS_clone, __sys_clone),
-	SYSCALL_P(SYS_futex, __sys_futex),
+#ifdef CONFIG_64BIT
+	SYSCALL_P(SYS_futex, __sys_futex64),
+#else /* CONFIG_64BIT */
+	SYSCALL_P(SYS_futex, __sys_futex32),
+	SYSCALL_P(SYS_futex_time64, __sys_futex64),
+#endif /* CONFIG_64BIT */
 	SYSCALL_P(SYS_set_robust_list, __sys_set_robust_list),
 	SYSCALL_P(SYS_set_tid_address, __sys_set_tid_address),
 	SYSCALL_P(SYS_exit_group, __sys_exit_group),
