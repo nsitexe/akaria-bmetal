@@ -286,6 +286,32 @@
 #define SYS_io_pgetevents 292
 #define SYS_rseq 293
 #define SYS_kexec_file_load 294
+
+#ifndef CONFIG_64BIT
+
+#define SYS_clock_gettime64 403
+#define SYS_clock_settime64 404
+#define SYS_clock_adjtime64 405
+#define SYS_clock_getres_time64 406
+#define SYS_clock_nanosleep_time64 407
+#define SYS_timer_gettime64 408
+#define SYS_timer_settime64 409
+#define SYS_timerfd_gettime64 410
+#define SYS_timerfd_settime64 411
+#define SYS_utimensat_time64 412
+#define SYS_pselect6_time64 413
+#define SYS_ppoll_time64 414
+#define SYS_io_pgetevents_time64 416
+#define SYS_recvmmsg_time64 417
+#define SYS_mq_timedsend_time64 418
+#define SYS_mq_timedreceive_time64 419
+#define SYS_semtimedop_time64 420
+#define SYS_rt_sigtimedwait_time64 421
+#define SYS_futex_time64 422
+#define SYS_sched_rr_get_interval_time64 423
+
+#endif /* !CONFIG_64BIT */
+
 #define SYS_pidfd_send_signal 424
 #define SYS_io_uring_setup 425
 #define SYS_io_uring_enter 426

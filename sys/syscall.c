@@ -116,7 +116,41 @@ intptr_t __sys_gettid(void)
 	return __thread_get_tid();
 }
 
-intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
+intptr_t __sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
+{
+	struct timespec64 *tp64 = NULL, tmp;
+	int r;
+
+	if (tp) {
+		tmp.tv_sec = tp->tv_sec;
+		tmp.tv_nsec = tp->tv_nsec;
+		tp64 = &tmp;
+	}
+
+	r = __sys_clock_gettime64(clock_id, tp64);
+
+	if (tp) {
+		tp->tv_sec = tmp.tv_sec;
+		tp->tv_nsec = tmp.tv_nsec;
+	}
+
+	return r;
+}
+
+intptr_t __sys_clock_settime32(clockid_t clock_id, const struct timespec32 *tp)
+{
+	struct timespec64 *tp64 = NULL, tmp;
+
+	if (tp) {
+		tmp.tv_sec = tp->tv_sec;
+		tmp.tv_nsec = tp->tv_nsec;
+		tp64 = &tmp;
+	}
+
+	return __sys_clock_settime64(clock_id, tp64);
+}
+
+intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 {
 	int r;
 
@@ -142,7 +176,7 @@ intptr_t __sys_clock_gettime(clockid_t clock_id, struct timespec64 *tp)
 	return 0;
 }
 
-intptr_t __sys_clock_settime(clockid_t clock_id, const struct timespec64 *tp)
+intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 {
 	int r;
 

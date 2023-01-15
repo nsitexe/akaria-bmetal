@@ -38,8 +38,15 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_getegid, __sys_getegid),
 	SYSCALL_P(SYS_getpid, __sys_getpid),
 	SYSCALL_P(SYS_gettid, __sys_gettid),
-	SYSCALL_P(SYS_clock_gettime, __sys_clock_gettime),
-	SYSCALL_P(SYS_clock_settime, __sys_clock_settime),
+#ifdef CONFIG_64BIT
+	SYSCALL_P(SYS_clock_gettime, __sys_clock_gettime64),
+	SYSCALL_P(SYS_clock_settime, __sys_clock_settime64),
+#else /* CONFIG_64BIT */
+	SYSCALL_P(SYS_clock_gettime, __sys_clock_gettime32),
+	SYSCALL_P(SYS_clock_settime, __sys_clock_settime32),
+	SYSCALL_P(SYS_clock_gettime64, __sys_clock_gettime64),
+	SYSCALL_P(SYS_clock_settime64, __sys_clock_settime64),
+#endif /* CONFIG_64BIT */
 	SYSCALL_P(SYS_gettimeofday, __sys_gettimeofday),
 	SYSCALL_P(SYS_settimeofday, __sys_settimeofday),
 	SYSCALL_P(SYS_getrandom, __sys_getrandom),
