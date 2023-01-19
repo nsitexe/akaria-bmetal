@@ -1,5 +1,39 @@
 
 = Internals
 
+1. xref:internals/boot.adoc[Boot and init]
 1. xref:internals/section.adoc[Special sections]
 1. xref:internals/thread.adoc[Threads]
+
+
+= Directory structure
+
+arch/(arch name)::
+  Architecture dependent codes and internal/private headers.
+  Include headers are under `arch/(arch name)/include/bmetal/arch` directory.
+arch/(arch name)/(soc name)::
+  SoC dependent codes and it's private headers.
+boards/(arch name)/(board name)::
+  Board dpendent codes and it's private headers.
+include/bmetal::
+  Internal headers that mainly defines I/F are used by multiple sources.
+sys::
+  Common codes for each architecture like as system call interface.
+    glibc:::
+      For GNU libc support codes.
+    musl:::
+      For musl libc support codes.
+    newlib:::
+      For newlib support codes.
+drivers::
+  Implementation HAL and drivers for each supported HWs.
+configs::
+  Preset config files are used with cmake (see: DEFCONF option of cmake).
+
+
+= Porting new board
+
+= Porting new SoC
+
+= Porting new architecture
+
