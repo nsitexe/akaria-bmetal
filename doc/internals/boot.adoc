@@ -12,8 +12,8 @@
 ** Device definitions in `boards/(arch name)/(board name)/board.c`.
 * Init arguments
 ** (Accelerator mode only) Copy and setup parameters from host.
-* Init idle/main threads
-* Switch to main thread
+* Init process/threads
+* Switch to main/idle thread
 ** `sys/thread.c`.
 
 At main thread.
@@ -179,11 +179,77 @@ deactivate Board
 
 == Init arguments
 
+1. Pass data/parameters from host to main()
+1. Get an ELF header
 
-== Init idle/main threads
+Check whether data/parameters from host is exist or not in `.comm_area` special section.
+For detail please refer xref:section.adoc[Special sections].
+Copy data/parameters and pass it to arguments (argc and argv) of main().
+
+Get the pointer of ELF header on `.auxdata` special section.
+You need to use `add_aux_tool` to add ELF header into section.
+For detail please refer xref:section.adoc[Special sections].
 
 
-== Switch to main thread
+== Init process/threads
+
+Initialize 1 process control data because the runtime do not support multi process.
+
+And initialize `2 x N` thread control data for idle, main and task threads.
+`N` means number of hardware threads/cores.
+
+* N idle threads
+* 1 main thread
+* N - 1 task threads
+
+The runtime do not need other thread control data because the runtime limits user applications creating number of N threads.
+
+
+== Switch to main/idle thread
+
+For main core, a context for interrupt handler is selected in early boot sequence.
+At this point, the runtime calls special system call to switch the context from interrupt to main thread.
+
+
+[plantuml]
+----
+@startuml
+participant "Runtime" as Runtime
+participant "Syscall handler" as Sys
+participant "Main thread" as Main
+
+-> Runtime : Reset
+activate Runtime
+
+Runtime -> Sys : Set context switch params
+Runtime -> Sys : Syscall
+deactivate Runtime
+activate Sys
+
+Sys -> Sys : Change context to main thread
+Sys -> Main : Return from syscall
+deactivate Sys
+activate Main
+
+Main -> Main : Do something
+@enduml
+----
+
+Other sub cores switch to idle threads and wait wakeup notification from other cores.
+For detail please refer xref:thread.adoc[Threads].
 
 
 == Init C library
+
+Call initialization function of C library but it depends on type of C library.
+
+newlib::
+  The runtime has original startup codes that set `argc`, `argv` and `envp` for `__libc_init()` function of newlib.
+  We cannot use `crt0.o` of newlib because it is designed for baremetal so `crt0.o` try to clear whole bss area that includes already used one.
+  It will break global variables of the runtime and will go to crash.
+GNU libc::
+  We can use `crt0.o` of GNU libc.
+  The runtime setup that start address points `_start` symbol in `crt0.o` to jump.
+  GNU libc initialize function requires ELF header address.
+musl libc::
+  Same as GNU libc, we can use `crt0.o` of musl libc.
