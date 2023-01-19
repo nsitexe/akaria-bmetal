@@ -3,18 +3,26 @@
 
 == Basic concept
 
-This runtime is designed for accelerator side applications.
-Here is an example usecase of host and accelerator.
+This runtime supports 2 running modes.
+First `accelerator mode` is designed for cooperative systems that are consists from host and accelerator device side applications.
+Second `standalone mode` is designed for independent small embedded device applications.
+
+=== Accelerator mode
+
+In this mode device works as accelerator.
+Host application passes some heavy tasks and related data to device and device will process quickly on the device side.
+This runtime works as communication layers between host and device and as simple OS for accelerator device side applications.
+Here is an example usecase of host and device.
 
 [plantuml]
 ----
 @startuml
 participant "Host" as Host
-participant "Accelerator" as Acc
+participant "Accelerator Device" as Acc
 
 activate Host
 
-Host -> Acc : App + Runtime
+Host -> Acc : App + Runtime binary
 Host -> Acc : Put input data/parameters
 Host -> Acc : Run accelerator
 activate Acc
@@ -29,7 +37,29 @@ Host -> Acc : Get output data/results
 @enduml
 ----
 
-== Degisn goals
+=== Standalone mode
+
+In this mode, host side application is not required (optional) becuase device side enable to run standalone.
+This runtime can be used for simple baremetal runtime for small embedded devices.
+
+[plantuml]
+----
+@startuml
+participant "Embedded Device" as Dev
+
+Dev -> Dev : Reset
+activate Dev
+
+Dev -> Dev : Do some task
+
+Dev -> Dev : Finished
+deactivate Dev
+
+@enduml
+----
+
+
+== Design goals
 
 * Easy to use
   ** Fully support POSIX APIs by full C library for Linux
@@ -40,6 +70,96 @@ Host -> Acc : Get output data/results
 * Single task
   ** Concentrate to run the heavy calculation task
   ** Accept to drop some typical OS features (I/O, signals, ...)
+
+
+== Application designs
+
+A device side application needs to be cross compiled on PC before running.
+An application that is statically linked with cross C/C++ libraries and this runtime library is packed to one binary.
+
+[plantuml]
+----
+@startuml
+file dev_app_src as "User app (C/C++, Device)"
+file dev_app as "User app binary (Device)" {
+    file dev_app_bin as "User kernel (Device)"
+    file dev_libc as "C/C++ library (Device)"
+    file dev_lib as "Runtime library (Device)"
+}
+rectangle dev_compiler as "GCC/LLVM (Cross)"
+
+dev_app_src --> dev_compiler
+dev_compiler --> dev_app_bin : Offline compile on Host
+dev_app_bin .. dev_libc : Static link
+dev_app_bin .. dev_lib : Static link
+@enduml
+----
+
+A host side application is dynamically linked with host side C/C++ and runtime libraries.
+There are source codes of host side runtime library in another repository.
+
+[plantuml]
+----
+@startuml
+file host_app_src as "User app (C/C++, Host)"
+file host_libc as "C/C++ library (Host)"
+file host_lib as "Runtime library (Host)"
+file host_app_bin as "User app binary (Host)"
+rectangle host_compiler as "GCC/LLVM (Host)"
+
+host_app_src --> host_compiler
+host_compiler --> host_app_bin : Compile
+host_app_bin .. host_libc : Dynamic link
+host_app_bin .. host_lib : Dynamic link
+@enduml
+----
+
+
+== Block diagram
+
+This picture shows almost modules and their communication paths in accelerator mode.
+
+[plantuml]
+----
+@startuml
+rectangle host as "Host" {
+    rectangle host_app_bin as "User app binary (Host)"
+    rectangle host_runtime as "Runtime library (Host)" {
+        rectangle host_lib as "Runtime (Host)"
+        rectangle host_drv as "HW driver (Host, user mode)"
+    }
+    rectangle host_os as "Host OS (Linux)" {
+        rectangle host_drv_common as "HW driver layer"
+    }
+    rectangle host_hw as "Host HW"
+
+    file dev_app_gen as "User app binary (Device)"
+}
+
+rectangle device as "Device" {
+    rectangle dev_app_bin as "User kernel (Device)"
+    rectangle dev_runtime as "Runtime library (Device)" {
+        rectangle dev_lib as "Runtime (Device)"
+        rectangle dev_drv as "HW driver (Device)"
+    }
+    rectangle dev_hw as "Device HW"
+}
+
+host_app_bin <--> host_lib : OpenCL API
+host_lib <--> host_drv : Original HW API
+host_drv <--> host_drv_common
+host_drv_common <--> host_hw
+
+dev_app_gen ..> dev_app_bin : Transfer
+
+dev_app_bin <--> dev_lib : POSIX API, System call
+dev_lib <--> dev_drv : Original HW API
+dev_drv <--> dev_hw
+
+host_lib <--> dev_lib : Original protocol, GDB protocol, ...
+host_hw <--> dev_hw : PCIe, TCP/IP, ...
+@enduml
+----
 
 
 == Pros and Cons (vs. baremetal, RTOS)
@@ -62,7 +182,7 @@ Cons
 
 == Non-supported features
 
-Currently we dropped some typical OS features. It is better to use RTOS or rich OSes if you need them.
+Currently we dropped some typical OS features. It is better to use RTOS or rich OSes if you need these rich features.
 
 * MMU, virtual memory
 * Multiple priviledged mode
