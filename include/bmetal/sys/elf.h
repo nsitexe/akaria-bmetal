@@ -19,6 +19,7 @@
 #define AT_PHDR      3
 #define AT_PHENT     4
 #define AT_PHNUM     5
+#define AT_PAGESZ    6
 #define AT_RANDOM    25
 
 #if !defined(__ASSEMBLER__)

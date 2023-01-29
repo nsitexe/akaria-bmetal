@@ -315,6 +315,7 @@ static int init_args(int *argc)
 
 	/* Auxiliary vectors */
 	add_aux(AT_RANDOM, at_random);
+	add_aux(AT_PAGESZ, (void *)__PAGE_SIZE);
 
 	if (__aux_start.valid) {
 		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start.phent);
