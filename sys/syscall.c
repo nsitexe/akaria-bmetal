@@ -834,13 +834,14 @@ intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	if (!uaddr) {
 		return -EFAULT;
 	}
-	if (timeout) {
-		pri_warn("sys_futex: timeout %d.%09d is not support.\n",
-			(int)timeout->tv_sec, (int)timeout->tv_nsec);
-	}
 
 	switch (cmd) {
 	case FUTEX_WAIT:
+		if (timeout) {
+			pri_warn("sys_futex: timeout %d.%09d is not support.\n",
+				(int)timeout->tv_sec, (int)timeout->tv_nsec);
+		}
+
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAIT_BITSET:
