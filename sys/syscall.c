@@ -917,7 +917,7 @@ intptr_t __sys_set_tid_address(int *tidptr)
 		ti->ctid = tidptr;
 	}
 
-	return 0;
+	return ti->tid;
 }
 
 intptr_t __sys_exit_group(int status)
