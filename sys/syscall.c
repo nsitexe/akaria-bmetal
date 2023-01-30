@@ -668,12 +668,10 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 	switch (advice) {
 	case MADV_DONTNEED:
 #ifdef CONFIG_HEAP
-		int r;
-
 		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
-		r = check_pages(addr, length);
+		int r = check_pages(addr, length);
 		if (r) {
 			return r;
 		}
