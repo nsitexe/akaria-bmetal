@@ -871,6 +871,17 @@ intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 
 		ret = r;
 		break;
+	case FUTEX_REQUEUE:
+		r = __cpu_futex_wake(uaddr, val, FUTEX_BITSET_ANY);
+		if (r < 0) {
+			pri_warn("%d: futex err requeue %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+
+			ret = r;
+			goto err_out;
+		}
+
+		ret = r;
+		break;
 	default:
 		pri_warn("sys_futex: cmd %d is not supported.\n", cmd);
 
