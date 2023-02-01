@@ -814,10 +814,11 @@ err_out:
 
 intptr_t __sys_futex32(int *uaddr, int op, int val, const struct timespec32 *timeout, int *uaddr2, int val3)
 {
+	int cmd = op & FUTEX_MASK;
 	const struct timespec64 *ts = NULL;
 	struct timespec64 tmp;
 
-	if (timeout) {
+	if (cmd == FUTEX_WAIT && timeout) {
 		tmp.tv_sec = timeout->tv_sec;
 		tmp.tv_nsec = timeout->tv_nsec;
 		ts = &tmp;
