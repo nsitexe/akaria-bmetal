@@ -4,6 +4,7 @@ prj_sources(
   clock.c
   event.c
   file.c
+  fini.c
   init.c
   intr.c
   lock.c
