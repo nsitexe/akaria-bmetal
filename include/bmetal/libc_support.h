@@ -5,10 +5,8 @@
 
 #include <bmetal/bmetal.h>
 
-#if defined(CONFIG_USE_GLIBC)
-#  include <bmetal/glibc/libc_support.h>
-#elif defined(CONFIG_USE_MUSL)
-#  include <bmetal/musl/libc_support.h>
+#if defined(CONFIG_USE_LIBC)
+#  include <bmetal/libc/libc_support.h>
 #elif defined(CONFIG_USE_NEWLIB)
 #  include <bmetal/newlib/libc_support.h>
 #endif

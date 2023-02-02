@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_GLIBC_SYSCALL_NUM_H_
-#define BAREMETAL_CRT_GLIBC_SYSCALL_NUM_H_
+#ifndef BAREMETAL_CRT_LIBC_SYSCALL_NUM_H_
+#define BAREMETAL_CRT_LIBC_SYSCALL_NUM_H_
 
-#ifndef CONFIG_USE_GLIBC
+#ifndef CONFIG_USE_LIBC
 #  error Include wrong syscall header.
 #endif
 
@@ -332,4 +332,4 @@
 
 #define MAX_SYSCALLS        448
 
-#endif /* BAREMETAL_CRT_GLIBC_SYSCALL_NUM_H_ */
+#endif /* BAREMETAL_CRT_LIBC_SYSCALL_NUM_H_ */

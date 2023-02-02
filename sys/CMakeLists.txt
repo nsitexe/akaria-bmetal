@@ -15,7 +15,6 @@ prj_sources(
   vsprintf.c
   )
 
-add_subdirectory_ifdef(CONFIG_USE_GLIBC glibc)
-add_subdirectory_ifdef(CONFIG_USE_MUSL musl)
+add_subdirectory_ifdef(CONFIG_USE_LIBC libc)
 add_subdirectory_ifdef(CONFIG_USE_NEWLIB newlib)
 add_subdirectory(sys)
