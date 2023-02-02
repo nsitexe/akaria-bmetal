@@ -6,6 +6,7 @@
 #include <bmetal/drivers/clk.h>
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/intc.h>
+#include <bmetal/drivers/reset.h>
 #include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
@@ -138,6 +139,24 @@ static struct __clk_device rtcclk = {
 	},
 };
 
+const static struct __device_config reset0_conf[] = {
+	PROP("reg", 0x00100000),
+	PROP("reg-size", 0x1000),
+	PROP("system", 1),
+	{0},
+};
+
+static __reset_priv_t reset0_priv;
+static struct __reset_device reset0 = {
+	.base = {
+		.name = "reset0",
+		.type_vendor = "sifive",
+		.type_device = "qemu_test",
+		.conf = reset0_conf,
+		.priv = &reset0_priv,
+	},
+};
+
 const static struct __device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
 	PROP("reg-size", 0xc000),
@@ -191,6 +210,7 @@ static int board_qemu_virt_init(void)
 	__intc_add_device(&clint, __bus_get_root());
 	__clk_add_device(&rtcclk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
+	__reset_add_device(&reset0, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 
 	return 0;
