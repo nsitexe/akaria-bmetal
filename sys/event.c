@@ -114,5 +114,3 @@ int __event_handle_generic(int event, struct __event_handler *hnd_head)
 
 	return res;
 }
-
-
