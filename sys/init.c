@@ -6,6 +6,7 @@
 #include <bmetal/init.h>
 #include <bmetal/arch.h>
 #include <bmetal/comm.h>
+#include <bmetal/fini.h>
 #include <bmetal/intr.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
@@ -369,6 +370,10 @@ void __init_system(void)
 
 void __fini_system(void)
 {
+#ifdef CONFIG_PWR_OFF_AFTER_EXIT
+	__fini_power_off();
+#endif /* CONFIG_PWR_OFF_AFTER_EXIT */
+
 	fini_proc();
 	fini_drivers();
 }
