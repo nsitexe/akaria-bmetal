@@ -1,9 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <stdatomic.h>
-
 #include <bmetal/thread.h>
 #include <bmetal/arch.h>
+#include <bmetal/atomic.h>
 #include <bmetal/init.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
@@ -15,11 +14,11 @@
 static struct __proc_info __pi;
 /* Each CPU has 2 threads (idle and task) */
 static struct __thread_info __ti[CONFIG_NUM_CORES * 2];
-static atomic_int uniq_tid = 1;
+static __atomic_int uniq_tid = 1;
 
 static int alloc_tid(void)
 {
-	return atomic_fetch_add(&uniq_tid, 1);
+	return __afetch_add(&uniq_tid, 1);
 }
 
 struct __proc_info *__proc_create(void)

@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <stdatomic.h>
-
+#include <bmetal/atomic.h>
 #include <bmetal/lock.h>
 
 int __spinlock_init(struct __spinlock *s)
@@ -48,7 +47,7 @@ int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock)
 {
 	int tmp = 1, val;
 
-	val = atomic_exchange(&lock->val, tmp);
+	val = __aexchange(&lock->val, tmp);
 
 	return val;
 }
@@ -56,7 +55,7 @@ int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock)
 int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock)
 {
 	lock->id = -1;
-	atomic_store(&lock->val, 0);
+	__astore(&lock->val, 0);
 
 	return 0;
 }
