@@ -19,4 +19,5 @@
 
 == Build and run examples
 
-* xref:build/ex_standalone.adoc#ex_standalone_qemu[Standalone mode with QEMU]
+* xref:build/ex_standalone.adoc#ex_standalone_qemu_newlib[Standalone mode with QEMU for single thread]
+* xref:build/ex_standalone.adoc#ex_standalone_qemu_musl[Standalone mode with QEMU for multithread]
