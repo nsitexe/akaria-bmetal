@@ -8,7 +8,8 @@
 
 == Setup toolchain
 
-* xref:build/toolchain.adoc#toolchain_crosstoolng[Setup RISC-V toolchain (crosstool-NG)]
+* xref:build/toolchain.adoc#toolchain_crosstoolng_newlib[Setup RISC-V toolchain for single thread (crosstool-NG, newlib)]
+* xref:build/toolchain.adoc#toolchain_crosstoolng_musl[Setup RISC-V toolchain for multithread (crosstool-NG, musl)]
 
 
 == Setup device

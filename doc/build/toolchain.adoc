@@ -1,6 +1,6 @@
 
-[[toolchain_crosstoolng]]
-== Setup RISC-V toolchain (crosstool-NG)
+[[toolchain_crosstoolng_newlib]]
+== Setup RISC-V toolchain for single thread (crosstool-NG, newlib)
 
 You can use crosstool-NG to build upstream toolchain with your prefered configs.
 This is just example for building RISC-V GCC + newlib toolchain.
@@ -10,8 +10,6 @@ This is just example for building RISC-V GCC + newlib toolchain.
 $ cd $WDIR
 $ git clone https://github.com/crosstool-ng/crosstool-ng
 $ cd crosstool-ng
-$ git checkout crosstool-ng-1.25.0
-$ git apply newlib_http_mirror.diff
 
 $ ./bootstrap
 $ ./configure --enable-local
@@ -40,4 +38,54 @@ For more details please refer documents of crosstool-NG (https://crosstool-ng.gi
 [source,sh]
 ----
 $ export PATH=~/x-tools/riscv64-unknown-elf/bin:$PATH
+----
+
+
+[[toolchain_crosstoolng_musl]]
+== Setup RISC-V toolchain for multithread (crosstool-NG, musl)
+
+You can use crosstool-NG to build upstream toolchain with your prefered configs.
+This is just example for building RISC-V GCC + musl toolchain.
+
+[source,sh]
+----
+$ cd $WDIR
+$ git clone https://github.com/crosstool-ng/crosstool-ng
+$ cd crosstool-ng
+
+$ ./bootstrap
+$ ./configure --enable-local
+$ make
+
+$ ./ct-ng menuconfig
+
+
+Paths and misc options  --->
+  [*] Try features marked as EXPERIMENTAL
+
+Target options  --->
+  Target Architecture (riscv)  --->
+  [*] Use the MMU
+  Bitness: (64-bit)  --->
+  (-mcmodel=medany) Target CFLAGS
+
+Operating System  --->
+  Target OS (linux)  --->
+
+C compiler  --->
+  [*] C++
+
+Debug facilities  --->
+  [*] gdb  --->
+
+$ ./ct-ng build
+----
+
+For more details please refer documents of crosstool-NG (https://crosstool-ng.github.io/docs/).
+
+=== Environment variables
+
+[source,sh]
+----
+$ export PATH=~/x-tools/riscv64-unknown-linux-musl/bin:$PATH
 ----
