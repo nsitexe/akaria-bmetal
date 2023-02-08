@@ -72,6 +72,9 @@ Target options  --->
 Operating System  --->
   Target OS (linux)  --->
 
+C-library  --->
+  C library (musl)  --->
+
 C compiler  --->
   [*] C++
 
