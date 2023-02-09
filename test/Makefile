@@ -40,7 +40,8 @@ BINS = \
 	crt_string \
 	ctype \
 	daxpy \
-	echo flush hello \
+	echo flush \
+	hello hello_cpp \
 	malloc md5 \
 	saxpy sgemm \
 	vecadd vecaddf \
@@ -56,7 +57,7 @@ endif
 
 ifeq ($(ADD_MT),y)
 BINS += \
-	hello_cpp mt_clock \
+	mt_clock \
 	mt_vecadd mt_vecaddf \
 	pthread pthread_barrier pthread_cond \
 	reboot
