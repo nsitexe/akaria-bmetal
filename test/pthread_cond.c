@@ -26,7 +26,7 @@ int v_common_e = 0;
 int get_core_id(void)
 {
 	int ret = -1;
-#if defined(__riscv)
+#if defined(__riscv_zicsr)
 	__asm volatile ("csrr %0, mhartid" : "=r"(ret));
 #endif
 	return ret;
