@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+#define STACK_AL    16
+
 #if __riscv_xlen == 64
 #  define REGSIZE     8
 #  define REGOFF      3
@@ -31,6 +33,7 @@ _crt_start:
 	slli  a2, a0, REGOFF
 	add   a2, a1, a2
 	addi  a2, a2, REGSIZE
+	andi  sp, sp, ~(STACK_AL - 1)
 
 	call  __libc_init
 1:
