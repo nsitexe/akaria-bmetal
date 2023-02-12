@@ -11,4 +11,5 @@ prj_sources(
   thread.c
   )
 
+add_subdirectory_ifdef(CONFIG_USE_NEWLIB newlib)
 add_subdirectory(${CONFIG_SOC_NAME})
