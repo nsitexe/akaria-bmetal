@@ -30,6 +30,10 @@ endif()
 # From binutils 2.38
 set(RV_ARCH ${RV_ARCH}_zicsr_zifencei)
 
+if(CONFIG_RISCV_CACHE)
+  set(RV_ARCH ${RV_ARCH}_zicbom)
+endif()
+
 prj_compile_options(-march=${RV_ARCH})
 prj_compile_options(-mabi=${RV_MABI})
 
