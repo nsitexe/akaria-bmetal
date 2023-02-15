@@ -13,7 +13,7 @@
 #if __riscv_vector == 1
 #include <riscv_vector.h>
 
-#define sgemm    sgemm_rvv_inner
+#define sgemm    sgemm_rvv
 #else /* __riscv_vector == 1 */
 #define sgemm    sgemm_scalar
 #endif /* __riscv_vector == 1 */
@@ -49,56 +49,28 @@ static inline int __attribute__((format(printf, 1, 2))) noprintf(const char *for
 }
 
 #if __riscv_vector == 1
-void sgemm_rvv_inner(const float *a, const float *b, float *c, int mm, int nn, int kk)
+void sgemm_rvv(const float *a, const float *b, float *c, int mm, int nn, int kk)
 {
-	vfloat32m1_t va, vb, vc, vt;
-	size_t vl;
+	vfloat32m1_t v;
+	int vl;
 
-	dbgprintf("----- use rvv f32 inner\n");
+	dbgprintf("----- use rvv f32\n");
+
+	vl = vsetvlmax_e32m1();
+	v = vfmv_v_f_f32m1(0.0f, vl);
+	for (int i = 0; i < mm * nn; i += vl) {
+		vl = vsetvl_e32m1(mm * nn - i);
+		vse32_v_f32m1(&c[i], v, vl);
+	}
 
 	for (int i = 0; i < mm; i++) {
-		for (int j = 0; j < nn; j++) {
-			c[i * nn + j] = 0.0f;
-			for (int k = 0; k < kk; k += vl) {
-				vl = vsetvl_e32m1(kk - k);
-				va = vle32_v_f32m1(&a[i * kk + k], vl);
-				vb = vlse32_v_f32m1(&b[k * nn + j], nn * sizeof(float), vl);
-				vc = vle32_v_f32m1(&c[i * nn + j], 1);
-
-				vt = vfmul_vv_f32m1(va, vb, vl);
-				vc = vfredusum_vs_f32m1_f32m1(vc, vt, vc, vl);
-				c[i * nn + j] = vfmv_f_s_f32m1_f32(vc);
-			}
-		}
-	}
-}
-
-void sgemm_rvv_outer(const float *a, const float *b, float *c, int mm, int nn, int kk)
-{
-	vfloat32m1_t va, vb, vc, vt;
-	size_t vli, vlk;
-
-	dbgprintf("----- use rvv f32 outer\n");
-
-	vli = vsetvlmax_e32m1();
-	vc = vfmv_v_f_f32m1(0.0f, vli);
-	for (int i = 0; i < mm * nn; i += vli) {
-		vli = vsetvl_e32m1(mm * nn - i);
-		vse32_v_f32m1(&c[i], vc, vli);
-	}
-
-	for (int j = 0; j < nn; j++) {
-		for (int k = 0; k < kk; k += vlk) {
-			vlk = vsetvl_e32m1(kk - k);
-			vb = vlse32_v_f32m1(&b[k * nn + j], nn * sizeof(float), vlk);
-
-			for (int i = 0; i < mm; i++) {
-				va = vle32_v_f32m1(&a[i * kk + k], vlk);
-				vc = vle32_v_f32m1(&c[i * nn + j], 1);
-
-				vt = vfmul_vv_f32m1(va, vb, vlk);
-				vc = vfredusum_vs_f32m1_f32m1(vc, vt, vc, vlk);
-				vse32_v_f32m1(&c[i * nn + j], vc, 1);
+		for (int k = 0; k < kk; k++) {
+			for (int j = 0; j < nn; j += vl) {
+				vl = vsetvl_e32m1(nn - j);
+				vfloat32m1_t vb = vle32_v_f32m1(&b[k * nn + j], vl);
+				vfloat32m1_t vc = vle32_v_f32m1(&c[i * nn + j], vl);
+				vc = vfmacc_vf_f32m1(vc, a[i * kk + k], vb, vl);
+				vse32_v_f32m1(&c[i * nn + j], vc, vl);
 			}
 		}
 	}
