@@ -22,9 +22,16 @@
 #include <cblas.h>
 #endif
 
+#define MAX(a, b)    ((a > b) ? (a) : (b))
+#define MIN(a, b)    ((a < b) ? (a) : (b))
+
 #define M    19
 #define N    17
 #define K    23
+
+#define BLK_I    64
+#define BLK_J    64
+#define BLK_K    64
 
 float ta[M * K];
 float tb[K * N];
@@ -100,13 +107,29 @@ void sgemm_rvv_outer(const float *a, const float *b, float *c, int mm, int nn, i
 
 void sgemm_scalar(const float *a, const float *b, float *c, int mm, int nn, int kk)
 {
+	int ie, je, ke;
+
 	dbgprintf("----- use scalar f32\n");
 
 	for (int i = 0; i < mm; i++) {
 		for (int j = 0; j < nn; j++) {
 			c[i * nn + j] = 0.0f;
-			for (int k = 0; k < kk; k++) {
-				c[i * nn + j] += a[i * kk + k] * b[k * nn + j];
+		}
+	}
+
+	for (int ib = 0; ib < mm; ib += BLK_I) {
+		ie = MIN(ib + BLK_I, mm);
+		for (int kb = 0; kb < kk; kb += BLK_K) {
+			ke = MIN(kb + BLK_K, kk);
+			for (int jb = 0; jb < nn; jb += BLK_J) {
+				je = MIN(jb + BLK_J, nn);
+				for (int i = ib; i < ie; i++) {
+					for (int k = kb; k < ke; k++) {
+						for (int j = jb; j < je; j++) {
+							c[i * nn + j] += a[i * kk + k] * b[k * nn + j];
+						}
+					}
+				}
 			}
 		}
 	}
