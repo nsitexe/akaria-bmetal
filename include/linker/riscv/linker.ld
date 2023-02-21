@@ -70,12 +70,14 @@ MEMORY
 
 SECTIONS
 {
-	PROVIDE(_text = .);
-	PROVIDE(_stext = .);
-
 	/* Special text section for reset vector */
 	.reset : {
 		. = ALIGN(4);
+
+		PROVIDE(__executable_start = .);
+		PROVIDE(_text = .);
+		PROVIDE(_stext = .);
+
 		KEEP(*(.reset .reset.*))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
@@ -95,6 +97,7 @@ SECTIONS
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	PROVIDE(_etext = .);
+	PROVIDE(etext = .);
 
 	.comm : {
 		KEEP(*(.comm_header .comm_header.*))
