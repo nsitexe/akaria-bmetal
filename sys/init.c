@@ -53,7 +53,8 @@ extern const Elf32_Ehdr __ehdr_start;
 extern __init_func_t __initcall_start[];
 extern __init_func_t __initcall_end[];
 
-static struct __aux_data __aux_start __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
+static const struct __aux_data __aux_start__ __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
+static volatile const struct __aux_data *__aux_start = &__aux_start__;
 
 define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
 define_stack(__stack_idle, CONFIG_NUM_CORES * CONFIG_IDLE_STACK_SIZE);
@@ -318,9 +319,9 @@ static int init_args(int *argc)
 	add_aux(AT_RANDOM, at_random);
 	add_aux(AT_PAGESZ, (void *)__PAGE_SIZE);
 
-	if (__aux_start.valid) {
-		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start.phent);
-		add_aux(AT_PHNUM, (void *)(intptr_t)__aux_start.phnum);
+	if (__aux_start->valid) {
+		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start->phent);
+		add_aux(AT_PHNUM, (void *)(intptr_t)__aux_start->phnum);
 
 		char *p = (char *)&__ehdr_start;
 		p += __ehdr_start.e_phoff;
