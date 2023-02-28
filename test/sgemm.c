@@ -140,19 +140,19 @@ int fp_eq(float reference, float actual, float relErr)
 	return fabsf(actual - reference) < absErr;
 }
 
-int check_result(const float *c, const float *c_ex, int l, int m, int n)
+int check_result(const float *c, const float *c_ex, int mm, int nn, int kk)
 {
 	int cnt = 0;
 
-	for (int i = 0; i < l; i++) {
-		for (int j = 0; j < m; j++) {
-			if (!fp_eq(c_ex[i * m + j], c[i * m + j], 1e-6)) {
+	for (int i = 0; i < mm; i++) {
+		for (int j = 0; j < nn; j++) {
+			if (!fp_eq(c_ex[i * nn + j], c[i * nn + j], 1e-6)) {
 				if (cnt >= 10) {
 					continue;
 				}
 
 				printf("[%d, %d]: %f != %f (expected)\n", i, j,
-					c[i * m + j], c_ex[i * m + j]);
+					c[i * nn + j], c_ex[i * nn + j]);
 				cnt++;
 			}
 		}
@@ -230,7 +230,7 @@ int main(int argc, char *argv[], char *envp[])
 #endif
 		gettimeofday(&ed, NULL);
 		timersub(&ed, &st, &ela);
-		dbgprintf("verify: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
+		printf("verify: %d.%06d\n", (int)ela.tv_sec, (int)ela.tv_usec);
 
 		r = check_result(c, c_ex, m, n, k);
 		if (r) {
