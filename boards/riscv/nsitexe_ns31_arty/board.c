@@ -40,9 +40,9 @@ static struct __clk_device clk = {
 	},
 };
 
-const static struct __device_config icu_timer_conf[] = {
-	PROP("reg", 0x2000200),
-	PROP("reg-size", 0x200),
+const static struct __device_config clint_timer_conf[] = {
+	PROP("reg", 0x2004000),
+	PROP("reg-size", 0xc000),
 	PROP("interrupts",
 		UPTR("rvintc0"), RV_IX_TIX),
 	PROP("clocks", UPTR("clk"), 0),
@@ -50,14 +50,14 @@ const static struct __device_config icu_timer_conf[] = {
 	{0},
 };
 
-static __timer_priv_t icu_timer_priv;
-static struct __timer_device icu_timer = {
+static __timer_priv_t clint_timer_priv;
+static struct __timer_device clint_timer = {
 	.base = {
-		.name = "icu_timer",
-		.type_vendor = "nsitexe",
-		.type_device = "icu_timer",
-		.conf = icu_timer_conf,
-		.priv = &icu_timer_priv,
+		.name = "clint_timer",
+		.type_vendor = "sifive",
+		.type_device = "clint0_timer",
+		.conf = clint_timer_conf,
+		.priv = &clint_timer_priv,
 	}
 };
 
@@ -83,7 +83,7 @@ static int board_ns31_arty_init(void)
 {
 	__cpu_add_device(&cpu0, __bus_get_root());
 	__clk_add_device(&clk, __bus_get_root());
-	__timer_add_device(&icu_timer, __bus_get_root());
+	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 
 	__uart_set_default_console(&uart0);
