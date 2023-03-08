@@ -12,6 +12,7 @@ USE_SYSROOT ?= ./sysroot
 # Test with additional libraries (please read doc/test.adoc)
 WITH_EIGEN ?= n
 WITH_OPENBLAS ?= n
+WITH_OPENSSL ?= n
 
 # 32bit
 #APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
@@ -77,6 +78,12 @@ EXT_CXXFLAGS += \
 EXT_LDADD += \
 	-lopenblas
 endif
+ifeq ($(WITH_OPENSSL),y)
+BINS += \
+	hello_openssl
+EXT_LDADD += \
+	-lcrypto
+endif
 
 ARGS_OBJS = args.o
 CLOCK_OBJS = clock.o
@@ -88,6 +95,7 @@ FLUSH_OBJS = flush.o
 HELLO_OBJS = hello.o
 HELLO_CPP_OBJS = hello_cpp.o
 HELLO_EIGEN_OBJS = hello_eigen.o
+HELLO_OPENSSL_OBJS = hello_openssl.o
 MALLOC_OBJS = malloc.o
 MD5_OBJS = md5.o
 MT_CLOCK_OBJS = mt_clock.o
@@ -108,6 +116,7 @@ OBJS = \
 	$(DAXPY_OBJS) \
 	$(ECHO_OBJS) $(FLUSH_OBJS) \
 	$(HELLO_OBJS) $(HELLO_CPP_OBJS) $(HELLO_EIGEN_OBJS) \
+	$(HELLO_OPENSSL_OBJS) \
 	$(MALLOC_OBJS) $(MD5_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
@@ -150,6 +159,9 @@ hello_cpp: $(HELLO_CPP_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello_eigen: $(HELLO_EIGEN_OBJS)
+	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+hello_openssl: $(HELLO_OPENSSL_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
