@@ -16,13 +16,22 @@ Not support fork() and similar features for creating processes.
 
 == Create New Threads
 
+This sequence diagram shows that a parent application creates a new thread.
+
 [plantuml]
 ----
 @startuml
+box "First Processor"
 participant "Parent App" as ParentU
 participant "C library" as libc
 participant "Runtime (Parent)" as ParentK
+endbox
+
+box "Second Processor"
 participant "Child Idle" as Idle
+participant "Child App" as ChildU
+participant "Runtime (Child)" as ChildK
+endbox
 
 activate Idle
 activate ParentU
@@ -34,12 +43,12 @@ deactivate Idle
 ParentU -> libc : pthread_create()
 deactivate ParentU
 activate libc
-create "Child App" as ChildU
+create ChildU
 libc -> ChildU : allocate stack, args
 libc -> ParentK : sys_clone()
 deactivate libc
 activate ParentK
-create "Runtime (Child)" as ChildK
+create ChildK
 ParentK -> ChildK : create thread
 
 ParentK -> Idle : send IPI
@@ -97,4 +106,3 @@ deactivate libc
 activate ParentU
 @enduml
 ----
-
