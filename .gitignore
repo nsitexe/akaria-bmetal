@@ -14,6 +14,7 @@
 /test/hello_openssl
 /test/malloc
 /test/md5
+/test/memcpy
 /test/mt_clock
 /test/mt_vecadd
 /test/mt_vecaddf

@@ -43,7 +43,7 @@ BINS = \
 	daxpy \
 	echo flush \
 	hello \
-	malloc md5 \
+	malloc md5 memcpy \
 	saxpy sgemm \
 	vecadd vecaddf \
 	coremark/coremark \
@@ -98,6 +98,7 @@ HELLO_EIGEN_OBJS = hello_eigen.o
 HELLO_OPENSSL_OBJS = hello_openssl.o
 MALLOC_OBJS = malloc.o
 MD5_OBJS = md5.o
+MEMCPY_OBJS = memcpy.o
 MT_CLOCK_OBJS = mt_clock.o
 MT_VECADD_OBJS = mt_vecadd.o cmn_vecaddf.o
 MT_VECADDF_OBJS = mt_vecaddf.o cmn_vecaddf.o
@@ -117,7 +118,7 @@ OBJS = \
 	$(ECHO_OBJS) $(FLUSH_OBJS) \
 	$(HELLO_OBJS) $(HELLO_CPP_OBJS) $(HELLO_EIGEN_OBJS) \
 	$(HELLO_OPENSSL_OBJS) \
-	$(MALLOC_OBJS) $(MD5_OBJS) \
+	$(MALLOC_OBJS) $(MD5_OBJS) $(MEMCPY_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
 	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(PTHREAD_COND_OBJS) \
@@ -168,6 +169,9 @@ malloc: $(MALLOC_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 md5: $(MD5_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+memcpy: $(MEMCPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 mt_clock: $(MT_CLOCK_OBJS)
