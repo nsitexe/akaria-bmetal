@@ -1,5 +1,5 @@
 
-= Baremetal CRT documentation
+= Akaria bmetal documentation
 
 1. xref:overview.adoc[Overview]
 1. Getting started

@@ -1,9 +1,9 @@
 
-= Barematal CRT
+= Akaria bmetal library
 
 == Overview
 
-Baremetal CRT is simple C language runtime on baremetal hardware.
+This library is simple C/C++ language runtime on baremetal hardware.
 This project aims at providing limited "Linux like" environment for applications.
 
 For more info, refer to xref:doc/index.adoc[Documentation].
