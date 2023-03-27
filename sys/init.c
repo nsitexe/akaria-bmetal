@@ -41,6 +41,9 @@
 
 extern char __bss_start[], __bss_end[];
 extern char __sbss_start[], __sbss_end[];
+extern char __preinit_array_start[], __preinit_array_end[], __preinit_array_load[];
+extern char __init_array_start[], __init_array_end[], __init_array_load[];
+extern char __fini_array_start[], __fini_array_end[], __fini_array_load[];
 extern char __data_start[], __data_end[], __data_load[];
 extern char __sdata_start[], __sdata_end[], __sdata_load[];
 extern char __tdata_start[], __tdata_end[], __tdata_load[];
@@ -82,6 +85,9 @@ static void clear_bss(void)
 static void copy_data(void)
 {
 #ifdef CONFIG_XIP
+	kmemcpy(__preinit_array_start, __preinit_array_load, __preinit_array_end - __preinit_array_start);
+	kmemcpy(__init_array_start, __init_array_load, __init_array_end - __init_array_start);
+	kmemcpy(__fini_array_start, __fini_array_load, __fini_array_end - __fini_array_start);
 	kmemcpy(__data_start, __data_load, __data_end - __data_start);
 	kmemcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
 	kmemcpy(__tdata_start, __tdata_load, __tdata_end - __tdata_start);
