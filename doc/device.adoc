@@ -15,11 +15,11 @@ If you want to know full command example of cmake, please check xref:build.adoc[
 
 == Virtual boards
 
-* xref:boards/qemu_virt/index.adoc[QEMU RISC-V virt board]
+* xref:board/qemu_virt/index.adoc[QEMU RISC-V virt board]
 
 
 == Real boards
 
-* xref:boards/sifive_hifive1/index.adoc[SiFive HiFive1 Rev.B]
-* xref:boards/sifive_hifive_unleashed/index.adoc[SiFive HiFive Unleashed]
+* xref:board/sifive_hifive1/index.adoc[SiFive HiFive1 Rev.B]
+* xref:board/sifive_hifive_unleashed/index.adoc[SiFive HiFive Unleashed]
 
