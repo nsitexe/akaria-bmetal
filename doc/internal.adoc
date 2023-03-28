@@ -1,9 +1,9 @@
 
 = Internals
 
-1. xref:internals/boot.adoc[Boot and init]
-1. xref:internals/section.adoc[Special sections]
-1. xref:internals/thread.adoc[Threads]
+1. xref:internal/boot.adoc[Boot and init]
+1. xref:internal/section.adoc[Special sections]
+1. xref:internal/thread.adoc[Threads]
 
 
 = Directory structure
