@@ -1,0 +1,33 @@
+= Softwares and Licenses
+
+== For system
+
+This library uses these softwares in sys/ directory.
+
+* MIT license
+  ** musl
+    *** https://musl.libc.org/
+  ** printf
+    *** https://github.com/mpaland/printf
+
+
+== For testing
+
+Also uses these softwares for testing in test/ directory.
+
+* Apache-2.0 license
+  ** CoreMark
+    *** test/coremark/
+    *** https://github.com/eembc/coremark
+* BSD 3-clause license
+  ** rvv-intrinsic-doc
+    *** test/saxpy.c
+    *** https://github.com/riscv-non-isa/rvv-intrinsic-doc
+* Not described
+  ** dhrystone
+    *** test/dhrystone/
+    *** https://fossies.org/linux/privat/old/dhrystone-2.1.tar.gz
+* RSA Message-Digest License
+  ** MD5 (RFC1321)
+    *** test/md5.c
+    *** https://www.ietf.org/rfc/rfc1321.txt
