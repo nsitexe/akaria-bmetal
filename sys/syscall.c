@@ -153,7 +153,7 @@ intptr_t __sys_clock_settime32(clockid_t clock_id, const struct timespec32 *tp)
 
 intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 {
-	int r;
+	int r = 0;
 
 	if (!tp) {
 		return -EFAULT;
@@ -170,16 +170,13 @@ intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 		pri_warn("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
-	if (r) {
-		return r;
-	}
 
-	return 0;
+	return r;
 }
 
 intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 {
-	int r;
+	int r = 0;
 
 	if (!tp) {
 		return -EFAULT;
@@ -193,11 +190,8 @@ intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 		pri_warn("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
-	if (r) {
-		return r;
-	}
 
-	return 0;
+	return r;
 }
 
 intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp)
