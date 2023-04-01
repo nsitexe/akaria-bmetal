@@ -8,20 +8,78 @@
 #include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
-const static struct __device_config cpu0_conf[] = {
-	PROP("hartid", 0),
+#define CPU_CONF(N)    \
+	{ \
+		PROP("hartid", N), \
+		{0}, \
+	}
+
+#define CPU_DEVICE(N, INDEX)    \
+	{ \
+		.base = { \
+			.name = "cpu" #N, \
+			.type_vendor = "none", \
+			.type_device = "cpu_riscv", \
+			.conf = cpu_conf[INDEX], \
+			.priv = &cpu_priv[INDEX], \
+		}, \
+	}
+
+const static struct __device_config cpu_conf[][2] = {
+	CPU_CONF(0),
+};
+
+static __cpu_priv_t cpu_priv[1];
+static struct __cpu_device cpu[] = {
+	CPU_DEVICE(0, 0),
+};
+
+#define INTC_CONF(N)    \
+	{ \
+		PROP("cpu", UPTR("cpu" #N)), \
+		{0}, \
+	}
+
+#define INTC_DEVICE(N, INDEX)    \
+	{ \
+		.base = { \
+			.name = "rvintc" #N, \
+			.type_vendor = "riscv", \
+			.type_device = "priv1_10", \
+			.conf = rvintc_conf[INDEX], \
+			.priv = &rvintc_priv[INDEX], \
+		}, \
+	}
+
+const static struct __device_config rvintc_conf[][2] = {
+	INTC_CONF(0),
+};
+
+static __intc_priv_t rvintc_priv[1];
+static struct __intc_device rvintc[] = {
+	INTC_DEVICE(0, 0),
+};
+CHECK_ELEM_SIZE(rvintc, rvintc_conf);
+CHECK_ELEM_SIZE(rvintc, rvintc_priv);
+
+const static struct __device_config clint_conf[] = {
+	PROP("reg", 0x2000000),
+	PROP("reg-size", 0x1000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_SIX),
+	PROP("ipi", 1),
 	{0},
 };
 
-static __cpu_priv_t cpu0_priv;
-static struct __cpu_device cpu0 = {
+static __intc_priv_t clint_priv;
+static struct __intc_device clint = {
 	.base = {
-		.name = "cpu0",
-		.type_vendor = "none",
-		.type_device = "cpu_riscv",
-		.conf = cpu0_conf,
-		.priv = &cpu0_priv,
-	},
+		.name = "clint",
+		.type_vendor = "sifive",
+		.type_device = "clint0",
+		.conf = clint_conf,
+		.priv = &clint_priv,
+	}
 };
 
 const static struct __device_config clk_conf[] = {
@@ -81,7 +139,9 @@ static struct __uart_device uart0 = {
 
 static int board_ns31_arty_init(void)
 {
-	__cpu_add_device(&cpu0, __bus_get_root());
+	__cpu_add_device(&cpu[0], __bus_get_root());
+	__intc_add_device(&rvintc[0], __bus_get_root());
+	__intc_add_device(&clint, __bus_get_root());
 	__clk_add_device(&clk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
