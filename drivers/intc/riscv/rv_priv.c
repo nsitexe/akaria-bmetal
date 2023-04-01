@@ -169,6 +169,12 @@ static int intc_priv_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
+const static struct __device_driver_ops intc_priv_dev_ops = {
+	.add = intc_priv_add,
+	.remove = intc_priv_remove,
+	.mmap = __device_driver_mmap,
+};
+
 static int intc_priv_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
 {
 	struct __device *dev = __intc_to_dev(intc);
@@ -248,12 +254,6 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 
 	return 0;
 }
-
-const static struct __device_driver_ops intc_priv_dev_ops = {
-	.add = intc_priv_add,
-	.remove = intc_priv_remove,
-	.mmap = __device_driver_mmap,
-};
 
 const static struct __intc_driver_ops intc_priv_intc_ops = {
 	.add_handler = intc_priv_add_handler,

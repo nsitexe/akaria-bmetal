@@ -90,6 +90,12 @@ static int intc_clint_remove(struct __device *dev)
 	return 0;
 }
 
+const static struct __device_driver_ops intc_clint_dev_ops = {
+	.add = intc_clint_add,
+	.remove = intc_clint_remove,
+	.mmap = __device_driver_mmap,
+};
+
 static int intc_clint_raise_ipi(struct __intc_device *intc, struct __cpu_device *src, struct __cpu_device *dest, void *arg)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
@@ -106,12 +112,6 @@ static int intc_clint_raise_ipi(struct __intc_device *intc, struct __cpu_device 
 
 	return 0;
 }
-
-const static struct __device_driver_ops intc_clint_dev_ops = {
-	.add = intc_clint_add,
-	.remove = intc_clint_remove,
-	.mmap = __device_driver_mmap,
-};
 
 const static struct __intc_driver_ops intc_clint_intc_ops = {
 	.raise_ipi = intc_clint_raise_ipi,
