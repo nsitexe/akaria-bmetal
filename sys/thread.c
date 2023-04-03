@@ -68,6 +68,8 @@ void __thread_idle_main(int leader)
 	struct __thread_info *ti = NULL;
 	int r;
 
+	__intr_disable_local();
+
 	r = __cpu_on_wakeup();
 	if (r) {
 		pri_warn("idle: failed to callback on_wakeup.\n");

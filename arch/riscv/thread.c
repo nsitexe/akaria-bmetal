@@ -12,6 +12,7 @@ int __arch_riscv_thread_init(struct __thread_info *ti)
 
 	ti->regs.mstatus &= ~XSTATUS_MPP_MASK;
 	ti->regs.mstatus |= XSTATUS_MPP_M;
+	ti->regs.mstatus |= XSTATUS_MPIE;
 
 	return 0;
 }
