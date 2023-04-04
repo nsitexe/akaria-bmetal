@@ -201,9 +201,6 @@ static int uart_ns16550_intr(int event, struct __event_handler *hnd)
 
 	//TODO: TX, RX buffering
 	return EVENT_HANDLED;
-
-	//TODO: shared interrupt handling
-	//return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int uart_ns16550_add(struct __device *dev)
