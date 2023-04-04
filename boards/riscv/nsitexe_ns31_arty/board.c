@@ -33,6 +33,8 @@ static __cpu_priv_t cpu_priv[1];
 static struct __cpu_device cpu[] = {
 	CPU_DEVICE(0, 0),
 };
+CHECK_ELEM_SIZE(cpu, cpu_conf);
+CHECK_ELEM_SIZE(cpu, cpu_priv);
 
 #define INTC_CONF(N)    \
 	{ \
@@ -119,9 +121,29 @@ static struct __timer_device clint_timer = {
 	}
 };
 
+const static struct __device_config plic_conf[] = {
+	PROP("reg", 0xc000000),
+	PROP("reg-size", 0x2000000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_EIX),
+	{0},
+};
+
+static __intc_priv_t plic_priv;
+static struct __intc_device plic = {
+	.base = {
+		.name = "plic",
+		.type_vendor = "sifive",
+		.type_device = "plic0",
+		.conf = plic_conf,
+		.priv = &plic_priv,
+	}
+};
+
 const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0xe4006000),
 	PROP("reg-size", 0x1000),
+	PROP("interrupts", UPTR("plic"), 9),
 	PROP("baud", 9600),
 	{0},
 };
@@ -142,6 +164,7 @@ static int board_ns31_arty_init(void)
 	__cpu_add_device(&cpu[0], __bus_get_root());
 	__intc_add_device(&rvintc[0], __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
+	__intc_add_device(&plic, __bus_get_root());
 	__clk_add_device(&clk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
