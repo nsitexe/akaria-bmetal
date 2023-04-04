@@ -106,6 +106,29 @@ static struct __intc_device clint = {
 	}
 };
 
+const static struct __device_config plic_conf[] = {
+	PROP("reg", 0xc000000),
+	PROP("reg-size", 0x2000000),
+	PROP("interrupts",
+		UPTR("rvintc0"), RV_IX_EIX,
+		UPTR("rvintc1"), RV_IX_EIX,
+		UPTR("rvintc2"), RV_IX_EIX,
+		UPTR("rvintc3"), RV_IX_EIX,
+		UPTR("rvintc4"), RV_IX_EIX),
+	{0},
+};
+
+static __intc_priv_t plic_priv;
+static struct __intc_device plic = {
+	.base = {
+		.name = "plic",
+		.type_vendor = "sifive",
+		.type_device = "plic0",
+		.conf = plic_conf,
+		.priv = &plic_priv,
+	}
+};
+
 const static struct __device_config hfclk_conf[] = {
 	PROP("frequency", 33333333),
 	{0},
@@ -188,6 +211,7 @@ const static struct __device_config uart0_conf[] = {
 	PROP("reg", 0x10010000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
+	PROP("interrupts", UPTR("plic"), 4),
 	PROP("baud", 115200),
 	{0},
 };
@@ -229,6 +253,7 @@ static int board_hifive_unleashed_init(void)
 		__intc_add_device(&rvintc[i], __bus_get_root());
 	}
 	__intc_add_device(&clint, __bus_get_root());
+	__intc_add_device(&plic, __bus_get_root());
 	__clk_add_device(&hfclk, __bus_get_root());
 	__clk_add_device(&rtcclk, __bus_get_root());
 	__clk_add_device(&prci, __bus_get_root());
