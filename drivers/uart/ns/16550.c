@@ -44,11 +44,12 @@
 #define REG_WIDTH_DEFAULT    4
 
 struct uart_ns16550_priv {
-	uint32_t addr_shift;
-
+	struct __uart_device *uart;
 	struct __clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
+
+	uint32_t addr_shift;
 
 	struct __intc_device *intc;
 	struct __event_handler hnd_irq;
@@ -97,13 +98,6 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 		/* BUG */
 		return;
 	}
-}
-
-static int uart_ns16550_intr(int event, struct __event_handler *hnd)
-{
-	//struct uart_ns16550_priv *priv = hnd->priv;
-
-	return __event_handle_generic(event, hnd->hnd_next);
 }
 
 static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
@@ -201,6 +195,17 @@ static int uart_ns16550_set_config(struct __uart_device *uart, const struct __ua
 	return res;
 }
 
+static int uart_ns16550_intr(int event, struct __event_handler *hnd)
+{
+	//struct uart_ns16550_priv *priv = hnd->priv;
+
+	//TODO: TX, RX buffering
+	return EVENT_HANDLED;
+
+	//TODO: shared interrupt handling
+	//return __event_handle_generic(event, hnd->hnd_next);
+}
+
 static int uart_ns16550_add(struct __device *dev)
 {
 	struct __uart_device *uart = __uart_from_dev(dev);
@@ -214,11 +219,7 @@ static int uart_ns16550_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	/* Registers */
-	r = __io_mmap_device(NULL, dev);
-	if (r) {
-		return r;
-	}
+	priv->uart = uart;
 
 	/* Some 16550 variant have different register width */
 	r = __device_read_conf_u32(dev, "reg-width", &w, 0);
@@ -244,7 +245,7 @@ static int uart_ns16550_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	/* Clock settings */
+	/* Clock */
 	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
 	if (r) {
 		return r;
@@ -261,7 +262,13 @@ static int uart_ns16550_add(struct __device *dev)
 		return r;
 	}
 
-	/* Interrupt settings */
+	/* Register */
+	r = __io_mmap_device(NULL, dev);
+	if (r) {
+		return r;
+	}
+
+	/* Interrupt */
 	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
 		__dev_warn(dev, "intc is not found, use polling.\n");
@@ -306,6 +313,11 @@ static int uart_ns16550_remove(struct __device *dev)
 	struct uart_ns16550_priv *priv = dev->priv;
 	int r;
 
+	if (priv == NULL) {
+		__dev_err(dev, "priv is NULL\n");
+		return -EINVAL;
+	}
+
 	if (priv->intc) {
 		r = uart_ns16550_disable_intr(uart);
 		if (r) {
@@ -322,6 +334,11 @@ static int uart_ns16550_remove(struct __device *dev)
 
 		priv->num_irq = 0;
 		priv->intc = NULL;
+	}
+
+	r = __clk_disable(priv->clk, priv->index_clk);
+	if (r) {
+		return r;
 	}
 
 	/* TODO: to be implemented */
