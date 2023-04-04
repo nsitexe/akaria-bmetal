@@ -186,6 +186,8 @@ const static struct __device_config uart0_conf[] = {
 	PROP("reg-size", 0x100),
 	PROP("reg-width", 1),
 	PROP("clocks", UPTR("rtcclk"), 0),
+	PROP("interrupts",
+		UPTR("plic"), 10),
 	{0},
 };
 
