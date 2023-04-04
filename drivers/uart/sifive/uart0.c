@@ -5,6 +5,7 @@
 #include <bmetal/io.h>
 #include <bmetal/printk.h>
 #include <bmetal/drivers/clk.h>
+#include <bmetal/drivers/intc.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
@@ -31,15 +32,24 @@
 #define RXCTRL_RXCNT_SHIFT    16
 #define RXCTRL_RXCNT_MASK     (0x7 << RXCTRL_RXCNT_SHIFT)
 
+#define IE_TXWM               BIT(0)
+#define IE_RXWM               BIT(1)
+
 struct uart_sifive_priv {
+	struct __uart_device *uart;
 	struct __clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
+
+	struct __intc_device *intc;
+	struct __event_handler hnd_irq;
+	int num_irq;
+
 	struct __uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
-int uart_sifive_char_in(struct __uart_device *uart)
+static int uart_sifive_char_in(struct __uart_device *uart)
 {
 	struct __device *d = __uart_to_dev(uart);
 	uint32_t v;
@@ -50,7 +60,7 @@ int uart_sifive_char_in(struct __uart_device *uart)
 	return v & 0xffU;
 }
 
-void uart_sifive_char_out(struct __uart_device *uart, int value)
+static void uart_sifive_char_out(struct __uart_device *uart, int value)
 {
 	struct __device *d = __uart_to_dev(uart);
 
@@ -58,6 +68,31 @@ void uart_sifive_char_out(struct __uart_device *uart, int value)
 	}
 
 	__device_write32(d, value & 0xffU, REG_TXDATA);
+}
+
+static int uart_sifive_enable_intr(struct __uart_device *uart)
+{
+	struct __device *d = __uart_to_dev(uart);
+	uint32_t v;
+
+	//TODO: TX buffering
+	v = __device_read32(d, REG_IE);
+	v |= IE_RXWM;
+	__device_write32(d, v, REG_IE);
+
+	return 0;
+}
+
+static int uart_sifive_disable_intr(struct __uart_device *uart)
+{
+	struct __device *d = __uart_to_dev(uart);
+	uint32_t v;
+
+	v = __device_read32(d, REG_IE);
+	v &= ~(IE_TXWM | IE_RXWM);
+	__device_write32(d, v, REG_IE);
+
+	return 0;
 }
 
 static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
@@ -98,6 +133,17 @@ static int uart_sifive_set_config(struct __uart_device *uart, const struct __uar
 	return res;
 }
 
+static int uart_sifive_intr(int event, struct __event_handler *hnd)
+{
+	//struct uart_sifive_priv *priv = hnd->priv;
+
+	//TODO: TX, RX buffering
+	return EVENT_HANDLED;
+
+	//TODO: shared interrupt handling
+	//return __event_handle_generic(event, hnd->hnd_next);
+}
+
 static int uart_sifive_add(struct __device *dev)
 {
 	struct __uart_device *uart = __uart_from_dev(dev);
@@ -111,6 +157,9 @@ static int uart_sifive_add(struct __device *dev)
 		return -EINVAL;
 	}
 
+	priv->uart = uart;
+
+	/* Clock */
 	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
 	if (r) {
 		return r;
@@ -127,6 +176,7 @@ static int uart_sifive_add(struct __device *dev)
 		return r;
 	}
 
+	/* Register */
 	r = __io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
@@ -139,6 +189,28 @@ static int uart_sifive_add(struct __device *dev)
 	val = RXCTRL_RXEN |
 		(0 << RXCTRL_RXCNT_SHIFT);
 	__device_write32(dev, val, REG_RXCTRL);
+
+	/* Interrupt */
+	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
+	if (r) {
+		__dev_warn(dev, "intc is not found, use polling.\n");
+		priv->intc = NULL;
+	}
+
+	if (priv->intc) {
+		priv->hnd_irq.func = uart_sifive_intr;
+		priv->hnd_irq.priv = priv;
+
+		r = __intc_add_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		r = uart_sifive_enable_intr(uart);
+		if (r) {
+			return r;
+		}
+	}
 
 	/* Apply board default settings */
 	r = __uart_read_default_config(uart, &conf);
@@ -159,6 +231,33 @@ static int uart_sifive_add(struct __device *dev)
 
 static int uart_sifive_remove(struct __device *dev)
 {
+	struct __uart_device *uart = __uart_from_dev(dev);
+	struct uart_sifive_priv *priv = dev->priv;
+	int r;
+
+	if (priv->intc) {
+		r = uart_sifive_disable_intr(uart);
+		if (r) {
+			return r;
+		}
+
+		r = __intc_remove_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
+		if (r) {
+			return r;
+		}
+
+		priv->hnd_irq.func = NULL;
+		priv->hnd_irq.priv = NULL;
+
+		priv->num_irq = 0;
+		priv->intc = NULL;
+	}
+
+	r = __clk_disable(priv->clk, priv->index_clk);
+	if (r) {
+		return r;
+	}
+
 	/* TODO: to be implemented */
 	return -ENOTSUP;
 }
