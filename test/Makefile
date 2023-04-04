@@ -10,14 +10,13 @@ USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
 # Test with additional libraries (please read doc/test.adoc)
+WITH_CXX ?= y
 WITH_EIGEN ?= n
 WITH_OPENBLAS ?= n
 WITH_OPENSSL ?= n
 
 # 32bit
 #APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
-# 32bit for NS31
-#APP_CFLAGS_RV = -march=rv32im -mabi=ilp32 -mcmodel=medany
 # 32bit glibc
 #APP_CFLAGS_RV = -march=rv32gc -mabi=ilp32d -mcmodel=medany
 #APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
@@ -58,10 +57,15 @@ endif
 
 ifeq ($(ADD_MT),y)
 BINS += \
-	hello_cpp mt_clock \
+	mt_clock \
 	mt_vecadd mt_vecaddf \
 	pthread pthread_barrier pthread_cond \
 	reboot
+endif
+
+ifeq ($(WITH_CXX),y)
+BINS += \
+	hello_cpp
 endif
 
 ifeq ($(WITH_EIGEN),y)
