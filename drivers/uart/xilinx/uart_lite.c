@@ -27,18 +27,12 @@
 #define CTRL_ENA_INTR        BIT(4)
 
 struct uart_lite_priv {
+	struct __uart_device *uart;
 	struct __intc_device *intc;
 	struct __event_handler hnd_irq;
 	int num_irq;
 };
 CHECK_PRIV_SIZE_UART(struct uart_lite_priv);
-
-static int uart_lite_intr(int event, struct __event_handler *hnd)
-{
-	//struct uart_lite_priv *priv = hnd->priv;
-
-	return __event_handle_generic(event, hnd->hnd_next);
-}
 
 static int uart_lite_char_in(struct __uart_device *uart)
 {
@@ -84,6 +78,21 @@ static int uart_lite_disable_intr(struct __uart_device *uart)
 	return 0;
 }
 
+static int uart_lite_intr(int event, struct __event_handler *hnd)
+{
+	struct uart_lite_priv *priv = hnd->priv;
+	struct __device *dev = __uart_to_dev(priv->uart);
+
+	//Clear interrupt
+	__device_read32(dev, REG_STAT);
+
+	//TODO: TX, RX buffering
+	return EVENT_HANDLED;
+
+	//TODO: shared interrupt handling
+	//return __event_handle_generic(event, hnd->hnd_next);
+}
+
 static int uart_lite_add(struct __device *dev)
 {
 	struct __uart_device *uart = __uart_from_dev(dev);
@@ -95,12 +104,15 @@ static int uart_lite_add(struct __device *dev)
 		return -EINVAL;
 	}
 
+	priv->uart = uart;
+
+	/* Register */
 	r = __io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
 
-	/* Interrupt setting */
+	/* Interrupt */
 	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
 		__dev_warn(dev, "intc is not found, use polling.\n");
