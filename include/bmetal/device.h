@@ -131,8 +131,8 @@ struct __device {
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed:1;
-	int failed:1;
+	unsigned int probed:1;
+	unsigned int failed:1;
 };
 
 struct __bus {
@@ -153,8 +153,8 @@ struct __bus {
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed:1;
-	int failed:1;
+	unsigned int probed:1;
+	unsigned int failed:1;
 };
 
 static inline const struct __device_driver *__device_get_drv(const struct __device *dev)
