@@ -26,14 +26,18 @@ static int intc_clint_intr(int event, struct __event_handler *hnd)
 	struct intc_clint_priv *priv = hnd->priv;
 	struct __device *dev = __intc_to_dev(priv->intc);
 	int id_phys = __arch_get_cpu_id();
+	int res = EVENT_NOT_HANDLED;
 
 	switch (event) {
 	case RV_IX_MSIX:
 		__device_write32(dev, 0, REG_MSIP(id_phys));
+		res = EVENT_HANDLED;
+		break;
+	default:
 		break;
 	}
 
-	return __event_handle_generic(event, hnd->hnd_next);
+	return res;
 }
 
 static int intc_clint_add(struct __device *dev)
