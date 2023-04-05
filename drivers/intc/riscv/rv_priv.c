@@ -34,31 +34,39 @@ struct intc_priv_priv {
 	struct __event_handler hnd_sw;
 	struct __event_handler hnd_cpu;
 
-	int enabled_ex:1;
-	int enabled_tm:1;
-	int enabled_sw:1;
+	unsigned int enabled_ex:1;
+	unsigned int enabled_tm:1;
+	unsigned int enabled_sw:1;
 };
 CHECK_PRIV_SIZE_INTC(struct intc_priv_priv);
 
-static int intc_priv_intr_ex(int event, struct __event_handler *hnd)
+static int intc_priv_intr(int event, struct __event_handler *hnd)
 {
-	struct intc_priv_priv *priv = hnd->priv;
+	struct __event_handler *hnd_child = NULL;
+	int r, res = EVENT_NOT_HANDLED;
 
-	return __event_handle_generic(event, priv->hnd_ex.hnd_next);
-}
+	/*
+	 * The hnd is hnd_ex or tm or sw.
+	 * We need to callback from next handler.
+	 */
+	switch (event) {
+	case RV_CAUSE_INT_EX:
+	case RV_CAUSE_INT_TM:
+	case RV_CAUSE_INT_SW:
+		hnd_child = hnd->hnd_next;
+		break;
+	default:
+		break;
+	}
 
-static int intc_priv_intr_tm(int event, struct __event_handler *hnd)
-{
-	struct intc_priv_priv *priv = hnd->priv;
+	if (hnd_child) {
+		r = __event_handle_generic(event, hnd_child);
+		if (r == EVENT_HANDLED) {
+			res = EVENT_HANDLED;
+		}
+	}
 
-	return __event_handle_generic(event, priv->hnd_tm.hnd_next);
-}
-
-static int intc_priv_intr_sw(int event, struct __event_handler *hnd)
-{
-	struct intc_priv_priv *priv = hnd->priv;
-
-	return __event_handle_generic(event, priv->hnd_sw.hnd_next);
+	return res;
 }
 
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
@@ -108,11 +116,11 @@ static int intc_priv_add(struct __device *dev)
 		return r;
 	}
 
-	priv->hnd_ex.func  = intc_priv_intr_ex;
+	priv->hnd_ex.func  = intc_priv_intr;
 	priv->hnd_ex.priv  = priv;
-	priv->hnd_tm.func  = intc_priv_intr_tm;
+	priv->hnd_tm.func  = intc_priv_intr;
 	priv->hnd_tm.priv  = priv;
-	priv->hnd_sw.func  = intc_priv_intr_sw;
+	priv->hnd_sw.func  = intc_priv_intr;
 	priv->hnd_sw.priv  = priv;
 
 	r = __arch_set_intr_handler(RV_CAUSE_INT_EX, &priv->hnd_ex);
@@ -168,12 +176,6 @@ static int intc_priv_remove(struct __device *dev)
 
 	return -ENOTSUP;
 }
-
-const static struct __device_driver_ops intc_priv_dev_ops = {
-	.add = intc_priv_add,
-	.remove = intc_priv_remove,
-	.mmap = __device_driver_mmap,
-};
 
 static int intc_priv_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
 {
@@ -254,6 +256,12 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 
 	return 0;
 }
+
+const static struct __device_driver_ops intc_priv_dev_ops = {
+	.add = intc_priv_add,
+	.remove = intc_priv_remove,
+	.mmap = __device_driver_mmap,
+};
 
 const static struct __intc_driver_ops intc_priv_intc_ops = {
 	.add_handler = intc_priv_add_handler,
