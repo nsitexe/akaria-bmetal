@@ -24,6 +24,7 @@
 /test/reboot
 /test/saxpy
 /test/sgemm
+/test/sleep
 /test/vecadd
 /test/vecaddf
 /test/coremark/coremark

@@ -43,7 +43,7 @@ BINS = \
 	echo flush \
 	hello \
 	malloc md5 memcpy \
-	saxpy sgemm \
+	saxpy sgemm sleep \
 	vecadd vecaddf \
 	coremark/coremark \
 	dhrystone/dhrystone
@@ -112,6 +112,7 @@ PTHREAD_COND_OBJS = pthread_cond.o
 REBOOT_OBJS = reboot.o
 SAXPY_OBJS = saxpy.o
 SGEMM_OBJS = sgemm.o
+SLEEP_OBJS = sleep.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
 OBJS = \
@@ -127,7 +128,7 @@ OBJS = \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
 	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(PTHREAD_COND_OBJS) \
 	$(REBOOT_OBJS) \
-	$(SAXPY_OBJS) $(SGEMM_OBJS) \
+	$(SAXPY_OBJS) $(SGEMM_OBJS) $(SLEEP_OBJS) \
 	$(VECADD_OBJS) $(VECADDF_OBJS)
 
 all: all_auxdata
@@ -203,6 +204,9 @@ saxpy: $(SAXPY_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 sgemm: $(SGEMM_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+sleep: $(SLEEP_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 vecadd: $(VECADD_OBJS)
