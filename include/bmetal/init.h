@@ -18,7 +18,7 @@
 #define define_heap(sym, size) \
 	char sym[size] \
 	__aligned(__PAGE_SIZE) \
-	__section(".noinit")
+	__section(".heap")
 
 #define define_stack(sym, size) \
 	char sym[size] \

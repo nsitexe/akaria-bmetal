@@ -215,6 +215,10 @@ SECTIONS
 		*(.noinit .noinit.*)
 	} > DATA_AREA
 
+	.heap (NOLOAD) : {
+		*(.heap .heap.*)
+	} > DATA_AREA
+
 	.comm_area (NOLOAD) : {
 		. = ALIGN(8);
 		PROVIDE(__comm_area = .);
