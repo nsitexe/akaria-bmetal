@@ -10,7 +10,20 @@ USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
 # Test with additional libraries (please read doc/test.adoc)
-WITH_CXX ?= y
+ifeq ($(USE_GLIBC),y)
+WITH_POSIX ?= y
+WITH_MT    ?= y
+endif
+ifeq ($(USE_MUSL),y)
+WITH_POSIX ?= y
+WITH_MT    ?= y
+endif
+ifeq ($(USE_NEWLIB),y)
+WITH_POSIX ?= n
+WITH_MT    ?= n
+endif
+
+WITH_CXX ?= n
 WITH_EIGEN ?= n
 WITH_OPENBLAS ?= n
 WITH_OPENSSL ?= n
@@ -43,19 +56,12 @@ BINS = \
 	echo flush \
 	hello \
 	malloc md5 memcpy \
-	saxpy sgemm sleep \
+	saxpy sgemm \
 	vecadd vecaddf \
 	coremark/coremark \
 	dhrystone/dhrystone
 
-ifeq ($(USE_GLIBC),y)
-ADD_MT=y
-endif
-ifeq ($(USE_MUSL),y)
-ADD_MT=y
-endif
-
-ifeq ($(ADD_MT),y)
+ifeq ($(WITH_MT),y)
 BINS += \
 	mt_clock \
 	mt_vecadd mt_vecaddf \
@@ -66,6 +72,11 @@ endif
 ifeq ($(WITH_CXX),y)
 BINS += \
 	hello_cpp
+endif
+
+ifeq ($(WITH_POSIX),y)
+BINS += \
+	sleep
 endif
 
 ifeq ($(WITH_EIGEN),y)
