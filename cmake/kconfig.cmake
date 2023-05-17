@@ -27,6 +27,11 @@ set(PRJ_CONFIG_CACHE_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_CACHE_NAME})
 set(PRJ_CONFIG_NOTIFY_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_NOTIFY_NAME})
 set(PRJ_AUTOCONF_H_FILE ${PROJECT_BINARY_DIR}/${PRJ_AUTOCONF_H_DIR}/${PRJ_AUTOCONF_H_NAME})
 
+function(copy_file SRC_FILE DEST_FILE)
+  file(READ ${SRC_FILE} VAR_TMP)
+  file(WRITE ${DEST_FILE} ${VAR_TMP})
+endfunction()
+
 # Target: Default config
 # TODO: Use suitable tools for Kconfig
 add_custom_target(
@@ -48,14 +53,10 @@ if(NOT EXISTS ${PRJ_CONFIG_FILE})
   if(NOT EXISTS ${PRJ_DEFCONF_FILE} OR IS_DIRECTORY ${PRJ_DEFCONF_FILE})
     message(FATAL_ERROR "defconf '${PRJ_DEFCONF_FILE}' is wrong. Please set DEFCONF.")
   endif()
-  execute_process(
-    COMMAND cp ${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE}
-    COMMAND cp ${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_CACHE_FILE}
-    )
+  copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE})
+  copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_CACHE_FILE})
 endif()
-execute_process(
-  COMMAND cp ${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE}
-  )
+copy_file(${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE})
 file(WRITE ${PRJ_CONFIG_NOTIFY_FILE} "")
 include(${PRJ_CONFIG_NOTIFY_FILE})
 
