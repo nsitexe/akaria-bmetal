@@ -1,5 +1,8 @@
 *.o
 
+# by asciidoctor
+.asciidoctor/
+
 # by Make
 /test/args
 /test/clock
