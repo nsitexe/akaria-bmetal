@@ -20,17 +20,100 @@ if(NOT DEFINED PRJ_AUTOCONF_H_NAME)
   message(FATAL_ERROR "PRJ_AUTOCONF_H_NAME is not defined.")
 endif()
 
+# Import Kconfig-like config variables to cmake environment
+# from a specified config file.
+#
+# Comment:
+#   Start with '#' character.
+# Config:
+#   Start with CONFIG_ prefix. Cannot use '=' for config name.
+# Value:
+#   Enable to use bool (y is defined, n is not defined), number
+#   and string. Value is placed after '=' character.
+#
+# Example:
+#   CONFIG_AAA=y
+#   CONFIG_BBB=n
+#   CONFIG_CCC=100
+#   CONFIG_DDD="string"
+function(import_config config_file)
+  # Remove comments
+  file(
+    STRINGS
+    ${config_file}
+    CONFIG_LIST
+    REGEX "^CONFIG_"
+  )
+
+  foreach(CONFIG ${CONFIG_LIST})
+    # Separate name and value
+    string(REGEX MATCH "[^=]+" CONFIG_NAME ${CONFIG})
+    string(REGEX REPLACE "[^=]+=" "" CONFIG_VAL ${CONFIG})
+
+    # Remove quotation marks
+    string(REGEX REPLACE "^\"" "" CONFIG_VAL ${CONFIG_VAL})
+    string(REGEX REPLACE "\"$" "" CONFIG_VAL ${CONFIG_VAL})
+
+    set(${CONFIG_NAME} ${CONFIG_VAL} PARENT_SCOPE)
+  endforeach()
+endfunction()
+
+# [Tentative]
+# Write autoconf.h from a specified config file.
+#
+# A config macro is ...:
+#   - defined as 1 if the config has boolean value 'y'.
+#   - not defined if the config boolean value 'n'.
+#   - defined as number if the config has numerical value.
+#   - defined as string if the config has string value.
+function(write_autoconf config_file autoconf_file)
+  # Remove comments
+  file(
+    STRINGS
+    ${config_file}
+    CONFIG_LIST
+    REGEX "^CONFIG_"
+  )
+
+  # Clear output file
+  file(
+    WRITE
+    ${autoconf_file}
+    ""
+  )
+
+  foreach(CONFIG ${CONFIG_LIST})
+    # Separate name and value
+    string(REGEX MATCH "[^=]+" CONFIG_NAME ${CONFIG})
+    string(REGEX REPLACE "[^=]+=" "" CONFIG_VAL ${CONFIG})
+
+    if(${CONFIG_VAL} STREQUAL "n")
+      continue()
+    endif()
+    if(${CONFIG_VAL} STREQUAL "y")
+      set(CONFIG_VAL 1)
+    endif()
+
+    file(
+      APPEND
+      ${autoconf_file}
+      "#define ${CONFIG_NAME} ${CONFIG_VAL}\n"
+    )
+  endforeach()
+endfunction()
+
+# file(COPY_FILE ...) for old cmake
+function(file_copy_file SRC_FILE DEST_FILE)
+  file(READ ${SRC_FILE} VAR_TMP)
+  file(WRITE ${DEST_FILE} ${VAR_TMP})
+endfunction()
+
 # File path for Kconfig
 set(PRJ_DEFCONF_FILE ${CONF_DIR}/${DEFCONF})
 set(PRJ_CONFIG_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_NAME})
 set(PRJ_CONFIG_CACHE_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_CACHE_NAME})
 set(PRJ_CONFIG_NOTIFY_FILE ${PROJECT_BINARY_DIR}/${PRJ_CONFIG_NOTIFY_NAME})
 set(PRJ_AUTOCONF_H_FILE ${PROJECT_BINARY_DIR}/${PRJ_AUTOCONF_H_DIR}/${PRJ_AUTOCONF_H_NAME})
-
-function(copy_file SRC_FILE DEST_FILE)
-  file(READ ${SRC_FILE} VAR_TMP)
-  file(WRITE ${DEST_FILE} ${VAR_TMP})
-endfunction()
 
 # Target: Default config
 # TODO: Use suitable tools for Kconfig
@@ -53,10 +136,10 @@ if(NOT EXISTS ${PRJ_CONFIG_FILE})
   if(NOT EXISTS ${PRJ_DEFCONF_FILE} OR IS_DIRECTORY ${PRJ_DEFCONF_FILE})
     message(FATAL_ERROR "defconf '${PRJ_DEFCONF_FILE}' is wrong. Please set DEFCONF.")
   endif()
-  copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE})
-  copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_CACHE_FILE})
+  file_copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_FILE})
+  file_copy_file(${PRJ_DEFCONF_FILE} ${PRJ_CONFIG_CACHE_FILE})
 endif()
-copy_file(${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE})
+file_copy_file(${PRJ_CONFIG_FILE} ${PRJ_CONFIG_CACHE_FILE})
 file(WRITE ${PRJ_CONFIG_NOTIFY_FILE} "")
 include(${PRJ_CONFIG_NOTIFY_FILE})
 
