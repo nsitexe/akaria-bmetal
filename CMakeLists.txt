@@ -46,7 +46,7 @@ add_library(${PRJ_LIB_NAME} STATIC)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Default config directory
-set(CONF_DIR ${CMAKE_SOURCE_DIR}/configs)
+set(CONF_DIR ${CMAKE_SOURCE_DIR}/config)
 message("${SPACER} DEFCONF is '${DEFCONF}'")
 message("${SPACER} CONF dir is '${CONF_DIR}'")
 
