@@ -7,7 +7,7 @@ enable_language(C ASM)
 
 # Additional host tools
 # Need to add these dirs before changing CMAKE_C_COMPILER.
-add_subdirectory(tools)
+add_subdirectory(tool)
 
 # Check ARCH
 if(NOT DEFINED ARCH)
