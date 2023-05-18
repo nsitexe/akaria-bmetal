@@ -128,7 +128,7 @@ prj_include_directories(
 add_subdirectory(arch)
 add_subdirectory(sys)
 add_subdirectory(boards)
-add_subdirectory(drivers)
+add_subdirectory(driver)
 
 # Document settings
 set(DOXYGEN_GENERATE_HTML YES)
