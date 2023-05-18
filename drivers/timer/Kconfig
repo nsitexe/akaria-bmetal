@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Timer drivers"
+
+config TIMER
+	bool "Timer drivers"
+	help
+	  Timer drivers
+
+if TIMER
+
+config TIMER_NSITEXE_ICU_TIMER
+	bool "NSITEXE ICU timer"
+
+config TIMER_SIFIVE_CLINT_TIMER
+	bool "SiFive CLINT timer"
+
+endif # TIMER
+
+endmenu

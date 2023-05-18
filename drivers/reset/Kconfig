@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Reset controller drivers"
+
+config RESET
+	bool "Reset controller drivers"
+	help
+	  Reset controller drivers
+
+if RESET
+
+config RESET_SIFIVE_QEMU_TEST
+	bool "SiFive QEMU reset driver"
+
+endif # RESET
+
+endmenu

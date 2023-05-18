@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Clock drivers"
+
+config CLK
+	bool "Clock drivers"
+	help
+	  Clock drivers
+
+if CLK
+
+config CLK_SIFIVE_PRCI
+	bool "SiFive PRCI"
+
+endif # CLK
+
+endmenu
