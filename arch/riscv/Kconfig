@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config RISCV
+	def_bool y
+
+config RISCV_ATOMIC
+	bool "RISC-V Atomic operation support"
+
+config RISCV_COMPRESSED
+	bool "RISC-V Compressed instructions support"
+
+config RISCV_CACHE
+	bool "RISC-V Cache management operaion support"
