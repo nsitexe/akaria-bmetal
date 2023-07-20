@@ -8,11 +8,9 @@ Run cmake to configure this project.
 
 [source,sh]
 ----
-$ mkdir build
-$ cd build
-$ cmake ../ -G Ninja \
+$ cmake ./ -G Ninja -B build \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
+  -DCMAKE_INSTALL_PREFIX=./test/sysroot/ \
   -DARCH=riscv \
   -DCROSS_COMPILE=riscv64-unknown-elf- \
   -DCC=gcc \
@@ -23,8 +21,7 @@ Build and install runtime libraries to sysroot.
 
 [source,sh]
 ----
-$ ninja
-$ ninja install
+$ ninja -C build install
 ----
 
 === Build device side application
@@ -84,11 +81,9 @@ Threre are some differences from single thread config:
 
 [source,sh]
 ----
-$ mkdir build
-$ cd build
-$ cmake ../ -G Ninja \
+$ cmake ./ -G Ninja -B build \
   -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DCMAKE_INSTALL_PREFIX=../test/sysroot/ \
+  -DCMAKE_INSTALL_PREFIX=./test/sysroot/ \
   -DARCH=riscv \
   -DCROSS_COMPILE=riscv64-unknown-linux-musl- \
   -DCC=gcc \
@@ -99,8 +94,7 @@ Build and install runtime libraries to sysroot.
 
 [source,sh]
 ----
-$ ninja
-$ ninja install
+$ ninja -C build install
 ----
 
 === Build device side application
