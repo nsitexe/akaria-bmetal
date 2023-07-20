@@ -48,7 +48,7 @@ int __clock_set_realtime(const struct timespec64 *tsp)
 
 int __clock_get_monotonic(struct timespec64 *tsp)
 {
-	struct __timer_device *tm = __timer_get_system();
+	struct __timer_device *tm = __system_timer_get();
 	const struct __timer_driver *drv = __timer_get_drv(tm);
 	struct timespec64 tmp;
 	int r;

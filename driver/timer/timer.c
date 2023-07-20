@@ -8,16 +8,16 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 
-static struct __timer_device *timer_system;
+static struct __timer_device *system_timer;
 
-struct __timer_device *__timer_get_system(void)
+struct __timer_device *__system_timer_get(void)
 {
-	return timer_system;
+	return system_timer;
 }
 
-int __timer_set_system(struct __timer_device *timer)
+int __system_timer_set(struct __timer_device *timer)
 {
-	timer_system = timer;
+	system_timer = timer;
 
 	return 0;
 }
@@ -39,7 +39,7 @@ int __timer_add_device(struct __timer_device *timer, struct __bus *parent)
 		val = 0;
 	}
 	if (val) {
-		__timer_set_system(timer);
+		__system_timer_set(timer);
 	}
 
 	return 0;
