@@ -1,5 +1,11 @@
 
 = SiFive HiFive1 Rev.B
 
+SiFive HiFive1 Rev.B board that has small RV32 CPU and 16KB SRAM.
+
 Config::
   riscv_sifive_hifive1
+Device::
+  Board is SiFive HiFive1 Rev.B.
+  Main SoC is SiFive Freedom E310-G002 (FE310-G002).
+  https://www.sifive.com/boards/hifive1-rev-b

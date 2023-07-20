@@ -3,3 +3,6 @@
 
 Config::
   riscv_qemu_virt_64_xip
+Device::
+  QEMU.
+  https://www.qemu.org/
