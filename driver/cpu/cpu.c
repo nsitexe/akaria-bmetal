@@ -245,6 +245,9 @@ static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event eve
 	switch (event) {
 	case CPU_EVENT_ON_WAKEUP:
 	case CPU_EVENT_ON_SLEEP:
+	case CPU_EVENT_INTR_EXT:
+	case CPU_EVENT_INTR_IPI:
+	case CPU_EVENT_INTR_TIMER:
 		h = &cpu->handlers[event];
 		break;
 	default:
@@ -259,7 +262,7 @@ static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event eve
 	return 0;
 }
 
-static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event event)
+int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
 {
 	struct __event_handler *head;
 	int r;
@@ -271,6 +274,27 @@ static int __cpu_call_event_handler(struct __cpu_device *cpu, enum __cpu_event e
 
 	if (__event_has_next(head)) {
 		__event_handle_generic(event, head->hnd_next);
+	}
+
+	return 0;
+}
+
+int __cpu_has_handler(struct __cpu_device *cpu, enum __cpu_event event, int *has_handler)
+{
+	struct __event_handler *head;
+	int r, res = 0;
+
+	r = __cpu_get_handler_head(cpu, event, &head);
+	if (r) {
+		return r;
+	}
+
+	if (__event_has_next(head)) {
+		res = 1;
+	}
+
+	if (has_handler) {
+		*has_handler = res;
 	}
 
 	return 0;
@@ -439,7 +463,7 @@ int __cpu_on_wakeup(void)
 		}
 	}
 
-	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_WAKEUP);
+	r = __cpu_call_handler(cpu, CPU_EVENT_ON_WAKEUP);
 	if (r) {
 		__dev_err(dev, "failed to handle event of on_wakeup.\n");
 		return r;
@@ -455,7 +479,7 @@ int __cpu_on_sleep(void)
 	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
 	int r;
 
-	r = __cpu_call_event_handler(cpu, CPU_EVENT_ON_SLEEP);
+	r = __cpu_call_handler(cpu, CPU_EVENT_ON_SLEEP);
 	if (r) {
 		__dev_err(dev, "failed to handle event of on_sleep.\n");
 		return r;

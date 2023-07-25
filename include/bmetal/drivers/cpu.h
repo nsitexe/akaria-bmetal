@@ -15,6 +15,10 @@ enum __cpu_event {
 	CPU_EVENT_ON_WAKEUP,
 	CPU_EVENT_ON_SLEEP,
 
+	CPU_EVENT_INTR_EXT,
+	CPU_EVENT_INTR_IPI,
+	CPU_EVENT_INTR_TIMER,
+
 	CPU_EVENT_MAX,
 };
 
@@ -138,6 +142,8 @@ void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz);
 int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz);
+int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event);
+int __cpu_has_handler(struct __cpu_device *cpu, enum __cpu_event event, int *has_handler);
 int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_wakeup(struct __cpu_device *cpu);
