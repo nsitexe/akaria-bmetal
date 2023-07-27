@@ -139,9 +139,14 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 	return NULL;
 }
 
+int __cpu_get_current_id_phys(void)
+{
+	return __arch_get_cpu_id();
+}
+
 struct __cpu_device *__cpu_get_current(void)
 {
-	return __cpu_get_by_physical_id(__arch_get_cpu_id());
+	return __cpu_get_by_physical_id(__cpu_get_current_id_phys());
 }
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
@@ -262,7 +267,7 @@ static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event eve
 	return 0;
 }
 
-int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
+static int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
 {
 	struct __event_handler *head;
 	int r;
@@ -274,27 +279,6 @@ int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
 
 	if (__event_has_next(head)) {
 		__event_handle_generic(event, head->hnd_next);
-	}
-
-	return 0;
-}
-
-int __cpu_has_handler(struct __cpu_device *cpu, enum __cpu_event event, int *has_handler)
-{
-	struct __event_handler *head;
-	int r, res = 0;
-
-	r = __cpu_get_handler_head(cpu, event, &head);
-	if (r) {
-		return r;
-	}
-
-	if (__event_has_next(head)) {
-		res = 1;
-	}
-
-	if (has_handler) {
-		*has_handler = res;
 	}
 
 	return 0;

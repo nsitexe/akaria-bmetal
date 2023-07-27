@@ -131,6 +131,7 @@ int __cpu_alloc_id(void);
 struct __cpu_device *__cpu_get(int id);
 int __cpu_set(int id, struct __cpu_device *cpu);
 struct __cpu_device *__cpu_get_by_physical_id(int id_phys);
+int __cpu_get_current_id_phys(void);
 struct __cpu_device *__cpu_get_current(void);
 
 int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent);
@@ -142,8 +143,6 @@ void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz);
 int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz);
 int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz);
-int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event);
-int __cpu_has_handler(struct __cpu_device *cpu, enum __cpu_event event, int *has_handler);
 int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event ev, struct __event_handler *hnd);
 int __cpu_wakeup(struct __cpu_device *cpu);
