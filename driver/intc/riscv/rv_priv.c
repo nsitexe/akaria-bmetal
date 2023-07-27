@@ -34,8 +34,11 @@ struct intc_priv_priv {
 	struct __event_handler hnd_sw;
 	struct __event_handler hnd_cpu;
 
+	unsigned int has_ex:1;
 	unsigned int enabled_ex:1;
+	unsigned int has_tm:1;
 	unsigned int enabled_tm:1;
+	unsigned int has_sw:1;
 	unsigned int enabled_sw:1;
 };
 CHECK_PRIV_SIZE_INTC(struct intc_priv_priv);
@@ -69,33 +72,61 @@ static int intc_priv_intr(int event, struct __event_handler *hnd)
 	return res;
 }
 
+static int intc_priv_update_intr_mask(struct __intc_device *intc, int wakeup)
+{
+	struct __device *dev = __intc_to_dev(intc);
+	struct intc_priv_priv *priv = dev->priv;
+	int m = 0;
+
+	if (priv->has_ex && priv->enabled_ex) {
+		m |= XIX_EIX;
+	}
+	if (priv->has_tm && priv->enabled_tm) {
+		m |= XIX_TIX;
+	}
+
+	/* Always set SW interrupt for IPI */
+	m |= XIX_SIX;
+
+	if (wakeup) {
+		__asm volatile ("csrs mie, %0" : : "r"(m));
+	} else {
+		__asm volatile ("csrc mie, %0" : : "r"(m));
+	}
+
+	return 0;
+}
+
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
-	int m = 0;
-
-	if (priv->enabled_ex) {
-		m |= XIX_EIX;
-	}
-	if (priv->enabled_tm) {
-		m |= XIX_TIX;
-	}
-	if (priv->enabled_sw) {
-		m |= XIX_SIX;
-	}
+	struct __intc_device *intc = priv->intc;
+	int r, res = EVENT_NOT_HANDLED;
 
 	switch (event) {
 	case CPU_EVENT_ON_WAKEUP:
-		__asm volatile ("csrs mie, %0" : : "r"(m));
+		r = intc_priv_update_intr_mask(intc, 1);
+		if (r) {
+			return EVENT_NOT_HANDLED;
+		}
+		res = EVENT_HANDLED;
+
 		break;
 	case CPU_EVENT_ON_SLEEP:
-		__asm volatile ("csrc mie, %0" : : "r"(m));
+		r = intc_priv_update_intr_mask(intc, 0);
+		if (r) {
+			return EVENT_NOT_HANDLED;
+		}
+		res = EVENT_HANDLED;
+
 		break;
 	default:
-		return EVENT_NOT_HANDLED;
+		res = EVENT_NOT_HANDLED;
+
+		break;
 	}
 
-	return EVENT_HANDLED;
+	return res;
 }
 
 static int intc_priv_add(struct __device *dev)
@@ -156,6 +187,10 @@ static int intc_priv_add(struct __device *dev)
 		return r;
 	}
 
+	priv->enabled_ex = 1;
+	priv->enabled_tm = 1;
+	priv->enabled_sw = 1;
+
 	return 0;
 }
 
@@ -210,9 +245,9 @@ static int intc_priv_add_handler(struct __intc_device *intc, int event, struct _
 		return r;
 	}
 
-	priv->enabled_ex = __event_has_next(&priv->hnd_ex);
-	priv->enabled_tm = __event_has_next(&priv->hnd_tm);
-	priv->enabled_sw = __event_has_next(&priv->hnd_sw);
+	priv->has_ex = __event_has_next(&priv->hnd_ex);
+	priv->has_tm = __event_has_next(&priv->hnd_tm);
+	priv->has_sw = __event_has_next(&priv->hnd_sw);
 
 	return 0;
 }
@@ -250,9 +285,71 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 		return r;
 	}
 
-	priv->enabled_ex = __event_has_next(&priv->hnd_ex);
-	priv->enabled_tm = __event_has_next(&priv->hnd_tm);
-	priv->enabled_sw = __event_has_next(&priv->hnd_sw);
+	priv->has_ex = __event_has_next(&priv->hnd_ex);
+	priv->has_tm = __event_has_next(&priv->hnd_tm);
+	priv->has_sw = __event_has_next(&priv->hnd_sw);
+
+	return 0;
+}
+
+static int intc_priv_enable(struct __intc_device *intc, int event)
+{
+	struct __device *dev = __intc_to_dev(intc);
+	struct intc_priv_priv *priv = dev->priv;
+
+	switch (event) {
+	case RV_IX_USIX:
+	case RV_IX_SSIX:
+	case RV_IX_MSIX:
+		/* Cannot enable/disable SW interrupt */
+		break;
+	case RV_IX_UTIX:
+	case RV_IX_STIX:
+	case RV_IX_MTIX:
+		priv->enabled_tm = 1;
+		break;
+	case RV_IX_UEIX:
+	case RV_IX_SEIX:
+	case RV_IX_MEIX:
+		priv->enabled_ex = 1;
+		break;
+	default:
+		__dev_err(dev, "Unknown event number %d\n", event);
+		return -EINVAL;
+	}
+
+	/* FIXME: Need IPI event */
+
+	return 0;
+}
+
+static int intc_priv_disable(struct __intc_device *intc, int event)
+{
+	struct __device *dev = __intc_to_dev(intc);
+	struct intc_priv_priv *priv = dev->priv;
+
+	switch (event) {
+	case RV_IX_USIX:
+	case RV_IX_SSIX:
+	case RV_IX_MSIX:
+		/* Cannot enable/disable SW interrupt */
+		break;
+	case RV_IX_UTIX:
+	case RV_IX_STIX:
+	case RV_IX_MTIX:
+		priv->enabled_tm = 0;
+		break;
+	case RV_IX_UEIX:
+	case RV_IX_SEIX:
+	case RV_IX_MEIX:
+		priv->enabled_ex = 0;
+		break;
+	default:
+		__dev_err(dev, "Unknown event number %d\n", event);
+		return -EINVAL;
+	}
+
+	/* FIXME: Need IPI event */
 
 	return 0;
 }
@@ -266,6 +363,8 @@ const static struct __device_driver_ops intc_priv_dev_ops = {
 const static struct __intc_driver_ops intc_priv_intc_ops = {
 	.add_handler = intc_priv_add_handler,
 	.remove_handler = intc_priv_remove_handler,
+	.enable = intc_priv_enable,
+	.disable = intc_priv_disable,
 };
 
 static struct __intc_driver intc_priv_drv = {
