@@ -9,6 +9,7 @@
 #include <bmetal/device.h>
 #include <bmetal/intr.h>
 #include <bmetal/sys/errno.h>
+#include <bmetal/sys/time.h>
 
 struct __timer_device;
 
@@ -19,6 +20,8 @@ struct __timer_driver_ops {
 	int (* set_freq)(struct __timer_device *tm, int index, uint64_t freq);
 	int (* get_raw)(struct __timer_device *tm, int index, uint64_t *count);
 	int (* set_raw)(struct __timer_device *tm, int index, uint64_t count);
+	int (* get_trigger)(struct __timer_device *tm, int index, struct timespec64 *tsp);
+	int (* set_trigger)(struct __timer_device *tm, int index, const struct timespec64 *tsp);
 };
 
 struct __timer_driver {
