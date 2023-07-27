@@ -2,6 +2,7 @@
 
 #include <bmetal/clock.h>
 #include <bmetal/printk.h>
+#include <bmetal/drivers/cpu.h>
 #include <bmetal/drivers/timer.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
@@ -81,23 +82,25 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 {
 	struct __timer_device *tm = __system_timer_get();
 	const struct __timer_driver *drv = __timer_get_drv(tm);
-	int r;
+	int id, r;
 
 	if (!tm) {
 		pri_info("system timer is not found.\n");
 		return -ENOTSUP;
 	}
 
+	id = __cpu_get_current_id_phys();
+
 	if (drv && drv->ops->get_freq && drv->ops->get_raw) {
 		struct timespec64 tmp;
 		uint64_t cnt, freq;
 
-		r = drv->ops->get_raw(tm, 0, &cnt);
+		r = drv->ops->get_raw(tm, id, &cnt);
 		if (r) {
 			return r;
 		}
 
-		r = drv->ops->get_freq(tm, 0, &freq);
+		r = drv->ops->get_freq(tm, id, &freq);
 		if (r) {
 			return r;
 		}
@@ -109,6 +112,44 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 
 		if (tsp) {
 			*tsp = tmp;
+		}
+	}
+
+	return 0;
+}
+
+int __clock_on_tick(void)
+{
+	struct __timer_device *tm = __system_timer_get();
+	const struct __timer_driver *drv = __timer_get_drv(tm);
+	int id, r;
+
+	if (!tm) {
+		pri_info("system timer is not found.\n");
+		return -ENOTSUP;
+	}
+
+	id = __cpu_get_current_id_phys();
+
+	if (drv && drv->ops->set_trigger) {
+		struct timespec64 cur, tick, next;
+		uint64_t hz = 100;
+
+		r = __clock_get_monotonic(&cur);
+		if (r) {
+			return r;
+		}
+
+#ifdef CONFIG_SYSTEM_TIMER_HZ
+		hz = CONFIG_SYSTEM_TIMER_HZ;
+#endif
+		tick.tv_sec = 0;
+		tick.tv_nsec = 1000000000ULL / hz;
+		timespecadd(&cur, &tick, &next);
+
+		r = drv->ops->set_trigger(tm, id, &next);
+		if (r) {
+			return r;
 		}
 	}
 

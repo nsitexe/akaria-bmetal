@@ -14,6 +14,8 @@ int __clock_get_realtime(struct timespec64 *tsp);
 int __clock_set_realtime(const struct timespec64 *tsp);
 int __clock_get_monotonic(struct timespec64 *tsp);
 
+int __clock_on_tick(void);
+
 #endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_CLOCK_H_ */
