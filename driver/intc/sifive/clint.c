@@ -3,7 +3,6 @@
 #include <stdint.h>
 
 #include <bmetal/drivers/intc.h>
-#include <bmetal/arch.h>
 #include <bmetal/device.h>
 #include <bmetal/event.h>
 #include <bmetal/init.h>
@@ -25,7 +24,7 @@ static int intc_clint_intr(int event, struct __event_handler *hnd)
 {
 	struct intc_clint_priv *priv = hnd->priv;
 	struct __device *dev = __intc_to_dev(priv->intc);
-	int id_phys = __arch_get_cpu_id();
+	int id_phys = __cpu_get_current_id_phys();
 	int res = EVENT_NOT_HANDLED;
 
 	switch (event) {
