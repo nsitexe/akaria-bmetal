@@ -49,7 +49,7 @@ static const struct new_utsname uname = {
 
 intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
-	pri_info("%d: unknown syscall %"PRIdPTR"\n", __arch_get_cpu_id(), number);
+	pri_info("%d: unknown syscall %"PRIdPTR"\n", __cpu_get_current_id_phys(), number);
 
 	return -ENOTSUP;
 }
@@ -844,7 +844,7 @@ intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		r = __cpu_futex_wait(uaddr, val, val3);
 		if (r) {
 			if (r != -EWOULDBLOCK) {
-				pri_warn("%d: futex err wait %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+				pri_warn("%d: futex err wait %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
 			}
 
 			ret = r;
@@ -858,7 +858,7 @@ intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	case FUTEX_WAKE_BITSET:
 		r = __cpu_futex_wake(uaddr, val, val3);
 		if (r < 0) {
-			pri_warn("%d: futex err wake %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			pri_warn("%d: futex err wake %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -869,7 +869,7 @@ intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	case FUTEX_REQUEUE:
 		r = __cpu_futex_wake(uaddr, val, FUTEX_BITSET_ANY);
 		if (r < 0) {
-			pri_warn("%d: futex err requeue %p %d.\n", __arch_get_cpu_id(), uaddr, val);
+			pri_warn("%d: futex err requeue %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;

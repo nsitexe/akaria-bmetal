@@ -2,6 +2,7 @@
 
 #include <bmetal/atomic.h>
 #include <bmetal/lock.h>
+#include <bmetal/drivers/cpu.h>
 
 int __spinlock_init(struct __spinlock *s)
 {
@@ -38,7 +39,7 @@ int __arch_gen_spinlock_lock(__arch_spinlock_t *lock)
 	while (r) {
 		r = __arch_gen_spinlock_trylock(lock);
 	}
-	lock->id = __arch_get_cpu_id();
+	lock->id = __cpu_get_current_id_phys();
 
 	return 0;
 }
