@@ -66,7 +66,7 @@ static int cpu_riscv_remove(struct __device *dev)
 
 static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, size_t sz)
 {
-#ifdef CONFIG_RISCV_CACHE
+#ifdef CONFIG_CACHE
 	int sz_line = __cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
@@ -80,14 +80,14 @@ static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, si
 	}
 
 	dwmb();
-#endif /* CONFIG_RISCV_CACHE */
+#endif /* CONFIG_CACHE */
 
 	return 0;
 }
 
 static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size_t sz)
 {
-#ifdef CONFIG_RISCV_CACHE
+#ifdef CONFIG_CACHE
 	int sz_line = __cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
@@ -101,14 +101,14 @@ static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size
 	}
 
 	dwmb();
-#endif /* CONFIG_RISCV_CACHE */
+#endif /* CONFIG_CACHE */
 
 	return 0;
 }
 
 static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, size_t sz)
 {
-#ifdef CONFIG_RISCV_CACHE
+#ifdef CONFIG_CACHE
 	int sz_line = __cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
@@ -122,7 +122,7 @@ static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, si
 	}
 
 	dwmb();
-#endif /* CONFIG_RISCV_CACHE */
+#endif /* CONFIG_CACHE */
 
 	return 0;
 }
