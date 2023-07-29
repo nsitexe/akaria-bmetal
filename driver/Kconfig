@@ -2,11 +2,11 @@
 
 menu "Device Drivers"
 
-source "drivers/clk/Kconfig"
-source "drivers/cpu/Kconfig"
-source "drivers/intc/Kconfig"
-source "drivers/reset/Kconfig"
-source "drivers/timer/Kconfig"
-source "drivers/uart/Kconfig"
+source "driver/clk/Kconfig"
+source "driver/cpu/Kconfig"
+source "driver/intc/Kconfig"
+source "driver/reset/Kconfig"
+source "driver/timer/Kconfig"
+source "driver/uart/Kconfig"
 
 endmenu
