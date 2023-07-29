@@ -294,6 +294,8 @@ int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event event, struct _
 		return r;
 	}
 
+	handler->event = event;
+
 	r = __event_add_handler(head, handler);
 	if (r) {
 		return r;

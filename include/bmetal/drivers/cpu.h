@@ -12,6 +12,7 @@
 #include <bmetal/thread.h>
 
 enum __cpu_event {
+	CPU_EVENT_NULL,
 	CPU_EVENT_ON_WAKEUP,
 	CPU_EVENT_ON_SLEEP,
 
