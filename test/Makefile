@@ -29,19 +29,25 @@ WITH_OPENBLAS ?= n
 WITH_OPENSSL ?= n
 
 # 32bit
-#APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+
 # 32bit glibc
-#APP_CFLAGS_RV = -march=rv32gc -mabi=ilp32d -mcmodel=medany
-#APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32gc -mabi=ilp32d -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32gc -mabi=ilp32d -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
 
 # 64bit glibc
-APP_CFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
-#APP_CFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
+APP_CFLAGS_RV  = -march=rv64gc -mabi=lp64d -mcmodel=medany
+APP_LDFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv64imac -mabi=lp64 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
 
 APP_CPPFLAGS = -Wall
 APP_CFLAGS   = -O2 -gdwarf-4 $(APP_CFLAGS_RV)
 APP_CXXFLAGS = $(APP_CFLAGS)
-APP_LDFLAGS  = $(APP_CFLAGS_RV)
+APP_LDFLAGS  = $(APP_LDFLAGS_RV)
 
 CPPFLAGS = $(APP_CPPFLAGS) $(EXT_CPPFLAGS)
 CFLAGS   = $(APP_CFLAGS)   $(EXT_CFLAGS)
