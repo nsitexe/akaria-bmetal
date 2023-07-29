@@ -3,11 +3,47 @@
 config RISCV
 	def_bool y
 
-config RISCV_ATOMIC
-	bool "RISC-V Atomic operation support"
+config RISCV_EXT_I_OLD
+	bool "RISC-V integer (binutils < 2.38)"
 
-config RISCV_COMPRESSED
-	bool "RISC-V Compressed instructions support"
+config RISCV_EXT_I
+	bool "RISC-V integer with Zicsr and Zifencei (binutils >= 2.38)"
 
-config RISCV_CACHE
-	bool "RISC-V Cache management operaion support"
+config RISCV_EXT_M
+	bool "RISC-V multiplication and division"
+
+config RISCV_EXT_A
+	bool "RISC-V atomic"
+
+config RISCV_EXT_F
+	bool "RISC-V single-precision floating-point"
+
+config RISCV_EXT_D
+	bool "RISC-V double-precision floating-Point"
+
+config RISCV_EXT_C
+	bool "RISC-V compressed"
+
+config RISCV_EXT_V
+	bool "RISC-V vector operations"
+
+config RISCV_EXT_ZBA
+	bool "RISC-V address generation"
+
+config RISCV_EXT_ZBB
+	bool "RISC-V basic bit-manipulation"
+
+config RISCV_EXT_ZBC
+	bool "RISC-V carry-less multiplication"
+
+config RISCV_EXT_ZBS
+	bool "RISC-V single-bit"
+
+config RISCV_EXT_ZICBOM
+	bool "RISC-V cache-block management"
+
+config RISCV_EXT_ZICBOZ
+	bool "RISC-V cache-block zero"
+
+config RISCV_EXT_ZICBOP
+	bool "RISC-V cache-block prefetch"
