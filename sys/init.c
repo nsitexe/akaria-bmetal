@@ -10,6 +10,7 @@
 #include <bmetal/intr.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
+#include <bmetal/memory.h>
 #include <bmetal/printk.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>

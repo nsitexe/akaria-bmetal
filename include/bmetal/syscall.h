@@ -66,7 +66,6 @@
 	}
 
 #define __NEW_UTS_LEN 64
-#define __PAGE_SIZE   4096
 
 #if !defined(__ASSEMBLER__)
 

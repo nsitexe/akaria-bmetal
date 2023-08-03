@@ -10,6 +10,7 @@
 #include <bmetal/fini.h>
 #include <bmetal/init.h>
 #include <bmetal/lock.h>
+#include <bmetal/memory.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
 #include <bmetal/thread.h>
@@ -23,20 +24,8 @@
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
-#if defined(CONFIG_HEAP) && ((CONFIG_HEAP_SIZE % __PAGE_SIZE) != 0)
-#  error Invalid heap size. It should be aligned page size. \
-         Please check configs about HEAP_SIZE.
-#endif
-
 static define_brk(brk_area, CONFIG_BRK_SIZE);
 static char *brk_cur = brk_area;
-
-#ifdef CONFIG_HEAP
-static struct __spinlock lock_mmap;
-static define_heap(heap_area, CONFIG_HEAP_SIZE);
-static char heap_used[CONFIG_HEAP_SIZE / __PAGE_SIZE];
-static int dbg_heap_num = 1;
-#endif /* CONFIG_HEAP */
 
 static const struct new_utsname uname = {
 	.sysname    = "Linux",
@@ -442,156 +431,6 @@ intptr_t __sys_brk(void *addr)
 	return PTR_TO_INT(addr);
 }
 
-#ifdef CONFIG_HEAP
-
-static int __mmap_lock(void)
-{
-	__spinlock_lock(&lock_mmap);
-
-	return 0;
-}
-
-static int __mmap_unlock(void)
-{
-	__spinlock_unlock(&lock_mmap);
-
-	return 0;
-}
-
-void *__heap_area_start(void)
-{
-	return &heap_area[0];
-}
-
-void *__heap_area_end(void)
-{
-	return &heap_area[0] + CONFIG_HEAP_SIZE;
-}
-
-static void dump_heap_pages(void)
-{
-#ifdef CONFIG_DEBUG_HEAP
-	pri_dbg("dump_heap_pages:\n");
-	for (size_t i = 0; i < ARRAY_OF(heap_used); i++) {
-		if (i % 16 == 0) {
-			pri_dbg("  %4d: ", (int)i);
-		}
-		pri_dbg("%2x ", heap_used[i]);
-		if (i % 16 == 15) {
-			pri_dbg("\n");
-		}
-	}
-	pri_dbg("\n");
-#endif
-}
-
-static size_t get_cont_pages_num(size_t off_page, size_t lim_page)
-{
-	size_t r = 1;
-
-	for (size_t i = off_page; i < ARRAY_OF(heap_used); i++, r++) {
-		if (heap_used[i] || r >= lim_page) {
-			break;
-		}
-	}
-
-	return r;
-}
-
-static int set_page_flag(size_t off_page, size_t n_page, int val)
-{
-	for (size_t i = off_page; i < off_page + n_page; i++) {
-		heap_used[i] = val;
-	}
-
-	return 0;
-}
-
-static ssize_t alloc_pages(size_t len)
-{
-	size_t size_page = (len + __PAGE_SIZE - 1) / __PAGE_SIZE;
-	size_t i = 0;
-
-	while (i < ARRAY_OF(heap_used)) {
-		if (heap_used[i]) {
-			i++;
-			continue;
-		}
-
-		size_t n_page = get_cont_pages_num(i, size_page);
-		if (n_page >= size_page) {
-			set_page_flag(i, size_page, dbg_heap_num);
-			dbg_heap_num += 1;
-
-			pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
-				(int)i, (int)(i + size_page - 1), (int)(size_page * __PAGE_SIZE / 1024));
-			dump_heap_pages();
-			return i;
-		}
-
-		i += n_page;
-	}
-
-	return -1;
-}
-
-static int check_pages(void *start, size_t length)
-{
-	uintptr_t off_addr = start - __heap_area_start();
-	size_t off_page = off_addr / __PAGE_SIZE;
-	size_t n_page = length / __PAGE_SIZE;
-	int failed = 0;
-
-	if (off_addr & (__PAGE_SIZE - 1)) {
-		n_page += 1;
-	}
-
-	for (size_t i = off_page; i < off_page + n_page; i++) {
-		if (!heap_used[i]) {
-			pri_warn("check_pages: not allocated at %d.\n", (int)i);
-			failed = 1;
-		}
-	}
-	if (failed) {
-		dump_heap_pages();
-
-		return -EBADF;
-	}
-
-	return 0;
-}
-
-static int free_pages(void *start, size_t length)
-{
-	uintptr_t off_addr = start - __heap_area_start();
-	size_t off_page = off_addr / __PAGE_SIZE;
-	size_t n_page = length / __PAGE_SIZE;
-	int need_dump = 0;
-
-	if (off_addr & (__PAGE_SIZE - 1)) {
-		n_page += 1;
-	}
-
-	for (size_t i = off_page; i < off_page + n_page; i++) {
-		if (!heap_used[i]) {
-			pri_warn("free_pages: double free at %d.\n", (int)i);
-			need_dump = 1;
-		}
-	}
-	if (need_dump) {
-		dump_heap_pages();
-	}
-
-	set_page_flag(off_page, n_page, 0);
-
-	pri_info("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
-		(int)(off_page + n_page - 1), (int)(n_page * __PAGE_SIZE / 1024));
-
-	return 0;
-}
-
-#endif /* CONFIG_HEAP */
-
 intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
 #ifdef CONFIG_HEAP
@@ -620,14 +459,14 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 		return -EINVAL;
 	}
 
-	__mmap_lock();
-	off_page = alloc_pages(len);
-	__mmap_unlock();
+	__mem_lock();
+	off_page = __mem_alloc_pages(len);
+	__mem_unlock();
 	if (off_page == -1) {
 		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}
-	anon_ptr = __heap_area_start() + off_page * __PAGE_SIZE;
+	anon_ptr = __mem_heap_area_start() + off_page * __PAGE_SIZE;
 
 	kmemset(anon_ptr, 0, len);
 
@@ -642,13 +481,13 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 intptr_t __sys_munmap(void *addr, size_t length)
 {
 #ifdef CONFIG_HEAP
-	if (addr < __heap_area_start() || __heap_area_end() < addr + length) {
+	if (addr < __mem_heap_area_start() || __mem_heap_area_end() < addr + length) {
 		return -EINVAL;
 	}
 
-	__mmap_lock();
-	free_pages(addr, length);
-	__mmap_unlock();
+	__mem_lock();
+	__mem_free_pages(addr, length);
+	__mem_unlock();
 
 	return 0;
 #else
@@ -666,7 +505,7 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
-		int r = check_pages(addr, length);
+		int r = __mem_check_pages(addr, length);
 		if (r) {
 			return r;
 		}

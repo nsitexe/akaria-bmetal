@@ -8,6 +8,7 @@ prj_sources(
   init.c
   intr.c
   lock.c
+  memory.c
   printk.c
   smp.c
   syscall.c
