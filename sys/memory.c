@@ -99,6 +99,9 @@ ssize_t __mem_alloc_pages(size_t len)
 		if (n_page >= size_page) {
 			__mem_set_page_flag(i, size_page, dbg_heap_num);
 			dbg_heap_num += 1;
+			if ((dbg_heap_num & 0xff) == 0) {
+				dbg_heap_num += 1;
+			}
 
 			pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
 				(int)i, (int)(i + size_page - 1), (int)(size_page * __PAGE_SIZE / 1024));
