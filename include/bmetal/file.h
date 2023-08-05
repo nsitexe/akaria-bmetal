@@ -25,6 +25,13 @@ struct __file_desc {
 	const struct __file_ops *ops;
 };
 
+struct __file_desc *__file_get_desc(int fd);
+struct __file_desc *__file_set_desc(int fd, struct __file_desc *desc);
+ssize_t __file_read_nolock(struct __file_desc *desc, void *buf, size_t count);
+ssize_t __file_read(struct __file_desc *desc, void *buf, size_t count);
+ssize_t __file_write_nolock(struct __file_desc *desc, const void *buf, size_t count);
+ssize_t __file_write(struct __file_desc *desc, const void *buf, size_t count);
+
 ssize_t __file_stdio_read(struct __file_desc *desc, void *buf, size_t count);
 ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count);
 int __file_stdio_init(struct __proc_info *pi);

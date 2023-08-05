@@ -239,37 +239,9 @@ intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags)
 	return 0;
 }
 
-static struct __file_desc *get_file_desc(int fd)
-{
-	struct __proc_info *pi = __proc_get_current();
-
-	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		pri_info("get_file_desc: fd %d is invalid\n", fd);
-		return NULL;
-	}
-
-	return pi->fdset[fd];
-}
-
-static struct __file_desc *set_file_desc(int fd, struct __file_desc *desc)
-{
-	struct __proc_info *pi = __proc_get_current();
-	struct __file_desc *olddesc;
-
-	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		pri_info("set_file_desc: fd %d is invalid\n", fd);
-		return NULL;
-	}
-
-	olddesc = pi->fdset[fd];
-	pi->fdset[fd] = desc;
-
-	return olddesc;
-}
-
 intptr_t __sys_close(int fd)
 {
-	struct __file_desc *desc = get_file_desc(fd);
+	struct __file_desc *desc = __file_get_desc(fd);
 	int ret = 0;
 
 	if (!desc) {
@@ -280,86 +252,40 @@ intptr_t __sys_close(int fd)
 		ret = desc->ops->close(desc);
 	}
 
-	set_file_desc(fd, NULL);
-
-	return ret;
-}
-
-static ssize_t sys_read_nolock(struct __file_desc *desc, void *buf, size_t count)
-{
-	ssize_t ret = 0;
-
-	if (!buf) {
-		return -EINVAL;
-	}
-	if (count == 0) {
-		return -EINVAL;
-	}
-
-	if (desc->ops && desc->ops->read) {
-		ret = desc->ops->read(desc, buf, count);
-	}
+	__file_set_desc(fd, NULL);
 
 	return ret;
 }
 
 intptr_t __sys_read(int fd, void *buf, size_t count)
 {
-	struct __file_desc *desc = get_file_desc(fd);
-	ssize_t ret = 0;
+	struct __file_desc *desc = __file_get_desc(fd);
 
 	if (!desc || !desc->ops || !desc->ops->read) {
 		return -EBADF;
 	}
 
-	pri_dbg("sys_read: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
+	pri_dbg("sys_read: fd:%d cnt:%d\n", fd, (int)count);
 
-	__spinlock_lock(&desc->lock);
-	ret = sys_read_nolock(desc, buf, count);
-	__spinlock_unlock(&desc->lock);
-
-	return ret;
-}
-
-static ssize_t sys_write_nolock(struct __file_desc *desc, const void *buf, size_t count)
-{
-	ssize_t ret = 0;
-
-	if (!buf) {
-		return -EINVAL;
-	}
-	if (count == 0) {
-		return 0;
-	}
-
-	if (desc->ops && desc->ops->write) {
-		ret = desc->ops->write(desc, buf, count);
-	}
-
-	return ret;
+	return __file_read(desc, buf, count);
 }
 
 intptr_t __sys_write(int fd, const void *buf, size_t count)
 {
-	struct __file_desc *desc = get_file_desc(fd);
-	ssize_t ret = 0;
+	struct __file_desc *desc = __file_get_desc(fd);
 
 	if (!desc || !desc->ops || !desc->ops->write) {
 		return -EBADF;
 	}
 
-	pri_dbg("sys_write: fd:%d cnt:%d rd:%d\n", fd, (int)count, (int)ret);
+	pri_dbg("sys_write: fd:%d cnt:%d\n", fd, (int)count);
 
-	__spinlock_lock(&desc->lock);
-	ret = sys_write_nolock(desc, buf, count);
-	__spinlock_unlock(&desc->lock);
-
-	return ret;
+	return __file_write(desc, buf, count);
 }
 
 intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 {
-	struct __file_desc *desc = get_file_desc(fd);
+	struct __file_desc *desc = __file_get_desc(fd);
 	ssize_t ret = 0, wr;
 
 	if (!desc || !desc->ops || !desc->ops->write) {
@@ -380,7 +306,7 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 			continue;
 		}
 
-		wr = sys_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
+		wr = __file_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
 		if (wr > 0) {
 			ret += wr;
 		} else if (wr < iov[i].iov_len) {
