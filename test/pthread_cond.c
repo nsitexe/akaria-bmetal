@@ -155,14 +155,12 @@ int test_main(void *(*thread_main)(void *))
 	void *val;
 	int r, ret = 0;
 
-/*
 	r = pthread_condattr_init(&cond_attr);
 	if (r) {
 		printf("%d: pthread_condattr_init: %s\n", cpuid, strerror(r));
 		ret = r;
 		goto err_out;
 	}
-*/
 
 	r = pthread_cond_init(&cond, NULL);
 	if (r) {
