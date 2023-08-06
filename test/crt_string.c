@@ -8,6 +8,7 @@
 /* This is not POSIX application */
 void *kmemset(void *s, int c, size_t n);
 void *kmemcpy(void *dest, const void *src, size_t n);
+size_t kstrlen(const char *s);
 
 struct param_memset {
 	size_t dest_bufsize;
@@ -327,10 +328,10 @@ int verify_memcpy(const struct param_memcpy *par, const char *dest, const char *
 
 int test_memcpy(const struct param_memcpy *par)
 {
-	char *dest, *src, *st_dest, *st_src;
-	char *dest_org, *src_org;
+	char *dest = NULL, *src = NULL, *st_dest, *st_src;
+	char *dest_org = NULL, *src_org = NULL;
 	void *p;
-	int r;
+	int r, ret = 0;
 
 	r = verify_memcpy_param(par);
 	if (r) {
@@ -340,25 +341,29 @@ int test_memcpy(const struct param_memcpy *par)
 	dest = malloc(par->dest_bufsize);
 	if (dest == NULL) {
 		perror("malloc(dest)");
-		return -1;
+		ret = -1;
+		goto err_out;
 	}
 
 	dest_org = malloc(par->dest_bufsize);
 	if (dest_org == NULL) {
 		perror("malloc(dest_org)");
-		return -1;
+		ret = -1;
+		goto err_out;
 	}
 
 	src = malloc(par->src_bufsize);
 	if (src == NULL) {
 		perror("malloc(src)");
-		return -1;
+		ret = -1;
+		goto err_out;
 	}
 
 	src_org = malloc(par->src_bufsize);
 	if (src_org == NULL) {
 		perror("malloc(src_org)");
-		return -1;
+		ret = -1;
+		goto err_out;
 	}
 
 	for (size_t i = 0; i < par->dest_bufsize; i++) {
@@ -375,20 +380,131 @@ int test_memcpy(const struct param_memcpy *par)
 	if (p != st_dest) {
 		fprintf(stderr, "return value of %s is invalid.\n", par->funcname);
 		fflush(stderr);
-		return -1;
+		ret = -1;
+		goto err_out;
 	}
 
 	r = verify_memcpy(par, dest, src, dest_org, src_org);
 	if (r) {
-		return r;
+		ret = r;
+		goto err_out;
 	}
 
+err_out:
 	free(src_org);
 	free(src);
 	free(dest_org);
 	free(dest);
 
+	return ret;
+}
+
+int bench_memset(size_t dstsize, int nloop, int kernel)
+{
+	struct timeval st, ed, el;
+	char *dst = NULL;
+
+	dst = malloc(dstsize);
+	if (dst == NULL) {
+		perror("malloc(dst)");
+		return -1;
+	}
+
+	gettimeofday(&st, NULL);
+	for (int i = 0; i < nloop; i++) {
+		if (kernel) {
+			kmemset(dst, 0, dstsize);
+		} else {
+			memset(dst, 0, dstsize);
+		}
+	}
+	gettimeofday(&ed, NULL);
+	timersub(&ed, &st, &el);
+	printf("  %d.%06d [s]\n", (int)el.tv_sec, (int)el.tv_usec);
+
+	free(dst);
+
 	return 0;
+}
+
+int bench_memcpy(size_t dstsize, int nloop, int kernel)
+{
+	struct timeval st, ed, el;
+	char *dst = NULL;
+	char *src = NULL;
+	int res = 0;
+
+	dst = malloc(dstsize);
+	if (dst == NULL) {
+		perror("malloc(dst)");
+		res = -1;
+		goto err_out;
+	}
+
+	src = malloc(dstsize);
+	if (src == NULL) {
+		perror("malloc(src)");
+		res = -1;
+		goto err_out;
+	}
+
+	gettimeofday(&st, NULL);
+	for (int i = 0; i < nloop; i++) {
+		if (kernel) {
+			kmemcpy(dst, src, dstsize);
+		} else {
+			memcpy(dst, src, dstsize);
+		}
+	}
+	gettimeofday(&ed, NULL);
+	timersub(&ed, &st, &el);
+	printf("  %d.%06d [s]\n", (int)el.tv_sec, (int)el.tv_usec);
+
+err_out:
+	free(dst);
+	free(src);
+
+	return res;
+}
+
+int bench_strlen(size_t dstsize, int nloop, int kernel)
+{
+	struct timeval st, ed, el;
+	volatile size_t len;
+	char *s = NULL;
+	int res = 0;
+
+	s = malloc(dstsize);
+	if (s == NULL) {
+		perror("malloc(str)");
+		return -1;
+	}
+
+	for (size_t i = 0; i < dstsize; i++) {
+		s[i] = (i & 0xff) ? (i & 0xff) : 1;
+	}
+	s[dstsize - 1] = 0;
+
+	gettimeofday(&st, NULL);
+	for (int i = 0; i < nloop; i++) {
+		if (kernel) {
+			len = kstrlen(s);
+		} else {
+			len = strlen(s);
+		}
+	}
+	gettimeofday(&ed, NULL);
+	timersub(&ed, &st, &el);
+	printf("  %d.%06d [s]\n", (int)el.tv_sec, (int)el.tv_usec);
+
+	if (len != dstsize - 1) {
+		printf("len %d != dstsize-1 %d\n", (int)len, (int)(dstsize - 1));
+		res = -1;
+	}
+
+	free(s);
+
+	return res;
 }
 
 int main(int argc, char *argv[], char *envp[])
@@ -405,6 +521,7 @@ int main(int argc, char *argv[], char *envp[])
 		par_kmemset[i].func = kmemset;
 		r = test_memset(&par_kmemset[i]);
 		if (r) {
+			printf("  failed at %d\n", (int)i);
 			ret = r;
 			break;
 		}
@@ -420,6 +537,7 @@ int main(int argc, char *argv[], char *envp[])
 		par_kmemcpy[i].func = kmemcpy;
 		r = test_memcpy(&par_kmemcpy[i]);
 		if (r) {
+			printf("  failed at %d\n", (int)i);
 			ret = r;
 			break;
 		}
@@ -427,6 +545,54 @@ int main(int argc, char *argv[], char *envp[])
 	gettimeofday(&ed, NULL);
 	timersub(&ed, &st, &el);
 	printf("  %d.%06d [s]\n", (int)el.tv_sec, (int)el.tv_usec);
+
+	/* benchmark */
+
+	size_t bench_sz = 0x1000;
+	int bench_cnt = 1000;
+
+	printf("  kmemset bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_memset(bench_sz, bench_cnt, 1);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
+	printf("  memset bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_memset(bench_sz, bench_cnt, 0);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
+	printf("  kmemcpy bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_memcpy(bench_sz, bench_cnt, 1);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
+	printf("  memcpy bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_memcpy(bench_sz, bench_cnt, 0);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
+	printf("  kstrlen bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_strlen(bench_sz, bench_cnt, 1);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
+	printf("  strlen bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	r = bench_strlen(bench_sz, bench_cnt, 0);
+	if (r) {
+		printf("  failed\n");
+		ret = r;
+	}
+
 
 	if (ret == 0) {
 		printf("%s: SUCCESS\n", argv[0]);
