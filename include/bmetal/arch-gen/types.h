@@ -35,6 +35,10 @@
 #define __arch_clockid_t    __SINT_TYPE
 #endif
 
+#ifndef __arch_mode_t
+#define __arch_mode_t    __USHORT_TYPE
+#endif
+
 #ifndef __arch_loff_t
 #define __arch_loff_t    __SLONGLONG_TYPE
 #endif

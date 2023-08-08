@@ -9,6 +9,7 @@
 #if !defined(__ASSEMBLER__)
 
 typedef __arch_clockid_t clockid_t;
+typedef __arch_mode_t mode_t;
 typedef __arch_loff_t loff_t;
 typedef __arch_off_t off_t;
 typedef __arch_rlim_t rlim_t;

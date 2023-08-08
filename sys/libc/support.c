@@ -50,6 +50,7 @@ const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_gettimeofday, __sys_wrap_gettimeofday),
 	SYSCALL_P(SYS_settimeofday, __sys_wrap_settimeofday),
 	SYSCALL_P(SYS_getrandom, __sys_wrap_getrandom),
+	SYSCALL_P(SYS_openat, __sys_wrap_openat),
 	SYSCALL_P(SYS_close, __sys_wrap_close),
 	SYSCALL_P(SYS_read, __sys_wrap_read),
 	SYSCALL_P(SYS_write, __sys_wrap_write),

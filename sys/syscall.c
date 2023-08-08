@@ -239,6 +239,13 @@ intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags)
 	return 0;
 }
 
+intptr_t __sys_openat(int dirfd, const char *pathname, int flags, mode_t mode)
+{
+	pri_dbg("sys_openat: %d, %s\n", dirfd, pathname);
+
+	return -ENOTSUP;
+}
+
 intptr_t __sys_close(int fd)
 {
 	struct __file_desc *desc = __file_get_desc(fd);

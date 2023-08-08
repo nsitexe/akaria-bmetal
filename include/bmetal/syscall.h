@@ -97,6 +97,7 @@ SYSCALL_WRAP2(clock_settime64, clockid_t, clock_id, const struct timespec64 *, t
 SYSCALL_WRAP2(gettimeofday, struct timeval *, tp, void *, tzp);
 SYSCALL_WRAP2(settimeofday, const struct timeval *, tp, const void *, tzp);
 SYSCALL_WRAP3(getrandom, void *, buf, size_t, buflen, unsigned int, flags);
+SYSCALL_WRAP4(openat, int, dirfd, const char *, pathname, int, flags, mode_t, mode);
 SYSCALL_WRAP1(close, int, fd);
 SYSCALL_WRAP3(read, int, fd, void *, buf, size_t, count);
 SYSCALL_WRAP3(write, int, fd, const void *, buf, size_t, count);
