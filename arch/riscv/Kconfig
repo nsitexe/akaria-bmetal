@@ -14,12 +14,15 @@ config RISCV_EXT_M
 
 config RISCV_EXT_A
 	bool "RISC-V atomic"
+	depends on ATOMIC
 
 config RISCV_EXT_F
 	bool "RISC-V single-precision floating-point"
+	depends on FPU
 
 config RISCV_EXT_D
 	bool "RISC-V double-precision floating-Point"
+	depends on FPU_DOUBLE
 
 config RISCV_EXT_C
 	bool "RISC-V compressed"
@@ -41,9 +44,12 @@ config RISCV_EXT_ZBS
 
 config RISCV_EXT_ZICBOM
 	bool "RISC-V cache-block management"
+	depends on CACHE
 
 config RISCV_EXT_ZICBOZ
 	bool "RISC-V cache-block zero"
+	depends on CACHE
 
 config RISCV_EXT_ZICBOP
 	bool "RISC-V cache-block prefetch"
+	depends on CACHE
