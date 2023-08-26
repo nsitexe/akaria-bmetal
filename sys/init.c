@@ -75,6 +75,13 @@ static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
 };
 
+void __noreturn __init_panic_internal(const char *func, int nline)
+{
+	while (1) {
+		/* do nothing */
+	}
+}
+
 static void clear_bss(void)
 {
 #ifdef CONFIG_CLEAR_BSS
@@ -369,11 +376,28 @@ static int fini_args(int st)
 
 void __init_system(void)
 {
+	int r;
+
 	clear_bss();
 	copy_data();
 
-	init_drivers();
-	init_proc();
+	r = __mem_init();
+	if (r) {
+		pri_err("Failed to init memory system.\n");
+		__init_panic();
+	}
+
+	r = init_drivers();
+	if (r) {
+		pri_err("Failed to init drivers.\n");
+		__init_panic();
+	}
+
+	r = init_proc();
+	if (r) {
+		pri_err("Failed to init process.\n");
+		__init_panic();
+	}
 }
 
 void __fini_system(void)

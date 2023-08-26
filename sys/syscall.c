@@ -366,7 +366,6 @@ intptr_t __sys_brk(void *addr)
 
 intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
-#ifdef CONFIG_HEAP
 	void *anon_ptr;
 	int flags_req = MAP_PRIVATE | MAP_ANONYMOUS;
 	size_t off_page;
@@ -404,16 +403,10 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	kmemset(anon_ptr, 0, len);
 
 	return PTR_TO_INT(anon_ptr);
-#else
-	pri_warn("sys_mmap: heap is disabled.\n");
-
-	return -ENOTSUP;
-#endif /* CONFIG_HEAP */
 }
 
 intptr_t __sys_munmap(void *addr, size_t length)
 {
-#ifdef CONFIG_HEAP
 	if (addr < __mem_heap_area_start() || __mem_heap_area_end() < addr + length) {
 		return -EINVAL;
 	}
@@ -423,18 +416,12 @@ intptr_t __sys_munmap(void *addr, size_t length)
 	__mem_unlock();
 
 	return 0;
-#else
-	pri_warn("sys_munmap: heap is disabled.\n");
-
-	return -ENOTSUP;
-#endif /* CONFIG_HEAP */
 }
 
 intptr_t __sys_madvise(void *addr, size_t length, int advice)
 {
 	switch (advice) {
 	case MADV_DONTNEED:
-#ifdef CONFIG_HEAP
 		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
@@ -446,11 +433,6 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 		kmemset(addr, length, 0);
 
 		break;
-#else
-		pri_warn("sys_madvise: heap is disabled.\n");
-
-		return -ENOTSUP;
-#endif /* CONFIG_HEAP */
 	default:
 		pri_warn("sys_madvise: advice %d is not supported.\n", advice);
 

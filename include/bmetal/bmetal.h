@@ -28,6 +28,10 @@
 #define __aligned(n)    __attribute__((aligned(n)))
 #endif
 
+#ifndef __noreturn
+#define __noreturn      __attribute__((noreturn))
+#endif
+
 #ifndef __section
 #define __section(n)    __attribute__((section(n)))
 #endif
@@ -35,6 +39,8 @@
 #ifndef __used
 #define __used          __attribute__((used))
 #endif
+
+typedef uint64_t paddr_t;
 
 #endif /* !__ASSEMBLER__ */
 

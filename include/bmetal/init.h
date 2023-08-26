@@ -47,6 +47,9 @@ struct __aux_data {
 	uint64_t phdr_size;
 };
 
+#define __init_panic()    __init_panic_internal(__func__, __LINE__)
+void __noreturn __init_panic_internal(const char *func, int nline);
+
 void __init_system(void);
 void __fini_system(void);
 void __init_leader(void);
