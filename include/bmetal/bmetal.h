@@ -40,8 +40,6 @@
 #define __used          __attribute__((used))
 #endif
 
-typedef uint64_t paddr_t;
-
 #endif /* !__ASSEMBLER__ */
 
 #endif /* BAREMETAL_CRT_BMETAL_H_ */

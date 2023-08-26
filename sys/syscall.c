@@ -24,9 +24,6 @@
 #include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
-static define_brk(brk_area, CONFIG_BRK_SIZE);
-static char *brk_cur = brk_area;
-
 static const struct new_utsname uname = {
 	.sysname    = "Linux",
 	.nodename   = "",
@@ -330,24 +327,18 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
-void *__brk_area_start(void)
-{
-	return &brk_area[0];
-}
-
-void *__brk_area_end(void)
-{
-	return &brk_area[0] + CONFIG_BRK_SIZE;
-}
-
 intptr_t __sys_brk(void *addr)
 {
 	char *caddr = (char *)addr;
+	char *brk_cur = __mem_brk_get_cur();
 
+	__mem_brk_lock();
 	if (addr == NULL) {
+		__mem_brk_unlock();
 		return PTR_TO_INT(brk_cur);
 	}
-	if (addr < __brk_area_start() || __brk_area_end() < addr) {
+	if (addr < __mem_brk_start() || __mem_brk_end() < addr) {
+		__mem_brk_unlock();
 		pri_info("sys_brk: addr:%p is out of bounds.\n", addr);
 		return -ENOMEM;
 	}
@@ -359,7 +350,8 @@ intptr_t __sys_brk(void *addr)
 		/* Shrink: zero clear for security */
 		kmemset(addr, 0, brk_cur - caddr);
 	}
-	brk_cur = addr;
+	__mem_brk_set_cur(addr);
+	__mem_brk_unlock();
 
 	return PTR_TO_INT(addr);
 }
@@ -394,7 +386,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	__mem_lock();
 	off_page = __mem_alloc_pages(len);
 	__mem_unlock();
-	if (off_page == -1) {
+	if (off_page < 0) {
 		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}

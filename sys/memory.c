@@ -14,12 +14,20 @@
          Please check configs about HEAP_SIZE.
 #endif
 
+#if CONFIG_HEAP_SIZE < CONFIG_BRK_SIZE
+#  error Invalid heap size. It should be larger than brk area size. \
+         Please check configs about HEAP_SIZE and BRK_SIZE.
+#endif
+
 static struct __mem_node node_head;
 
 static struct __spinlock lock_mem;
 static define_heap(heap_head_area, CONFIG_HEAP_SIZE);
 static char heap_head_stat[CONFIG_HEAP_SIZE / __PAGE_SIZE];
 static int dbg_heap_num = 1;
+
+static struct __spinlock lock_brk;
+static char *brk_top, *brk_cur;
 
 struct __mem_node *__mem_node_head(void)
 {
@@ -235,18 +243,63 @@ int __mem_node_free_pages(struct __mem_node *m, void *start, size_t length)
 	return 0;
 }
 
+int __mem_brk_lock(void)
+{
+	__spinlock_lock(&lock_brk);
+
+	return 0;
+}
+
+int __mem_brk_unlock(void)
+{
+	__spinlock_unlock(&lock_brk);
+
+	return 0;
+}
+void *__mem_brk_start(void)
+{
+	return brk_top;
+}
+
+void *__mem_brk_end(void)
+{
+	return brk_top + CONFIG_BRK_SIZE;
+}
+
+char *__mem_brk_get_cur(void)
+{
+	return brk_cur;
+}
+
+void __mem_brk_set_cur(char *p)
+{
+	brk_cur = p;
+}
+
 int __mem_init(void)
 {
 	struct __mem_node *mnode = __mem_node_head();
+	size_t pgsize = __PAGE_SIZE;
+	ssize_t off_page;
 	int res = 0;
 
 	mnode->paddr = (uintptr_t)heap_head_area;
 	mnode->size = CONFIG_HEAP_SIZE;
 
 	mnode->vaddr = heap_head_area;
-	mnode->page_total = CONFIG_HEAP_SIZE / __PAGE_SIZE;
+	mnode->page_total = CONFIG_HEAP_SIZE / pgsize;
 	mnode->page_use = 0;
 	mnode->stat_page = heap_head_stat;
+
+	__mem_node_lock(mnode);
+	off_page = __mem_node_alloc_pages(mnode, CONFIG_BRK_SIZE);
+	__mem_node_unlock(mnode);
+	if (off_page < 0) {
+		pri_warn("Failed to allocate brk area, len:%d.\n", (int)CONFIG_BRK_SIZE);
+		return -ENOMEM;
+	}
+	brk_top = mnode->vaddr + off_page * pgsize;
+	brk_cur = brk_top;
 
 	return res;
 }
