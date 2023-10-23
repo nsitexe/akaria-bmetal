@@ -197,7 +197,15 @@ static int uart_ns16550_set_config(struct __uart_device *uart, const struct __ua
 
 static int uart_ns16550_intr(int event, struct __event_handler *hnd)
 {
-	//struct uart_ns16550_priv *priv = hnd->priv;
+	struct uart_ns16550_priv *priv = hnd->priv;
+	struct __uart_device *uart = priv->uart;
+	int r;
+
+	//TODO: currently just ignore interrupts
+	r = uart_ns16550_disable_intr(uart);
+	if (r) {
+		return EVENT_NOT_HANDLED;
+	}
 
 	//TODO: TX, RX buffering
 	return EVENT_HANDLED;
