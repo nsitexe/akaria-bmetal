@@ -150,18 +150,16 @@ static int intc_plic_intr(int event, struct __event_handler *hnd)
 	struct intc_plic_priv *priv = hnd->priv;
 	struct __device *dev = __intc_to_dev(priv->intc);
 	uint32_t v;
-	int r = 0, res = EVENT_NOT_HANDLED;
+	int res = EVENT_NOT_HANDLED;
 
 	//TODO: how to manage multiple contexts??
 	int ctx = 0;
 
+	//TODO: save claim bit and delayed process
 	v = __device_read32(dev, REG_CLAIM(ctx));
+	__device_write32(dev, v, REG_CLAIM(ctx));
 	if (priv->hnd[v]) {
-		r = __event_handle_generic(v, priv->hnd[v]);
-		if (r == EVENT_HANDLED) {
-			__device_write32(dev, v, REG_CLAIM(ctx));
-			res = EVENT_HANDLED;
-		}
+		res = __event_handle_generic(v, priv->hnd[v]);
 	}
 
 	return res;
