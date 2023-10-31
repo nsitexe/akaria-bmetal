@@ -10,9 +10,9 @@
 #if __riscv_vector == 1
 #include <riscv_vector.h>
 
-#define saxpy    saxpy_rvv
+#define daxpy    daxpy_rvv
 #else /* __riscv_vector == 1 */
-#define saxpy    saxpy_scalar
+#define daxpy    daxpy_scalar
 #endif /* __riscv_vector == 1 */
 
 #define N    128
@@ -64,7 +64,7 @@ double test_y_expect[N] = {
 int test_n = N;
 
 #if __riscv_vector == 1
-void saxpy_rvv(const double a, const double *x, double *y, int n)
+void daxpy_rvv(const double a, const double *x, double *y, int n)
 {
 	vfloat64m1_t vx, vy;
 	size_t l;
@@ -83,7 +83,7 @@ void saxpy_rvv(const double a, const double *x, double *y, int n)
 }
 #endif /* __riscv_vector == 1 */
 
-void saxpy_scalar(const double a, const double *x, double *y, int n)
+void daxpy_scalar(const double a, const double *x, double *y, int n)
 {
 	printf("----- use scalar f64\n");
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[], char *envp[])
 	double *a, *x, *y;
 	int *n, check = 0;
 
-	printf("%s: saxpy start\n", argv[0]);
+	printf("%s: daxpy start\n", argv[0]);
 
 	printf("argc: %d\n", argc);
 	if (argc > 4) {
@@ -122,7 +122,7 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 	printf("vector length: %d\n", *n);
-	saxpy(*a, x, y, *n);
+	daxpy(*a, x, y, *n);
 
 	for (int i = 0; i < *n; i++) {
 		if (i < 10) {
@@ -133,7 +133,7 @@ int main(int argc, char *argv[], char *envp[])
 	if (check) {
 		int pass = 1;
 
-		saxpy_scalar(*a, x, test_y_expect, *n);
+		daxpy_scalar(*a, x, test_y_expect, *n);
 
 		for (int i = 0; i < N; i++) {
 			if (!fp_eq(test_y_expect[i], y[i], 1e-6)) {
