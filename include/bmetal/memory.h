@@ -86,9 +86,43 @@ int __mem_free_pages(void *start, size_t length);
 
 struct __mem_node *__mem_node_head(void);
 void __mem_node_dump_heap_pages(const struct __mem_node *m);
-ssize_t __mem_node_alloc_pages(struct __mem_node *m, size_t length);
-int __mem_node_check_pages(struct __mem_node *m, void *start, size_t length);
-int __mem_node_free_pages(struct __mem_node *m, void *start, size_t length);
+ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length);
+int __mem_node_check_pages_nolock(struct __mem_node *m, void *start, size_t length);
+int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t length);
+
+static inline ssize_t __mem_node_alloc_pages(struct __mem_node *m, size_t length)
+{
+	ssize_t r;
+
+	__mem_node_lock(m);
+	r = __mem_node_alloc_pages_nolock(m, length);
+	__mem_node_unlock(m);
+
+	return r;
+}
+
+static inline int __mem_node_check_pages(struct __mem_node *m, void *start, size_t length)
+{
+	int r;
+
+	__mem_node_lock(m);
+	r = __mem_node_check_pages_nolock(m, start, length);
+	__mem_node_unlock(m);
+
+	return r;
+
+}
+
+static inline int __mem_node_free_pages(struct __mem_node *m, void *start, size_t length)
+{
+	int r;
+
+	__mem_node_lock(m);
+	r = __mem_node_free_pages_nolock(m, start, length);
+	__mem_node_unlock(m);
+
+	return r;
+}
 
 int __mem_brk_lock(void);
 int __mem_brk_unlock(void);

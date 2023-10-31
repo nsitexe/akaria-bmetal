@@ -121,7 +121,7 @@ void __mem_node_dump_heap_pages(const struct __mem_node *m)
 #endif
 }
 
-ssize_t __mem_node_alloc_pages(struct __mem_node *m, size_t length)
+ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
@@ -165,7 +165,7 @@ ssize_t __mem_node_alloc_pages(struct __mem_node *m, size_t length)
 	return -1;
 }
 
-int __mem_node_check_pages(struct __mem_node *m, void *start, size_t length)
+int __mem_node_check_pages_nolock(struct __mem_node *m, void *start, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
@@ -202,7 +202,7 @@ int __mem_node_check_pages(struct __mem_node *m, void *start, size_t length)
 	return 0;
 }
 
-int __mem_node_free_pages(struct __mem_node *m, void *start, size_t length)
+int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
@@ -291,9 +291,7 @@ int __mem_init(void)
 	mnode->page_use = 0;
 	mnode->stat_page = heap_head_stat;
 
-	__mem_node_lock(mnode);
 	off_page = __mem_node_alloc_pages(mnode, CONFIG_BRK_SIZE);
-	__mem_node_unlock(mnode);
 	if (off_page < 0) {
 		pri_warn("Failed to allocate brk area, len:%d.\n", (int)CONFIG_BRK_SIZE);
 		return -ENOMEM;
