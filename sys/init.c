@@ -40,6 +40,26 @@
          Please check configs about MAIN_STACK_SIZE.
 #endif
 
+/* Check overlap */
+#ifdef CONFIG_XIP
+#  if CHECK_OVERLAP(CONFIG_ROM_BASE, CONFIG_ROM_SIZE, \
+			CONFIG_RAM_BASE, CONFIG_RAM_SIZE)
+#    error Overlapped ROM and RAM area. \
+	   Please check configs about CONFIG_ROM_BASE and CONFIG_RAM_BASE
+#  endif
+#  if CHECK_OVERLAP(CONFIG_ROM_BASE, CONFIG_ROM_SIZE, \
+			CONFIG_SHM_BASE, CONFIG_SHM_SIZE)
+#    error Overlapped ROM and SHM area. \
+	   Please check configs about CONFIG_ROM_BASE and CONFIG_SHM_BASE
+#  endif
+#endif /* CONFIG_XIP */
+
+#if CHECK_OVERLAP(CONFIG_RAM_BASE, CONFIG_RAM_SIZE, \
+			CONFIG_SHM_BASE, CONFIG_SHM_SIZE)
+#  error Overlapped RAM and SHM area. \
+	 Please check configs about CONFIG_RAM_BASE and CONFIG_SHM_BASE
+#endif
+
 extern char __bss_start[], __bss_end[];
 extern char __sbss_start[], __sbss_end[];
 extern char __preinit_array_start[], __preinit_array_end[], __preinit_array_load[];

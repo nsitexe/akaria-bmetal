@@ -11,6 +11,12 @@
 
 #if !defined(__ASSEMBLER__)
 
+#define CHECK_OVERLAP(ST_A, SZ_A, ST_B, SZ_B) \
+	(((ST_A) <= (ST_B)          && (ST_B)          <  (ST_A) + (SZ_A)) || \
+	 ((ST_A) <  (ST_B) + (SZ_B) && (ST_B) + (SZ_B) <= (ST_A) + (SZ_A)) || \
+	 ((ST_B) <= (ST_A)          && (ST_A)          <  (ST_B) + (SZ_B)) || \
+	 ((ST_B) <  (ST_A) + (SZ_A) && (ST_A) + (SZ_A) <= (ST_B) + (SZ_B)))
+
 #define define_brk(sym, size) \
 	char sym[size] \
 	__section(".noinit")
