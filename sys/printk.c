@@ -9,8 +9,8 @@
 #include <bmetal/sys/stdio.h>
 #include <bmetal/sys/string.h>
 
-int inner_vprintf(const char *format, va_list va);
-int inner_vsnprintf(char *buffer, size_t count, const char *format, va_list va);
+int __inner_vprintf(const char *format, va_list va);
+int __inner_vsnprintf(char *buffer, size_t count, const char *format, va_list va);
 
 static int null_getc(void);
 static int null_putc(int c);
@@ -29,23 +29,23 @@ static int null_putc(int c)
 	return (unsigned char)c;
 }
 
-int inner_getc(void)
+int __inner_getc(void)
 {
 	return printk_getc();
 }
 
-int inner_putc(int c)
+int __inner_putc(int c)
 {
 	return printk_putc(c);
 }
 
-static int inner_puts(const char *s, int newline)
+int __inner_puts(const char *s, int newline)
 {
 	for (size_t i = 0; i < kstrlen(s); i++) {
-		inner_putc(s[i]);
+		__inner_putc(s[i]);
 	}
 	if (newline) {
-		inner_putc('\n');
+		__inner_putc('\n');
 	}
 
 	return 0;
@@ -83,28 +83,28 @@ int __set_printk_out(__putc_func f)
 	return 0;
 }
 
-int kputchar(int c)
+int __kputchar(int c)
 {
 	long st;
 	int r;
 
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
-	r = inner_putc(c);
+	r = __inner_putc(c);
 	__spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;
 }
 
-int kputs(const char *s)
+int __kputs(const char *s)
 {
 	long st;
 	int r;
 
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
-	r = inner_puts(s, 1);
+	r = __inner_puts(s, 1);
 	__spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
@@ -118,7 +118,7 @@ int __kread(char *s, size_t count)
 
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
-	c = inner_getc();
+	c = __inner_getc();
 	if (c == EOF) {
 		n = 0;
 	} else {
@@ -138,7 +138,7 @@ int __kwrite(const char *s, size_t count)
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
 	for (size_t i = 0; i < count; i++) {
-		inner_putc(s[i]);
+		__inner_putc(s[i]);
 	}
 	__spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
@@ -146,69 +146,69 @@ int __kwrite(const char *s, size_t count)
 	return count;
 }
 
-int printk(const char *format, ...)
+int __printk(const char *format, ...)
 {
 	va_list va;
 	int r;
 
 	va_start(va, format);
-	r = vprintk(format, va);
+	r = __vprintk(format, va);
 	va_end(va);
 
 	return r;
 }
 
-int sprintk(char *buffer, const char *format, ...)
+int __sprintk(char *buffer, const char *format, ...)
 {
 	va_list va;
 	int r;
 
 	va_start(va, format);
-	r = vsprintk(buffer, format, va);
+	r = __vsprintk(buffer, format, va);
 	va_end(va);
 
 	return r;
 }
 
-int snprintk(char *buffer, size_t count, const char *format, ...)
+int __snprintk(char *buffer, size_t count, const char *format, ...)
 {
 	va_list va;
 	int r;
 
 	va_start(va, format);
-	r = vsnprintk(buffer, count, format, va);
+	r = __vsnprintk(buffer, count, format, va);
 	va_end(va);
 
 	return r;
 }
 
-int vprintk(const char *format, va_list va)
+int __vprintk(const char *format, va_list va)
 {
 	long st;
 	int r;
 
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
-	r = inner_vprintf(format, va);
+	r = __inner_vprintf(format, va);
 	__spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;
 }
 
-int vsprintk(char *buffer, const char *format, va_list va)
+int __vsprintk(char *buffer, const char *format, va_list va)
 {
-	return vsnprintk(buffer, (size_t) -1, format, va);
+	return __vsnprintk(buffer, (size_t) -1, format, va);
 }
 
-int vsnprintk(char *buffer, size_t count, const char *format, va_list va)
+int __vsnprintk(char *buffer, size_t count, const char *format, va_list va)
 {
 	long st;
 	int r;
 
 	__intr_save_local(&st);
 	__spinlock_lock(&printk_lock);
-	r = inner_vsnprintf(buffer, count, format, va);
+	r = __inner_vsnprintf(buffer, count, format, va);
 	__spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 

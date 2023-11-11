@@ -27,11 +27,11 @@
 
 #if !defined(__ASSEMBLER__)
 
-#define __pri_level(lv, fmt, ...)                   \
-	do {                                        \
-		if (PRI_LV_CUR <= lv) {             \
-			printk(fmt, ##__VA_ARGS__); \
-		}                                   \
+#define __pri_level(lv, fmt, ...)                     \
+	do {                                          \
+		if (PRI_LV_CUR <= lv) {               \
+			__printk(fmt, ##__VA_ARGS__); \
+		}                                     \
 	} while (0)
 #define pri_err(fmt, ...)     __pri_level(PRI_LV_ERR, fmt, ##__VA_ARGS__)
 #define pri_warn(fmt, ...)    __pri_level(PRI_LV_WARN, fmt, ##__VA_ARGS__)
@@ -41,17 +41,21 @@
 typedef int (*__getc_func)(void);
 typedef int (*__putc_func)(int c);
 
-int kputchar(int c);
-int kputs(const char *s);
+int __inner_getc(void);
+int __inner_putc(int c);
+int __inner_puts(const char *s, int newline);
+
+int __kputchar(int c);
+int __kputs(const char *s);
 int __kread(char *s, size_t count);
 int __kwrite(const char *s, size_t count);
-int __attribute__((format(printf, 1, 2))) printk(const char *format, ...);
-int __attribute__((format(printf, 2, 3))) sprintk(char *buffer, const char *format, ...);
-int __attribute__((format(printf, 3, 4))) snprintk(char *buffer, size_t count, const char *format, ...);
-int vprintk(const char *format, va_list va);
-int vsprintk(char *buffer, const char *format, va_list va);
-int vsnprintk(char *buffer, size_t count, const char *format, va_list va);
-int __attribute__((format(printf, 3, 4))) fctprintk(void (*out)(char character, void *arg), void *arg, const char *format, ...);
+int __attribute__((format(printf, 1, 2))) __printk(const char *format, ...);
+int __attribute__((format(printf, 2, 3))) __sprintk(char *buffer, const char *format, ...);
+int __attribute__((format(printf, 3, 4))) __snprintk(char *buffer, size_t count, const char *format, ...);
+int __vprintk(const char *format, va_list va);
+int __vsprintk(char *buffer, const char *format, va_list va);
+int __vsnprintk(char *buffer, size_t count, const char *format, va_list va);
+int __attribute__((format(printf, 3, 4))) __fctprintk(void (*out)(char character, void *arg), void *arg, const char *format, ...);
 
 __getc_func __get_printk_in(void);
 int __set_printk_in(__getc_func f);
