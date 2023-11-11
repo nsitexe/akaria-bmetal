@@ -128,7 +128,6 @@ typedef struct {
   void* arg;
 } out_fct_wrap_type;
 
-int __inner_putc(int c);
 
 // internal buffer output
 static inline void __out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
