@@ -383,9 +383,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 		return -EINVAL;
 	}
 
-	__mem_lock();
 	off_page = __mem_alloc_pages(len);
-	__mem_unlock();
 	if (off_page < 0) {
 		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
@@ -403,9 +401,7 @@ intptr_t __sys_munmap(void *addr, size_t length)
 		return -EINVAL;
 	}
 
-	__mem_lock();
 	__mem_free_pages(addr, length);
-	__mem_unlock();
 
 	return 0;
 }

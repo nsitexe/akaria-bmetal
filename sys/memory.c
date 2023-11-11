@@ -21,7 +21,6 @@
 
 static struct __mem_node node_head;
 
-static struct __spinlock lock_mem;
 static define_heap(heap_head_area, CONFIG_HEAP_SIZE);
 static char heap_head_stat[CONFIG_HEAP_SIZE / __PAGE_SIZE];
 static int dbg_heap_num = 1;
@@ -45,20 +44,6 @@ static size_t __mem_node_count_cont_pages(const struct __mem_node *m, size_t off
 	}
 
 	return r;
-}
-
-int __mem_lock(void)
-{
-	__spinlock_lock(&lock_mem);
-
-	return 0;
-}
-
-int __mem_unlock(void)
-{
-	__spinlock_unlock(&lock_mem);
-
-	return 0;
 }
 
 void *__mem_heap_area_start(void)

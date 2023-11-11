@@ -74,8 +74,6 @@ static inline int __mem_node_get_page_stat(const struct __mem_node *m, size_t of
 	return m->stat_page[off_page];
 }
 
-int __mem_lock(void);
-int __mem_unlock(void);
 void *__mem_heap_area_start(void);
 void *__mem_heap_area_end(void);
 void __mem_dump_heap_pages(void);
