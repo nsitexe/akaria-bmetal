@@ -7,6 +7,7 @@
 #include <sys/time.h>
 
 #define THREADS    4
+#define REPEAT     1
 
 #define R(mul, shift, x, y) \
 	do { \
@@ -35,62 +36,65 @@ void *thread_main(void *arg)
 	int8_t *z = zz[n];
 
 	for (;;) {
-		int sj = 0, cj = 1024;
 		int st, ed;
 
 		gettimeofday(&tv_s, NULL);
 
-		memset(b, 32, 1760);
-		memset(z, 127, 1760);
+		for (int rep = 0; rep < REPEAT; rep++) {
+			int sj = 0, cj = 1024;
 
-		if (THREADS == 1 && n == 0) {
-			st = 0;
-			ed = 90;
-		} else if (n == 0) {
-			st = 0;
-			ed = 10;
-		} else if (n == THREADS - 1) {
-			st = 10 + 80 / (THREADS - 1) * (n - 1);
-			ed = 90;
-		} else {
-			st = 10 + 80 / (THREADS - 1) * (n - 1);
-			ed = 10 + 80 / (THREADS - 1) * n;
-		}
+			memset(b, 32, 1760);
+			memset(z, 127, 1760);
 
-		for (int j = 0; j < st; j++) {
-			R(9, 7, cj, sj);
-		}
-
-		for (int j = st; j < ed; j++) {
-			// sine and cosine of angle i
-			int si = 0, ci = 1024;
-
-			for (int i = 0; i < 324; i++) {
-				int R1 = 1, R2 = 2048, K2 = 5120 * 1024;
-
-				int x0 = R1 * cj + R2;
-				int x1 = (ci * x0) >> 10;
-				int x2 = (cA * sj) >> 10;
-				int x3 = (si * x0) >> 10;
-				int x4 = R1 * x2 - ((sA * x3) >> 10);
-				int x5 = (sA * sj) >> 10;
-				int x6 = K2 + R1 * 1024 * x5 + cA * x3;
-				int x7 = (cj * si) >> 10;
-				int x = 40 + 30 * (cB * x1 - sB * x4) / x6;
-				int y = 12 + 15 * (cB * x4 + sB * x1) / x6;
-				int N = (((-cA * x7 - cB * ((-sA * x7 >> 10) + x2) - ci * (cj * sB >> 10)) >> 10) - x5) >> 7;
-
-				int o = x + 80 * y;
-				int8_t zz = (x6 - K2) >> 15;
-				if (22 > y && y > 0 && x > 0 && 80 > x && zz < z[o]) {
-					z[o] = zz;
-					b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
-				}
-				// rotate i
-				R(5, 8, ci, si);
+			if (THREADS == 1 && n == 0) {
+				st = 0;
+				ed = 90;
+			} else if (n == 0) {
+				st = 0;
+				ed = 10;
+			} else if (n == THREADS - 1) {
+				st = 10 + 80 / (THREADS - 1) * (n - 1);
+				ed = 90;
+			} else {
+				st = 10 + 80 / (THREADS - 1) * (n - 1);
+				ed = 10 + 80 / (THREADS - 1) * n;
 			}
-			// rotate j
-			R(9, 7, cj, sj);
+
+			for (int j = 0; j < st; j++) {
+				R(9, 7, cj, sj);
+			}
+
+			for (int j = st; j < ed; j++) {
+				// sine and cosine of angle i
+				int si = 0, ci = 1024;
+
+				for (int i = 0; i < 324; i++) {
+					int R1 = 1, R2 = 2048, K2 = 5120 * 1024;
+
+					int x0 = R1 * cj + R2;
+					int x1 = (ci * x0) >> 10;
+					int x2 = (cA * sj) >> 10;
+					int x3 = (si * x0) >> 10;
+					int x4 = R1 * x2 - ((sA * x3) >> 10);
+					int x5 = (sA * sj) >> 10;
+					int x6 = K2 + R1 * 1024 * x5 + cA * x3;
+					int x7 = (cj * si) >> 10;
+					int x = 40 + 30 * (cB * x1 - sB * x4) / x6;
+					int y = 12 + 15 * (cB * x4 + sB * x1) / x6;
+					int N = (((-cA * x7 - cB * ((-sA * x7 >> 10) + x2) - ci * (cj * sB >> 10)) >> 10) - x5) >> 7;
+
+					int o = x + 80 * y;
+					int8_t zz = (x6 - K2) >> 15;
+					if (22 > y && y > 0 && x > 0 && 80 > x && zz < z[o]) {
+						z[o] = zz;
+						b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
+					}
+					// rotate i
+					R(5, 8, ci, si);
+				}
+				// rotate j
+				R(9, 7, cj, sj);
+			}
 		}
 
 		R(5, 7, cA, sA);
@@ -161,7 +165,7 @@ int main(int argc, char *argv[])
 	// hide cursor
 	printf("\x1b[?25l");
 
-	pthread_barrier_init(&barrier, NULL, 4);
+	pthread_barrier_init(&barrier, NULL, THREADS);
 
 	for (int i = 1; i < THREADS; i++) {
 		r = pthread_create(&th[i], NULL, thread_main, (void *)(intptr_t)i);
