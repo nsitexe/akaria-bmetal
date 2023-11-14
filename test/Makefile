@@ -29,6 +29,8 @@ WITH_OPENBLAS ?= n
 WITH_OPENSSL ?= n
 
 # 32bit
+#APP_CFLAGS_RV  = -march=rv32im -mabi=ilp32 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32im -mabi=ilp32 -mcmodel=medany
 #APP_CFLAGS_RV  = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
 #APP_LDFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
 
@@ -64,6 +66,7 @@ BINS = \
 	malloc md5 memcpy \
 	saxpy sgemm \
 	vecadd vecaddf \
+	donut/donut \
 	coremark/coremark \
 	dhrystone/dhrystone
 
@@ -72,7 +75,8 @@ BINS += \
 	mt_clock \
 	mt_vecadd mt_vecaddf \
 	pthread pthread_barrier pthread_cond \
-	reboot
+	reboot \
+	donut/mt_donut
 endif
 
 ifeq ($(WITH_CXX),y)
@@ -132,6 +136,8 @@ SGEMM_OBJS = sgemm.o
 SLEEP_OBJS = sleep.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
+DONUT_OBJS = donut/donut.o
+MT_DONUT_OBJS = donut/mt_donut.o
 OBJS = \
 	$(ARGS_OBJS) $(CLOCK_OBJS) \
 	$(CRT_STRING_OBJS) \
@@ -146,7 +152,8 @@ OBJS = \
 	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(PTHREAD_COND_OBJS) \
 	$(REBOOT_OBJS) \
 	$(SAXPY_OBJS) $(SGEMM_OBJS) $(SLEEP_OBJS) \
-	$(VECADD_OBJS) $(VECADDF_OBJS)
+	$(VECADD_OBJS) $(VECADDF_OBJS) \
+	$(DONUT_OBJS) $(MT_DONUT_OBJS)
 
 all: all_auxdata
 
@@ -176,7 +183,7 @@ flush: $(FLUSH_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello: $(HELLO_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@ -lm
 
 hello_cpp: $(HELLO_CPP_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
@@ -230,6 +237,12 @@ vecadd: $(VECADD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 vecaddf: $(VECADDF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+donut/donut: $(DONUT_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+donut/mt_donut: $(MT_DONUT_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 coremark/coremark:

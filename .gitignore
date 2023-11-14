@@ -30,5 +30,7 @@
 /test/sleep
 /test/vecadd
 /test/vecaddf
+/test/donut/donut
+/test/donut/mt_donut
 /test/coremark/coremark
 /test/dhrystone/dhrystone
