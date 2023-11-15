@@ -13,7 +13,7 @@
 #define OPT_BYTES    4
 #endif /* CONFIG_64BIT */
 
-void *kmemset(void *s, int c, size_t n)
+void *__kmemset(void *s, int c, size_t n)
 {
 	void *s_org = s;
 
@@ -50,7 +50,7 @@ void *kmemset(void *s, int c, size_t n)
 	return s_org;
 }
 
-void *kmemcpy(void *dest, const void *src, size_t n)
+void *__kmemcpy(void *dest, const void *src, size_t n)
 {
 	void *dest_org = dest;
 
@@ -78,7 +78,7 @@ void *kmemcpy(void *dest, const void *src, size_t n)
 	return dest_org;
 }
 
-size_t kstrlen(const char *s)
+size_t __kstrlen(const char *s)
 {
 	const char *p = s;
 
@@ -89,7 +89,7 @@ size_t kstrlen(const char *s)
 	return p - s;
 }
 
-int kstrcmp(const char *s1, const char *s2)
+int __kstrcmp(const char *s1, const char *s2)
 {
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
@@ -106,7 +106,7 @@ int kstrcmp(const char *s1, const char *s2)
 	return *p1 - *p2;
 }
 
-int kstrncmp(const char *s1, const char *s2, size_t n)
+int __kstrncmp(const char *s1, const char *s2, size_t n)
 {
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
@@ -139,7 +139,7 @@ static int ktolower(char c)
 	return kisupper(c) ? (c - 'A' + 'a') : c;
 }
 
-int kstrcasecmp(const char *s1, const char *s2)
+int __kstrcasecmp(const char *s1, const char *s2)
 {
 	int c1, c2, d = 0;
 
@@ -162,7 +162,7 @@ int kstrcasecmp(const char *s1, const char *s2)
 	return d;
 }
 
-int kstrncasecmp(const char *s1, const char *s2, size_t n)
+int __kstrncasecmp(const char *s1, const char *s2, size_t n)
 {
 	int c1, c2, d = 0;
 

@@ -6,9 +6,9 @@
 #define ARRAY_OF(x)    (sizeof(x) / sizeof((x)[0]))
 
 /* This is not POSIX application */
-void *kmemset(void *s, int c, size_t n);
-void *kmemcpy(void *dest, const void *src, size_t n);
-size_t kstrlen(const char *s);
+void *__kmemset(void *s, int c, size_t n);
+void *__kmemcpy(void *dest, const void *src, size_t n);
+size_t __kstrlen(const char *s);
 
 struct param_memset {
 	size_t dest_bufsize;
@@ -413,7 +413,7 @@ int bench_memset(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			kmemset(dst, 0, dstsize);
+			__kmemset(dst, 0, dstsize);
 		} else {
 			memset(dst, 0, dstsize);
 		}
@@ -451,7 +451,7 @@ int bench_memcpy(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			kmemcpy(dst, src, dstsize);
+			__kmemcpy(dst, src, dstsize);
 		} else {
 			memcpy(dst, src, dstsize);
 		}
@@ -488,7 +488,7 @@ int bench_strlen(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			len = kstrlen(s);
+			len = __kstrlen(s);
 		} else {
 			len = strlen(s);
 		}
@@ -518,7 +518,7 @@ int main(int argc, char *argv[], char *envp[])
 	gettimeofday(&st, NULL);
 	for (size_t i = 0; i < ARRAY_OF(par_kmemset); i++) {
 		par_kmemset[i].funcname = "kmemset";
-		par_kmemset[i].func = kmemset;
+		par_kmemset[i].func = __kmemset;
 		r = test_memset(&par_kmemset[i]);
 		if (r) {
 			printf("  failed at %d\n", (int)i);
@@ -534,7 +534,7 @@ int main(int argc, char *argv[], char *envp[])
 	gettimeofday(&st, NULL);
 	for (size_t i = 0; i < ARRAY_OF(par_kmemcpy); i++) {
 		par_kmemcpy[i].funcname = "kmemcpy";
-		par_kmemcpy[i].func = kmemcpy;
+		par_kmemcpy[i].func = __kmemcpy;
 		r = test_memcpy(&par_kmemcpy[i]);
 		if (r) {
 			printf("  failed at %d\n", (int)i);

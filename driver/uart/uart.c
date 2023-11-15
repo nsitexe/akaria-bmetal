@@ -102,7 +102,7 @@ int __uart_read_default_config(struct __uart_device *uart, struct __uart_config 
 {
 	struct __device *dev = __uart_to_dev(uart);
 
-	kmemset(conf, 0, sizeof(*conf));
+	__kmemset(conf, 0, sizeof(*conf));
 
 	__device_read_conf_u32(dev, "baud", &conf->baud, 0);
 

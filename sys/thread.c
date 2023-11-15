@@ -247,16 +247,16 @@ int __thread_context_switch_nolock(void)
 	 *   task thread will be destroy soon and never switch to task again.
 	 */
 	if (ti == ti_idle) {
-		kmemcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
+		__kmemcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
 	}
 
 	if (ti && ti_task) {
 		/* Switch to task */
-		kmemcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
+		__kmemcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
 		__cpu_set_thread(cpu, ti_task);
 	} else {
 		/* Switch to idle */
-		kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
+		__kmemcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
 		__cpu_set_thread(cpu, ti_idle);
 	}
 
