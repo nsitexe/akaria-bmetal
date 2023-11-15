@@ -153,6 +153,7 @@ void *thread_main(void *arg)
 				putchar(k % 80 ? b[k] : 10);
 			}
 			putchar('\n');
+			fflush(stdout);
 
 			gettimeofday(&tv_e, NULL);
 			timersub(&tv_e, &tv_s, &tv_draw);

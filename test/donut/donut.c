@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
 			putchar(k % 80 ? b[k] : 10);
 		}
 		putchar('\n');
+		fflush(stdout);
 
 		gettimeofday(&tv_s, NULL);
 		timersub(&tv_s, &tv_e, &tv_d);
