@@ -63,7 +63,7 @@ void *thread_broadcast(void *arg)
 	pthread_mutex_unlock(&cond_mutex);
 
 	printf("%d: tid:%d: step1-2 cnt  %05d-%05d wake:%d\n",
-		cpuid, tid, v_s, v_e + LOOP_N, wake);
+		cpuid, tid, v_s, v_e, wake);
 	fflush(stdout);
 
 	while (1) {
@@ -111,7 +111,7 @@ void *thread_signal(void *arg)
 	pthread_mutex_unlock(&cond_mutex);
 
 	printf("%d: tid:%d: step1-2 cnt  %05d-%05d wake:%d\n",
-		cpuid, tid, v_common_s, v_common_e + LOOP_N, wake);
+		cpuid, tid, v_common_s - LOOP_N, v_common_e, wake);
 	fflush(stdout);
 
 	while (1) {
