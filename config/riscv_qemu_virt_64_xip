@@ -1,5 +1,6 @@
 # This is Kconfig style config files
 CONFIG_RISCV=y
+CONFIG_RISCV_RNMI=n
 CONFIG_RISCV_EXT_I_OLD=n
 CONFIG_RISCV_EXT_I=y
 CONFIG_RISCV_EXT_M=y
