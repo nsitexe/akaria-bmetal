@@ -11,6 +11,15 @@
 
 #define MHARTID_MAIN    CONFIG_MAIN_CORE
 
+#ifdef CONFIG_RISCV_RNMI
+#  define CSR_MNSCRATCH       0x740
+#  define CSR_MNEPC           0x741
+#  define CSR_MNCAUSE         0x742
+#  define CSR_MNSTATUS        0x744
+
+#  define MNSTATUS_NMIE       0x8
+#endif /* CONFIG_RISCV_RNMI */
+
 #ifdef CONFIG_64BIT
 #  define REGSIZE     8
 #  define REGOFF      3

@@ -9,6 +9,11 @@
 .section ".reset", "ax"
 .align 2
 __reset:
+#ifdef CONFIG_RISCV_RNMI
+	# Enable NMI
+	csrsi CSR_MNSTATUS, MNSTATUS_NMIE
+#endif /* CONFIG_RISCV_RNMI */
+
 	# Disable global, all interrupts
 	csrw mstatus, zero
 	csrw mie, zero
