@@ -6,32 +6,32 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
-static struct __driver head = {
+static struct k_driver head = {
 	.type_vendor = "none",
 	.type_device = "none",
 };
 
-static struct __device_driver drv_root_dev = {
+static struct k_device_driver drv_root_dev = {
 	.base = {
 		.type_vendor = "none",
 		.type_device = "dev_root",
 	},
 };
 
-static struct __bus_driver drv_root_bus = {
+static struct k_bus_driver drv_root_bus = {
 	.base = {
 		.type_vendor = "none",
 		.type_device = "bus_root",
 	},
 };
 
-static struct __device dev_root = {
+static struct k_device dev_root = {
 	.name = "root device",
 	.type_vendor = "none",
 	.type_device = "dev_root",
 };
 
-static struct __bus bus_root = {
+static struct k_bus bus_root = {
 	.name = "root bus",
 	.type_vendor = "none",
 	.type_device = "bus_root",
@@ -39,12 +39,12 @@ static struct __bus bus_root = {
 
 static int probe_all_enabled = 0;
 
-static int device_probe(struct __device *dev);
-static int bus_probe(struct __bus *bus);
+static int device_probe(struct k_device *dev);
+static int bus_probe(struct k_bus *bus);
 
-static int bus_attach_driver(struct __bus *bus)
+static int bus_attach_driver(struct k_bus *bus)
 {
-	struct __driver *drv = NULL;
+	struct k_driver *drv = NULL;
 
 	for_each_driver (d, &head) {
 		if (k_strcmp(d->type_vendor, bus->type_vendor) == 0 &&
@@ -62,9 +62,9 @@ static int bus_attach_driver(struct __bus *bus)
 	return 0;
 }
 
-static int device_attach_driver(struct __device *dev)
+static int device_attach_driver(struct k_device *dev)
 {
-	struct __driver *drv = NULL;
+	struct k_driver *drv = NULL;
 
 	for_each_driver (d, &head) {
 		if (k_strcmp(d->type_vendor, dev->type_vendor) == 0 &&
@@ -82,7 +82,7 @@ static int device_attach_driver(struct __device *dev)
 	return 0;
 }
 
-static int device_probe(struct __device *dev)
+static int device_probe(struct k_device *dev)
 {
 	int r = 0;
 
@@ -98,7 +98,7 @@ static int device_probe(struct __device *dev)
 	}
 
 	if (dev->drv && !dev->probed) {
-		const struct __device_driver *drv_dev = __device_get_drv(dev);
+		const struct k_device_driver *drv_dev = k_device_get_drv(dev);
 
 		if (drv_dev && drv_dev->ops && drv_dev->ops->add) {
 			r = drv_dev->ops->add(dev);
@@ -132,7 +132,7 @@ err_out:
 	return r;
 }
 
-static int bus_probe(struct __bus *bus)
+static int bus_probe(struct k_bus *bus)
 {
 	int r = 0;
 
@@ -145,7 +145,7 @@ static int bus_probe(struct __bus *bus)
 	}
 
 	if (bus->drv && !bus->probed) {
-		const struct __bus_driver *drv_bus = __bus_get_drv(bus);
+		const struct k_bus_driver *drv_bus = k_bus_get_drv(bus);
 
 		if (drv_bus && drv_bus->ops && drv_bus->ops->add) {
 			r = drv_bus->ops->add(bus);
@@ -192,35 +192,35 @@ err_out:
 	return r;
 }
 
-struct __device *__device_get_root(void)
+struct k_device *k_device_get_root(void)
 {
 	return &dev_root;
 }
 
-int __device_get_probe_all_enabled(void)
+int k_device_get_probe_all_enabled(void)
 {
 	return probe_all_enabled;
 }
 
-int __device_set_probe_all_enabled(int en)
+int k_device_set_probe_all_enabled(int en)
 {
 	probe_all_enabled = en;
 
 	return 0;
 }
 
-int __device_probe_all(void)
+int k_device_probe_all(void)
 {
-	if (!__device_get_probe_all_enabled()) {
+	if (!k_device_get_probe_all_enabled()) {
 		return -EAGAIN;
 	}
 
 	return device_probe(&dev_root);
 }
 
-int __driver_add(struct __driver *driver)
+int k_driver_add(struct k_driver *driver)
 {
-	struct __driver *drv = NULL;
+	struct k_driver *drv = NULL;
 
 	if (!driver->type_vendor || !driver->type_device) {
 		pri_warn("driver_add: Please set vendor and device.\n");
@@ -240,7 +240,7 @@ int __driver_add(struct __driver *driver)
 
 	drv->drv_next = driver;
 
-	int r = __device_probe_all();
+	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
 		pri_warn("driver_add: Probe failed (%d).\n", r);
 	}
@@ -248,13 +248,13 @@ int __driver_add(struct __driver *driver)
 	return 0;
 }
 
-int __driver_remove(struct __driver *driver)
+int k_driver_remove(struct k_driver *driver)
 {
 	/* TODO: to be implemented */
 	return -ENOTSUP;
 }
 
-int __device_add(struct __device *dev, struct __bus *parent)
+int k_device_add(struct k_device *dev, struct k_bus *parent)
 {
 	if (!dev || !parent) {
 		return -EINVAL;
@@ -275,7 +275,7 @@ int __device_add(struct __device *dev, struct __bus *parent)
 		/* First child */
 		parent->dev_child = dev;
 	} else {
-		struct __device *d = NULL;
+		struct k_device *d = NULL;
 
 		for_each_device (tmp, parent->dev_child) {
 			d = tmp;
@@ -286,7 +286,7 @@ int __device_add(struct __device *dev, struct __bus *parent)
 
 	dev->bus_parent = parent;
 
-	int r = __device_probe_all();
+	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
 		pri_warn("dev:%d add: Probe failed (%d).\n", dev->id, r);
 	}
@@ -294,7 +294,7 @@ int __device_add(struct __device *dev, struct __bus *parent)
 	return 0;
 }
 
-int __device_remove(struct __device *dev)
+int k_device_remove(struct k_device *dev)
 {
 	if (!dev) {
 		return -EINVAL;
@@ -306,7 +306,7 @@ int __device_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-static int device_find_conf(struct __device *dev, const char *name)
+static int device_find_conf(struct k_device *dev, const char *name)
 {
 	if (!dev || !dev->conf || !name) {
 		return -EINVAL;
@@ -321,7 +321,7 @@ static int device_find_conf(struct __device *dev, const char *name)
 	return -1;
 }
 
-int __device_get_conf_length(struct __device *dev, const char *name, int *len)
+int k_device_get_conf_length(struct k_device *dev, const char *name, int *len)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
@@ -335,7 +335,7 @@ int __device_get_conf_length(struct __device *dev, const char *name, int *len)
 	return 0;
 }
 
-int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index)
+int k_device_read_conf_u32(struct k_device *dev, const char *name, uint32_t *ptr, int index)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
@@ -354,7 +354,7 @@ int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr
 	return 0;
 }
 
-int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr, int index)
+int k_device_read_conf_u64(struct k_device *dev, const char *name, uint64_t *ptr, int index)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
@@ -373,7 +373,7 @@ int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr
 	return 0;
 }
 
-int __device_read_conf_str(struct __device *dev, const char *name, const char **ptr, int index)
+int k_device_read_conf_str(struct k_device *dev, const char *name, const char **ptr, int index)
 {
 	int i = device_find_conf(dev, name);
 	if (i < 0) {
@@ -392,13 +392,13 @@ int __device_read_conf_str(struct __device *dev, const char *name, const char **
 	return 0;
 }
 
-void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __device *dev, uintptr_t off)
+void *k_device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct k_device *dev, uintptr_t off)
 {
 	if (!dev) {
-		return __IO_MAP_FAILED;
+		return K_IO_MAP_FAILED;
 	}
 
-	const struct __bus_driver *busdrv = __bus_get_drv(dev->bus_parent);
+	const struct k_bus_driver *busdrv = k_bus_get_drv(dev->bus_parent);
 
 	if (!busdrv || !busdrv->ops || !busdrv->ops->mmap) {
 		return (void *)off;
@@ -407,12 +407,12 @@ void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, st
 	return busdrv->ops->mmap(addr, length, prot, flags, dev->bus_parent, off);
 }
 
-struct __bus *__bus_get_root(void)
+struct k_bus *k_bus_get_root(void)
 {
 	return &bus_root;
 }
 
-int __bus_add(struct __bus *bus, struct __device *parent)
+int k_bus_add(struct k_bus *bus, struct k_device *parent)
 {
 	if (!bus || !parent) {
 		return -EINVAL;
@@ -433,7 +433,7 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 		/* First child */
 		parent->bus_child = bus;
 	} else {
-		struct __bus *b = NULL;
+		struct k_bus *b = NULL;
 
 		for_each_bus (tmp, parent->bus_child) {
 			b = tmp;
@@ -444,7 +444,7 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 
 	bus->dev_parent = parent;
 
-	int r = __device_probe_all();
+	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
 		pri_warn("bus:%d add: Probe failed (%d).\n", bus->id, r);
 	}
@@ -452,7 +452,7 @@ int __bus_add(struct __bus *bus, struct __device *parent)
 	return 0;
 }
 
-int __bus_remove(struct __bus *bus)
+int k_bus_remove(struct k_bus *bus)
 {
 	if (!bus) {
 		return -EINVAL;
@@ -466,7 +466,7 @@ int __bus_remove(struct __bus *bus)
 	return -ENOTSUP;
 }
 
-int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev)
+int k_bus_find_device(struct k_bus *bus, const char *name, struct k_device **dev)
 {
 	if (!bus || !name) {
 		return -EINVAL;
@@ -485,20 +485,20 @@ int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev
 		}
 
 		if (tmp->probed && tmp->bus_child) {
-			return __bus_find_device(tmp->bus_child, name, dev);
+			return k_bus_find_device(tmp->bus_child, name, dev);
 		}
 	}
 
 	return -ENODEV;
 }
 
-void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off)
+void *k_bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct k_bus *bus, uintptr_t off)
 {
 	if (!bus) {
-		return __IO_MAP_FAILED;
+		return K_IO_MAP_FAILED;
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(bus->dev_parent);
+	const struct k_device_driver *devdrv = k_device_get_drv(bus->dev_parent);
 
 	if (!devdrv || !devdrv->ops || !devdrv->ops->mmap) {
 		return (void *)off;
@@ -509,9 +509,9 @@ void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struc
 
 static int bus_init(void)
 {
-	__driver_add(&drv_root_bus.base);
-	__bus_add(&bus_root, &dev_root);
-	__driver_add(&drv_root_dev.base);
+	k_driver_add(&drv_root_bus.base);
+	k_bus_add(&bus_root, &dev_root);
+	k_driver_add(&drv_root_dev.base);
 
 	return 0;
 }

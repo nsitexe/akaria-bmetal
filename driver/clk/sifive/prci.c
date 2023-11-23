@@ -109,7 +109,7 @@ static int clk_prci_set_freq(struct k_clk_device *clk, int index, uint64_t freq)
 
 static int clk_prci_filter_range(struct k_clk_device *clk, uint64_t post_divr, int *range)
 {
-	struct __device *dev = k_clk_to_dev(clk);
+	struct k_device *dev = k_clk_to_dev(clk);
 	int r;
 
 	switch (post_divr) {
@@ -227,7 +227,7 @@ static int clk_prci_find_divr(struct k_clk_device *clk, struct clk_prci_pllcfg *
 
 static int clk_prci_update_pllcfg(struct k_clk_device *clk, uint64_t target, uint64_t *freq_found, int off)
 {
-	struct __device *dev = k_clk_to_dev(clk);
+	struct k_device *dev = k_clk_to_dev(clk);
 	struct clk_prci_pllcfg conf;
 	uint32_t v;
 	int r;
@@ -246,9 +246,9 @@ static int clk_prci_update_pllcfg(struct k_clk_device *clk, uint64_t target, uin
 		(conf.divq_found << PRCI_PLLCFG_DIVQ_SHIFT) |
 		(conf.range << PRCI_PLLCFG_RANGE_SHIFT) |
 		PRCI_PLLCFG_FSE;
-	__device_write32(dev, v, off);
+	k_device_write32(dev, v, off);
 
-	while ((__device_read32(dev, off) & PRCI_PLLCFG_LOCK) == 0) {
+	while ((k_device_read32(dev, off) & PRCI_PLLCFG_LOCK) == 0) {
 		/* Busy wait for PLL lock*/
 	}
 
@@ -257,37 +257,37 @@ static int clk_prci_update_pllcfg(struct k_clk_device *clk, uint64_t target, uin
 
 static int clk_prci_update_cke(struct k_clk_device *clk, int enable, int off)
 {
-	struct __device *dev = k_clk_to_dev(clk);
+	struct k_device *dev = k_clk_to_dev(clk);
 	uint32_t v;
 
-	v = __device_read32(dev, off);
+	v = k_device_read32(dev, off);
 	if (enable) {
 		v |= PRCI_PLLCFG1_CKE;
 	} else {
 		v &= ~PRCI_PLLCFG1_CKE;
 	}
-	__device_write32(dev, v, off);
+	k_device_write32(dev, v, off);
 
 	return 0;
 }
 
 static int clk_prci_update_clksel(struct k_clk_device *clk, int bypass, int off)
 {
-	struct __device *dev = k_clk_to_dev(clk);
+	struct k_device *dev = k_clk_to_dev(clk);
 	uint32_t v;
 
-	v = __device_read32(dev, off);
+	v = k_device_read32(dev, off);
 	if (bypass) {
 		v |= PRCI_CLKSEL_BYPASS;
 	} else {
 		v &= ~PRCI_CLKSEL_BYPASS;
 	}
-	__device_write32(dev, v, off);
+	k_device_write32(dev, v, off);
 
 	return 0;
 }
 
-static int clk_prci_add(struct __device *dev)
+static int clk_prci_add(struct k_device *dev)
 {
 	struct clk_prci_priv *priv = dev->priv;
 	struct k_clk_device *clk = k_clk_from_dev(dev);
@@ -299,7 +299,7 @@ static int clk_prci_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -322,7 +322,7 @@ static int clk_prci_add(struct __device *dev)
 
 	/* Set each PLL frequency */
 
-	r = __device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_DDRCTRLCLK);
+	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_DDRCTRLCLK);
 	if (r) {
 		__dev_err(dev, "config 'frequency' ddrctrlclk is not found.\n");
 		return -EINVAL;
@@ -332,7 +332,7 @@ static int clk_prci_add(struct __device *dev)
 		return r;
 	}
 
-	r = __device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_CORECLK);
+	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_CORECLK);
 	if (r) {
 		__dev_err(dev, "config 'frequency' coreclk is not found.\n");
 		return -EINVAL;
@@ -342,7 +342,7 @@ static int clk_prci_add(struct __device *dev)
 		return r;
 	}
 
-	r = __device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_GEMGXLCLK);
+	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_GEMGXLCLK);
 	if (r) {
 		__dev_err(dev, "config 'frequency' gemgxlclk is not found.\n");
 		return -EINVAL;
@@ -355,7 +355,7 @@ static int clk_prci_add(struct __device *dev)
 	return 0;
 }
 
-static int clk_prci_remove(struct __device *dev)
+static int clk_prci_remove(struct k_device *dev)
 {
 	return 0;
 }
@@ -444,7 +444,7 @@ static int clk_prci_get_freq(struct k_clk_device *clk, int index, uint64_t *freq
 
 static int clk_prci_set_freq(struct k_clk_device *clk, int index, uint64_t freq)
 {
-	struct __device *dev = k_clk_to_dev(clk);
+	struct k_device *dev = k_clk_to_dev(clk);
 	struct clk_prci_priv *priv = dev->priv;
 	uint64_t *freq_found;
 	int r;
@@ -475,10 +475,10 @@ static int clk_prci_set_freq(struct k_clk_device *clk, int index, uint64_t freq)
 	return 0;
 }
 
-const static struct __device_driver_ops clk_prci_dev_ops = {
+const static struct k_device_driver_ops clk_prci_dev_ops = {
 	.add = clk_prci_add,
 	.remove = clk_prci_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_clk_driver_ops clk_prci_clk_ops = {

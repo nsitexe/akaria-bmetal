@@ -23,13 +23,13 @@ CHECK_PRIV_SIZE_INTC(struct intc_clint_priv);
 static int intc_clint_intr(int event, struct k_event_handler *hnd)
 {
 	struct intc_clint_priv *priv = hnd->priv;
-	struct __device *dev = k_intc_to_dev(priv->intc);
+	struct k_device *dev = k_intc_to_dev(priv->intc);
 	int id_phys = k_cpu_get_current_id_phys();
 	int res = EVENT_NOT_HANDLED;
 
 	switch (event) {
 	case RV_IX_MSIX:
-		__device_write32(dev, 0, REG_MSIP(id_phys));
+		k_device_write32(dev, 0, REG_MSIP(id_phys));
 		res = EVENT_HANDLED;
 		break;
 	default:
@@ -39,7 +39,7 @@ static int intc_clint_intr(int event, struct k_event_handler *hnd)
 	return res;
 }
 
-static int intc_clint_add(struct __device *dev)
+static int intc_clint_add(struct k_device *dev)
 {
 	struct intc_clint_priv *priv = dev->priv;
 	struct k_intc_device *intc = k_intc_from_dev(dev);
@@ -53,7 +53,7 @@ static int intc_clint_add(struct __device *dev)
 
 	priv->intc = intc;
 
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -88,20 +88,20 @@ static int intc_clint_add(struct __device *dev)
 	return 0;
 }
 
-static int intc_clint_remove(struct __device *dev)
+static int intc_clint_remove(struct k_device *dev)
 {
 	return 0;
 }
 
-const static struct __device_driver_ops intc_clint_dev_ops = {
+const static struct k_device_driver_ops intc_clint_dev_ops = {
 	.add = intc_clint_add,
 	.remove = intc_clint_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 static int intc_clint_raise_ipi(struct k_intc_device *intc, struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	int id_cur = k_cpu_get_current_id_phys();
 	int id_dest = k_cpu_get_id_phys(dest);
 
@@ -111,7 +111,7 @@ static int intc_clint_raise_ipi(struct k_intc_device *intc, struct k_cpu_device 
 		return -EINVAL;
 	}
 
-	__device_write32(dev, 1, REG_MSIP(id_dest));
+	k_device_write32(dev, 1, REG_MSIP(id_dest));
 
 	return 0;
 }

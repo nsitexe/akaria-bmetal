@@ -8,7 +8,7 @@
 #include <bmetal/drivers/timer.h>
 #include <bmetal/drivers/uart.h>
 
-const static struct __device_config cpu0_conf[] = {
+const static struct k_device_config cpu0_conf[] = {
 	PROP("hartid", 0),
 	{0},
 };
@@ -24,7 +24,7 @@ static struct k_cpu_device cpu0 = {
 	},
 };
 
-const static struct __device_config rvintc0_conf[] = {
+const static struct k_device_config rvintc0_conf[] = {
 	PROP("cpu", UPTR("cpu0")),
 	{0},
 };
@@ -40,7 +40,7 @@ static struct k_intc_device rvintc0 = {
 	},
 };
 
-const static struct __device_config clint_conf[] = {
+const static struct k_device_config clint_conf[] = {
 	PROP("reg", 0x2000000),
 	PROP("reg-size", 0x1000),
 	PROP("interrupts",
@@ -60,7 +60,7 @@ static struct k_intc_device clint = {
 	}
 };
 
-const static struct __device_config lfclk_conf[] = {
+const static struct k_device_config lfclk_conf[] = {
 	PROP("frequency", 32 * KHZ),
 	{0},
 };
@@ -76,7 +76,7 @@ static struct k_clk_device lfclk = {
 	},
 };
 
-const static struct __device_config clint_timer_conf[] = {
+const static struct k_device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
 	PROP("reg-size", 0xc000),
 	PROP("interrupts",
@@ -97,7 +97,7 @@ static struct k_timer_device clint_timer = {
 	}
 };
 
-const static struct __device_config hfclk_conf[] = {
+const static struct k_device_config hfclk_conf[] = {
 	PROP("frequency", 16 * MHZ),
 	{0},
 };
@@ -113,7 +113,7 @@ static struct k_clk_device hfclk = {
 	},
 };
 
-const static struct __device_config uart0_conf[] = {
+const static struct k_device_config uart0_conf[] = {
 	PROP("reg", 0x10013000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("hfclk"), 0),
@@ -121,7 +121,7 @@ const static struct __device_config uart0_conf[] = {
 	{0},
 };
 
-const static struct __device_config uart1_conf[] = {
+const static struct k_device_config uart1_conf[] = {
 	PROP("reg", 0x10023000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("hfclk"), 0),
@@ -153,14 +153,14 @@ static struct k_uart_device uart1 = {
 
 static int board_hifive1_init(void)
 {
-	k_cpu_add_device(&cpu0, __bus_get_root());
-	k_intc_add_device(&rvintc0, __bus_get_root());
-	k_intc_add_device(&clint, __bus_get_root());
-	k_clk_add_device(&lfclk, __bus_get_root());
-	k_clk_add_device(&hfclk, __bus_get_root());
-	k_timer_add_device(&clint_timer, __bus_get_root());
-	k_uart_add_device(&uart0, __bus_get_root(), 1);
-	k_uart_add_device(&uart1, __bus_get_root(), 1);
+	k_cpu_add_device(&cpu0, k_bus_get_root());
+	k_intc_add_device(&rvintc0, k_bus_get_root());
+	k_intc_add_device(&clint, k_bus_get_root());
+	k_clk_add_device(&lfclk, k_bus_get_root());
+	k_clk_add_device(&hfclk, k_bus_get_root());
+	k_timer_add_device(&clint_timer, k_bus_get_root());
+	k_uart_add_device(&uart0, k_bus_get_root(), 1);
+	k_uart_add_device(&uart1, k_bus_get_root(), 1);
 
 	k_uart_set_default_console(&uart0);
 

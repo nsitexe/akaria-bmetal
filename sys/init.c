@@ -201,7 +201,7 @@ static int init_drivers(void)
 	int cnt = k_initcall_end - k_initcall_start;
 	int r, res = 0;
 
-	__device_set_probe_all_enabled(0);
+	k_device_set_probe_all_enabled(0);
 
 	for (int i = 0; i < cnt; i++) {
 		r = k_initcall_start[i]();
@@ -211,9 +211,9 @@ static int init_drivers(void)
 		}
 	}
 
-	__device_set_probe_all_enabled(1);
+	k_device_set_probe_all_enabled(1);
 	do {
-		r = __device_probe_all();
+		r = k_device_probe_all();
 		if (IS_ERROR(r)) {
 			res = r;
 			break;

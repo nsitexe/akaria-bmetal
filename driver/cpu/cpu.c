@@ -149,11 +149,11 @@ struct k_cpu_device *k_cpu_get_current(void)
 	return k_cpu_get_by_physical_id(k_cpu_get_current_id_phys());
 }
 
-int k_cpu_add_device(struct k_cpu_device *cpu, struct __bus *parent)
+int k_cpu_add_device(struct k_cpu_device *cpu, struct k_bus *parent)
 {
 	int r;
 
-	r = __device_add(k_cpu_to_dev(cpu), parent);
+	r = k_device_add(k_cpu_to_dev(cpu), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
@@ -163,7 +163,7 @@ int k_cpu_add_device(struct k_cpu_device *cpu, struct __bus *parent)
 
 int k_cpu_remove(struct k_cpu_device *cpu)
 {
-	return __device_remove(k_cpu_to_dev(cpu));
+	return k_device_remove(k_cpu_to_dev(cpu));
 }
 
 int k_cpu_cache_get_line_size_i(struct k_cpu_device *cpu)
@@ -239,7 +239,7 @@ int k_cpu_cache_flush_range(struct k_cpu_device *cpu, const void *start, size_t 
 
 static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event event, struct k_event_handler **head)
 {
-	struct __device *dev = k_cpu_to_dev(cpu);
+	struct k_device *dev = k_cpu_to_dev(cpu);
 	struct k_event_handler *h;
 
 	if (CPU_EVENT_MAX <= event) {
@@ -437,7 +437,7 @@ int k_cpu_sleep_all(void)
 int k_cpu_on_wakeup(void)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __device *dev = k_cpu_to_dev(cpu);
+	struct k_device *dev = k_cpu_to_dev(cpu);
 	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
@@ -461,7 +461,7 @@ int k_cpu_on_wakeup(void)
 int k_cpu_on_sleep(void)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __device *dev = k_cpu_to_dev(cpu);
+	struct k_device *dev = k_cpu_to_dev(cpu);
 	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
@@ -604,19 +604,19 @@ int k_cpu_futex_wake(int *uaddr, int val, int bitset)
 	return res;
 }
 
-int k_cpu_get_cpu_from_config(struct __device *dev, int index, struct k_cpu_device **cpu)
+int k_cpu_get_cpu_from_config(struct k_device *dev, int index, struct k_cpu_device **cpu)
 {
 	const char *cpu_name;
-	struct __device *tmp;
+	struct k_device *tmp;
 	int r;
 
-	r = __device_read_conf_str(dev, "cpu", &cpu_name, index);
+	r = k_device_read_conf_str(dev, "cpu", &cpu_name, index);
 	if (r) {
 		__dev_err(dev, "cpu name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
-	r = __bus_find_device(__bus_get_root(), cpu_name, &tmp);
+	r = k_bus_find_device(k_bus_get_root(), cpu_name, &tmp);
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {

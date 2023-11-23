@@ -32,7 +32,7 @@ CHECK_PRIV_SIZE_TIMER(struct timer_clint_priv);
 
 static int timer_clint_get_freq(struct k_timer_device *tm, int index, uint64_t *freq)
 {
-	struct __device *dev = k_timer_to_dev(tm);
+	struct k_device *dev = k_timer_to_dev(tm);
 	struct timer_clint_priv *priv = dev->priv;
 
 	if (priv->freq_in == 0) {
@@ -49,18 +49,18 @@ static int timer_clint_get_freq(struct k_timer_device *tm, int index, uint64_t *
 
 static int timer_clint_get_raw(struct k_timer_device *tm, int index, uint64_t *count)
 {
-	struct __device *dev = k_timer_to_dev(tm);
+	struct k_device *dev = k_timer_to_dev(tm);
 	uint64_t v;
 
 #ifdef CONFIG_64BIT
-	v = __device_read64(dev, REG_MTIME);
+	v = k_device_read64(dev, REG_MTIME);
 #else
 	uint32_t vh1, vh2, vl;
 
 	do {
-		vh1 = __device_read32(dev, REG_MTIMEH);
-		vl = __device_read32(dev, REG_MTIMEL);
-		vh2 = __device_read32(dev, REG_MTIMEH);
+		vh1 = k_device_read32(dev, REG_MTIMEH);
+		vl = k_device_read32(dev, REG_MTIMEL);
+		vh2 = k_device_read32(dev, REG_MTIMEH);
 	} while (vh1 != vh2);
 
 	v = ((uint64_t)vh1 << 32) | vl;
@@ -75,16 +75,16 @@ static int timer_clint_get_raw(struct k_timer_device *tm, int index, uint64_t *c
 
 static int timer_clint_get_timecmp(struct k_timer_device *tm, int index, uint64_t *count)
 {
-	struct __device *dev = k_timer_to_dev(tm);
+	struct k_device *dev = k_timer_to_dev(tm);
 	uint64_t v;
 
 #ifdef CONFIG_64BIT
-	v = __device_read64(dev, REG_MTIMECMP(index));
+	v = k_device_read64(dev, REG_MTIMECMP(index));
 #else
 	uint32_t vh, vl;
 
-	vh = __device_read32(dev, REG_MTIMECMPH(index));
-	vl = __device_read32(dev, REG_MTIMECMPL(index));
+	vh = k_device_read32(dev, REG_MTIMECMPH(index));
+	vl = k_device_read32(dev, REG_MTIMECMPL(index));
 	v = ((uint64_t)vh << 32) | vl;
 #endif /* CONFIG_64BIT */
 
@@ -97,13 +97,13 @@ static int timer_clint_get_timecmp(struct k_timer_device *tm, int index, uint64_
 
 static int timer_clint_set_timecmp(struct k_timer_device *tm, int index, uint64_t count)
 {
-	struct __device *dev = k_timer_to_dev(tm);
+	struct k_device *dev = k_timer_to_dev(tm);
 
 #ifdef CONFIG_64BIT
-	__device_write64(dev, count, REG_MTIMECMP(index));
+	k_device_write64(dev, count, REG_MTIMECMP(index));
 #else
-	__device_write32(dev, count >> 32, REG_MTIMECMPH(index));
-	__device_write32(dev, count, REG_MTIMECMPL(index));
+	k_device_write32(dev, count >> 32, REG_MTIMECMPH(index));
+	k_device_write32(dev, count, REG_MTIMECMPL(index));
 #endif /* CONFIG_64BIT */
 
 	return 0;
@@ -167,7 +167,7 @@ static int timer_clint_intr(int event, struct k_event_handler *hnd)
 	return EVENT_HANDLED;
 }
 
-static int timer_clint_add(struct __device *dev)
+static int timer_clint_add(struct k_device *dev)
 {
 	struct timer_clint_priv *priv = dev->priv;
 	struct k_timer_device *timer = k_timer_from_dev(dev);
@@ -199,7 +199,7 @@ static int timer_clint_add(struct __device *dev)
 	}
 
 	/* Register */
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -235,15 +235,15 @@ static int timer_clint_add(struct __device *dev)
 	return 0;
 }
 
-static int timer_clint_remove(struct __device *dev)
+static int timer_clint_remove(struct k_device *dev)
 {
 	return 0;
 }
 
-const static struct __device_driver_ops timer_clint_dev_ops = {
+const static struct k_device_driver_ops timer_clint_dev_ops = {
 	.add = timer_clint_add,
 	.remove = timer_clint_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_timer_driver_ops timer_clint_timer_ops = {

@@ -19,18 +19,18 @@ int k_reset_set_system(struct k_reset_device *reset)
 	return 0;
 }
 
-int k_reset_add_device(struct k_reset_device *reset, struct __bus *parent)
+int k_reset_add_device(struct k_reset_device *reset, struct k_bus *parent)
 {
-	struct __device *dev = k_reset_to_dev(reset);
+	struct k_device *dev = k_reset_to_dev(reset);
 	uint32_t val;
 	int r;
 
-	r = __device_add(k_reset_to_dev(reset), parent);
+	r = k_device_add(k_reset_to_dev(reset), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
 
-	r = __device_read_conf_u32(dev, "system", &val, 0);
+	r = k_device_read_conf_u32(dev, "system", &val, 0);
 	if (r) {
 		/* Not found, default value is 0 */
 		val = 0;
@@ -44,5 +44,5 @@ int k_reset_add_device(struct k_reset_device *reset, struct __bus *parent)
 
 int k_reset_remove_device(struct k_reset_device *reset)
 {
-	return __device_remove(k_reset_to_dev(reset));
+	return k_device_remove(k_reset_to_dev(reset));
 }

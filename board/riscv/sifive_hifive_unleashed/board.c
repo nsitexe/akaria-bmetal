@@ -27,7 +27,7 @@
 		}, \
 	}
 
-const static struct __device_config cpu_conf[][2] = {
+const static struct k_device_config cpu_conf[][2] = {
 	CPU_CONF(0),
 	CPU_CONF(1),
 	CPU_CONF(2),
@@ -63,7 +63,7 @@ CHECK_ELEM_SIZE(cpu, cpu_priv);
 		}, \
 	}
 
-const static struct __device_config rvintc_conf[][2] = {
+const static struct k_device_config rvintc_conf[][2] = {
 	INTC_CONF(0),
 	INTC_CONF(1),
 	INTC_CONF(2),
@@ -82,7 +82,7 @@ static struct k_intc_device rvintc[] = {
 CHECK_ELEM_SIZE(rvintc, rvintc_conf);
 CHECK_ELEM_SIZE(rvintc, rvintc_priv);
 
-const static struct __device_config clint_conf[] = {
+const static struct k_device_config clint_conf[] = {
 	PROP("reg", 0x2000000),
 	PROP("reg-size", 0x1000),
 	PROP("interrupts",
@@ -106,7 +106,7 @@ static struct k_intc_device clint = {
 	}
 };
 
-const static struct __device_config plic_conf[] = {
+const static struct k_device_config plic_conf[] = {
 	PROP("reg", 0xc000000),
 	PROP("reg-size", 0x2000000),
 	PROP("interrupts",
@@ -129,7 +129,7 @@ static struct k_intc_device plic = {
 	}
 };
 
-const static struct __device_config hfclk_conf[] = {
+const static struct k_device_config hfclk_conf[] = {
 	PROP("frequency", 33333333),
 	{0},
 };
@@ -145,7 +145,7 @@ static struct k_clk_device hfclk = {
 	},
 };
 
-const static struct __device_config rtcclk_conf[] = {
+const static struct k_device_config rtcclk_conf[] = {
 	PROP("frequency", 1 * MHZ),
 	{0},
 };
@@ -162,7 +162,7 @@ static struct k_clk_device rtcclk = {
 };
 
 /* ddrctrlclk, tlclk, coreclk, gemgxlclk */
-const static struct __device_config prci_conf[] = {
+const static struct k_device_config prci_conf[] = {
 	PROP("reg", 0x10000000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("hfclk"), 0),
@@ -182,7 +182,7 @@ static struct k_clk_device prci = {
 	},
 };
 
-const static struct __device_config clint_timer_conf[] = {
+const static struct k_device_config clint_timer_conf[] = {
 	PROP("reg", 0x2004000),
 	PROP("reg-size", 0xc000),
 	PROP("interrupts",
@@ -207,7 +207,7 @@ static struct k_timer_device clint_timer = {
 	}
 };
 
-const static struct __device_config uart0_conf[] = {
+const static struct k_device_config uart0_conf[] = {
 	PROP("reg", 0x10010000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
@@ -216,7 +216,7 @@ const static struct __device_config uart0_conf[] = {
 	{0},
 };
 
-const static struct __device_config uart1_conf[] = {
+const static struct k_device_config uart1_conf[] = {
 	PROP("reg", 0x10011000),
 	PROP("reg-size", 0x1000),
 	PROP("clocks", UPTR("prci"), PRCI_INDEX_TLCLK),
@@ -249,17 +249,17 @@ static struct k_uart_device uart1 = {
 static int board_hifive_unleashed_init(void)
 {
 	for (int i = 0; i < ARRAY_OF(cpu); i++) {
-		k_cpu_add_device(&cpu[i], __bus_get_root());
-		k_intc_add_device(&rvintc[i], __bus_get_root());
+		k_cpu_add_device(&cpu[i], k_bus_get_root());
+		k_intc_add_device(&rvintc[i], k_bus_get_root());
 	}
-	k_intc_add_device(&clint, __bus_get_root());
-	k_intc_add_device(&plic, __bus_get_root());
-	k_clk_add_device(&hfclk, __bus_get_root());
-	k_clk_add_device(&rtcclk, __bus_get_root());
-	k_clk_add_device(&prci, __bus_get_root());
-	k_timer_add_device(&clint_timer, __bus_get_root());
-	k_uart_add_device(&uart0, __bus_get_root(), 1);
-	k_uart_add_device(&uart1, __bus_get_root(), 1);
+	k_intc_add_device(&clint, k_bus_get_root());
+	k_intc_add_device(&plic, k_bus_get_root());
+	k_clk_add_device(&hfclk, k_bus_get_root());
+	k_clk_add_device(&rtcclk, k_bus_get_root());
+	k_clk_add_device(&prci, k_bus_get_root());
+	k_timer_add_device(&clint_timer, k_bus_get_root());
+	k_uart_add_device(&uart0, k_bus_get_root(), 1);
+	k_uart_add_device(&uart1, k_bus_get_root(), 1);
 
 	k_uart_set_default_console(&uart0);
 

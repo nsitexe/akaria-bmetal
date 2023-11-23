@@ -47,13 +47,13 @@ struct k_cpu_driver_ops {
 };
 
 struct k_cpu_driver {
-	struct __device_driver base;
+	struct k_device_driver base;
 
 	const struct k_cpu_driver_ops *ops;
 };
 
 struct k_cpu_device {
-	struct __device base;
+	struct k_device base;
 
 	int id_cpu;
 	int id_phys;
@@ -85,7 +85,7 @@ static inline const struct k_cpu_driver *k_cpu_get_drv(const struct k_cpu_device
 	return (const struct k_cpu_driver *)cpu->base.drv;
 }
 
-static inline struct __device *k_cpu_to_dev(struct k_cpu_device *cpu)
+static inline struct k_device *k_cpu_to_dev(struct k_cpu_device *cpu)
 {
 	if (!cpu) {
 		return NULL;
@@ -94,19 +94,19 @@ static inline struct __device *k_cpu_to_dev(struct k_cpu_device *cpu)
 	return &cpu->base;
 }
 
-static inline struct k_cpu_device *k_cpu_from_dev(struct __device *dev)
+static inline struct k_cpu_device *k_cpu_from_dev(struct k_device *dev)
 {
 	return (struct k_cpu_device *)dev;
 }
 
 static inline int k_cpu_add_driver(struct k_cpu_driver *drv)
 {
-	return __driver_add(&drv->base.base);
+	return k_driver_add(&drv->base.base);
 }
 
 static inline int k_cpu_remove_driver(struct k_cpu_driver *drv)
 {
-	return __driver_remove(&drv->base.base);
+	return k_driver_remove(&drv->base.base);
 }
 
 int k_cpu_get_id(struct k_cpu_device *cpu);
@@ -135,7 +135,7 @@ struct k_cpu_device *k_cpu_get_by_physical_id(int id_phys);
 int k_cpu_get_current_id_phys(void);
 struct k_cpu_device *k_cpu_get_current(void);
 
-int k_cpu_add_device(struct k_cpu_device *cpu, struct __bus *parent);
+int k_cpu_add_device(struct k_cpu_device *cpu, struct k_bus *parent);
 int k_cpu_remove_device(struct k_cpu_device *cpu);
 int k_cpu_cache_get_line_size_i(struct k_cpu_device *cpu);
 void k_cpu_cache_set_line_size_i(struct k_cpu_device *cpu, int sz);
@@ -157,6 +157,6 @@ int k_cpu_raise_ipi(struct k_cpu_device *dest, void *arg);
 int k_cpu_futex_wait(int *uaddr, int val, int bitset);
 int k_cpu_futex_wake(int *uaddr, int val, int bitset);
 
-int k_cpu_get_cpu_from_config(struct __device *dev, int index, struct k_cpu_device **cpu);
+int k_cpu_get_cpu_from_config(struct k_device *dev, int index, struct k_cpu_device **cpu);
 
 #endif /* BAREMETAL_CRT_DRIVERS_CPU_H_ */

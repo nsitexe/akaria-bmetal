@@ -19,32 +19,32 @@ CHECK_PRIV_SIZE_RESET(struct reset_sifive_qemu_test_priv);
 
 static int reset_sifive_qemu_test_reboot(struct k_reset_device *reset)
 {
-	struct __device *d = k_reset_to_dev(reset);
+	struct k_device *d = k_reset_to_dev(reset);
 
-	__device_write32(d, FINISH_RESET, REG_FINISH);
+	k_device_write32(d, FINISH_RESET, REG_FINISH);
 
 	return 0;
 }
 
 static int reset_sifive_qemu_test_shutdown(struct k_reset_device *reset)
 {
-	struct __device *d = k_reset_to_dev(reset);
+	struct k_device *d = k_reset_to_dev(reset);
 
-	__device_write32(d, FINISH_PASS, REG_FINISH);
+	k_device_write32(d, FINISH_PASS, REG_FINISH);
 
 	return 0;
 }
 
 static int reset_sifive_qemu_test_power_off(struct k_reset_device *reset)
 {
-	struct __device *d = k_reset_to_dev(reset);
+	struct k_device *d = k_reset_to_dev(reset);
 
-	__device_write32(d, FINISH_PASS, REG_FINISH);
+	k_device_write32(d, FINISH_PASS, REG_FINISH);
 
 	return 0;
 }
 
-static int reset_sifive_qemu_test_add(struct __device *dev)
+static int reset_sifive_qemu_test_add(struct k_device *dev)
 {
 	//struct k_reset_device *reset = k_reset_from_dev(dev);
 	struct reset_sifive_qemu_test_priv *priv = dev->priv;
@@ -56,7 +56,7 @@ static int reset_sifive_qemu_test_add(struct __device *dev)
 	}
 
 	/* Registers */
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -64,16 +64,16 @@ static int reset_sifive_qemu_test_add(struct __device *dev)
 	return 0;
 }
 
-static int reset_sifive_qemu_test_remove(struct __device *dev)
+static int reset_sifive_qemu_test_remove(struct k_device *dev)
 {
 	/* TODO: to be implemented */
 	return -ENOTSUP;
 }
 
-const static struct __device_driver_ops sifive_qemu_test_dev_ops = {
+const static struct k_device_driver_ops sifive_qemu_test_dev_ops = {
 	.add = reset_sifive_qemu_test_add,
 	.remove = reset_sifive_qemu_test_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_reset_driver_ops sifive_qemu_test_reset_ops = {

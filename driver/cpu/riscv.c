@@ -18,7 +18,7 @@ struct cpu_riscv_priv {
 };
 CHECK_PRIV_SIZE_CPU(struct cpu_riscv_priv);
 
-static int cpu_riscv_add(struct __device *dev)
+static int cpu_riscv_add(struct k_device *dev)
 {
 	struct k_cpu_device *cpu = k_cpu_from_dev(dev);
 	struct cpu_riscv_priv *priv = dev->priv;
@@ -31,7 +31,7 @@ static int cpu_riscv_add(struct __device *dev)
 	}
 
 	/* Logical and physical ID */
-	r = __device_read_conf_u32(dev, "hartid", &hartid, 0);
+	r = k_device_read_conf_u32(dev, "hartid", &hartid, 0);
 	if (r) {
 		__dev_err(dev, "config 'hartid' is not found.\n");
 		return -EINVAL;
@@ -59,7 +59,7 @@ static int cpu_riscv_add(struct __device *dev)
 	return 0;
 }
 
-static int cpu_riscv_remove(struct __device *dev)
+static int cpu_riscv_remove(struct k_device *dev)
 {
 	return -ENOTSUP;
 }
@@ -174,7 +174,7 @@ static int cpu_riscv_raise_ipi(struct k_cpu_device *cpu, struct k_cpu_device *de
 }
 #endif /* CONFIG_INTC */
 
-const static struct __device_driver_ops cpu_riscv_dev_ops = {
+const static struct k_device_driver_ops cpu_riscv_dev_ops = {
 	.add = cpu_riscv_add,
 	.remove = cpu_riscv_remove,
 };

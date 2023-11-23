@@ -11,7 +11,7 @@ struct clk_fixed_priv {
 };
 CHECK_PRIV_SIZE_CLK(struct clk_fixed_priv);
 
-static int clk_fixed_add(struct __device *dev)
+static int clk_fixed_add(struct k_device *dev)
 {
 	struct clk_fixed_priv *priv = dev->priv;
 	uint64_t f;
@@ -22,7 +22,7 @@ static int clk_fixed_add(struct __device *dev)
 		return -EINVAL;
 	}
 
-	r = __device_read_conf_u64(dev, "frequency", &f, 0);
+	r = k_device_read_conf_u64(dev, "frequency", &f, 0);
 	if (r) {
 		__dev_err(dev, "config 'frequency' is not found.\n");
 		return -EINVAL;
@@ -33,7 +33,7 @@ static int clk_fixed_add(struct __device *dev)
 	return 0;
 }
 
-static int clk_fixed_remove(struct __device *dev)
+static int clk_fixed_remove(struct k_device *dev)
 {
 	return 0;
 }
@@ -63,7 +63,7 @@ static int clk_fixed_get_freq(struct k_clk_device *clk, int index, uint64_t *fre
 	return 0;
 }
 
-const static struct __device_driver_ops clk_fixed_dev_ops = {
+const static struct k_device_driver_ops clk_fixed_dev_ops = {
 	.add = clk_fixed_add,
 	.remove = clk_fixed_remove,
 };

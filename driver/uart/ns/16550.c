@@ -61,17 +61,17 @@ CHECK_PRIV_SIZE_UART(struct uart_ns16550_priv);
 
 static uint8_t uart_read(struct k_uart_device *uart, uintptr_t off)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uintptr_t shifted = off << priv->addr_shift;
 
 	switch (priv->addr_shift) {
 	case 0:
-		return __device_read8(k_uart_to_dev(uart), shifted);
+		return k_device_read8(k_uart_to_dev(uart), shifted);
 	case 1:
-		return __device_read16(k_uart_to_dev(uart), shifted);
+		return k_device_read16(k_uart_to_dev(uart), shifted);
 	case 2:
-		return __device_read32(k_uart_to_dev(uart), shifted);
+		return k_device_read32(k_uart_to_dev(uart), shifted);
 	default:
 		/* BUG */
 		return -1;
@@ -80,19 +80,19 @@ static uint8_t uart_read(struct k_uart_device *uart, uintptr_t off)
 
 static void uart_write(struct k_uart_device *uart, uint8_t dat, uintptr_t off)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uintptr_t shifted = off << priv->addr_shift;
 
 	switch (priv->addr_shift) {
 	case 0:
-		__device_write8(dev, dat, shifted);
+		k_device_write8(dev, dat, shifted);
 		break;
 	case 1:
-		__device_write16(dev, dat, shifted);
+		k_device_write16(dev, dat, shifted);
 		break;
 	case 2:
-		__device_write32(dev, dat, shifted);
+		k_device_write32(dev, dat, shifted);
 		break;
 	default:
 		/* BUG */
@@ -102,7 +102,7 @@ static void uart_write(struct k_uart_device *uart, uint8_t dat, uintptr_t off)
 
 static int uart_ns16550_set_baud(struct k_uart_device *uart, uint32_t baud)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uint32_t d;
 	uint8_t v;
@@ -173,7 +173,7 @@ static int uart_ns16550_disable_intr(struct k_uart_device *uart)
 
 static int uart_ns16550_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 
 	if (conf) {
@@ -211,7 +211,7 @@ static int uart_ns16550_intr(int event, struct k_event_handler *hnd)
 	return EVENT_HANDLED;
 }
 
-static int uart_ns16550_add(struct __device *dev)
+static int uart_ns16550_add(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_ns16550_priv *priv = dev->priv;
@@ -227,7 +227,7 @@ static int uart_ns16550_add(struct __device *dev)
 	priv->uart = uart;
 
 	/* Some 16550 variant have different register width */
-	r = __device_read_conf_u32(dev, "reg-width", &w, 0);
+	r = k_device_read_conf_u32(dev, "reg-width", &w, 0);
 	if (r) {
 		w = REG_WIDTH_DEFAULT;
 
@@ -268,7 +268,7 @@ static int uart_ns16550_add(struct __device *dev)
 	}
 
 	/* Register */
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -312,7 +312,7 @@ static int uart_ns16550_add(struct __device *dev)
 	return 0;
 }
 
-static int uart_ns16550_remove(struct __device *dev)
+static int uart_ns16550_remove(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_ns16550_priv *priv = dev->priv;
@@ -350,10 +350,10 @@ static int uart_ns16550_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-const static struct __device_driver_ops ns16550_dev_ops = {
+const static struct k_device_driver_ops ns16550_dev_ops = {
 	.add = uart_ns16550_add,
 	.remove = uart_ns16550_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_uart_driver_ops ns16550_uart_ops = {

@@ -5,11 +5,11 @@
 #include <bmetal/printk.h>
 #include <bmetal/sys/errno.h>
 
-int k_clk_add_device(struct k_clk_device *clk, struct __bus *parent)
+int k_clk_add_device(struct k_clk_device *clk, struct k_bus *parent)
 {
 	int r;
 
-	r = __device_add(k_clk_to_dev(clk), parent);
+	r = k_device_add(k_clk_to_dev(clk), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
@@ -19,7 +19,7 @@ int k_clk_add_device(struct k_clk_device *clk, struct __bus *parent)
 
 int k_clk_remove_device(struct k_clk_device *clk)
 {
-	return __device_remove(k_clk_to_dev(clk));
+	return k_device_remove(k_clk_to_dev(clk));
 }
 
 int k_clk_enable(struct k_clk_device *clk, int index)
@@ -74,25 +74,25 @@ int k_clk_set_frequency(struct k_clk_device *clk, int index, uint64_t freq)
 	return r;
 }
 
-int k_clk_get_clk_from_config(struct __device *dev, int index, struct k_clk_device **clk, int *index_clk)
+int k_clk_get_clk_from_config(struct k_device *dev, int index, struct k_clk_device **clk, int *index_clk)
 {
 	const char *clock_name;
-	struct __device *tmp;
+	struct k_device *tmp;
 	uint32_t val;
 	int r;
 
-	r = __device_read_conf_str(dev, "clocks", &clock_name, index * 2);
+	r = k_device_read_conf_str(dev, "clocks", &clock_name, index * 2);
 	if (r) {
 		__dev_err(dev, "clock name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
-	r = __device_read_conf_u32(dev, "clocks", &val, index * 2 + 1);
+	r = k_device_read_conf_u32(dev, "clocks", &val, index * 2 + 1);
 	if (r) {
 		__dev_err(dev, "clock number is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
-	r = __bus_find_device(__bus_get_root(), clock_name, &tmp);
+	r = k_bus_find_device(k_bus_get_root(), clock_name, &tmp);
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {

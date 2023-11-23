@@ -51,10 +51,10 @@ CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
 static int uart_sifive_char_in(struct k_uart_device *uart)
 {
-	struct __device *d = k_uart_to_dev(uart);
+	struct k_device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
-	while (((v = __device_read32(d, REG_RXDATA)) & RXDATA_EMPTY) != 0) {
+	while (((v = k_device_read32(d, REG_RXDATA)) & RXDATA_EMPTY) != 0) {
 	}
 
 	return v & 0xffU;
@@ -62,47 +62,47 @@ static int uart_sifive_char_in(struct k_uart_device *uart)
 
 static void uart_sifive_char_out(struct k_uart_device *uart, int value)
 {
-	struct __device *d = k_uart_to_dev(uart);
+	struct k_device *d = k_uart_to_dev(uart);
 
-	while ((__device_read32(d, REG_TXDATA) & TXDATA_FULL) != 0) {
+	while ((k_device_read32(d, REG_TXDATA) & TXDATA_FULL) != 0) {
 	}
 
-	__device_write32(d, value & 0xffU, REG_TXDATA);
+	k_device_write32(d, value & 0xffU, REG_TXDATA);
 }
 
 static int uart_sifive_enable_intr(struct k_uart_device *uart)
 {
-	struct __device *d = k_uart_to_dev(uart);
+	struct k_device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
 	//TODO: TX buffering
-	v = __device_read32(d, REG_IE);
+	v = k_device_read32(d, REG_IE);
 	v |= IE_RXWM;
-	__device_write32(d, v, REG_IE);
+	k_device_write32(d, v, REG_IE);
 
 	return 0;
 }
 
 static int uart_sifive_disable_intr(struct k_uart_device *uart)
 {
-	struct __device *d = k_uart_to_dev(uart);
+	struct k_device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
-	v = __device_read32(d, REG_IE);
+	v = k_device_read32(d, REG_IE);
 	v &= ~(IE_TXWM | IE_RXWM);
-	__device_write32(d, v, REG_IE);
+	k_device_write32(d, v, REG_IE);
 
 	return 0;
 }
 
 static int uart_sifive_set_baud(struct k_uart_device *uart, uint32_t baud)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 	uint32_t d;
 
 	d = priv->freq_in / baud - 1;
-	__device_write32(dev, d, REG_DIV);
+	k_device_write32(dev, d, REG_DIV);
 
 	priv->conf.baud = baud;
 
@@ -111,7 +111,7 @@ static int uart_sifive_set_baud(struct k_uart_device *uart, uint32_t baud)
 
 static int uart_sifive_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 
 	if (conf) {
@@ -141,7 +141,7 @@ static int uart_sifive_intr(int event, struct k_event_handler *hnd)
 	return EVENT_HANDLED;
 }
 
-static int uart_sifive_add(struct __device *dev)
+static int uart_sifive_add(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
@@ -174,18 +174,18 @@ static int uart_sifive_add(struct __device *dev)
 	}
 
 	/* Register */
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
 
 	val = TXCTRL_TXEN |
 		(1 << TXCTRL_TXCNT_SHIFT);
-	__device_write32(dev, val, REG_TXCTRL);
+	k_device_write32(dev, val, REG_TXCTRL);
 
 	val = RXCTRL_RXEN |
 		(0 << RXCTRL_RXCNT_SHIFT);
-	__device_write32(dev, val, REG_RXCTRL);
+	k_device_write32(dev, val, REG_RXCTRL);
 
 	/* Interrupt */
 	r = k_intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
@@ -226,7 +226,7 @@ static int uart_sifive_add(struct __device *dev)
 	return 0;
 }
 
-static int uart_sifive_remove(struct __device *dev)
+static int uart_sifive_remove(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
@@ -259,10 +259,10 @@ static int uart_sifive_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-const static struct __device_driver_ops uart_sifive_dev_ops = {
+const static struct k_device_driver_ops uart_sifive_dev_ops = {
 	.add = uart_sifive_add,
 	.remove = uart_sifive_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_uart_driver_ops uart_sifive_uart_ops = {

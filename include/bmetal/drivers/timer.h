@@ -25,13 +25,13 @@ struct k_timer_driver_ops {
 };
 
 struct k_timer_driver {
-	struct __device_driver base;
+	struct k_device_driver base;
 
 	const struct k_timer_driver_ops *ops;
 };
 
 struct k_timer_device {
-	struct __device base;
+	struct k_device base;
 };
 
 struct k_timer_priv_max {
@@ -49,7 +49,7 @@ static inline const struct k_timer_driver *k_timer_get_drv(const struct k_timer_
 	return (const struct k_timer_driver *)timer->base.drv;
 }
 
-static inline struct __device *k_timer_to_dev(struct k_timer_device *timer)
+static inline struct k_device *k_timer_to_dev(struct k_timer_device *timer)
 {
 	if (!timer) {
 		return NULL;
@@ -58,19 +58,19 @@ static inline struct __device *k_timer_to_dev(struct k_timer_device *timer)
 	return &timer->base;
 }
 
-static inline struct k_timer_device *k_timer_from_dev(struct __device *dev)
+static inline struct k_timer_device *k_timer_from_dev(struct k_device *dev)
 {
 	return (struct k_timer_device *)dev;
 }
 
 static inline int k_timer_add_driver(struct k_timer_driver *drv)
 {
-	return __driver_add(&drv->base.base);
+	return k_driver_add(&drv->base.base);
 }
 
 static inline int k_timer_remove_driver(struct k_timer_driver *drv)
 {
-	return __driver_remove(&drv->base.base);
+	return k_driver_remove(&drv->base.base);
 }
 
 #ifdef CONFIG_TIMER
@@ -78,7 +78,7 @@ static inline int k_timer_remove_driver(struct k_timer_driver *drv)
 struct k_timer_device *__system_timer_get(void);
 int __system_timer_set(struct k_timer_device *timer);
 
-int k_timer_add_device(struct k_timer_device *timer, struct __bus *parent);
+int k_timer_add_device(struct k_timer_device *timer, struct k_bus *parent);
 int k_timer_remove_device(struct k_timer_device *timer);
 
 #else /* CONFIG_TIMER */
@@ -93,7 +93,7 @@ static inline int k_timer_set_system(struct k_timer_device *timer)
 	return -ENOTSUP;
 }
 
-static inline int k_timer_add_device(struct k_timer_device *timer, struct __bus *parent)
+static inline int k_timer_add_device(struct k_timer_device *timer, struct k_bus *parent)
 {
 	return -ENOTSUP;
 }

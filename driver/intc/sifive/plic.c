@@ -34,17 +34,17 @@ CHECK_PRIV_SIZE_INTC(struct intc_plic_priv);
  */
 static int intc_plic_clear_all(struct k_intc_device *intc, int n_event, int n_ctx)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 
 	for (int ctx = 0; ctx < n_ctx; ctx++) {
-		__device_write32(dev, 0, REG_PRIORITY_THR(ctx));
+		k_device_write32(dev, 0, REG_PRIORITY_THR(ctx));
 
 		for (int event = 0; event < n_event; event++) {
-			__device_write32(dev, 0, REG_PRIORITY(event));
+			k_device_write32(dev, 0, REG_PRIORITY(event));
 		}
 
 		for (int event = 0; event < n_event; event += 32) {
-			__device_write32(dev, 0, REG_INTR_EN(event, ctx));
+			k_device_write32(dev, 0, REG_INTR_EN(event, ctx));
 		}
 	}
 
@@ -53,37 +53,37 @@ static int intc_plic_clear_all(struct k_intc_device *intc, int n_event, int n_ct
 
 static int intc_plic_enable_interrupt(struct k_intc_device *intc, int event, int ctx)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	int bpos = event & 0x1f;
 	uint32_t tmp;
 
 	//TODO: use priority, currently always use lowest priority
-	__device_write32(dev, 1, REG_PRIORITY(event));
-	__device_write32(dev, 0, REG_PRIORITY_THR(ctx));
+	k_device_write32(dev, 1, REG_PRIORITY(event));
+	k_device_write32(dev, 0, REG_PRIORITY_THR(ctx));
 
-	tmp = __device_read32(dev, REG_INTR_EN(event, ctx));
+	tmp = k_device_read32(dev, REG_INTR_EN(event, ctx));
 	tmp |= 1UL << bpos;
-	__device_write32(dev, tmp, REG_INTR_EN(event, ctx));
+	k_device_write32(dev, tmp, REG_INTR_EN(event, ctx));
 
 	return 0;
 }
 
 static int intc_plic_disable_interrupt(struct k_intc_device *intc, int event, int ctx)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	int bpos = event & 0x1f;
 	uint32_t tmp;
 
-	tmp = __device_read32(dev, REG_INTR_EN(event, ctx));
+	tmp = k_device_read32(dev, REG_INTR_EN(event, ctx));
 	tmp &= ~(1UL << bpos);
-	__device_write32(dev, tmp, REG_INTR_EN(event, ctx));
+	k_device_write32(dev, tmp, REG_INTR_EN(event, ctx));
 
 	return 0;
 }
 
 static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
 	int r;
 
@@ -115,7 +115,7 @@ static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct k
 
 static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
 	int r;
 
@@ -148,7 +148,7 @@ static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struc
 static int intc_plic_intr(int event, struct k_event_handler *hnd)
 {
 	struct intc_plic_priv *priv = hnd->priv;
-	struct __device *dev = k_intc_to_dev(priv->intc);
+	struct k_device *dev = k_intc_to_dev(priv->intc);
 	uint32_t v;
 	int res = EVENT_NOT_HANDLED;
 
@@ -156,8 +156,8 @@ static int intc_plic_intr(int event, struct k_event_handler *hnd)
 	int ctx = 0;
 
 	//TODO: save claim bit and delayed process
-	v = __device_read32(dev, REG_CLAIM(ctx));
-	__device_write32(dev, v, REG_CLAIM(ctx));
+	v = k_device_read32(dev, REG_CLAIM(ctx));
+	k_device_write32(dev, v, REG_CLAIM(ctx));
 	if (priv->hnd[v]) {
 		res = k_event_handle_generic(v, priv->hnd[v]);
 	}
@@ -165,7 +165,7 @@ static int intc_plic_intr(int event, struct k_event_handler *hnd)
 	return res;
 }
 
-static int intc_plic_add(struct __device *dev)
+static int intc_plic_add(struct k_device *dev)
 {
 	struct intc_plic_priv *priv = dev->priv;
 	struct k_intc_device *intc = k_intc_from_dev(dev);
@@ -179,7 +179,7 @@ static int intc_plic_add(struct __device *dev)
 
 	priv->intc = intc;
 
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -212,14 +212,14 @@ static int intc_plic_add(struct __device *dev)
 	}
 
 	priv->n_event = PLIC_SOURCES_MAX;
-	r = __device_read_conf_u32(dev, "n_source", &priv->n_event, 0);
+	r = k_device_read_conf_u32(dev, "n_source", &priv->n_event, 0);
 	if (r) {
 		__dev_info(dev, "config 'n_source' is not found, use default:%d.\n", PLIC_SOURCES_MAX);
 	}
 	priv->n_event = NMIN(PLIC_SOURCES_MAX, priv->n_event);
 
 	priv->n_ctx = PLIC_CONTEXTS_MAX;
-	r = __device_read_conf_u32(dev, "n_context", &priv->n_ctx, 0);
+	r = k_device_read_conf_u32(dev, "n_context", &priv->n_ctx, 0);
 	if (r) {
 		__dev_info(dev, "config 'n_context' is not found, use default:%d.\n", PLIC_CONTEXTS_MAX);
 	}
@@ -233,15 +233,15 @@ static int intc_plic_add(struct __device *dev)
 	return 0;
 }
 
-static int intc_plic_remove(struct __device *dev)
+static int intc_plic_remove(struct k_device *dev)
 {
 	return 0;
 }
 
-const static struct __device_driver_ops intc_plic_dev_ops = {
+const static struct k_device_driver_ops intc_plic_dev_ops = {
 	.add = intc_plic_add,
 	.remove = intc_plic_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_intc_driver_ops intc_plic_intc_ops = {

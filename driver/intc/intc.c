@@ -47,18 +47,18 @@ int k_intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *
 	return 0;
 }
 
-int k_intc_add_device(struct k_intc_device *intc, struct __bus *parent)
+int k_intc_add_device(struct k_intc_device *intc, struct k_bus *parent)
 {
-	struct __device *dev = k_intc_to_dev(intc);
+	struct k_device *dev = k_intc_to_dev(intc);
 	uint32_t val;
 	int r;
 
-	r = __device_add(dev, parent);
+	r = k_device_add(dev, parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
 
-	r = __device_read_conf_u32(dev, "ipi", &val, 0);
+	r = k_device_read_conf_u32(dev, "ipi", &val, 0);
 	if (r) {
 		/* Not found, default value is 0 */
 		val = 0;
@@ -72,7 +72,7 @@ int k_intc_add_device(struct k_intc_device *intc, struct __bus *parent)
 
 int k_intc_remove_device(struct k_intc_device *intc)
 {
-	return __device_remove(k_intc_to_dev(intc));
+	return k_device_remove(k_intc_to_dev(intc));
 }
 
 int k_intc_add_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
@@ -113,11 +113,11 @@ int k_intc_remove_handler(struct k_intc_device *intc, int event, struct k_event_
 	return r;
 }
 
-int k_intc_get_conf_length(struct __device *dev, int *len)
+int k_intc_get_conf_length(struct k_device *dev, int *len)
 {
 	int v, r;
 
-	r = __device_get_conf_length(dev, "interrupts", &v);
+	r = k_device_get_conf_length(dev, "interrupts", &v);
 	if (r) {
 		return r;
 	}
@@ -130,25 +130,25 @@ int k_intc_get_conf_length(struct __device *dev, int *len)
 	return 0;
 }
 
-int k_intc_get_intc_from_config(struct __device *dev, int index, struct k_intc_device **intc, int *num_irq)
+int k_intc_get_intc_from_config(struct k_device *dev, int index, struct k_intc_device **intc, int *num_irq)
 {
 	const char *intc_name;
-	struct __device *tmp;
+	struct k_device *tmp;
 	uint32_t val;
 	int r;
 
-	r = __device_read_conf_str(dev, "interrupts", &intc_name, index * 2);
+	r = k_device_read_conf_str(dev, "interrupts", &intc_name, index * 2);
 	if (r) {
 		__dev_err(dev, "intc name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
-	r = __device_read_conf_u32(dev, "interrupts", &val, index * 2 + 1);
+	r = k_device_read_conf_u32(dev, "interrupts", &val, index * 2 + 1);
 	if (r) {
 		__dev_err(dev, "intc irq number is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
-	r = __bus_find_device(__bus_get_root(), intc_name, &tmp);
+	r = k_bus_find_device(k_bus_get_root(), intc_name, &tmp);
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {

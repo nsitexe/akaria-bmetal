@@ -36,44 +36,44 @@ CHECK_PRIV_SIZE_UART(struct uart_lite_priv);
 
 static int uart_lite_char_in(struct k_uart_device *uart)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 
-	while ((__device_read32(dev, REG_STAT) & STAT_RXFIFO_VALID) == 0) {
+	while ((k_device_read32(dev, REG_STAT) & STAT_RXFIFO_VALID) == 0) {
 	}
 
-	return __device_read32(dev, REG_RXFIFO);
+	return k_device_read32(dev, REG_RXFIFO);
 }
 
 static void uart_lite_char_out(struct k_uart_device *uart, int value)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 
-	while ((__device_read32(dev, REG_STAT) & STAT_TXFIFO_FULL) != 0) {
+	while ((k_device_read32(dev, REG_STAT) & STAT_TXFIFO_FULL) != 0) {
 	}
 
-	__device_write32(dev, value, REG_TXFIFO);
+	k_device_write32(dev, value, REG_TXFIFO);
 }
 
 static int uart_lite_enable_intr(struct k_uart_device *uart)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	uint32_t v;
 
-	v = __device_read32(dev, REG_CTRL);
+	v = k_device_read32(dev, REG_CTRL);
 	v |= CTRL_ENA_INTR;
-	__device_write32(dev, v, REG_CTRL);
+	k_device_write32(dev, v, REG_CTRL);
 
 	return 0;
 }
 
 static int uart_lite_disable_intr(struct k_uart_device *uart)
 {
-	struct __device *dev = k_uart_to_dev(uart);
+	struct k_device *dev = k_uart_to_dev(uart);
 	uint32_t v;
 
-	v = __device_read32(dev, REG_CTRL);
+	v = k_device_read32(dev, REG_CTRL);
 	v &= ~CTRL_ENA_INTR;
-	__device_write32(dev, v, REG_CTRL);
+	k_device_write32(dev, v, REG_CTRL);
 
 	return 0;
 }
@@ -81,16 +81,16 @@ static int uart_lite_disable_intr(struct k_uart_device *uart)
 static int uart_lite_intr(int event, struct k_event_handler *hnd)
 {
 	struct uart_lite_priv *priv = hnd->priv;
-	struct __device *dev = k_uart_to_dev(priv->uart);
+	struct k_device *dev = k_uart_to_dev(priv->uart);
 
 	//Clear interrupt
-	__device_read32(dev, REG_STAT);
+	k_device_read32(dev, REG_STAT);
 
 	//TODO: TX, RX buffering
 	return EVENT_HANDLED;
 }
 
-static int uart_lite_add(struct __device *dev)
+static int uart_lite_add(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_lite_priv *priv = dev->priv;
@@ -104,7 +104,7 @@ static int uart_lite_add(struct __device *dev)
 	priv->uart = uart;
 
 	/* Register */
-	r = __io_mmap_device(NULL, dev);
+	r = k_io_mmap_device(NULL, dev);
 	if (r) {
 		return r;
 	}
@@ -134,7 +134,7 @@ static int uart_lite_add(struct __device *dev)
 	return 0;
 }
 
-static int uart_lite_remove(struct __device *dev)
+static int uart_lite_remove(struct k_device *dev)
 {
 	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_lite_priv *priv = dev->priv;
@@ -162,10 +162,10 @@ static int uart_lite_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-const static struct __device_driver_ops lite_dev_ops = {
+const static struct k_device_driver_ops lite_dev_ops = {
 	.add = uart_lite_add,
 	.remove = uart_lite_remove,
-	.mmap = __device_driver_mmap,
+	.mmap = k_device_driver_mmap,
 };
 
 const static struct k_uart_driver_ops lite_uart_ops = {
