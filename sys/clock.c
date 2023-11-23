@@ -80,7 +80,7 @@ int k_clock_set_realtime(const struct timespec64 *tsp)
 
 int k_clock_get_monotonic(struct timespec64 *tsp)
 {
-	struct k_timer_device *tm = __system_timer_get();
+	struct k_timer_device *tm = k_timer_get_default();
 	const struct k_timer_driver *drv = k_timer_get_drv(tm);
 	int id, r;
 
@@ -120,7 +120,7 @@ int k_clock_get_monotonic(struct timespec64 *tsp)
 
 int k_clock_on_tick(void)
 {
-	struct k_timer_device *tm = __system_timer_get();
+	struct k_timer_device *tm = k_timer_get_default();
 	const struct k_timer_driver *drv = k_timer_get_drv(tm);
 	int id, r;
 

@@ -75,8 +75,8 @@ static inline int k_timer_remove_driver(struct k_timer_driver *drv)
 
 #ifdef CONFIG_TIMER
 
-struct k_timer_device *__system_timer_get(void);
-int __system_timer_set(struct k_timer_device *timer);
+struct k_timer_device *k_timer_get_default(void);
+int k_timer_set_default(struct k_timer_device *timer);
 
 int k_timer_add_device(struct k_timer_device *timer, struct k_bus *parent);
 int k_timer_remove_device(struct k_timer_device *timer);

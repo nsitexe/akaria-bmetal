@@ -29,7 +29,7 @@ int k_libc_init_main_thread(struct k_thread_info *ti, int argc, char *argv[], ch
 	return 0;
 }
 
-const k_syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
+const k_syscall_func_t k_table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_uname, k_sys_wrap_uname),
 	SYSCALL_P(SYS_prlimit64, k_sys_wrap_prlimit64),
 	SYSCALL_P(SYS_getuid, k_sys_wrap_getuid),

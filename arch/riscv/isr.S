@@ -80,7 +80,7 @@ k_trap_syscall:
 	bge   a7, t0, k_trap_syscall_unknown
 
 	# Find syscall handler
-	la    t0, __table_syscalls
+	la    t0, k_table_syscalls
 	slli  t1, a7, REGOFF
 	add   t0, t0, t1
 	OP_LD t0, (t0)
