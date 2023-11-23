@@ -33,22 +33,22 @@ void __cpu_set_running(struct __cpu_device *cpu, int r)
 }
 
 
-__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
+k_arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
 {
 	return cpu->regs;
 }
 
-void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs)
+void __cpu_set_user_regs(struct __cpu_device *cpu, k_arch_user_regs_t *regs)
 {
 	cpu->regs = regs;
 }
 
-__arch_user_regs_t *__cpu_get_current_user_regs(void)
+k_arch_user_regs_t *__cpu_get_current_user_regs(void)
 {
 	return __cpu_get_user_regs(__cpu_get_current());
 }
 
-void __cpu_set_current_user_regs(__arch_user_regs_t *regs)
+void __cpu_set_current_user_regs(k_arch_user_regs_t *regs)
 {
 	__cpu_set_user_regs(__cpu_get_current(), regs);
 }
@@ -141,7 +141,7 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 
 int __cpu_get_current_id_phys(void)
 {
-	return __arch_get_cpu_id();
+	return k_arch_get_cpu_id();
 }
 
 struct __cpu_device *__cpu_get_current(void)
@@ -484,7 +484,7 @@ int __cpu_on_sleep(void)
 
 int __cpu_wait_interrupt(void)
 {
-	__arch_wait_interrupt();
+	k_arch_wait_interrupt();
 
 	return 0;
 }

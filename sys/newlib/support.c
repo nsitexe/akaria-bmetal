@@ -21,10 +21,10 @@ int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], ch
 	v = (intptr_t *)sp_user;
 	*v = argc;
 
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, 0);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)_crt_start);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_1, 0);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)_crt_start);
 
 	return 0;
 }

@@ -9,7 +9,7 @@
 
 struct __thread_info;
 
-#define __arch_thread_init        __arch_riscv_thread_init
+#define k_arch_thread_init        k_arch_riscv_thread_init
 
 #endif /* !__ASSEMBLER__ */
 
@@ -19,7 +19,7 @@ struct __thread_info;
 
 #if !defined(__ASSEMBLER__)
 
-int __arch_riscv_thread_init(struct __thread_info *ti);
+int k_arch_riscv_thread_init(struct __thread_info *ti);
 
 #endif /* !__ASSEMBLER__ */
 

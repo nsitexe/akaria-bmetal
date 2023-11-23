@@ -89,7 +89,7 @@ void __thread_idle_main(int leader)
 		}
 
 		/* Switch to task thread from idle thread */
-		__arch_context_switch();
+		k_arch_context_switch();
 	}
 
 	__intr_disable_local();
@@ -139,7 +139,7 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 	ti->ctid = 0;
 	ti->ptid = 0;
 
-	r = __arch_thread_init(ti);
+	r = k_arch_thread_init(ti);
 	if (r) {
 		pri_warn("create_thread: failed to arch_thread_init.\n");
 
@@ -247,16 +247,16 @@ int __thread_context_switch_nolock(void)
 	 *   task thread will be destroy soon and never switch to task again.
 	 */
 	if (ti == ti_idle) {
-		k_memcpy(&ti->regs, cpu->regs, sizeof(__arch_user_regs_t));
+		k_memcpy(&ti->regs, cpu->regs, sizeof(k_arch_user_regs_t));
 	}
 
 	if (ti && ti_task) {
 		/* Switch to task */
-		k_memcpy(cpu->regs, &ti_task->regs, sizeof(__arch_user_regs_t));
+		k_memcpy(cpu->regs, &ti_task->regs, sizeof(k_arch_user_regs_t));
 		__cpu_set_thread(cpu, ti_task);
 	} else {
 		/* Switch to idle */
-		k_memcpy(cpu->regs, &ti_idle->regs, sizeof(__arch_user_regs_t));
+		k_memcpy(cpu->regs, &ti_idle->regs, sizeof(k_arch_user_regs_t));
 		__cpu_set_thread(cpu, ti_idle);
 	}
 

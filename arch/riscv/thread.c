@@ -6,9 +6,9 @@
 #include <bmetal/thread.h>
 #include <bmetal/arch/intr.h>
 
-int __arch_riscv_thread_init(struct __thread_info *ti)
+int k_arch_riscv_thread_init(struct __thread_info *ti)
 {
-	__arch_copy_current_context(&ti->regs);
+	k_arch_copy_current_context(&ti->regs);
 
 	ti->regs.mstatus &= ~XSTATUS_MPP_MASK;
 	ti->regs.mstatus |= XSTATUS_MPP_M;

@@ -35,7 +35,7 @@ struct __thread_info {
 	pid_t *ctid;
 	pid_t *ptid;
 	void *tls;
-	__arch_user_regs_t regs;
+	k_arch_user_regs_t regs;
 
 	struct __cpu_device *cpu;
 };

@@ -155,17 +155,17 @@ static int intc_priv_add(struct __device *dev)
 	priv->hnd_sw.func  = intc_priv_intr;
 	priv->hnd_sw.priv  = priv;
 
-	r = __arch_set_intr_handler(RV_CAUSE_INT_EX, &priv->hnd_ex);
+	r = k_arch_set_intr_handler(RV_CAUSE_INT_EX, &priv->hnd_ex);
 	if (r) {
 		return r;
 	}
 
-	r = __arch_set_intr_handler(RV_CAUSE_INT_TM, &priv->hnd_tm);
+	r = k_arch_set_intr_handler(RV_CAUSE_INT_TM, &priv->hnd_tm);
 	if (r) {
 		return r;
 	}
 
-	r = __arch_set_intr_handler(RV_CAUSE_INT_SW, &priv->hnd_sw);
+	r = k_arch_set_intr_handler(RV_CAUSE_INT_SW, &priv->hnd_sw);
 	if (r) {
 		return r;
 	}

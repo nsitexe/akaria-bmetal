@@ -157,10 +157,10 @@ static int init_idle_thread(struct __cpu_device *cpu, int leader)
 		return -EAGAIN;
 	}
 
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, leader);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_1, leader);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
 
 	__cpu_set_thread_idle(cpu, ti);
 
@@ -447,7 +447,7 @@ void __init_leader(void)
 	dwmb();
 
 	/* Switch to idle/main thread */
-	__arch_context_switch();
+	k_arch_context_switch();
 }
 
 void __fini_leader(int status)
@@ -471,7 +471,7 @@ void __init_child(void)
 	dwmb();
 
 	/* Switch to idle/main thread */
-	__arch_context_switch();
+	k_arch_context_switch();
 }
 
 void __fini_child(int status)

@@ -7,8 +7,8 @@
 
 #if !defined(__ASSEMBLER__)
 
-#ifndef __arch_thread_init
-#  error Please implement arch_thread_init() function.
+#ifndef k_arch_thread_init
+#  error Please implement k_arch_thread_init() function.
 #endif
 
 #endif /* !__ASSEMBLER__ */

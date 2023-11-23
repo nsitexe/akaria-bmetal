@@ -58,7 +58,7 @@ struct __cpu_device {
 	int id_cpu;
 	int id_phys;
 	int running;
-	__arch_user_regs_t *regs;
+	k_arch_user_regs_t *regs;
 	struct __spinlock lock;
 	struct __thread_info *ti;
 	struct __thread_info *ti_idle;
@@ -114,10 +114,10 @@ int __cpu_get_id_phys(struct __cpu_device *cpu);
 int __cpu_get_running(struct __cpu_device *cpu);
 void __cpu_set_running(struct __cpu_device *cpu, int r);
 
-__arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu);
-void __cpu_set_user_regs(struct __cpu_device *cpu, __arch_user_regs_t *regs);
-__arch_user_regs_t *__cpu_get_current_user_regs(void);
-void __cpu_set_current_user_regs(__arch_user_regs_t *regs);
+k_arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu);
+void __cpu_set_user_regs(struct __cpu_device *cpu, k_arch_user_regs_t *regs);
+k_arch_user_regs_t *__cpu_get_current_user_regs(void);
+void __cpu_set_current_user_regs(k_arch_user_regs_t *regs);
 
 int __cpu_lock(struct __cpu_device *cpu);
 int __cpu_unlock(struct __cpu_device *cpu);

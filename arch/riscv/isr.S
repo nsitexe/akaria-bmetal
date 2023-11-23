@@ -106,12 +106,12 @@ __trap_syscall_unknown:
 
 __trap_interrupt:
 	csrr a0, mcause
-	call __arch_riscv_interrupt
+	call k_arch_riscv_interrupt
 	j    __trap_end
 
 __trap_exception:
 	csrr a0, mcause
-	call __arch_riscv_exception
+	call k_arch_riscv_exception
 	j    __trap_end
 
 __trap_end:

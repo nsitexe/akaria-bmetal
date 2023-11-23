@@ -3,14 +3,14 @@
 #include <bmetal/arch/cpu.h>
 #include <bmetal/syscall.h>
 
-.globl __arch_riscv_copy_current_context
-.type __arch_riscv_copy_current_context, @function
-.globl __arch_riscv_context_switch
-.type __arch_riscv_context_switch, @function
+.globl k_arch_riscv_copy_current_context
+.type k_arch_riscv_copy_current_context, @function
+.globl k_arch_riscv_context_switch
+.type k_arch_riscv_context_switch, @function
 
 .section ".text", "ax"
 .align 2
-__arch_riscv_copy_current_context:
+k_arch_riscv_copy_current_context:
 	OP_ST sp, REGOFF_SP(a0)
 
 	OP_CALLER_REGS(OP_ST, a0)
@@ -26,7 +26,7 @@ __arch_riscv_copy_current_context:
 	OP_LD t0, REGOFF_T0(a0)
 
 	ret
-__arch_riscv_context_switch:
+k_arch_riscv_context_switch:
 	li    a7, SYS_context_switch
 	ecall
 	ret

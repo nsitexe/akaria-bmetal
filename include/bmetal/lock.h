@@ -9,7 +9,7 @@
 #if !defined(__ASSEMBLER__)
 
 struct __spinlock {
-	__arch_spinlock_t lock;
+	k_arch_spinlock_t lock;
 };
 
 int __spinlock_init(struct __spinlock *s);

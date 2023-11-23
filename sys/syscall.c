@@ -511,15 +511,15 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	/* Copy user regs to the initial stack of new thread */
 	ti->sp = child_stack;
-	k_memcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
+	k_memcpy(&ti->regs, cpu_cur->regs, sizeof(k_arch_user_regs_t));
 
 	pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
 	/* Return value and stack for new thread */
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_RETVAL, 0);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&__stack_intr[pos_intr]);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_RETVAL, 0);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&__stack_intr[pos_intr]);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
 
 	r = __thread_run(ti, cpu);
 	if (r) {
@@ -759,7 +759,7 @@ intptr_t __sys_exit(int status)
 		return r;
 	}
 
-	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+	k_arch_get_arg(cpu->regs, K_ARCH_ARG_TYPE_RETVAL, &v);
 
 	dwmb();
 	__cpu_unlock(cpu);
@@ -811,7 +811,7 @@ intptr_t __sys_context_switch(void)
 		return r;
 	}
 
-	__arch_get_arg(cpu->regs, __ARCH_ARG_TYPE_RETVAL, &v);
+	k_arch_get_arg(cpu->regs, K_ARCH_ARG_TYPE_RETVAL, &v);
 
 	return v;
 }
