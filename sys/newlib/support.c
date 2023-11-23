@@ -29,25 +29,25 @@ int __init_main_thread_args(struct __thread_info *ti, int argc, char *argv[], ch
 	return 0;
 }
 
-const __syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
-	SYSCALL_P(SYS_uname, __sys_wrap_uname),
-	SYSCALL_P(SYS_getuid, __sys_wrap_getuid),
-	SYSCALL_P(SYS_geteuid, __sys_wrap_geteuid),
-	SYSCALL_P(SYS_getgid, __sys_wrap_getgid),
-	SYSCALL_P(SYS_getegid, __sys_wrap_getegid),
-	SYSCALL_P(SYS_getpid, __sys_wrap_getpid),
-	SYSCALL_P(SYS_gettimeofday, __sys_wrap_gettimeofday),
-	SYSCALL_P(SYS_openat, __sys_wrap_openat),
-	SYSCALL_P(SYS_close, __sys_wrap_close),
-	SYSCALL_P(SYS_read, __sys_wrap_read),
-	SYSCALL_P(SYS_write, __sys_wrap_write),
-	SYSCALL_P(SYS_writev, __sys_wrap_writev),
-	SYSCALL_P(SYS_brk, __sys_wrap_brk),
-	SYSCALL_P(SYS_mmap, __sys_wrap_mmap),
-	SYSCALL_P(SYS_munmap, __sys_wrap_munmap),
-	SYSCALL_P(SYS_exit_group, __sys_wrap_exit_group),
-	SYSCALL_P(SYS_exit, __sys_wrap_exit),
+const k_syscall_func_t __table_syscalls[MAX_SYSCALLS] = {
+	SYSCALL_P(SYS_uname, k_sys_wrap_uname),
+	SYSCALL_P(SYS_getuid, k_sys_wrap_getuid),
+	SYSCALL_P(SYS_geteuid, k_sys_wrap_geteuid),
+	SYSCALL_P(SYS_getgid, k_sys_wrap_getgid),
+	SYSCALL_P(SYS_getegid, k_sys_wrap_getegid),
+	SYSCALL_P(SYS_getpid, k_sys_wrap_getpid),
+	SYSCALL_P(SYS_gettimeofday, k_sys_wrap_gettimeofday),
+	SYSCALL_P(SYS_openat, k_sys_wrap_openat),
+	SYSCALL_P(SYS_close, k_sys_wrap_close),
+	SYSCALL_P(SYS_read, k_sys_wrap_read),
+	SYSCALL_P(SYS_write, k_sys_wrap_write),
+	SYSCALL_P(SYS_writev, k_sys_wrap_writev),
+	SYSCALL_P(SYS_brk, k_sys_wrap_brk),
+	SYSCALL_P(SYS_mmap, k_sys_wrap_mmap),
+	SYSCALL_P(SYS_munmap, k_sys_wrap_munmap),
+	SYSCALL_P(SYS_exit_group, k_sys_wrap_exit_group),
+	SYSCALL_P(SYS_exit, k_sys_wrap_exit),
 
 	/* system dependent */
-	SYSCALL_P(SYS_context_switch, __sys_wrap_context_switch),
+	SYSCALL_P(SYS_context_switch, k_sys_wrap_context_switch),
 };

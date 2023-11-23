@@ -101,7 +101,7 @@ __trap_syscall_unknown:
 	mv    a2, a1
 	mv    a1, a0
 	mv    a0, a7
-	call  __sys_unknown
+	call  k_sys_unknown
 	j     __trap_syscall_end
 
 __trap_interrupt:

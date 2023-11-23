@@ -33,21 +33,21 @@ static const struct new_utsname uname = {
 	.domainname = "",
 };
 
-intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
+intptr_t k_sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
 	pri_info("%d: unknown syscall %"PRIdPTR"\n", __cpu_get_current_id_phys(), number);
 
 	return -ENOTSUP;
 }
 
-intptr_t __sys_uname(struct new_utsname *name)
+intptr_t k_sys_uname(struct new_utsname *name)
 {
 	k_memcpy(name, &uname, sizeof(uname));
 
 	return 0;
 }
 
-intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim, struct rlimit64 *old_lim)
+intptr_t k_sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim, struct rlimit64 *old_lim)
 {
 	struct rlimit64 old;
 
@@ -73,37 +73,37 @@ intptr_t __sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim
 	return 0;
 }
 
-intptr_t __sys_getuid(void)
+intptr_t k_sys_getuid(void)
 {
 	return 0;
 }
 
-intptr_t __sys_geteuid(void)
+intptr_t k_sys_geteuid(void)
 {
 	return 0;
 }
 
-intptr_t __sys_getgid(void)
+intptr_t k_sys_getgid(void)
 {
 	return 0;
 }
 
-intptr_t __sys_getegid(void)
+intptr_t k_sys_getegid(void)
 {
 	return 0;
 }
 
-intptr_t __sys_getpid(void)
+intptr_t k_sys_getpid(void)
 {
 	return __proc_get_pid();
 }
 
-intptr_t __sys_gettid(void)
+intptr_t k_sys_gettid(void)
 {
 	return __thread_get_tid();
 }
 
-intptr_t __sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
+intptr_t k_sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
 {
 	struct timespec64 *tp64 = NULL, tmp;
 	int r;
@@ -114,7 +114,7 @@ intptr_t __sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
 		tp64 = &tmp;
 	}
 
-	r = __sys_clock_gettime64(clock_id, tp64);
+	r = k_sys_clock_gettime64(clock_id, tp64);
 
 	if (tp) {
 		tp->tv_sec = tmp.tv_sec;
@@ -124,7 +124,7 @@ intptr_t __sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
 	return r;
 }
 
-intptr_t __sys_clock_settime32(clockid_t clock_id, const struct timespec32 *tp)
+intptr_t k_sys_clock_settime32(clockid_t clock_id, const struct timespec32 *tp)
 {
 	struct timespec64 *tp64 = NULL, tmp;
 
@@ -134,10 +134,10 @@ intptr_t __sys_clock_settime32(clockid_t clock_id, const struct timespec32 *tp)
 		tp64 = &tmp;
 	}
 
-	return __sys_clock_settime64(clock_id, tp64);
+	return k_sys_clock_settime64(clock_id, tp64);
 }
 
-intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
+intptr_t k_sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 {
 	int r = 0;
 
@@ -160,7 +160,7 @@ intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 	return r;
 }
 
-intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
+intptr_t k_sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 {
 	int r = 0;
 
@@ -180,7 +180,7 @@ intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 	return r;
 }
 
-intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp)
+intptr_t k_sys_gettimeofday(struct timeval *tp, void *tzp)
 {
 	struct timespec64 tsp;
 	int r;
@@ -200,7 +200,7 @@ intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp)
 	return 0;
 }
 
-intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp)
+intptr_t k_sys_settimeofday(const struct timeval *tp, const void *tzp)
 {
 	struct timespec64 tsp;
 	int r;
@@ -220,7 +220,7 @@ intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp)
 	return 0;
 }
 
-intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags)
+intptr_t k_sys_getrandom(void *buf, size_t buflen, unsigned int flags)
 {
 	if (!buf || buflen == 0) {
 		return -EINVAL;
@@ -236,14 +236,14 @@ intptr_t __sys_getrandom(void *buf, size_t buflen, unsigned int flags)
 	return 0;
 }
 
-intptr_t __sys_openat(int dirfd, const char *pathname, int flags, mode_t mode)
+intptr_t k_sys_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 {
 	pri_dbg("sys_openat: %d, %s\n", dirfd, pathname);
 
 	return -ENOTSUP;
 }
 
-intptr_t __sys_close(int fd)
+intptr_t k_sys_close(int fd)
 {
 	struct __file_desc *desc = __file_get_desc(fd);
 	int ret = 0;
@@ -261,7 +261,7 @@ intptr_t __sys_close(int fd)
 	return ret;
 }
 
-intptr_t __sys_read(int fd, void *buf, size_t count)
+intptr_t k_sys_read(int fd, void *buf, size_t count)
 {
 	struct __file_desc *desc = __file_get_desc(fd);
 
@@ -274,7 +274,7 @@ intptr_t __sys_read(int fd, void *buf, size_t count)
 	return __file_read(desc, buf, count);
 }
 
-intptr_t __sys_write(int fd, const void *buf, size_t count)
+intptr_t k_sys_write(int fd, const void *buf, size_t count)
 {
 	struct __file_desc *desc = __file_get_desc(fd);
 
@@ -287,7 +287,7 @@ intptr_t __sys_write(int fd, const void *buf, size_t count)
 	return __file_write(desc, buf, count);
 }
 
-intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
+intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 {
 	struct __file_desc *desc = __file_get_desc(fd);
 	ssize_t ret = 0, wr;
@@ -327,7 +327,7 @@ intptr_t __sys_writev(int fd, const struct iovec *iov, int iovcnt)
 	return ret;
 }
 
-intptr_t __sys_brk(void *addr)
+intptr_t k_sys_brk(void *addr)
 {
 	char *caddr = (char *)addr;
 	char *brk_cur = __mem_brk_get_cur();
@@ -356,7 +356,7 @@ intptr_t __sys_brk(void *addr)
 	return PTR_TO_INT(addr);
 }
 
-intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
+intptr_t k_sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
 {
 	void *anon_ptr;
 	int flags_req = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -395,7 +395,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	return PTR_TO_INT(anon_ptr);
 }
 
-intptr_t __sys_munmap(void *addr, size_t length)
+intptr_t k_sys_munmap(void *addr, size_t length)
 {
 	if (addr < __mem_heap_area_start() || __mem_heap_area_end() < addr + length) {
 		return -EINVAL;
@@ -406,7 +406,7 @@ intptr_t __sys_munmap(void *addr, size_t length)
 	return 0;
 }
 
-intptr_t __sys_madvise(void *addr, size_t length, int advice)
+intptr_t k_sys_madvise(void *addr, size_t length, int advice)
 {
 	switch (advice) {
 	case MADV_DONTNEED:
@@ -430,14 +430,14 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 	return 0;
 }
 
-intptr_t __sys_mprotect(void *addr, size_t length, int prot)
+intptr_t k_sys_mprotect(void *addr, size_t length, int prot)
 {
 	pri_info("sys_mprotect: ignore mprotect.\n");
 
 	return 0;
 }
 
-intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
+intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
 {
 	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
 	struct __proc_info *pi = __proc_get_current();
@@ -549,7 +549,7 @@ err_out:
 	return r;
 }
 
-intptr_t __sys_futex32(int *uaddr, int op, int val, const struct timespec32 *timeout, int *uaddr2, int val3)
+intptr_t k_sys_futex32(int *uaddr, int op, int val, const struct timespec32 *timeout, int *uaddr2, int val3)
 {
 	int cmd = op & FUTEX_MASK;
 	const struct timespec64 *ts = NULL;
@@ -561,10 +561,10 @@ intptr_t __sys_futex32(int *uaddr, int op, int val, const struct timespec32 *tim
 		ts = &tmp;
 	}
 
-	return __sys_futex64(uaddr, op, val, ts, uaddr2, val3);
+	return k_sys_futex64(uaddr, op, val, ts, uaddr2, val3);
 }
 
-intptr_t __sys_futex64(int *uaddr, int op, int val, const struct timespec64 *timeout, int *uaddr2, int val3)
+intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *timeout, int *uaddr2, int val3)
 {
 	int cmd = op & FUTEX_MASK;
 	int ret = 0, r;
@@ -630,7 +630,7 @@ err_out:
 	return ret;
 }
 
-intptr_t __sys_set_robust_list(void *head, size_t len)
+intptr_t k_sys_set_robust_list(void *head, size_t len)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
@@ -651,7 +651,7 @@ intptr_t __sys_set_robust_list(void *head, size_t len)
 	return 0;
 }
 
-intptr_t __sys_set_tid_address(int *tidptr)
+intptr_t k_sys_set_tid_address(int *tidptr)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	struct __thread_info *ti;
@@ -669,7 +669,7 @@ intptr_t __sys_set_tid_address(int *tidptr)
 	return ti->tid;
 }
 
-intptr_t __sys_exit_group(int status)
+intptr_t k_sys_exit_group(int status)
 {
 	struct __proc_info *pi = __proc_get_current();
 	struct __cpu_device *cur = __cpu_get_current();
@@ -686,7 +686,7 @@ intptr_t __sys_exit_group(int status)
 
 	if (__proc_get_leader(pi) != ti) {
 		__cpu_unlock(cur);
-		return __sys_exit(status);
+		return k_sys_exit(status);
 	}
 
 	__cpu_unlock(cur);
@@ -707,10 +707,10 @@ intptr_t __sys_exit_group(int status)
 		}
 	}
 
-	return __sys_exit(status);
+	return k_sys_exit(status);
 }
 
-intptr_t __sys_exit(int status)
+intptr_t k_sys_exit(int status)
 {
 	struct __proc_info *pi = __proc_get_current();
 	struct __cpu_device *cpu = __cpu_get_current();
@@ -774,7 +774,7 @@ intptr_t __sys_exit(int status)
 	return v;
 }
 
-intptr_t __sys_reboot(int magic1, int magic2, int cmd)
+intptr_t k_sys_reboot(int magic1, int magic2, int cmd)
 {
 	if (magic1 != REBOOT_MAGIC1 ||
 	    magic2 != REBOOT_MAGIC2) {
@@ -798,7 +798,7 @@ intptr_t __sys_reboot(int magic1, int magic2, int cmd)
 	return 0;
 }
 
-intptr_t __sys_context_switch(void)
+intptr_t k_sys_context_switch(void)
 {
 	struct __cpu_device *cpu = __cpu_get_current();
 	uintptr_t v;

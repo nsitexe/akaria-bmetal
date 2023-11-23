@@ -14,55 +14,55 @@
 #include <bmetal/sys/time.h>
 #include <bmetal/sys/uio.h>
 
-#define SYSCALL_P(num, func)    [(num)] = (__syscall_func_t)(func)
+#define SYSCALL_P(num, func)    [(num)] = (k_syscall_func_t)(func)
 
 #define SYSCALL_WRAP0(name) \
-	intptr_t __sys_##name(void); \
-	static inline intptr_t __sys_wrap_##name(void) \
+	intptr_t k_sys_##name(void); \
+	static inline intptr_t k_sys_wrap_##name(void) \
 	{ \
-		return __sys_##name(); \
+		return k_sys_##name(); \
 	}
 
 #define SYSCALL_WRAP1(name, t1, a1) \
-	intptr_t __sys_##name(t1 a1); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1) \
+	intptr_t k_sys_##name(t1 a1); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1) \
 	{ \
-		return __sys_##name((t1)a1); \
+		return k_sys_##name((t1)a1); \
 	}
 
 #define SYSCALL_WRAP2(name, t1, a1, t2, a2) \
-	intptr_t __sys_##name(t1 a1, t2 a2); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1, intptr_t a2) \
+	intptr_t k_sys_##name(t1 a1, t2 a2); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1, intptr_t a2) \
 	{ \
-		return __sys_##name((t1)a1, (t2)a2); \
+		return k_sys_##name((t1)a1, (t2)a2); \
 	}
 
 #define SYSCALL_WRAP3(name, t1, a1, t2, a2, t3, a3) \
-	intptr_t __sys_##name(t1 a1, t2 a2, t3 a3); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3) \
+	intptr_t k_sys_##name(t1 a1, t2 a2, t3 a3); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3) \
 	{ \
-		return __sys_##name((t1)a1, (t2)a2, (t3)a3); \
+		return k_sys_##name((t1)a1, (t2)a2, (t3)a3); \
 	}
 
 #define SYSCALL_WRAP4(name, t1, a1, t2, a2, t3, a3, t4, a4) \
-	intptr_t __sys_##name(t1 a1, t2 a2, t3 a3, t4 a4); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4) \
+	intptr_t k_sys_##name(t1 a1, t2 a2, t3 a3, t4 a4); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4) \
 	{ \
-		return __sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4); \
+		return k_sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4); \
 	}
 
 #define SYSCALL_WRAP5(name, t1, a1, t2, a2, t3, a3, t4, a4, t5, a5) \
-	intptr_t __sys_##name(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4, intptr_t a5) \
+	intptr_t k_sys_##name(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4, intptr_t a5) \
 	{ \
-		return __sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4, (t5)a5); \
+		return k_sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4, (t5)a5); \
 	}
 
 #define SYSCALL_WRAP6(name, t1, a1, t2, a2, t3, a3, t4, a4, t5, a5, t6, a6) \
-	intptr_t __sys_##name(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5, t6 a6); \
-	static inline intptr_t __sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4, intptr_t a5, intptr_t a6) \
+	intptr_t k_sys_##name(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5, t6 a6); \
+	static inline intptr_t k_sys_wrap_##name(intptr_t a1, intptr_t a2, intptr_t a3, intptr_t a4, intptr_t a5, intptr_t a6) \
 	{ \
-		return __sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4, (t5)a5, (t6)a6); \
+		return k_sys_##name((t1)a1, (t2)a2, (t3)a3, (t4)a4, (t5)a5, (t6)a6); \
 	}
 
 #define __NEW_UTS_LEN 64
@@ -78,9 +78,9 @@ struct new_utsname {
 	char domainname[__NEW_UTS_LEN + 1];
 };
 
-typedef intptr_t (*__syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
+typedef intptr_t (*k_syscall_func_t)(intptr_t no, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
 
-intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
+intptr_t k_sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f);
 
 SYSCALL_WRAP1(uname, struct new_utsname *, name);
 SYSCALL_WRAP4(prlimit64, pid_t, pid, int, resource, const struct rlimit64 *, new_lim, struct rlimit64 *, old_lim);
