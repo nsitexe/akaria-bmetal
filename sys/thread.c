@@ -14,11 +14,11 @@
 static struct __proc_info __pi;
 /* Each CPU has 2 threads (idle and task) */
 static struct __thread_info __ti[CONFIG_NUM_CORES * 2];
-static __atomic_int uniq_tid = 1;
+static k_atomic_int uniq_tid = 1;
 
 static int alloc_tid(void)
 {
-	return __afetch_add(&uniq_tid, 1);
+	return k_afetch_add(&uniq_tid, 1);
 }
 
 struct __proc_info *__proc_create(void)

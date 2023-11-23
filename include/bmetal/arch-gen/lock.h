@@ -10,7 +10,7 @@
 
 #ifndef k_arch_spinlock_t
 typedef struct k_arch_gen_spinlock {
-	__atomic_int val;
+	k_atomic_int val;
 	int id;
 } k_arch_gen_spinlock_t;
 #define k_arch_spinlock_t    k_arch_gen_spinlock_t

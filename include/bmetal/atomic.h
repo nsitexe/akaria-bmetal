@@ -18,41 +18,41 @@
 
 #if defined(CONFIG_ATOMIC)
 
-typedef atomic_int __atomic_int;
-typedef atomic_long __atomic_long;
+typedef atomic_int k_atomic_int;
+typedef atomic_long k_atomic_long;
 
-#define __aload_add_explicit(obj, ord)    atomic_load_add_explicit(obj, ord)
-#define __aload_add(obj)                  atomic_load_add(obj)
-#define __astore_explicit(obj, arg, ord)    atomic_store_explicit(obj, arg, ord)
-#define __astore(obj, arg)                  atomic_store(obj, arg)
-#define __aexchange_explicit(obj, arg, ord)    atomic_exchange_explicit(obj, arg, ord)
-#define __aexchange(obj, arg)                  atomic_exchange(obj, arg)
-#define __afetch_add_explicit(obj, arg, ord)    atomic_fetch_add_explicit(obj, arg, ord)
-#define __afetch_add(obj, arg)                  atomic_fetch_add(obj, arg)
+#define k_aload_add_explicit(obj, ord)          atomic_load_add_explicit(obj, ord)
+#define k_aload_add(obj)                        atomic_load_add(obj)
+#define k_astore_explicit(obj, arg, ord)        atomic_store_explicit(obj, arg, ord)
+#define k_astore(obj, arg)                      atomic_store(obj, arg)
+#define k_aexchange_explicit(obj, arg, ord)     atomic_exchange_explicit(obj, arg, ord)
+#define k_aexchange(obj, arg)                   atomic_exchange(obj, arg)
+#define k_afetch_add_explicit(obj, arg, ord)    atomic_fetch_add_explicit(obj, arg, ord)
+#define k_afetch_add(obj, arg)                  atomic_fetch_add(obj, arg)
 
 #else /* CONFIG_ATOMIC */
 
-typedef volatile int __atomic_int;
-typedef volatile long __atomic_long;
+typedef volatile int k_atomic_int;
+typedef volatile long k_atomic_long;
 
-#define __aload_explicit(obj, arg, ord)    __aload(obj)
-#define __astore_explicit(obj, arg, ord)    __astore(obj, arg)
-#define __aexchange_explicit(obj, arg, ord)    __aexchange(obj, arg)
-#define __afetch_add_explicit(obj, arg, ord)    __afetch_add(obj, arg)
+#define k_aload_explicit(obj, arg, ord)         k_aload(obj)
+#define k_astore_explicit(obj, arg, ord)        k_astore(obj, arg)
+#define k_aexchange_explicit(obj, arg, ord)     k_aexchange(obj, arg)
+#define k_afetch_add_explicit(obj, arg, ord)    k_afetch_add(obj, arg)
 
-static inline int __aload(__atomic_int *obj)
+static inline int k_aload(k_atomic_int *obj)
 {
 	return *obj;
 }
 
-static inline int __astore(__atomic_int *obj, int arg)
+static inline int k_astore(k_atomic_int *obj, int arg)
 {
 	*obj = arg;
 
 	return *obj;
 }
 
-static inline int __aexchange(__atomic_int *obj, int arg)
+static inline int k_aexchange(k_atomic_int *obj, int arg)
 {
 	int tmp = *obj;
 
@@ -61,7 +61,7 @@ static inline int __aexchange(__atomic_int *obj, int arg)
 	return tmp;
 }
 
-static inline int __afetch_add(__atomic_int *obj, int arg)
+static inline int k_afetch_add(k_atomic_int *obj, int arg)
 {
 	*obj += arg;
 

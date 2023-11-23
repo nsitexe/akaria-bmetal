@@ -48,7 +48,7 @@ int k_arch_gen_spinlock_trylock(k_arch_spinlock_t *lock)
 {
 	int tmp = 1, val;
 
-	val = __aexchange(&lock->val, tmp);
+	val = k_aexchange(&lock->val, tmp);
 
 	return val;
 }
@@ -56,7 +56,7 @@ int k_arch_gen_spinlock_trylock(k_arch_spinlock_t *lock)
 int k_arch_gen_spinlock_unlock(k_arch_spinlock_t *lock)
 {
 	lock->id = -1;
-	__astore(&lock->val, 0);
+	k_astore(&lock->val, 0);
 
 	return 0;
 }
