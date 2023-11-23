@@ -5,27 +5,27 @@
 #include <bmetal/drivers/reset.h>
 #include <bmetal/device.h>
 
-static struct __reset_device *reset_system;
+static struct k_reset_device *reset_system;
 
-struct __reset_device *__reset_get_system(void)
+struct k_reset_device *k_reset_get_system(void)
 {
 	return reset_system;
 }
 
-int __reset_set_system(struct __reset_device *reset)
+int k_reset_set_system(struct k_reset_device *reset)
 {
 	reset_system = reset;
 
 	return 0;
 }
 
-int __reset_add_device(struct __reset_device *reset, struct __bus *parent)
+int k_reset_add_device(struct k_reset_device *reset, struct __bus *parent)
 {
-	struct __device *dev = __reset_to_dev(reset);
+	struct __device *dev = k_reset_to_dev(reset);
 	uint32_t val;
 	int r;
 
-	r = __device_add(__reset_to_dev(reset), parent);
+	r = __device_add(k_reset_to_dev(reset), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
@@ -36,13 +36,13 @@ int __reset_add_device(struct __reset_device *reset, struct __bus *parent)
 		val = 0;
 	}
 	if (val) {
-		__reset_set_system(reset);
+		k_reset_set_system(reset);
 	}
 
 	return 0;
 }
 
-int __reset_remove_device(struct __reset_device *reset)
+int k_reset_remove_device(struct k_reset_device *reset)
 {
-	return __device_remove(__reset_to_dev(reset));
+	return __device_remove(k_reset_to_dev(reset));
 }

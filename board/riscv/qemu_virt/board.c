@@ -146,8 +146,8 @@ const static struct __device_config reset0_conf[] = {
 	{0},
 };
 
-static __reset_priv_t reset0_priv;
-static struct __reset_device reset0 = {
+static k_reset_priv_t reset0_priv;
+static struct k_reset_device reset0 = {
 	.base = {
 		.name = "reset0",
 		.type_vendor = "sifive",
@@ -212,7 +212,7 @@ static int board_qemu_virt_init(void)
 	k_intc_add_device(&clint, __bus_get_root());
 	k_clk_add_device(&rtcclk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
-	__reset_add_device(&reset0, __bus_get_root());
+	k_reset_add_device(&reset0, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 
 	return 0;

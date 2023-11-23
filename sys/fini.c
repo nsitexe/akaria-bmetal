@@ -9,8 +9,8 @@
 
 int k_fini_reboot(void)
 {
-	struct __reset_device *rst = __reset_get_system();
-	const struct __reset_driver *drv = __reset_get_drv(rst);
+	struct k_reset_device *rst = k_reset_get_system();
+	const struct k_reset_driver *drv = k_reset_get_drv(rst);
 	int r;
 
 	if (!rst) {
@@ -30,8 +30,8 @@ int k_fini_reboot(void)
 
 int k_fini_power_off(void)
 {
-	struct __reset_device *rst = __reset_get_system();
-	const struct __reset_driver *drv = __reset_get_drv(rst);
+	struct k_reset_device *rst = k_reset_get_system();
+	const struct k_reset_driver *drv = k_reset_get_drv(rst);
 	int r;
 
 	if (!rst) {

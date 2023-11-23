@@ -17,27 +17,27 @@ struct reset_sifive_qemu_test_priv {
 };
 CHECK_PRIV_SIZE_RESET(struct reset_sifive_qemu_test_priv);
 
-static int reset_sifive_qemu_test_reboot(struct __reset_device *reset)
+static int reset_sifive_qemu_test_reboot(struct k_reset_device *reset)
 {
-	struct __device *d = __reset_to_dev(reset);
+	struct __device *d = k_reset_to_dev(reset);
 
 	__device_write32(d, FINISH_RESET, REG_FINISH);
 
 	return 0;
 }
 
-static int reset_sifive_qemu_test_shutdown(struct __reset_device *reset)
+static int reset_sifive_qemu_test_shutdown(struct k_reset_device *reset)
 {
-	struct __device *d = __reset_to_dev(reset);
+	struct __device *d = k_reset_to_dev(reset);
 
 	__device_write32(d, FINISH_PASS, REG_FINISH);
 
 	return 0;
 }
 
-static int reset_sifive_qemu_test_power_off(struct __reset_device *reset)
+static int reset_sifive_qemu_test_power_off(struct k_reset_device *reset)
 {
-	struct __device *d = __reset_to_dev(reset);
+	struct __device *d = k_reset_to_dev(reset);
 
 	__device_write32(d, FINISH_PASS, REG_FINISH);
 
@@ -46,7 +46,7 @@ static int reset_sifive_qemu_test_power_off(struct __reset_device *reset)
 
 static int reset_sifive_qemu_test_add(struct __device *dev)
 {
-	//struct __reset_device *reset = __reset_from_dev(dev);
+	//struct k_reset_device *reset = k_reset_from_dev(dev);
 	struct reset_sifive_qemu_test_priv *priv = dev->priv;
 	int r;
 
@@ -76,13 +76,13 @@ const static struct __device_driver_ops sifive_qemu_test_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __reset_driver_ops sifive_qemu_test_reset_ops = {
+const static struct k_reset_driver_ops sifive_qemu_test_reset_ops = {
 	.reboot = reset_sifive_qemu_test_reboot,
 	.shutdown = reset_sifive_qemu_test_shutdown,
 	.power_off = reset_sifive_qemu_test_power_off,
 };
 
-static struct __reset_driver sifive_qemu_test_drv = {
+static struct k_reset_driver sifive_qemu_test_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "sifive",
@@ -97,7 +97,7 @@ static struct __reset_driver sifive_qemu_test_drv = {
 
 static int reset_sifive_qemu_test_init(void)
 {
-	__reset_add_driver(&sifive_qemu_test_drv);
+	k_reset_add_driver(&sifive_qemu_test_drv);
 
 	return 0;
 }
