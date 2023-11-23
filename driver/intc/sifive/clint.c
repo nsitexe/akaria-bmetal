@@ -16,14 +16,14 @@
 #define REG_MSIP(hart)        (0x0000 + (hart) * 4)
 
 struct intc_clint_priv {
-	struct __intc_device *intc;
+	struct k_intc_device *intc;
 };
 CHECK_PRIV_SIZE_INTC(struct intc_clint_priv);
 
 static int intc_clint_intr(int event, struct __event_handler *hnd)
 {
 	struct intc_clint_priv *priv = hnd->priv;
-	struct __device *dev = __intc_to_dev(priv->intc);
+	struct __device *dev = k_intc_to_dev(priv->intc);
 	int id_phys = k_cpu_get_current_id_phys();
 	int res = EVENT_NOT_HANDLED;
 
@@ -42,8 +42,8 @@ static int intc_clint_intr(int event, struct __event_handler *hnd)
 static int intc_clint_add(struct __device *dev)
 {
 	struct intc_clint_priv *priv = dev->priv;
-	struct __intc_device *intc = __intc_from_dev(dev);
-	struct __intc_device *intc_parent;
+	struct k_intc_device *intc = k_intc_from_dev(dev);
+	struct k_intc_device *intc_parent;
 	int len, num_irq, r;
 
 	if (priv == NULL) {
@@ -58,7 +58,7 @@ static int intc_clint_add(struct __device *dev)
 		return r;
 	}
 
-	r = __intc_get_conf_length(dev, &len);
+	r = k_intc_get_conf_length(dev, &len);
 	if (r) {
 		return r;
 	}
@@ -66,7 +66,7 @@ static int intc_clint_add(struct __device *dev)
 	for (int i = 0; i < len; i++) {
 		struct __event_handler *hnd;
 
-		r = __intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
+		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
@@ -79,7 +79,7 @@ static int intc_clint_add(struct __device *dev)
 		hnd->func = intc_clint_intr;
 		hnd->priv = priv;
 
-		r = __intc_add_handler(intc_parent, num_irq, hnd);
+		r = k_intc_add_handler(intc_parent, num_irq, hnd);
 		if (r) {
 			return r;
 		}
@@ -99,9 +99,9 @@ const static struct __device_driver_ops intc_clint_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-static int intc_clint_raise_ipi(struct __intc_device *intc, struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
+static int intc_clint_raise_ipi(struct k_intc_device *intc, struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	int id_cur = k_cpu_get_current_id_phys();
 	int id_dest = k_cpu_get_id_phys(dest);
 
@@ -116,11 +116,11 @@ static int intc_clint_raise_ipi(struct __intc_device *intc, struct k_cpu_device 
 	return 0;
 }
 
-const static struct __intc_driver_ops intc_clint_intc_ops = {
+const static struct k_intc_driver_ops intc_clint_intc_ops = {
 	.raise_ipi = intc_clint_raise_ipi,
 };
 
-static struct __intc_driver intc_clint_drv = {
+static struct k_intc_driver intc_clint_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "sifive",
@@ -135,7 +135,7 @@ static struct __intc_driver intc_clint_drv = {
 
 static int intc_clint_init(void)
 {
-	__intc_add_driver(&intc_clint_drv);
+	k_intc_add_driver(&intc_clint_drv);
 
 	return 0;
 }

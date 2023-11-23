@@ -8,24 +8,24 @@
 #include <bmetal/drivers/cpu.h>
 #include <bmetal/sys/errno.h>
 
-static struct __intc_device *intc_ipi;
+static struct k_intc_device *intc_ipi;
 
-static struct __intc_device *intc_get_ipi(void)
+static struct k_intc_device *intc_get_ipi(void)
 {
 	return intc_ipi;
 }
 
-int __intc_set_ipi(struct __intc_device *intc)
+int k_intc_set_ipi(struct k_intc_device *intc)
 {
 	intc_ipi = intc;
 
 	return 0;
 }
 
-int __intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
+int k_intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
 {
-	struct __intc_device *intc = intc_get_ipi();
-	const struct __intc_driver *drv = __intc_get_drv(intc);
+	struct k_intc_device *intc = intc_get_ipi();
+	const struct k_intc_driver *drv = k_intc_get_drv(intc);
 	int r;
 
 	if (!intc) {
@@ -36,20 +36,20 @@ int __intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *
 	if (drv && drv->ops && drv->ops->raise_ipi) {
 		r = drv->ops->raise_ipi(intc, src, dest, arg);
 		if (r) {
-			__dev_err(__intc_to_dev(intc), "failed to raise IPI.\n");
+			__dev_err(k_intc_to_dev(intc), "failed to raise IPI.\n");
 			return r;
 		}
 	} else {
-		__dev_err(__intc_to_dev(intc), "not supported to raise IPI.\n");
+		__dev_err(k_intc_to_dev(intc), "not supported to raise IPI.\n");
 		return -ENOTSUP;
 	}
 
 	return 0;
 }
 
-int __intc_add_device(struct __intc_device *intc, struct __bus *parent)
+int k_intc_add_device(struct k_intc_device *intc, struct __bus *parent)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	uint32_t val;
 	int r;
 
@@ -64,20 +64,20 @@ int __intc_add_device(struct __intc_device *intc, struct __bus *parent)
 		val = 0;
 	}
 	if (val) {
-		__intc_set_ipi(intc);
+		k_intc_set_ipi(intc);
 	}
 
 	return 0;
 }
 
-int __intc_remove_device(struct __intc_device *intc)
+int k_intc_remove_device(struct k_intc_device *intc)
 {
-	return __device_remove(__intc_to_dev(intc));
+	return __device_remove(k_intc_to_dev(intc));
 }
 
-int __intc_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+int k_intc_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	const struct __intc_driver *drv = __intc_get_drv(intc);
+	const struct k_intc_driver *drv = k_intc_get_drv(intc);
 	int r = -ENODEV;
 
 	if (!handler || !handler->func) {
@@ -94,9 +94,9 @@ int __intc_add_handler(struct __intc_device *intc, int event, struct __event_han
 	return r;
 }
 
-int __intc_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+int k_intc_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	const struct __intc_driver *drv = __intc_get_drv(intc);
+	const struct k_intc_driver *drv = k_intc_get_drv(intc);
 	int r = -ENODEV;
 
 	if (!handler || !handler->func) {
@@ -113,7 +113,7 @@ int __intc_remove_handler(struct __intc_device *intc, int event, struct __event_
 	return r;
 }
 
-int __intc_get_conf_length(struct __device *dev, int *len)
+int k_intc_get_conf_length(struct __device *dev, int *len)
 {
 	int v, r;
 
@@ -130,7 +130,7 @@ int __intc_get_conf_length(struct __device *dev, int *len)
 	return 0;
 }
 
-int __intc_get_intc_from_config(struct __device *dev, int index, struct __intc_device **intc, int *num_irq)
+int k_intc_get_intc_from_config(struct __device *dev, int index, struct k_intc_device **intc, int *num_irq)
 {
 	const char *intc_name;
 	struct __device *tmp;
@@ -157,7 +157,7 @@ int __intc_get_intc_from_config(struct __device *dev, int index, struct __intc_d
 	}
 
 	if (intc) {
-		*intc = __intc_from_dev(tmp);
+		*intc = k_intc_from_dev(tmp);
 	}
 	if (num_irq) {
 		*num_irq = val;

@@ -71,8 +71,8 @@ const static struct __device_config rvintc_conf[][2] = {
 	INTC_CONF(4),
 };
 
-static __intc_priv_t rvintc_priv[5];
-static struct __intc_device rvintc[] = {
+static k_intc_priv_t rvintc_priv[5];
+static struct k_intc_device rvintc[] = {
 	INTC_DEVICE(0, 0),
 	INTC_DEVICE(1, 1),
 	INTC_DEVICE(2, 2),
@@ -95,8 +95,8 @@ const static struct __device_config clint_conf[] = {
 	{0},
 };
 
-static __intc_priv_t clint_priv;
-static struct __intc_device clint = {
+static k_intc_priv_t clint_priv;
+static struct k_intc_device clint = {
 	.base = {
 		.name = "clint",
 		.type_vendor = "sifive",
@@ -118,8 +118,8 @@ const static struct __device_config plic_conf[] = {
 	{0},
 };
 
-static __intc_priv_t plic_priv;
-static struct __intc_device plic = {
+static k_intc_priv_t plic_priv;
+static struct k_intc_device plic = {
 	.base = {
 		.name = "plic",
 		.type_vendor = "sifive",
@@ -250,10 +250,10 @@ static int board_hifive_unleashed_init(void)
 {
 	for (int i = 0; i < ARRAY_OF(cpu); i++) {
 		k_cpu_add_device(&cpu[i], __bus_get_root());
-		__intc_add_device(&rvintc[i], __bus_get_root());
+		k_intc_add_device(&rvintc[i], __bus_get_root());
 	}
-	__intc_add_device(&clint, __bus_get_root());
-	__intc_add_device(&plic, __bus_get_root());
+	k_intc_add_device(&clint, __bus_get_root());
+	k_intc_add_device(&plic, __bus_get_root());
 	k_clk_add_device(&hfclk, __bus_get_root());
 	k_clk_add_device(&rtcclk, __bus_get_root());
 	k_clk_add_device(&prci, __bus_get_root());

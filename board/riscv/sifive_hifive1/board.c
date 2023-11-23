@@ -29,8 +29,8 @@ const static struct __device_config rvintc0_conf[] = {
 	{0},
 };
 
-static __intc_priv_t rvintc0_priv;
-static struct __intc_device rvintc0 = {
+static k_intc_priv_t rvintc0_priv;
+static struct k_intc_device rvintc0 = {
 	.base = {
 		.name = "rvintc0",
 		.type_vendor = "riscv",
@@ -49,8 +49,8 @@ const static struct __device_config clint_conf[] = {
 	{0},
 };
 
-static __intc_priv_t clint_priv;
-static struct __intc_device clint = {
+static k_intc_priv_t clint_priv;
+static struct k_intc_device clint = {
 	.base = {
 		.name = "clint",
 		.type_vendor = "sifive",
@@ -154,8 +154,8 @@ static struct __uart_device uart1 = {
 static int board_hifive1_init(void)
 {
 	k_cpu_add_device(&cpu0, __bus_get_root());
-	__intc_add_device(&rvintc0, __bus_get_root());
-	__intc_add_device(&clint, __bus_get_root());
+	k_intc_add_device(&rvintc0, __bus_get_root());
+	k_intc_add_device(&clint, __bus_get_root());
 	k_clk_add_device(&lfclk, __bus_get_root());
 	k_clk_add_device(&hfclk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());

@@ -171,7 +171,7 @@ static int timer_clint_add(struct __device *dev)
 {
 	struct timer_clint_priv *priv = dev->priv;
 	struct __timer_device *timer = __timer_from_dev(dev);
-	struct __intc_device *intc_parent;
+	struct k_intc_device *intc_parent;
 	int len, num_irq, r;
 
 	if (priv == NULL) {
@@ -205,7 +205,7 @@ static int timer_clint_add(struct __device *dev)
 	}
 
 	/* Interrupt */
-	r = __intc_get_conf_length(dev, &len);
+	r = k_intc_get_conf_length(dev, &len);
 	if (r) {
 		return r;
 	}
@@ -213,7 +213,7 @@ static int timer_clint_add(struct __device *dev)
 	for (int i = 0; i < len; i++) {
 		struct __event_handler *hnd;
 
-		r = __intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
+		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
@@ -226,7 +226,7 @@ static int timer_clint_add(struct __device *dev)
 		hnd->func = timer_clint_intr;
 		hnd->priv = priv;
 
-		r = __intc_add_handler(intc_parent, num_irq, hnd);
+		r = k_intc_add_handler(intc_parent, num_irq, hnd);
 		if (r) {
 			return r;
 		}

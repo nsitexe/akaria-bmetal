@@ -16,7 +16,7 @@
 #define REG_CLAIM(ctx)           (0x200000 + (ctx) * 0x1000 + 0x4)
 
 struct intc_plic_priv {
-	struct __intc_device *intc;
+	struct k_intc_device *intc;
 	uint32_t n_event;
 	uint32_t n_ctx;
 
@@ -32,9 +32,9 @@ CHECK_PRIV_SIZE_INTC(struct intc_plic_priv);
  * @param n_ctx Number of contexts.
  * @return 0 if success, not 0 if failed.
  */
-static int intc_plic_clear_all(struct __intc_device *intc, int n_event, int n_ctx)
+static int intc_plic_clear_all(struct k_intc_device *intc, int n_event, int n_ctx)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 
 	for (int ctx = 0; ctx < n_ctx; ctx++) {
 		__device_write32(dev, 0, REG_PRIORITY_THR(ctx));
@@ -51,9 +51,9 @@ static int intc_plic_clear_all(struct __intc_device *intc, int n_event, int n_ct
 	return 0;
 }
 
-static int intc_plic_enable_interrupt(struct __intc_device *intc, int event, int ctx)
+static int intc_plic_enable_interrupt(struct k_intc_device *intc, int event, int ctx)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	int bpos = event & 0x1f;
 	uint32_t tmp;
 
@@ -68,9 +68,9 @@ static int intc_plic_enable_interrupt(struct __intc_device *intc, int event, int
 	return 0;
 }
 
-static int intc_plic_disable_interrupt(struct __intc_device *intc, int event, int ctx)
+static int intc_plic_disable_interrupt(struct k_intc_device *intc, int event, int ctx)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	int bpos = event & 0x1f;
 	uint32_t tmp;
 
@@ -81,9 +81,9 @@ static int intc_plic_disable_interrupt(struct __intc_device *intc, int event, in
 	return 0;
 }
 
-static int intc_plic_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
 	int r;
 
@@ -113,9 +113,9 @@ static int intc_plic_add_handler(struct __intc_device *intc, int event, struct _
 	return 0;
 }
 
-static int intc_plic_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
 	int r;
 
@@ -148,7 +148,7 @@ static int intc_plic_remove_handler(struct __intc_device *intc, int event, struc
 static int intc_plic_intr(int event, struct __event_handler *hnd)
 {
 	struct intc_plic_priv *priv = hnd->priv;
-	struct __device *dev = __intc_to_dev(priv->intc);
+	struct __device *dev = k_intc_to_dev(priv->intc);
 	uint32_t v;
 	int res = EVENT_NOT_HANDLED;
 
@@ -168,8 +168,8 @@ static int intc_plic_intr(int event, struct __event_handler *hnd)
 static int intc_plic_add(struct __device *dev)
 {
 	struct intc_plic_priv *priv = dev->priv;
-	struct __intc_device *intc = __intc_from_dev(dev);
-	struct __intc_device *intc_parent;
+	struct k_intc_device *intc = k_intc_from_dev(dev);
+	struct k_intc_device *intc_parent;
 	int len, num_irq, r;
 
 	if (priv == NULL) {
@@ -184,7 +184,7 @@ static int intc_plic_add(struct __device *dev)
 		return r;
 	}
 
-	r = __intc_get_conf_length(dev, &len);
+	r = k_intc_get_conf_length(dev, &len);
 	if (r) {
 		return r;
 	}
@@ -192,7 +192,7 @@ static int intc_plic_add(struct __device *dev)
 	for (int i = 0; i < len; i++) {
 		struct __event_handler *hnd;
 
-		r = __intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
+		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
@@ -205,7 +205,7 @@ static int intc_plic_add(struct __device *dev)
 		hnd->func = intc_plic_intr;
 		hnd->priv = priv;
 
-		r = __intc_add_handler(intc_parent, num_irq, hnd);
+		r = k_intc_add_handler(intc_parent, num_irq, hnd);
 		if (r) {
 			return r;
 		}
@@ -244,12 +244,12 @@ const static struct __device_driver_ops intc_plic_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __intc_driver_ops intc_plic_intc_ops = {
+const static struct k_intc_driver_ops intc_plic_intc_ops = {
 	.add_handler = intc_plic_add_handler,
 	.remove_handler = intc_plic_remove_handler,
 };
 
-static struct __intc_driver intc_plic_drv = {
+static struct k_intc_driver intc_plic_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "sifive",
@@ -264,7 +264,7 @@ static struct __intc_driver intc_plic_drv = {
 
 static int intc_plic_init(void)
 {
-	__intc_add_driver(&intc_plic_drv);
+	k_intc_add_driver(&intc_plic_drv);
 
 	return 0;
 }

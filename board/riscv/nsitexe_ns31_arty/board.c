@@ -57,8 +57,8 @@ const static struct __device_config rvintc_conf[][2] = {
 	INTC_CONF(0),
 };
 
-static __intc_priv_t rvintc_priv[1];
-static struct __intc_device rvintc[] = {
+static k_intc_priv_t rvintc_priv[1];
+static struct k_intc_device rvintc[] = {
 	INTC_DEVICE(0, 0),
 };
 CHECK_ELEM_SIZE(rvintc, rvintc_conf);
@@ -73,8 +73,8 @@ const static struct __device_config clint_conf[] = {
 	{0},
 };
 
-static __intc_priv_t clint_priv;
-static struct __intc_device clint = {
+static k_intc_priv_t clint_priv;
+static struct k_intc_device clint = {
 	.base = {
 		.name = "clint",
 		.type_vendor = "sifive",
@@ -129,8 +129,8 @@ const static struct __device_config plic_conf[] = {
 	{0},
 };
 
-static __intc_priv_t plic_priv;
-static struct __intc_device plic = {
+static k_intc_priv_t plic_priv;
+static struct k_intc_device plic = {
 	.base = {
 		.name = "plic",
 		.type_vendor = "sifive",
@@ -162,9 +162,9 @@ static struct __uart_device uart0 = {
 static int board_ns31_arty_init(void)
 {
 	k_cpu_add_device(&cpu[0], __bus_get_root());
-	__intc_add_device(&rvintc[0], __bus_get_root());
-	__intc_add_device(&clint, __bus_get_root());
-	__intc_add_device(&plic, __bus_get_root());
+	k_intc_add_device(&rvintc[0], __bus_get_root());
+	k_intc_add_device(&clint, __bus_get_root());
+	k_intc_add_device(&plic, __bus_get_root());
 	k_clk_add_device(&clk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);

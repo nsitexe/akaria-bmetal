@@ -26,7 +26,7 @@
 #define XIX_EIX         BIT(RV_IX_EIX)
 
 struct intc_priv_priv {
-	struct __intc_device *intc;
+	struct k_intc_device *intc;
 	struct k_cpu_device *cpu_parent;
 
 	struct __event_handler hnd_ex;
@@ -73,9 +73,9 @@ static int intc_priv_intr(int event, struct __event_handler *hnd)
 	return res;
 }
 
-static int intc_priv_update_intr_mask(struct __intc_device *intc, int wakeup)
+static int intc_priv_update_intr_mask(struct k_intc_device *intc, int wakeup)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
 	int m = 0;
 
@@ -101,7 +101,7 @@ static int intc_priv_update_intr_mask(struct __intc_device *intc, int wakeup)
 static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
-	struct __intc_device *intc = priv->intc;
+	struct k_intc_device *intc = priv->intc;
 	int r, res = EVENT_NOT_HANDLED;
 
 	switch (event) {
@@ -133,7 +133,7 @@ static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
 static int intc_priv_add(struct __device *dev)
 {
 	struct intc_priv_priv *priv = dev->priv;
-	struct __intc_device *intc = __intc_from_dev(dev);
+	struct k_intc_device *intc = k_intc_from_dev(dev);
 	int r;
 
 	if (priv == NULL) {
@@ -215,9 +215,9 @@ static int intc_priv_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-static int intc_priv_add_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+static int intc_priv_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
 	struct __event_handler *head;
 	int r;
@@ -255,9 +255,9 @@ static int intc_priv_add_handler(struct __intc_device *intc, int event, struct _
 	return 0;
 }
 
-static int intc_priv_remove_handler(struct __intc_device *intc, int event, struct __event_handler *handler)
+static int intc_priv_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
 	struct __event_handler *head;
 	int r;
@@ -295,9 +295,9 @@ static int intc_priv_remove_handler(struct __intc_device *intc, int event, struc
 	return 0;
 }
 
-static int intc_priv_enable(struct __intc_device *intc, int event)
+static int intc_priv_enable(struct k_intc_device *intc, int event)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
 
 	switch (event) {
@@ -326,9 +326,9 @@ static int intc_priv_enable(struct __intc_device *intc, int event)
 	return 0;
 }
 
-static int intc_priv_disable(struct __intc_device *intc, int event)
+static int intc_priv_disable(struct k_intc_device *intc, int event)
 {
-	struct __device *dev = __intc_to_dev(intc);
+	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
 
 	switch (event) {
@@ -363,14 +363,14 @@ const static struct __device_driver_ops intc_priv_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __intc_driver_ops intc_priv_intc_ops = {
+const static struct k_intc_driver_ops intc_priv_intc_ops = {
 	.add_handler = intc_priv_add_handler,
 	.remove_handler = intc_priv_remove_handler,
 	.enable = intc_priv_enable,
 	.disable = intc_priv_disable,
 };
 
-static struct __intc_driver intc_priv_drv = {
+static struct k_intc_driver intc_priv_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "riscv",
@@ -385,7 +385,7 @@ static struct __intc_driver intc_priv_drv = {
 
 static int intc_priv_init(void)
 {
-	__intc_add_driver(&intc_priv_drv);
+	k_intc_add_driver(&intc_priv_drv);
 
 	return 0;
 }

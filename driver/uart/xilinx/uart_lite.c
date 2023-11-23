@@ -28,7 +28,7 @@
 
 struct uart_lite_priv {
 	struct __uart_device *uart;
-	struct __intc_device *intc;
+	struct k_intc_device *intc;
 	struct __event_handler hnd_irq;
 	int num_irq;
 };
@@ -110,7 +110,7 @@ static int uart_lite_add(struct __device *dev)
 	}
 
 	/* Interrupt */
-	r = __intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
+	r = k_intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
 		__dev_warn(dev, "intc is not found, use polling.\n");
 		priv->intc = NULL;
@@ -120,7 +120,7 @@ static int uart_lite_add(struct __device *dev)
 		priv->hnd_irq.func = uart_lite_intr;
 		priv->hnd_irq.priv = priv;
 
-		r = __intc_add_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
+		r = k_intc_add_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
 		if (r) {
 			return r;
 		}
@@ -146,7 +146,7 @@ static int uart_lite_remove(struct __device *dev)
 			return r;
 		}
 
-		r = __intc_remove_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
+		r = k_intc_remove_handler(priv->intc, priv->num_irq, &priv->hnd_irq);
 		if (r) {
 			return r;
 		}

@@ -165,7 +165,7 @@ static int cpu_riscv_raise_ipi(struct k_cpu_device *cpu, struct k_cpu_device *de
 {
 	int r;
 
-	r = __intc_raise_ipi(cpu, dest, arg);
+	r = k_intc_raise_ipi(cpu, dest, arg);
 	if (r) {
 		return r;
 	}
