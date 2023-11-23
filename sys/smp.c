@@ -25,13 +25,13 @@ int __smp_unlock(void)
 /**
  * Need to hold smp_lock.
  */
-int __smp_find_idle_cpu(struct __cpu_device **cpu_idle)
+int __smp_find_idle_cpu(struct k_cpu_device **cpu_idle)
 {
-	struct __cpu_device *cpu = NULL;
+	struct k_cpu_device *cpu = NULL;
 	int found = 0, id;
 
 	for (id = 0; id < CONFIG_NUM_CORES; id++) {
-		cpu = __cpu_get(id);
+		cpu = k_cpu_get(id);
 
 		if (cpu && !cpu->ti_task) {
 			found = 1;

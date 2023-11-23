@@ -89,7 +89,7 @@ int k_clock_get_monotonic(struct timespec64 *tsp)
 		return -ENOTSUP;
 	}
 
-	id = __cpu_get_current_id_phys();
+	id = k_cpu_get_current_id_phys();
 
 	if (drv && drv->ops->get_freq && drv->ops->get_raw) {
 		struct timespec64 tmp;
@@ -129,7 +129,7 @@ int k_clock_on_tick(void)
 		return -ENOTSUP;
 	}
 
-	id = __cpu_get_current_id_phys();
+	id = k_cpu_get_current_id_phys();
 
 	if (drv && drv->ops->set_trigger) {
 		struct timespec64 cur, tick, next;

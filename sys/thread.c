@@ -64,28 +64,28 @@ int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti)
 
 void __thread_idle_main(int leader)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __thread_info *ti = NULL;
 	int r;
 
 	__intr_disable_local();
 
-	r = __cpu_on_wakeup();
+	r = k_cpu_on_wakeup();
 	if (r) {
 		pri_warn("idle: failed to callback on_wakeup.\n");
 	}
 
 	__intr_enable_local();
 
-	while (__cpu_get_running(cpu)) {
-		ti = __cpu_get_thread_task(cpu);
-		while (__cpu_get_running(cpu) && !ti) {
+	while (k_cpu_get_running(cpu)) {
+		ti = k_cpu_get_thread_task(cpu);
+		while (k_cpu_get_running(cpu) && !ti) {
 			/* Wait for notification from other cores */
-			__cpu_wait_interrupt();
+			k_cpu_wait_interrupt();
 
 			drmb();
 
-			ti = __cpu_get_thread_task(cpu);
+			ti = k_cpu_get_thread_task(cpu);
 		}
 
 		/* Switch to task thread from idle thread */
@@ -94,7 +94,7 @@ void __thread_idle_main(int leader)
 
 	__intr_disable_local();
 
-	r = __cpu_on_sleep();
+	r = k_cpu_on_sleep();
 	if (r) {
 		pri_warn("idle: failed to callback on_sleep.\n");
 	}
@@ -104,7 +104,7 @@ void __thread_idle_main(int leader)
 	}
 
 	while (1) {
-		__cpu_wait_interrupt();
+		k_cpu_wait_interrupt();
 	}
 }
 
@@ -167,18 +167,18 @@ int __thread_destroy(struct __thread_info *ti)
 	return 0;
 }
 
-int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu)
+int __thread_run(struct __thread_info *ti, struct k_cpu_device *cpu)
 {
 	ti->running = 1;
 	ti->cpu = cpu;
-	__cpu_set_thread_task(cpu, ti);
+	k_cpu_set_thread_task(cpu, ti);
 
 	return 0;
 }
 
 int __thread_stop(struct __thread_info *ti)
 {
-	__cpu_set_thread_task(ti->cpu, NULL);
+	k_cpu_set_thread_task(ti->cpu, NULL);
 	ti->cpu = NULL;
 	ti->running = 0;
 
@@ -209,7 +209,7 @@ struct __thread_info *__thread_get(pid_t tid)
 
 struct __thread_info *__thread_get_current(void)
 {
-	return __cpu_get_thread(__cpu_get_current());
+	return k_cpu_get_thread(k_cpu_get_current());
 }
 
 pid_t __thread_get_tid(void)
@@ -232,12 +232,12 @@ int __thread_context_switch(void)
 
 int __thread_context_switch_nolock(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __thread_info *ti, *ti_idle, *ti_task;
 
-	ti = __cpu_get_thread(cpu);
-	ti_idle = __cpu_get_thread_idle(cpu);
-	ti_task = __cpu_get_thread_task(cpu);
+	ti = k_cpu_get_thread(cpu);
+	ti_idle = k_cpu_get_thread_idle(cpu);
+	ti_task = k_cpu_get_thread_task(cpu);
 
 	/*
 	 * Save the thread context.
@@ -253,11 +253,11 @@ int __thread_context_switch_nolock(void)
 	if (ti && ti_task) {
 		/* Switch to task */
 		k_memcpy(cpu->regs, &ti_task->regs, sizeof(k_arch_user_regs_t));
-		__cpu_set_thread(cpu, ti_task);
+		k_cpu_set_thread(cpu, ti_task);
 	} else {
 		/* Switch to idle */
 		k_memcpy(cpu->regs, &ti_idle->regs, sizeof(k_arch_user_regs_t));
-		__cpu_set_thread(cpu, ti_idle);
+		k_cpu_set_thread(cpu, ti_idle);
 	}
 
 	return 0;

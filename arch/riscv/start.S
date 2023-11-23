@@ -29,7 +29,7 @@ k_reset:
 .option pop
 
 	# Clear notify area
-	la    t0, __boot_proc
+	la    t0, k_boot_proc
 	li    t1, -1
 	OP_ST t1, (t0)
 
@@ -68,17 +68,17 @@ k_start_for_sub:
 	nop
 	nop
 	fence ir, ir
-	la    t1, __boot_proc
+	la    t1, k_boot_proc
 	OP_LD t1, (t1)
 	bne   t0, t1, 1b
 
 	# Set stack/thread pointer
-	la    t0, __boot_sp_idle
+	la    t0, k_boot_sp_idle
 	OP_LD sp, (t0)
-	la    t0, __boot_sp_intr
+	la    t0, k_boot_sp_intr
 	OP_LD t0, (t0)
 	csrw  mscratch, t0
-	la    t0, __boot_done
+	la    t0, k_boot_done
 	li    t1, 1
 	OP_ST t1, (t0)
 	fence ow, ow

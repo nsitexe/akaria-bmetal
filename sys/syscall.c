@@ -35,7 +35,7 @@ static const struct new_utsname uname = {
 
 intptr_t k_sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
-	pri_info("%d: unknown syscall %"PRIdPTR"\n", __cpu_get_current_id_phys(), number);
+	pri_info("%d: unknown syscall %"PRIdPTR"\n", k_cpu_get_current_id_phys(), number);
 
 	return -ENOTSUP;
 }
@@ -439,7 +439,7 @@ intptr_t k_sys_mprotect(void *addr, size_t length, int prot)
 
 intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
 {
-	struct __cpu_device *cpu_cur = __cpu_get_current(), *cpu;
+	struct k_cpu_device *cpu_cur = k_cpu_get_current(), *cpu;
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
 	size_t pos_intr;
@@ -478,7 +478,7 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	__smp_unlock();
 
-	__cpu_lock(cpu);
+	k_cpu_lock(cpu);
 
 	/* Init thread info */
 	ti = __thread_create(pi);
@@ -526,13 +526,13 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 		goto err_out2;
 	}
 
-	r = __cpu_raise_ipi(ti->cpu, NULL);
+	r = k_cpu_raise_ipi(ti->cpu, NULL);
 	if (r) {
 		goto err_out3;
 	}
 
 	dwmb();
-	__cpu_unlock(cpu);
+	k_cpu_unlock(cpu);
 
 	/* Return value for current thread */
 	return ti->tid;
@@ -544,7 +544,7 @@ err_out2:
 	__thread_destroy(ti);
 
 err_out:
-	__cpu_unlock(cpu);
+	k_cpu_unlock(cpu);
 
 	return r;
 }
@@ -583,10 +583,10 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAIT_BITSET:
-		r = __cpu_futex_wait(uaddr, val, val3);
+		r = k_cpu_futex_wait(uaddr, val, val3);
 		if (r) {
 			if (r != -EWOULDBLOCK) {
-				pri_warn("%d: futex err wait %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
+				pri_warn("%d: futex err wait %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 			}
 
 			ret = r;
@@ -598,9 +598,9 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		val3 = FUTEX_BITSET_ANY;
 		/* fallthrough */
 	case FUTEX_WAKE_BITSET:
-		r = __cpu_futex_wake(uaddr, val, val3);
+		r = k_cpu_futex_wake(uaddr, val, val3);
 		if (r < 0) {
-			pri_warn("%d: futex err wake %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
+			pri_warn("%d: futex err wake %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -609,9 +609,9 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		ret = r;
 		break;
 	case FUTEX_REQUEUE:
-		r = __cpu_futex_wake(uaddr, val, FUTEX_BITSET_ANY);
+		r = k_cpu_futex_wake(uaddr, val, FUTEX_BITSET_ANY);
 		if (r < 0) {
-			pri_warn("%d: futex err requeue %p %d.\n", __cpu_get_current_id_phys(), uaddr, val);
+			pri_warn("%d: futex err requeue %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -632,14 +632,14 @@ err_out:
 
 intptr_t k_sys_set_robust_list(void *head, size_t len)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __thread_info *ti;
 
 	if (len == 0) {
 		return -EINVAL;
 	}
 
-	ti = __cpu_get_thread_task(cpu);
+	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
 		pri_err("sys_robust_list: cannot get task thread.\n");
 		return -EINVAL;
@@ -653,10 +653,10 @@ intptr_t k_sys_set_robust_list(void *head, size_t len)
 
 intptr_t k_sys_set_tid_address(int *tidptr)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __thread_info *ti;
 
-	ti = __cpu_get_thread_task(cpu);
+	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
 		pri_err("sys_set_tid_address: cannot get task thread.\n");
 		return -EINVAL;
@@ -672,37 +672,37 @@ intptr_t k_sys_set_tid_address(int *tidptr)
 intptr_t k_sys_exit_group(int status)
 {
 	struct __proc_info *pi = __proc_get_current();
-	struct __cpu_device *cur = __cpu_get_current();
+	struct k_cpu_device *cur = k_cpu_get_current();
 	struct __thread_info *ti;
 
-	__cpu_lock(cur);
+	k_cpu_lock(cur);
 
-	ti = __cpu_get_thread_task(cur);
+	ti = k_cpu_get_thread_task(cur);
 	if (!ti) {
 		pri_err("sys_exit_group: cannot get current task thread.\n");
-		__cpu_unlock(cur);
+		k_cpu_unlock(cur);
 		return -EINVAL;
 	}
 
 	if (__proc_get_leader(pi) != ti) {
-		__cpu_unlock(cur);
+		k_cpu_unlock(cur);
 		return k_sys_exit(status);
 	}
 
-	__cpu_unlock(cur);
+	k_cpu_unlock(cur);
 
 	/* TODO: kill other threads in process group */
 
 	/* Wait for children */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
-		struct __cpu_device *cpu = __cpu_get(i);
+		struct k_cpu_device *cpu = k_cpu_get(i);
 
 		if (!cpu) {
 			continue;
 		}
 
 		/* TODO: avoid busy loop */
-		while (__cpu_get_thread_task(cpu)) {
+		while (k_cpu_get_thread_task(cpu)) {
 			drmb();
 		}
 	}
@@ -713,30 +713,30 @@ intptr_t k_sys_exit_group(int status)
 intptr_t k_sys_exit(int status)
 {
 	struct __proc_info *pi = __proc_get_current();
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __thread_info *ti;
 	uintptr_t v;
 	int f_wake = 0, r;
 
-	__cpu_lock(cpu);
+	k_cpu_lock(cpu);
 
-	ti = __cpu_get_thread_task(cpu);
+	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
 		pri_err("sys_exit: cannot get task thread.\n");
 
-		__cpu_unlock(cpu);
+		k_cpu_unlock(cpu);
 		return -EINVAL;
 	}
 
 	r = __thread_stop(ti);
 	if (r) {
-		__cpu_unlock(cpu);
+		k_cpu_unlock(cpu);
 		return r;
 	}
 
 	r = __thread_destroy(ti);
 	if (r) {
-		__cpu_unlock(cpu);
+		k_cpu_unlock(cpu);
 		return r;
 	}
 
@@ -755,17 +755,17 @@ intptr_t k_sys_exit(int status)
 
 	r = __thread_context_switch_nolock();
 	if (r) {
-		__cpu_unlock(cpu);
+		k_cpu_unlock(cpu);
 		return r;
 	}
 
 	k_arch_get_arg(cpu->regs, K_ARCH_ARG_TYPE_RETVAL, &v);
 
 	dwmb();
-	__cpu_unlock(cpu);
+	k_cpu_unlock(cpu);
 
 	if (f_wake) {
-		r = __cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
+		r = k_cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
 		if (r < 0) {
 			pri_warn("sys_exit: futex error %d but ignored.\n", r);
 		}
@@ -800,7 +800,7 @@ intptr_t k_sys_reboot(int magic1, int magic2, int cmd)
 
 intptr_t k_sys_context_switch(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	uintptr_t v;
 	int r;
 

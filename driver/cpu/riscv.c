@@ -9,10 +9,10 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
 
-uintptr_t __section(".noinit") __boot_proc;
-uintptr_t __boot_sp_idle;
-uintptr_t __boot_sp_intr;
-int __boot_done;
+uintptr_t __section(".noinit") k_boot_proc;
+uintptr_t k_boot_sp_idle;
+uintptr_t k_boot_sp_intr;
+int k_boot_done;
 
 struct cpu_riscv_priv {
 };
@@ -20,7 +20,7 @@ CHECK_PRIV_SIZE_CPU(struct cpu_riscv_priv);
 
 static int cpu_riscv_add(struct __device *dev)
 {
-	struct __cpu_device *cpu = __cpu_from_dev(dev);
+	struct k_cpu_device *cpu = k_cpu_from_dev(dev);
 	struct cpu_riscv_priv *priv = dev->priv;
 	uint32_t hartid;
 	int cpuid, r;
@@ -40,7 +40,7 @@ static int cpu_riscv_add(struct __device *dev)
 	if (hartid == CONFIG_MAIN_CORE) {
 		cpuid = 0;
 	} else {
-		cpuid = __cpu_alloc_id();
+		cpuid = k_cpu_alloc_id();
 	}
 	if (cpuid >= CONFIG_NUM_CORES) {
 		__dev_err(dev, "add too many cpus, max:%d.\n", CONFIG_NUM_CORES);
@@ -54,7 +54,7 @@ static int cpu_riscv_add(struct __device *dev)
 	cpu->line_size_i = 64;
 	cpu->line_size_d = 64;
 
-	__cpu_set(cpuid, cpu);
+	k_cpu_set(cpuid, cpu);
 
 	return 0;
 }
@@ -64,14 +64,14 @@ static int cpu_riscv_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, size_t sz)
+static int cpu_riscv_clean_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
 #ifdef CONFIG_CACHE
-	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	int sz_line = k_cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -85,14 +85,14 @@ static int cpu_riscv_clean_range(struct __cpu_device *cpu, const void *start, si
 	return 0;
 }
 
-static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size_t sz)
+static int cpu_riscv_inv_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
 #ifdef CONFIG_CACHE
-	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	int sz_line = k_cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -106,14 +106,14 @@ static int cpu_riscv_inv_range(struct __cpu_device *cpu, const void *start, size
 	return 0;
 }
 
-static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, size_t sz)
+static int cpu_riscv_flush_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
 #ifdef CONFIG_CACHE
-	int sz_line = __cpu_cache_get_line_size_d(cpu);
+	int sz_line = k_cpu_cache_get_line_size_d(cpu);
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(__cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -127,41 +127,41 @@ static int cpu_riscv_flush_range(struct __cpu_device *cpu, const void *start, si
 	return 0;
 }
 
-static int cpu_riscv_wakeup(struct __cpu_device *cpu)
+static int cpu_riscv_wakeup(struct k_cpu_device *cpu)
 {
 	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
-	__boot_done = 0;
-	__boot_sp_idle = (uintptr_t)&k_stack_idle[pos_idle];
-	__boot_sp_intr = (uintptr_t)&k_stack_intr[pos_intr];
+	k_boot_done = 0;
+	k_boot_sp_idle = (uintptr_t)&k_stack_idle[pos_idle];
+	k_boot_sp_intr = (uintptr_t)&k_stack_intr[pos_intr];
 
 	dwmb();
 
-	while (!__boot_done) {
-		__boot_proc = cpu->id_phys;
+	while (!k_boot_done) {
+		k_boot_proc = cpu->id_phys;
 		dmb();
 	}
 
-	__boot_proc = -1;
+	k_boot_proc = -1;
 	dwmb();
 
 	return 0;
 }
 
-static int cpu_riscv_sleep(struct __cpu_device *cpu)
+static int cpu_riscv_sleep(struct k_cpu_device *cpu)
 {
 	return 0;
 }
 
 #if !defined(CONFIG_INTC)
-static int cpu_riscv_raise_ipi(struct __cpu_device *cpu, struct __cpu_device *dest, void *arg)
+static int cpu_riscv_raise_ipi(struct k_cpu_device *cpu, struct k_cpu_device *dest, void *arg)
 {
-	__dev_err(__cpu_to_dev(cpu), "Not support intc.\n");
+	__dev_err(k_cpu_to_dev(cpu), "Not support intc.\n");
 	return -ENOTSUP;
 }
 #else /* CONFIG_INTC */
-static int cpu_riscv_raise_ipi(struct __cpu_device *cpu, struct __cpu_device *dest, void *arg)
+static int cpu_riscv_raise_ipi(struct k_cpu_device *cpu, struct k_cpu_device *dest, void *arg)
 {
 	int r;
 
@@ -179,7 +179,7 @@ const static struct __device_driver_ops cpu_riscv_dev_ops = {
 	.remove = cpu_riscv_remove,
 };
 
-const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
+const static struct k_cpu_driver_ops cpu_riscv_cpu_ops = {
 	.clean_range = cpu_riscv_clean_range,
 	.inv_range = cpu_riscv_inv_range,
 	.flush_range = cpu_riscv_flush_range,
@@ -188,7 +188,7 @@ const static struct __cpu_driver_ops cpu_riscv_cpu_ops = {
 	.raise_ipi = cpu_riscv_raise_ipi,
 };
 
-static struct __cpu_driver cpu_riscv_drv = {
+static struct k_cpu_driver cpu_riscv_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "none",
@@ -203,7 +203,7 @@ static struct __cpu_driver cpu_riscv_drv = {
 
 static int cpu_riscv_init(void)
 {
-	__cpu_add_driver(&cpu_riscv_drv);
+	k_cpu_add_driver(&cpu_riscv_drv);
 
 	return 0;
 }

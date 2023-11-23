@@ -39,7 +39,7 @@ int k_arch_gen_spinlock_lock(k_arch_spinlock_t *lock)
 	while (r) {
 		r = k_arch_gen_spinlock_trylock(lock);
 	}
-	lock->id = __cpu_get_current_id_phys();
+	lock->id = k_cpu_get_current_id_phys();
 
 	return 0;
 }

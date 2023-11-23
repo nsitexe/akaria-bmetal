@@ -34,8 +34,8 @@ const static struct __device_config cpu_conf[][2] = {
 	CPU_CONF(3),
 };
 
-static __cpu_priv_t cpu_priv[4];
-static struct __cpu_device cpu[] = {
+static k_cpu_priv_t cpu_priv[4];
+static struct k_cpu_device cpu[] = {
 	CPU_DEVICE(0, 0),
 	CPU_DEVICE(1, 1),
 	CPU_DEVICE(2, 2),
@@ -205,7 +205,7 @@ static struct __uart_device uart0 = {
 static int board_qemu_virt_init(void)
 {
 	for (int i = 0; i < ARRAY_OF(cpu); i++) {
-		__cpu_add_device(&cpu[i], __bus_get_root());
+		k_cpu_add_device(&cpu[i], __bus_get_root());
 		__intc_add_device(&rvintc[i], __bus_get_root());
 	}
 	__intc_add_device(&plic, __bus_get_root());

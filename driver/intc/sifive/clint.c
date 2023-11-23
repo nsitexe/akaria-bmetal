@@ -24,7 +24,7 @@ static int intc_clint_intr(int event, struct __event_handler *hnd)
 {
 	struct intc_clint_priv *priv = hnd->priv;
 	struct __device *dev = __intc_to_dev(priv->intc);
-	int id_phys = __cpu_get_current_id_phys();
+	int id_phys = k_cpu_get_current_id_phys();
 	int res = EVENT_NOT_HANDLED;
 
 	switch (event) {
@@ -99,15 +99,15 @@ const static struct __device_driver_ops intc_clint_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-static int intc_clint_raise_ipi(struct __intc_device *intc, struct __cpu_device *src, struct __cpu_device *dest, void *arg)
+static int intc_clint_raise_ipi(struct __intc_device *intc, struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
 {
 	struct __device *dev = __intc_to_dev(intc);
-	int id_cur = __cpu_get_current_id_phys();
-	int id_dest = __cpu_get_id_phys(dest);
+	int id_cur = k_cpu_get_current_id_phys();
+	int id_dest = k_cpu_get_id_phys(dest);
 
-	if (id_cur != __cpu_get_id_phys(src)) {
+	if (id_cur != k_cpu_get_id_phys(src)) {
 		__dev_err(dev, "cannot send IPI, src:%d is not current CPU.\n",
-			__cpu_get_id_phys(src));
+			k_cpu_get_id_phys(src));
 		return -EINVAL;
 	}
 

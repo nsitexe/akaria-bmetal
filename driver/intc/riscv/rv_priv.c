@@ -27,7 +27,7 @@
 
 struct intc_priv_priv {
 	struct __intc_device *intc;
-	struct __cpu_device *cpu_parent;
+	struct k_cpu_device *cpu_parent;
 
 	struct __event_handler hnd_ex;
 	struct __event_handler hnd_tm;
@@ -143,7 +143,7 @@ static int intc_priv_add(struct __device *dev)
 
 	priv->intc = intc;
 
-	r = __cpu_get_cpu_from_config(dev, 0, &priv->cpu_parent);
+	r = k_cpu_get_cpu_from_config(dev, 0, &priv->cpu_parent);
 	if (r) {
 		return r;
 	}
@@ -180,12 +180,12 @@ static int intc_priv_add(struct __device *dev)
 	priv->hnd_sleep.func  = intc_priv_cpu_event;
 	priv->hnd_sleep.priv  = priv;
 
-	r = __cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_wake);
+	r = k_cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_wake);
 	if (r) {
 		return r;
 	}
 
-	r = __cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_sleep);
+	r = k_cpu_add_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_sleep);
 	if (r) {
 		return r;
 	}
@@ -202,12 +202,12 @@ static int intc_priv_remove(struct __device *dev)
 	struct intc_priv_priv *priv = dev->priv;
 	int r;
 
-	r = __cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_wake);
+	r = k_cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_WAKEUP, &priv->hnd_wake);
 	if (r) {
 		return r;
 	}
 
-	r = __cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_sleep);
+	r = k_cpu_remove_handler(priv->cpu_parent, CPU_EVENT_ON_SLEEP, &priv->hnd_sleep);
 	if (r) {
 		return r;
 	}

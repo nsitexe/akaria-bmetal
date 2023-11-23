@@ -12,7 +12,7 @@
 
 int __smp_lock(void);
 int __smp_unlock(void);
-int __smp_find_idle_cpu(struct __cpu_device **cpu_idle);
+int __smp_find_idle_cpu(struct k_cpu_device **cpu_idle);
 int __smp_find_idle_thread(struct __thread_info **ti_idle);
 
 #endif /* !__ASSEMBLER__ */

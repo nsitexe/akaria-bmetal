@@ -22,14 +22,14 @@ int __intc_set_ipi(struct __intc_device *intc)
 	return 0;
 }
 
-int __intc_raise_ipi(struct __cpu_device *src, struct __cpu_device *dest, void *arg)
+int __intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *arg)
 {
 	struct __intc_device *intc = intc_get_ipi();
 	const struct __intc_driver *drv = __intc_get_drv(intc);
 	int r;
 
 	if (!intc) {
-		__dev_err(__cpu_to_dev(src), "not set IPI intc.\n");
+		__dev_err(k_cpu_to_dev(src), "not set IPI intc.\n");
 		return -ENOTSUP;
 	}
 

@@ -145,7 +145,7 @@ static int fini_proc(void)
 	return 0;
 }
 
-static int init_idle_thread(struct __cpu_device *cpu, int leader)
+static int init_idle_thread(struct k_cpu_device *cpu, int leader)
 {
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
@@ -164,14 +164,14 @@ static int init_idle_thread(struct __cpu_device *cpu, int leader)
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
 
-	__cpu_set_thread_idle(cpu, ti);
+	k_cpu_set_thread_idle(cpu, ti);
 
 	return 0;
 }
 
 static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct __proc_info *pi = __proc_get_current();
 	struct __thread_info *ti;
 	int r;
@@ -267,11 +267,11 @@ static int map_argv(const struct k_comm_area_header *h, const char *buf_args)
 	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
-		struct __cpu_device *cpu = __cpu_get_current();
+		struct k_cpu_device *cpu = k_cpu_get_current();
 		ha = (const struct k_comm_arg_header *)buf;
 		buf += sizeof(struct k_comm_arg_header);
 
-		r = __cpu_cache_inv_range(cpu, (void *)buf, ha->size);
+		r = k_cpu_cache_inv_range(cpu, (void *)buf, ha->size);
 		if (r) {
 			pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
 		}
@@ -295,11 +295,11 @@ static int unmap_argv(const struct k_comm_area_header *h, const char *buf_args)
 	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
-		struct __cpu_device *cpu = __cpu_get_current();
+		struct k_cpu_device *cpu = k_cpu_get_current();
 		ha = (const struct k_comm_arg_header *)buf;
 		buf += sizeof(struct k_comm_arg_header);
 
-		r = __cpu_cache_flush_range(cpu, (void *)buf, ha->size);
+		r = k_cpu_cache_flush_range(cpu, (void *)buf, ha->size);
 		if (r) {
 			pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
 		}
@@ -374,7 +374,7 @@ static int init_args(int *argc)
 
 static int fini_args(int st)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	struct k_comm_area_header *h_area = (struct k_comm_area_header *)k_comm_area;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
@@ -389,8 +389,8 @@ static int fini_args(int st)
 
 		h_area->ret_main = st;
 		h_area->done = 1;
-		__cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
-		__cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
+		k_cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
+		k_cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
 	}
 
 	return 0;
@@ -434,13 +434,13 @@ void k_fini_system(void)
 
 void k_init_leader(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	int argc;
 
 	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	/* Boot other cores */
-	__cpu_wakeup_all();
+	k_cpu_wakeup_all();
 
 	init_args(&argc);
 	init_main_thread(argc, argv, envp, &k_stack_main[CONFIG_MAIN_STACK_SIZE], &k_stack_intr[CONFIG_INTR_STACK_SIZE]);
@@ -459,12 +459,12 @@ void k_fini_leader(int status)
 	fini_args(st);
 
 	/* Stop other cores */
-	__cpu_sleep_all();
+	k_cpu_sleep_all();
 }
 
 void k_init_child(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 
 	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 

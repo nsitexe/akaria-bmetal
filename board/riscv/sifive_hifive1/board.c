@@ -13,8 +13,8 @@ const static struct __device_config cpu0_conf[] = {
 	{0},
 };
 
-static __cpu_priv_t cpu0_priv;
-static struct __cpu_device cpu0 = {
+static k_cpu_priv_t cpu0_priv;
+static struct k_cpu_device cpu0 = {
 	.base = {
 		.name = "cpu0",
 		.type_vendor = "none",
@@ -153,7 +153,7 @@ static struct __uart_device uart1 = {
 
 static int board_hifive1_init(void)
 {
-	__cpu_add_device(&cpu0, __bus_get_root());
+	k_cpu_add_device(&cpu0, __bus_get_root());
 	__intc_add_device(&rvintc0, __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
 	__clk_add_device(&lfclk, __bus_get_root());

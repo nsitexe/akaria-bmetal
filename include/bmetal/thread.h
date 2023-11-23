@@ -11,7 +11,7 @@
 
 #if !defined(__ASSEMBLER__)
 
-struct __cpu_device;
+struct k_cpu_device;
 
 struct __proc_info {
 	pid_t pid;
@@ -37,7 +37,7 @@ struct __thread_info {
 	void *tls;
 	k_arch_user_regs_t regs;
 
-	struct __cpu_device *cpu;
+	struct k_cpu_device *cpu;
 };
 
 struct __proc_info *__proc_create(void);
@@ -49,7 +49,7 @@ int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti);
 void __thread_idle_main(int leader);
 struct __thread_info *__thread_create(struct __proc_info *pi);
 int __thread_destroy(struct __thread_info *ti);
-int __thread_run(struct __thread_info *ti, struct __cpu_device *cpu);
+int __thread_run(struct __thread_info *ti, struct k_cpu_device *cpu);
 int __thread_stop(struct __thread_info *ti);
 struct __thread_info *__thread_get_raw(int n);
 struct __thread_info *__thread_get(pid_t tid);

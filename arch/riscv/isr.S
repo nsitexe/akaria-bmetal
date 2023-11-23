@@ -45,7 +45,7 @@ k_trap_common:
 	# Save pointer of user regs
 	# This may break caller-saved regs
 	mv    a0, sp
-	call  __cpu_set_current_user_regs
+	call  k_cpu_set_current_user_regs
 	OP_LD a0, REGOFF_A0(sp)
 	OP_LD a1, REGOFF_A1(sp)
 	OP_LD a2, REGOFF_A2(sp)

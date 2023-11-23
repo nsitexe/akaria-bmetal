@@ -11,7 +11,7 @@
 #include <bmetal/intr.h>
 #include <bmetal/sys/errno.h>
 
-struct __cpu_device;
+struct k_cpu_device;
 struct __intc_device;
 
 struct __intc_driver_ops {
@@ -19,7 +19,7 @@ struct __intc_driver_ops {
 	int (*remove_handler)(struct __intc_device *intc, int event, struct __event_handler *handler);
 	int (*enable)(struct __intc_device *intc, int event);
 	int (*disable)(struct __intc_device *intc, int event);
-	int (*raise_ipi)(struct __intc_device *intc, struct __cpu_device *src, struct __cpu_device *dest, void *arg);
+	int (*raise_ipi)(struct __intc_device *intc, struct k_cpu_device *src, struct k_cpu_device *dest, void *arg);
 };
 
 struct __intc_driver {
@@ -74,7 +74,7 @@ static inline int __intc_remove_driver(struct __intc_driver *drv)
 #ifdef CONFIG_INTC
 
 int __intc_set_ipi(struct __intc_device *intc);
-int __intc_raise_ipi(struct __cpu_device *src, struct __cpu_device *dest, void *arg);
+int __intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *arg);
 
 int __intc_add_device(struct __intc_device *intc, struct __bus *parent);
 int __intc_remove_device(struct __intc_device *intc);

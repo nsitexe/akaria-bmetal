@@ -9,97 +9,97 @@
 #include <bmetal/drivers/intc.h>
 #include <bmetal/sys/errno.h>
 
-static struct __cpu_device *cpus[CONFIG_NUM_CORES];
+static struct k_cpu_device *cpus[CONFIG_NUM_CORES];
 static int uniq_id_cpu = 1;
 
-int __cpu_get_id(struct __cpu_device *cpu)
+int k_cpu_get_id(struct k_cpu_device *cpu)
 {
 	return cpu->id_cpu;
 }
 
-int __cpu_get_id_phys(struct __cpu_device *cpu)
+int k_cpu_get_id_phys(struct k_cpu_device *cpu)
 {
 	return cpu->id_phys;
 }
 
-int __cpu_get_running(struct __cpu_device *cpu)
+int k_cpu_get_running(struct k_cpu_device *cpu)
 {
 	return cpu->running;
 }
 
-void __cpu_set_running(struct __cpu_device *cpu, int r)
+void k_cpu_set_running(struct k_cpu_device *cpu, int r)
 {
 	cpu->running = r;
 }
 
 
-k_arch_user_regs_t *__cpu_get_user_regs(struct __cpu_device *cpu)
+k_arch_user_regs_t *k_cpu_get_user_regs(struct k_cpu_device *cpu)
 {
 	return cpu->regs;
 }
 
-void __cpu_set_user_regs(struct __cpu_device *cpu, k_arch_user_regs_t *regs)
+void k_cpu_set_user_regs(struct k_cpu_device *cpu, k_arch_user_regs_t *regs)
 {
 	cpu->regs = regs;
 }
 
-k_arch_user_regs_t *__cpu_get_current_user_regs(void)
+k_arch_user_regs_t *k_cpu_get_current_user_regs(void)
 {
-	return __cpu_get_user_regs(__cpu_get_current());
+	return k_cpu_get_user_regs(k_cpu_get_current());
 }
 
-void __cpu_set_current_user_regs(k_arch_user_regs_t *regs)
+void k_cpu_set_current_user_regs(k_arch_user_regs_t *regs)
 {
-	__cpu_set_user_regs(__cpu_get_current(), regs);
+	k_cpu_set_user_regs(k_cpu_get_current(), regs);
 }
 
 
-int __cpu_lock(struct __cpu_device *cpu)
+int k_cpu_lock(struct k_cpu_device *cpu)
 {
 	return __spinlock_lock(&cpu->lock);
 }
 
-int __cpu_unlock(struct __cpu_device *cpu)
+int k_cpu_unlock(struct k_cpu_device *cpu)
 {
 	return __spinlock_unlock(&cpu->lock);
 }
 
-struct __thread_info *__cpu_get_thread(struct __cpu_device *cpu)
+struct __thread_info *k_cpu_get_thread(struct k_cpu_device *cpu)
 {
 	return cpu->ti;
 }
 
-void __cpu_set_thread(struct __cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread(struct k_cpu_device *cpu, struct __thread_info *ti)
 {
 	cpu->ti = ti;
 }
-struct __thread_info *__cpu_get_thread_idle(struct __cpu_device *cpu)
+struct __thread_info *k_cpu_get_thread_idle(struct k_cpu_device *cpu)
 {
 	return cpu->ti_idle;
 }
 
-void __cpu_set_thread_idle(struct __cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread_idle(struct k_cpu_device *cpu, struct __thread_info *ti)
 {
 	cpu->ti_idle = ti;
 }
 
-struct __thread_info *__cpu_get_thread_task(struct __cpu_device *cpu)
+struct __thread_info *k_cpu_get_thread_task(struct k_cpu_device *cpu)
 {
 	return cpu->ti_task;
 }
 
-void __cpu_set_thread_task(struct __cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread_task(struct k_cpu_device *cpu, struct __thread_info *ti)
 {
 	cpu->ti_task = ti;
 }
 
 
-int __cpu_alloc_id(void)
+int k_cpu_alloc_id(void)
 {
 	return uniq_id_cpu++;
 }
 
-struct __cpu_device *__cpu_get(int id)
+struct k_cpu_device *k_cpu_get(int id)
 {
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
 		pri_warn("cpu_get: id:%d is out of bounds.\n", id);
@@ -109,7 +109,7 @@ struct __cpu_device *__cpu_get(int id)
 	return cpus[id];
 }
 
-int __cpu_set(int id, struct __cpu_device *cpu)
+int k_cpu_set(int id, struct k_cpu_device *cpu)
 {
 	if (!cpu) {
 		return -EINVAL;
@@ -124,7 +124,7 @@ int __cpu_set(int id, struct __cpu_device *cpu)
 	return 0;
 }
 
-struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
+struct k_cpu_device *k_cpu_get_by_physical_id(int id_phys)
 {
 	for (int i = 0; i < CONFIG_NUM_CORES; i++) {
 		if (!cpus[i]) {
@@ -139,21 +139,21 @@ struct __cpu_device *__cpu_get_by_physical_id(int id_phys)
 	return NULL;
 }
 
-int __cpu_get_current_id_phys(void)
+int k_cpu_get_current_id_phys(void)
 {
 	return k_arch_get_cpu_id();
 }
 
-struct __cpu_device *__cpu_get_current(void)
+struct k_cpu_device *k_cpu_get_current(void)
 {
-	return __cpu_get_by_physical_id(__cpu_get_current_id_phys());
+	return k_cpu_get_by_physical_id(k_cpu_get_current_id_phys());
 }
 
-int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
+int k_cpu_add_device(struct k_cpu_device *cpu, struct __bus *parent)
 {
 	int r;
 
-	r = __device_add(__cpu_to_dev(cpu), parent);
+	r = __device_add(k_cpu_to_dev(cpu), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
@@ -161,40 +161,40 @@ int __cpu_add_device(struct __cpu_device *cpu, struct __bus *parent)
 	return 0;
 }
 
-int __cpu_remove(struct __cpu_device *cpu)
+int k_cpu_remove(struct k_cpu_device *cpu)
 {
-	return __device_remove(__cpu_to_dev(cpu));
+	return __device_remove(k_cpu_to_dev(cpu));
 }
 
-int __cpu_cache_get_line_size_i(struct __cpu_device *cpu)
+int k_cpu_cache_get_line_size_i(struct k_cpu_device *cpu)
 {
 	return cpu->line_size_i;
 }
 
-void __cpu_cache_set_line_size_i(struct __cpu_device *cpu, int sz)
+void k_cpu_cache_set_line_size_i(struct k_cpu_device *cpu, int sz)
 {
 	cpu->line_size_i = sz;
 }
 
-int __cpu_cache_get_line_size_d(struct __cpu_device *cpu)
+int k_cpu_cache_get_line_size_d(struct k_cpu_device *cpu)
 {
 	return cpu->line_size_d;
 }
 
-void __cpu_cache_set_line_size_d(struct __cpu_device *cpu, int sz)
+void k_cpu_cache_set_line_size_d(struct k_cpu_device *cpu, int sz)
 {
 	cpu->line_size_d = sz;
 }
 
-int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t sz)
+int k_cpu_cache_clean_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->clean_range) {
 		r = drv->ops->clean_range(cpu, start, sz);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "clean range:%p-%p failed.\n",
+			__dev_err(k_cpu_to_dev(cpu), "clean range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -203,15 +203,15 @@ int __cpu_cache_clean_range(struct __cpu_device *cpu, const void *start, size_t 
 	return 0;
 }
 
-int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz)
+int k_cpu_cache_inv_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->inv_range) {
 		r = drv->ops->inv_range(cpu, start, sz);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "invalidate range:%p-%p failed.\n",
+			__dev_err(k_cpu_to_dev(cpu), "invalidate range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -220,15 +220,15 @@ int __cpu_cache_inv_range(struct __cpu_device *cpu, const void *start, size_t sz
 	return 0;
 }
 
-int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t sz)
+int k_cpu_cache_flush_range(struct k_cpu_device *cpu, const void *start, size_t sz)
 {
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->flush_range) {
 		r = drv->ops->flush_range(cpu, start, sz);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "flush range:%p-%p failed.\n",
+			__dev_err(k_cpu_to_dev(cpu), "flush range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -237,9 +237,9 @@ int __cpu_cache_flush_range(struct __cpu_device *cpu, const void *start, size_t 
 	return 0;
 }
 
-static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler **head)
+static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler **head)
 {
-	struct __device *dev = __cpu_to_dev(cpu);
+	struct __device *dev = k_cpu_to_dev(cpu);
 	struct __event_handler *h;
 
 	if (CPU_EVENT_MAX <= event) {
@@ -267,12 +267,12 @@ static int __cpu_get_handler_head(struct __cpu_device *cpu, enum __cpu_event eve
 	return 0;
 }
 
-static int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
+static int k_cpu_call_handler(struct k_cpu_device *cpu, enum k_cpu_event event)
 {
 	struct __event_handler *head;
 	int r;
 
-	r = __cpu_get_handler_head(cpu, event, &head);
+	r = k_cpu_get_handler_head(cpu, event, &head);
 	if (r) {
 		return r;
 	}
@@ -284,12 +284,12 @@ static int __cpu_call_handler(struct __cpu_device *cpu, enum __cpu_event event)
 	return 0;
 }
 
-int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler *handler)
+int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler *handler)
 {
 	struct __event_handler *head;
 	int r;
 
-	r = __cpu_get_handler_head(cpu, event, &head);
+	r = k_cpu_get_handler_head(cpu, event, &head);
 	if (r) {
 		return r;
 	}
@@ -304,12 +304,12 @@ int __cpu_add_handler(struct __cpu_device *cpu, enum __cpu_event event, struct _
 	return 0;
 }
 
-int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event event, struct __event_handler *handler)
+int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler *handler)
 {
 	struct __event_handler *head;
 	int r;
 
-	r = __cpu_get_handler_head(cpu, event, &head);
+	r = k_cpu_get_handler_head(cpu, event, &head);
 	if (r) {
 		return r;
 	}
@@ -322,18 +322,18 @@ int __cpu_remove_handler(struct __cpu_device *cpu, enum __cpu_event event, struc
 	return 0;
 }
 
-int __cpu_wakeup(struct __cpu_device *cpu)
+int k_cpu_wakeup(struct k_cpu_device *cpu)
 {
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
-	__cpu_set_running(cpu, 1);
+	k_cpu_set_running(cpu, 1);
 	dwmb();
 
 	if (drv && drv->ops && drv->ops->wakeup) {
 		r = drv->ops->wakeup(cpu);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "wakeup id:%d(phys:%d) failed.\n",
+			__dev_err(k_cpu_to_dev(cpu), "wakeup id:%d(phys:%d) failed.\n",
 				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
@@ -342,54 +342,54 @@ int __cpu_wakeup(struct __cpu_device *cpu)
 	return 0;
 }
 
-int __cpu_sleep(struct __cpu_device *cpu)
+int k_cpu_sleep(struct k_cpu_device *cpu)
 {
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->sleep) {
 		r = drv->ops->sleep(cpu);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "sleep id:%d(phys:%d) failed.\n",
+			__dev_err(k_cpu_to_dev(cpu), "sleep id:%d(phys:%d) failed.\n",
 				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
 	}
 
-	__cpu_set_running(cpu, 0);
+	k_cpu_set_running(cpu, 0);
 	dwmb();
 
 	return 0;
 }
 
-int __cpu_wakeup_all(void)
+int k_cpu_wakeup_all(void)
 {
-	struct __cpu_device *cpu;
+	struct k_cpu_device *cpu;
 	int r, res = 0;
 
 	/* Main core is enabled */
-	cpu = __cpu_get(0);
+	cpu = k_cpu_get(0);
 	if (!cpu) {
 		pri_err("cpu_wakeup_all: cannot get main core.\n");
 		return -ENOMEM;
 	}
 
-	__cpu_set_running(cpu, 1);
+	k_cpu_set_running(cpu, 1);
 
 	/* Main core (id:0) already booted, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
-		cpu = __cpu_get(i);
+		cpu = k_cpu_get(i);
 
 		if (!cpu) {
 			continue;
 		}
 
-		r = __cpu_wakeup(cpu);
+		r = k_cpu_wakeup(cpu);
 		if (r) {
 			res = r;
 		}
 
-		r = __cpu_raise_ipi(cpu, NULL);
+		r = k_cpu_raise_ipi(cpu, NULL);
 		if (r) {
 			res = r;
 		}
@@ -398,47 +398,47 @@ int __cpu_wakeup_all(void)
 	return res;
 }
 
-int __cpu_sleep_all(void)
+int k_cpu_sleep_all(void)
 {
-	struct __cpu_device *cpu;
+	struct k_cpu_device *cpu;
 	int r, res = 0;
 
 	/* Main core (id:0) cannot sleep, start from 1 */
 	for (int i = 1; i < CONFIG_NUM_CORES; i++) {
-		cpu = __cpu_get(i);
+		cpu = k_cpu_get(i);
 
 		if (!cpu) {
 			continue;
 		}
 
-		r = __cpu_sleep(cpu);
+		r = k_cpu_sleep(cpu);
 		if (r) {
 			res = r;
 		}
 
-		r = __cpu_raise_ipi(cpu, NULL);
+		r = k_cpu_raise_ipi(cpu, NULL);
 		if (r) {
 			res = r;
 		}
 	}
 
 	/* Main core is disabled */
-	cpu = __cpu_get(0);
+	cpu = k_cpu_get(0);
 	if (!cpu) {
 		pri_err("cpu_sleep_all: cannot get main core.\n");
 		return -ENOMEM;
 	}
 
-	__cpu_set_running(cpu, 0);
+	k_cpu_set_running(cpu, 0);
 
 	return res;
 }
 
-int __cpu_on_wakeup(void)
+int k_cpu_on_wakeup(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __device *dev = __cpu_to_dev(cpu);
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	struct k_cpu_device *cpu = k_cpu_get_current();
+	struct __device *dev = k_cpu_to_dev(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->on_wakeup) {
@@ -449,7 +449,7 @@ int __cpu_on_wakeup(void)
 		}
 	}
 
-	r = __cpu_call_handler(cpu, CPU_EVENT_ON_WAKEUP);
+	r = k_cpu_call_handler(cpu, CPU_EVENT_ON_WAKEUP);
 	if (r) {
 		__dev_err(dev, "failed to handle event of on_wakeup.\n");
 		return r;
@@ -458,14 +458,14 @@ int __cpu_on_wakeup(void)
 	return 0;
 }
 
-int __cpu_on_sleep(void)
+int k_cpu_on_sleep(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __device *dev = __cpu_to_dev(cpu);
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	struct k_cpu_device *cpu = k_cpu_get_current();
+	struct __device *dev = k_cpu_to_dev(cpu);
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
-	r = __cpu_call_handler(cpu, CPU_EVENT_ON_SLEEP);
+	r = k_cpu_call_handler(cpu, CPU_EVENT_ON_SLEEP);
 	if (r) {
 		__dev_err(dev, "failed to handle event of on_sleep.\n");
 		return r;
@@ -482,44 +482,44 @@ int __cpu_on_sleep(void)
 	return 0;
 }
 
-int __cpu_wait_interrupt(void)
+int k_cpu_wait_interrupt(void)
 {
 	k_arch_wait_interrupt();
 
 	return 0;
 }
 
-int __cpu_raise_ipi(struct __cpu_device *dest, void *arg)
+int k_cpu_raise_ipi(struct k_cpu_device *dest, void *arg)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	const struct __cpu_driver *drv = __cpu_get_drv(cpu);
+	struct k_cpu_device *cpu = k_cpu_get_current();
+	const struct k_cpu_driver *drv = k_cpu_get_drv(cpu);
 	int r;
 
 	if (drv && drv->ops && drv->ops->raise_ipi) {
 		r = drv->ops->raise_ipi(cpu, dest, arg);
 		if (r) {
-			__dev_err(__cpu_to_dev(cpu), "failed to raise IPI.\n");
+			__dev_err(k_cpu_to_dev(cpu), "failed to raise IPI.\n");
 			return r;
 		}
 	} else {
-		__dev_err(__cpu_to_dev(cpu), "not supported to raise IPI.\n");
+		__dev_err(k_cpu_to_dev(cpu), "not supported to raise IPI.\n");
 		return -ENOTSUP;
 	}
 
 	return 0;
 }
 
-int __cpu_futex_wait(int *uaddr, int val, int bitset)
+int k_cpu_futex_wait(int *uaddr, int val, int bitset)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	int res = 0;
 
 	if (!bitset) {
-		__dev_err(__cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
+		__dev_err(k_cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
 		return -EINVAL;
 	}
 
-	__cpu_lock(cpu);
+	k_cpu_lock(cpu);
 
 	cpu->futex.uaddr = uaddr;
 	cpu->futex.val = val;
@@ -528,7 +528,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 	volatile int *p = uaddr;
 
 	dwmb();
-	__cpu_unlock(cpu);
+	k_cpu_unlock(cpu);
 
 	while (!cpu->futex.wakeup) {
 		if (*p != cpu->futex.val) {
@@ -538,7 +538,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 
 		__intr_enable_local();
 		/* FIXME: need suitable delay or wait */
-		//__cpu_wait_interrupt();
+		//k_cpu_wait_interrupt();
 		for (int k = 0; k < 250; k++) {
 			noop();
 			noop();
@@ -550,7 +550,7 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 		drmb();
 	}
 
-	__cpu_lock(cpu);
+	k_cpu_lock(cpu);
 
 	cpu->futex.uaddr = 0;
 	cpu->futex.val = 0;
@@ -558,42 +558,42 @@ int __cpu_futex_wait(int *uaddr, int val, int bitset)
 	cpu->futex.wakeup = 0;
 
 	dwmb();
-	__cpu_unlock(cpu);
+	k_cpu_unlock(cpu);
 
 	return res;
 }
 
-int __cpu_futex_wake(int *uaddr, int val, int bitset)
+int k_cpu_futex_wake(int *uaddr, int val, int bitset)
 {
-	struct __cpu_device *cpu_cur = __cpu_get_current();
+	struct k_cpu_device *cpu_cur = k_cpu_get_current();
 	int r, res = 0;
 
 	if (!bitset) {
-		__dev_err(__cpu_to_dev(cpu_cur), "futex_wake bitmask is 0.\n");
+		__dev_err(k_cpu_to_dev(cpu_cur), "futex_wake bitmask is 0.\n");
 		return -EINVAL;
 	}
 
 	for (int i = 0; i < CONFIG_NUM_CORES && res < val; i++) {
-		struct __cpu_device *cpu = __cpu_get(i);
+		struct k_cpu_device *cpu = k_cpu_get(i);
 
 		if (!cpu || cpu == cpu_cur) {
 			continue;
 		}
 
-		__cpu_lock(cpu);
+		k_cpu_lock(cpu);
 		drmb();
 
 		if (cpu->futex.uaddr != uaddr || !(cpu->futex.bitset & bitset)) {
-			__cpu_unlock(cpu);
+			k_cpu_unlock(cpu);
 			continue;
 		}
 
 		cpu->futex.wakeup = 1;
 
 		dwmb();
-		__cpu_unlock(cpu);
+		k_cpu_unlock(cpu);
 
-		r = __cpu_raise_ipi(cpu, NULL);
+		r = k_cpu_raise_ipi(cpu, NULL);
 		if (r) {
 			res = r;
 		}
@@ -604,7 +604,7 @@ int __cpu_futex_wake(int *uaddr, int val, int bitset)
 	return res;
 }
 
-int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_device **cpu)
+int k_cpu_get_cpu_from_config(struct __device *dev, int index, struct k_cpu_device **cpu)
 {
 	const char *cpu_name;
 	struct __device *tmp;
@@ -625,7 +625,7 @@ int __cpu_get_cpu_from_config(struct __device *dev, int index, struct __cpu_devi
 	}
 
 	if (cpu) {
-		*cpu = __cpu_from_dev(tmp);
+		*cpu = k_cpu_from_dev(tmp);
 	}
 
 	return 0;
