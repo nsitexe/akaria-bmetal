@@ -20,7 +20,7 @@ struct intc_clint_priv {
 };
 CHECK_PRIV_SIZE_INTC(struct intc_clint_priv);
 
-static int intc_clint_intr(int event, struct __event_handler *hnd)
+static int intc_clint_intr(int event, struct k_event_handler *hnd)
 {
 	struct intc_clint_priv *priv = hnd->priv;
 	struct __device *dev = k_intc_to_dev(priv->intc);
@@ -64,14 +64,14 @@ static int intc_clint_add(struct __device *dev)
 	}
 
 	for (int i = 0; i < len; i++) {
-		struct __event_handler *hnd;
+		struct k_event_handler *hnd;
 
 		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
 
-		r = __event_alloc_handler(&hnd);
+		r = k_event_alloc_handler(&hnd);
 		if (r) {
 			return r;
 		}

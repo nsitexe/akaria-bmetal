@@ -29,7 +29,7 @@
 struct uart_lite_priv {
 	struct k_uart_device *uart;
 	struct k_intc_device *intc;
-	struct __event_handler hnd_irq;
+	struct k_event_handler hnd_irq;
 	int num_irq;
 };
 CHECK_PRIV_SIZE_UART(struct uart_lite_priv);
@@ -78,7 +78,7 @@ static int uart_lite_disable_intr(struct k_uart_device *uart)
 	return 0;
 }
 
-static int uart_lite_intr(int event, struct __event_handler *hnd)
+static int uart_lite_intr(int event, struct k_event_handler *hnd)
 {
 	struct uart_lite_priv *priv = hnd->priv;
 	struct __device *dev = k_uart_to_dev(priv->uart);

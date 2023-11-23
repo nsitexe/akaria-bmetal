@@ -29,11 +29,11 @@ struct intc_priv_priv {
 	struct k_intc_device *intc;
 	struct k_cpu_device *cpu_parent;
 
-	struct __event_handler hnd_ex;
-	struct __event_handler hnd_tm;
-	struct __event_handler hnd_sw;
-	struct __event_handler hnd_wake;
-	struct __event_handler hnd_sleep;
+	struct k_event_handler hnd_ex;
+	struct k_event_handler hnd_tm;
+	struct k_event_handler hnd_sw;
+	struct k_event_handler hnd_wake;
+	struct k_event_handler hnd_sleep;
 
 	unsigned int has_ex:1;
 	unsigned int enabled_ex:1;
@@ -44,9 +44,9 @@ struct intc_priv_priv {
 };
 CHECK_PRIV_SIZE_INTC(struct intc_priv_priv);
 
-static int intc_priv_intr(int event, struct __event_handler *hnd)
+static int intc_priv_intr(int event, struct k_event_handler *hnd)
 {
-	struct __event_handler *hnd_child = NULL;
+	struct k_event_handler *hnd_child = NULL;
 	int r, res = EVENT_NOT_HANDLED;
 
 	/*
@@ -64,7 +64,7 @@ static int intc_priv_intr(int event, struct __event_handler *hnd)
 	}
 
 	if (hnd_child) {
-		r = __event_handle_generic(event, hnd_child);
+		r = k_event_handle_generic(event, hnd_child);
 		if (r == EVENT_HANDLED) {
 			res = EVENT_HANDLED;
 		}
@@ -98,7 +98,7 @@ static int intc_priv_update_intr_mask(struct k_intc_device *intc, int wakeup)
 	return 0;
 }
 
-static int intc_priv_cpu_event(int event, struct __event_handler *hnd)
+static int intc_priv_cpu_event(int event, struct k_event_handler *hnd)
 {
 	struct intc_priv_priv *priv = hnd->priv;
 	struct k_intc_device *intc = priv->intc;
@@ -215,11 +215,11 @@ static int intc_priv_remove(struct __device *dev)
 	return -ENOTSUP;
 }
 
-static int intc_priv_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+static int intc_priv_add_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
-	struct __event_handler *head;
+	struct k_event_handler *head;
 	int r;
 
 	switch (event) {
@@ -243,23 +243,23 @@ static int intc_priv_add_handler(struct k_intc_device *intc, int event, struct _
 		return -EINVAL;
 	}
 
-	r = __event_add_handler(head, handler);
+	r = k_event_add_handler(head, handler);
 	if (r) {
 		return r;
 	}
 
-	priv->has_ex = __event_has_next(&priv->hnd_ex);
-	priv->has_tm = __event_has_next(&priv->hnd_tm);
-	priv->has_sw = __event_has_next(&priv->hnd_sw);
+	priv->has_ex = k_event_has_next(&priv->hnd_ex);
+	priv->has_tm = k_event_has_next(&priv->hnd_tm);
+	priv->has_sw = k_event_has_next(&priv->hnd_sw);
 
 	return 0;
 }
 
-static int intc_priv_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+static int intc_priv_remove_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_priv_priv *priv = dev->priv;
-	struct __event_handler *head;
+	struct k_event_handler *head;
 	int r;
 
 	switch (event) {
@@ -283,14 +283,14 @@ static int intc_priv_remove_handler(struct k_intc_device *intc, int event, struc
 		return -EINVAL;
 	}
 
-	r = __event_remove_handler(head, handler);
+	r = k_event_remove_handler(head, handler);
 	if (r) {
 		return r;
 	}
 
-	priv->has_ex = __event_has_next(&priv->hnd_ex);
-	priv->has_tm = __event_has_next(&priv->hnd_tm);
-	priv->has_sw = __event_has_next(&priv->hnd_sw);
+	priv->has_ex = k_event_has_next(&priv->hnd_ex);
+	priv->has_tm = k_event_has_next(&priv->hnd_tm);
+	priv->has_sw = k_event_has_next(&priv->hnd_sw);
 
 	return 0;
 }

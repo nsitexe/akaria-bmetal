@@ -62,10 +62,10 @@
 
 #if !defined(__ASSEMBLER__)
 
-int k_arch_riscv_get_intr_handler(int event, struct __event_handler **hnd);
-int k_arch_riscv_set_intr_handler(int event, struct __event_handler *hnd);
-int k_arch_riscv_get_exc_handler(int event, struct __event_handler **hnd);
-int k_arch_riscv_set_exc_handler(int event, struct __event_handler *hnd);
+int k_arch_riscv_get_intr_handler(int event, struct k_event_handler **hnd);
+int k_arch_riscv_set_intr_handler(int event, struct k_event_handler *hnd);
+int k_arch_riscv_get_exc_handler(int event, struct k_event_handler **hnd);
+int k_arch_riscv_set_exc_handler(int event, struct k_event_handler *hnd);
 void k_arch_riscv_intr_enable_local(void);
 void k_arch_riscv_intr_disable_local(void);
 void k_arch_riscv_intr_restore_local(const long status);

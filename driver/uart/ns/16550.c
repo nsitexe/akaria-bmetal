@@ -52,7 +52,7 @@ struct uart_ns16550_priv {
 	uint32_t addr_shift;
 
 	struct k_intc_device *intc;
-	struct __event_handler hnd_irq;
+	struct k_event_handler hnd_irq;
 	int num_irq;
 
 	struct k_uart_config conf;
@@ -195,7 +195,7 @@ static int uart_ns16550_set_config(struct k_uart_device *uart, const struct k_ua
 	return res;
 }
 
-static int uart_ns16550_intr(int event, struct __event_handler *hnd)
+static int uart_ns16550_intr(int event, struct k_event_handler *hnd)
 {
 	struct uart_ns16550_priv *priv = hnd->priv;
 	struct k_uart_device *uart = priv->uart;

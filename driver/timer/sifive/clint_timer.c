@@ -155,7 +155,7 @@ static int timer_clint_set_trigger(struct k_timer_device *tm, int index, const s
 	return 0;
 }
 
-static int timer_clint_intr(int event, struct __event_handler *hnd)
+static int timer_clint_intr(int event, struct k_event_handler *hnd)
 {
 	int r;
 
@@ -211,14 +211,14 @@ static int timer_clint_add(struct __device *dev)
 	}
 
 	for (int i = 0; i < len; i++) {
-		struct __event_handler *hnd;
+		struct k_event_handler *hnd;
 
 		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
 
-		r = __event_alloc_handler(&hnd);
+		r = k_event_alloc_handler(&hnd);
 		if (r) {
 			return r;
 		}

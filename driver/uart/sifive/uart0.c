@@ -42,7 +42,7 @@ struct uart_sifive_priv {
 	uint64_t freq_in;
 
 	struct k_intc_device *intc;
-	struct __event_handler hnd_irq;
+	struct k_event_handler hnd_irq;
 	int num_irq;
 
 	struct k_uart_config conf;
@@ -133,7 +133,7 @@ static int uart_sifive_set_config(struct k_uart_device *uart, const struct k_uar
 	return res;
 }
 
-static int uart_sifive_intr(int event, struct __event_handler *hnd)
+static int uart_sifive_intr(int event, struct k_event_handler *hnd)
 {
 	//struct uart_sifive_priv *priv = hnd->priv;
 

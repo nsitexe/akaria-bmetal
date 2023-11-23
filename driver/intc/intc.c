@@ -75,7 +75,7 @@ int k_intc_remove_device(struct k_intc_device *intc)
 	return __device_remove(k_intc_to_dev(intc));
 }
 
-int k_intc_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+int k_intc_add_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	const struct k_intc_driver *drv = k_intc_get_drv(intc);
 	int r = -ENODEV;
@@ -94,7 +94,7 @@ int k_intc_add_handler(struct k_intc_device *intc, int event, struct __event_han
 	return r;
 }
 
-int k_intc_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+int k_intc_remove_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	const struct k_intc_driver *drv = k_intc_get_drv(intc);
 	int r = -ENODEV;

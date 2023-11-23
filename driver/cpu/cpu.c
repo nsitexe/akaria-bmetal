@@ -237,10 +237,10 @@ int k_cpu_cache_flush_range(struct k_cpu_device *cpu, const void *start, size_t 
 	return 0;
 }
 
-static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler **head)
+static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event event, struct k_event_handler **head)
 {
 	struct __device *dev = k_cpu_to_dev(cpu);
-	struct __event_handler *h;
+	struct k_event_handler *h;
 
 	if (CPU_EVENT_MAX <= event) {
 		__dev_err(dev, "CPU event %d is too large.\n", event);
@@ -269,7 +269,7 @@ static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event eve
 
 static int k_cpu_call_handler(struct k_cpu_device *cpu, enum k_cpu_event event)
 {
-	struct __event_handler *head;
+	struct k_event_handler *head;
 	int r;
 
 	r = k_cpu_get_handler_head(cpu, event, &head);
@@ -277,16 +277,16 @@ static int k_cpu_call_handler(struct k_cpu_device *cpu, enum k_cpu_event event)
 		return r;
 	}
 
-	if (__event_has_next(head)) {
-		__event_handle_generic(event, head->hnd_next);
+	if (k_event_has_next(head)) {
+		k_event_handle_generic(event, head->hnd_next);
 	}
 
 	return 0;
 }
 
-int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler *handler)
+int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct k_event_handler *handler)
 {
-	struct __event_handler *head;
+	struct k_event_handler *head;
 	int r;
 
 	r = k_cpu_get_handler_head(cpu, event, &head);
@@ -296,7 +296,7 @@ int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct _
 
 	handler->event = event;
 
-	r = __event_add_handler(head, handler);
+	r = k_event_add_handler(head, handler);
 	if (r) {
 		return r;
 	}
@@ -304,9 +304,9 @@ int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct _
 	return 0;
 }
 
-int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct __event_handler *handler)
+int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struct k_event_handler *handler)
 {
-	struct __event_handler *head;
+	struct k_event_handler *head;
 	int r;
 
 	r = k_cpu_get_handler_head(cpu, event, &head);
@@ -314,7 +314,7 @@ int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event event, struc
 		return r;
 	}
 
-	r = __event_remove_handler(head, handler);
+	r = k_event_remove_handler(head, handler);
 	if (r) {
 		return r;
 	}

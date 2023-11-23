@@ -5,12 +5,12 @@
 #include <bmetal/arch/cpu.h>
 #include <bmetal/sys/errno.h>
 
-static struct __event_handler *int_handlers[RV_CAUSE_INT_MAX_NUM];
-static struct __event_handler *exc_handlers[RV_CAUSE_EXC_MAX_NUM];
+static struct k_event_handler *k_int_handlers[RV_CAUSE_INT_MAX_NUM];
+static struct k_event_handler *k_exc_handlers[RV_CAUSE_EXC_MAX_NUM];
 
 int k_arch_riscv_interrupt(uintptr_t mcause)
 {
-	struct __event_handler *h;
+	struct k_event_handler *h;
 	int cause = mcause & 0x7fffffff;
 	int r;
 
@@ -19,7 +19,7 @@ int k_arch_riscv_interrupt(uintptr_t mcause)
 		return 0;
 	}
 
-	h = int_handlers[cause];
+	h = k_int_handlers[cause];
 	if (h && h->func) {
 		r = h->func(cause, h);
 		if (r == EVENT_HANDLED) {
@@ -32,7 +32,7 @@ int k_arch_riscv_interrupt(uintptr_t mcause)
 
 int k_arch_riscv_exception(uintptr_t mcause)
 {
-	struct __event_handler *h;
+	struct k_event_handler *h;
 	int cause = mcause & 0x7fffffff;
 	int r;
 
@@ -41,7 +41,7 @@ int k_arch_riscv_exception(uintptr_t mcause)
 		return 0;
 	}
 
-	h = exc_handlers[cause];
+	h = k_exc_handlers[cause];
 	if (h && h->func) {
 		r = h->func(cause, h);
 		if (r == EVENT_HANDLED) {
@@ -57,9 +57,9 @@ int k_arch_riscv_exception(uintptr_t mcause)
 	return 0;
 }
 
-int k_arch_riscv_get_intr_handler(int event, struct __event_handler **hnd)
+int k_arch_riscv_get_intr_handler(int event, struct k_event_handler **hnd)
 {
-	struct __event_handler *h;
+	struct k_event_handler *h;
 
 	switch (event) {
 	case RV_CAUSE_INT_U_SW:
@@ -71,7 +71,7 @@ int k_arch_riscv_get_intr_handler(int event, struct __event_handler **hnd)
 	case RV_CAUSE_INT_U_EX:
 	case RV_CAUSE_INT_S_EX:
 	case RV_CAUSE_INT_M_EX:
-		h = int_handlers[event];
+		h = k_int_handlers[event];
 		break;
 	default:
 		pri_warn("get_intr_handler: unknown event number %d.\n", event);
@@ -85,7 +85,7 @@ int k_arch_riscv_get_intr_handler(int event, struct __event_handler **hnd)
 	return 0;
 }
 
-int k_arch_riscv_set_intr_handler(int event, struct __event_handler *hnd)
+int k_arch_riscv_set_intr_handler(int event, struct k_event_handler *hnd)
 {
 	switch (event) {
 	case RV_CAUSE_INT_U_SW:
@@ -97,7 +97,7 @@ int k_arch_riscv_set_intr_handler(int event, struct __event_handler *hnd)
 	case RV_CAUSE_INT_U_EX:
 	case RV_CAUSE_INT_S_EX:
 	case RV_CAUSE_INT_M_EX:
-		int_handlers[event] = hnd;
+		k_int_handlers[event] = hnd;
 		break;
 	default:
 		pri_warn("set_intr_handler: unknown event number %d.\n", event);
@@ -107,9 +107,9 @@ int k_arch_riscv_set_intr_handler(int event, struct __event_handler *hnd)
 	return 0;
 }
 
-int k_arch_riscv_get_exc_handler(int event, struct __event_handler **hnd)
+int k_arch_riscv_get_exc_handler(int event, struct k_event_handler **hnd)
 {
-	struct __event_handler *h;
+	struct k_event_handler *h;
 
 	switch (event) {
 	case RV_CAUSE_EXC_INS_ADDR:
@@ -126,7 +126,7 @@ int k_arch_riscv_get_exc_handler(int event, struct __event_handler **hnd)
 	case RV_CAUSE_EXC_INS_PAGE_FAULT:
 	case RV_CAUSE_EXC_LD_PAGE_FAULT:
 	case RV_CAUSE_EXC_ST_PAGE_FAULT:
-		h = exc_handlers[event];
+		h = k_exc_handlers[event];
 		break;
 	default:
 		pri_warn("get_exc_handler: unknown event number %d.\n", event);
@@ -140,7 +140,7 @@ int k_arch_riscv_get_exc_handler(int event, struct __event_handler **hnd)
 	return 0;
 }
 
-int k_arch_riscv_set_exc_handler(int event, struct __event_handler *hnd)
+int k_arch_riscv_set_exc_handler(int event, struct k_event_handler *hnd)
 {
 	switch (event) {
 	case RV_CAUSE_EXC_INS_ADDR:
@@ -157,7 +157,7 @@ int k_arch_riscv_set_exc_handler(int event, struct __event_handler *hnd)
 	case RV_CAUSE_EXC_INS_PAGE_FAULT:
 	case RV_CAUSE_EXC_LD_PAGE_FAULT:
 	case RV_CAUSE_EXC_ST_PAGE_FAULT:
-		exc_handlers[event] = hnd;
+		k_exc_handlers[event] = hnd;
 		break;
 	default:
 		pri_warn("set_exc_handler: unknown event number %d.\n", event);

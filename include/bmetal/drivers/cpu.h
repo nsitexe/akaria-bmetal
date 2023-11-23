@@ -63,7 +63,7 @@ struct k_cpu_device {
 	struct k_thread_info *ti;
 	struct k_thread_info *ti_idle;
 	struct k_thread_info *ti_task;
-	struct __event_handler handlers[CPU_EVENT_MAX];
+	struct k_event_handler handlers[CPU_EVENT_MAX];
 	struct k_cpu_futex futex;
 
 	int line_size_i;
@@ -144,8 +144,8 @@ void k_cpu_cache_set_line_size_d(struct k_cpu_device *cpu, int sz);
 int k_cpu_cache_clean_range(struct k_cpu_device *cpu, const void *start, size_t sz);
 int k_cpu_cache_inv_range(struct k_cpu_device *cpu, const void *start, size_t sz);
 int k_cpu_cache_flush_range(struct k_cpu_device *cpu, const void *start, size_t sz);
-int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event ev, struct __event_handler *hnd);
-int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event ev, struct __event_handler *hnd);
+int k_cpu_add_handler(struct k_cpu_device *cpu, enum k_cpu_event ev, struct k_event_handler *hnd);
+int k_cpu_remove_handler(struct k_cpu_device *cpu, enum k_cpu_event ev, struct k_event_handler *hnd);
 int k_cpu_wakeup(struct k_cpu_device *cpu);
 int k_cpu_sleep(struct k_cpu_device *cpu);
 int k_cpu_wakeup_all(void);

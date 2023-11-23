@@ -20,7 +20,7 @@ struct intc_plic_priv {
 	uint32_t n_event;
 	uint32_t n_ctx;
 
-	struct __event_handler *hnd[PLIC_SOURCES_MAX];
+	struct k_event_handler *hnd[PLIC_SOURCES_MAX];
 };
 CHECK_PRIV_SIZE_INTC(struct intc_plic_priv);
 
@@ -81,7 +81,7 @@ static int intc_plic_disable_interrupt(struct k_intc_device *intc, int event, in
 	return 0;
 }
 
-static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
@@ -113,7 +113,7 @@ static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct _
 	return 0;
 }
 
-static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struct __event_handler *handler)
+static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struct k_event_handler *handler)
 {
 	struct __device *dev = k_intc_to_dev(intc);
 	struct intc_plic_priv *priv = dev->priv;
@@ -145,7 +145,7 @@ static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struc
 	return 0;
 }
 
-static int intc_plic_intr(int event, struct __event_handler *hnd)
+static int intc_plic_intr(int event, struct k_event_handler *hnd)
 {
 	struct intc_plic_priv *priv = hnd->priv;
 	struct __device *dev = k_intc_to_dev(priv->intc);
@@ -159,7 +159,7 @@ static int intc_plic_intr(int event, struct __event_handler *hnd)
 	v = __device_read32(dev, REG_CLAIM(ctx));
 	__device_write32(dev, v, REG_CLAIM(ctx));
 	if (priv->hnd[v]) {
-		res = __event_handle_generic(v, priv->hnd[v]);
+		res = k_event_handle_generic(v, priv->hnd[v]);
 	}
 
 	return res;
@@ -190,14 +190,14 @@ static int intc_plic_add(struct __device *dev)
 	}
 
 	for (int i = 0; i < len; i++) {
-		struct __event_handler *hnd;
+		struct k_event_handler *hnd;
 
 		r = k_intc_get_intc_from_config(dev, i, &intc_parent, &num_irq);
 		if (r) {
 			return r;
 		}
 
-		r = __event_alloc_handler(&hnd);
+		r = k_event_alloc_handler(&hnd);
 		if (r) {
 			return r;
 		}
