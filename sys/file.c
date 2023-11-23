@@ -81,9 +81,9 @@ ssize_t k_file_read(struct k_file_desc *desc, void *buf, size_t count)
 {
 	ssize_t ret;
 
-	__spinlock_lock(&desc->lock);
+	k_spinlock_lock(&desc->lock);
 	ret = k_file_read_nolock(desc, buf, count);
-	__spinlock_unlock(&desc->lock);
+	k_spinlock_unlock(&desc->lock);
 
 	return ret;
 }
@@ -110,9 +110,9 @@ ssize_t k_file_write(struct k_file_desc *desc, const void *buf, size_t count)
 {
 	ssize_t ret;
 
-	__spinlock_lock(&desc->lock);
+	k_spinlock_lock(&desc->lock);
 	ret = k_file_write_nolock(desc, buf, count);
-	__spinlock_unlock(&desc->lock);
+	k_spinlock_unlock(&desc->lock);
 
 	return ret;
 }

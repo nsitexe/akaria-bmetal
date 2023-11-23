@@ -16,7 +16,7 @@ struct k_cpu_device;
 struct k_proc_info {
 	pid_t pid;
 	int avail;
-	struct __spinlock lock;
+	struct k_spinlock lock;
 	struct k_thread_info *leader;
 
 	struct k_file_desc *fdset[CONFIG_MAX_FD];

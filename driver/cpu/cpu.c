@@ -56,12 +56,12 @@ void k_cpu_set_current_user_regs(k_arch_user_regs_t *regs)
 
 int k_cpu_lock(struct k_cpu_device *cpu)
 {
-	return __spinlock_lock(&cpu->lock);
+	return k_spinlock_lock(&cpu->lock);
 }
 
 int k_cpu_unlock(struct k_cpu_device *cpu)
 {
-	return __spinlock_unlock(&cpu->lock);
+	return k_spinlock_unlock(&cpu->lock);
 }
 
 struct k_thread_info *k_cpu_get_thread(struct k_cpu_device *cpu)

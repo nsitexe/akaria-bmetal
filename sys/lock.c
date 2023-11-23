@@ -4,22 +4,22 @@
 #include <bmetal/lock.h>
 #include <bmetal/drivers/cpu.h>
 
-int __spinlock_init(struct __spinlock *s)
+int k_spinlock_init(struct k_spinlock *s)
 {
 	return k_arch_spinlock_init(&s->lock);
 }
 
-int __spinlock_lock(struct __spinlock *s)
+int k_spinlock_lock(struct k_spinlock *s)
 {
 	return k_arch_spinlock_lock(&s->lock);
 }
 
-int __spinlock_trylock(struct __spinlock *s)
+int k_spinlock_trylock(struct k_spinlock *s)
 {
 	return k_arch_spinlock_trylock(&s->lock);
 }
 
-int __spinlock_unlock(struct __spinlock *s)
+int k_spinlock_unlock(struct k_spinlock *s)
 {
 	return k_arch_spinlock_unlock(&s->lock);
 }

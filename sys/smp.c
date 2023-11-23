@@ -6,18 +6,18 @@
 #include <bmetal/thread.h>
 #include <bmetal/sys/errno.h>
 
-static struct __spinlock lock_smp;
+static struct k_spinlock lock_smp;
 
 int __smp_lock(void)
 {
-	__spinlock_lock(&lock_smp);
+	k_spinlock_lock(&lock_smp);
 
 	return 0;
 }
 
 int __smp_unlock(void)
 {
-	__spinlock_unlock(&lock_smp);
+	k_spinlock_unlock(&lock_smp);
 
 	return 0;
 }

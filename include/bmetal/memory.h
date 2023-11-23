@@ -14,7 +14,7 @@
 typedef uint64_t __paddr_t;
 
 struct __mem_node {
-	struct __spinlock lock;
+	struct k_spinlock lock;
 
 	__paddr_t paddr;
 	void *vaddr;
@@ -27,14 +27,14 @@ struct __mem_node {
 
 static inline int __mem_node_lock(struct __mem_node *m)
 {
-	__spinlock_lock(&m->lock);
+	k_spinlock_lock(&m->lock);
 
 	return 0;
 }
 
 static inline int __mem_node_unlock(struct __mem_node *m)
 {
-	__spinlock_unlock(&m->lock);
+	k_spinlock_unlock(&m->lock);
 
 	return 0;
 }

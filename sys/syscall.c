@@ -304,7 +304,7 @@ intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 		return 0;
 	}
 
-	__spinlock_lock(&desc->lock);
+	k_spinlock_lock(&desc->lock);
 	for (int i = 0; i < iovcnt; i++) {
 		if (iov[i].iov_len == 0) {
 			continue;
@@ -322,7 +322,7 @@ intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 			break;
 		}
 	}
-	__spinlock_unlock(&desc->lock);
+	k_spinlock_unlock(&desc->lock);
 
 	return ret;
 }

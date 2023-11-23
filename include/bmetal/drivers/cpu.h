@@ -59,7 +59,7 @@ struct k_cpu_device {
 	int id_phys;
 	int running;
 	k_arch_user_regs_t *regs;
-	struct __spinlock lock;
+	struct k_spinlock lock;
 	struct k_thread_info *ti;
 	struct k_thread_info *ti_idle;
 	struct k_thread_info *ti_task;

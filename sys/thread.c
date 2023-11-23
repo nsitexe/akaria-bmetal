@@ -113,7 +113,7 @@ struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 	struct k_thread_info *ti = NULL;
 	int found = 0, r;
 
-	__spinlock_lock(&pi->lock);
+	k_spinlock_lock(&pi->lock);
 
 	for (int i = 0; i < ARRAY_OF(k_ti); i++) {
 		ti = k_thread_get_raw(i);
@@ -126,7 +126,7 @@ struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 	if (!found) {
 		pri_warn("create_thread: reach to limit.\n");
 
-		__spinlock_unlock(&pi->lock);
+		k_spinlock_unlock(&pi->lock);
 		return NULL;
 	}
 
@@ -143,11 +143,11 @@ struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 	if (r) {
 		pri_warn("create_thread: failed to arch_thread_init.\n");
 
-		__spinlock_unlock(&pi->lock);
+		k_spinlock_unlock(&pi->lock);
 		return NULL;
 	}
 
-	__spinlock_unlock(&pi->lock);
+	k_spinlock_unlock(&pi->lock);
 
 	return ti;
 }

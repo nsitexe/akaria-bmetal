@@ -25,7 +25,7 @@ static define_heap(heap_head_area, CONFIG_HEAP_SIZE);
 static char heap_head_stat[CONFIG_HEAP_SIZE / __PAGE_SIZE];
 static int dbg_heap_num = 1;
 
-static struct __spinlock lock_brk;
+static struct k_spinlock lock_brk;
 static char *brk_top, *brk_cur;
 
 struct __mem_node *__mem_node_head(void)
@@ -230,14 +230,14 @@ int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t lengt
 
 int __mem_brk_lock(void)
 {
-	__spinlock_lock(&lock_brk);
+	k_spinlock_lock(&lock_brk);
 
 	return 0;
 }
 
 int __mem_brk_unlock(void)
 {
-	__spinlock_unlock(&lock_brk);
+	k_spinlock_unlock(&lock_brk);
 
 	return 0;
 }

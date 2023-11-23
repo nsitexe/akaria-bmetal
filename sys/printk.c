@@ -17,7 +17,7 @@ static int null_putc(int c);
 
 static __getc_func printk_getc = null_getc;
 static __putc_func printk_putc = null_putc;
-static struct __spinlock printk_lock;
+static struct k_spinlock printk_lock;
 
 static int null_getc(void)
 {
@@ -89,9 +89,9 @@ int __kputchar(int c)
 	int r;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	r = __inner_putc(c);
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;
@@ -103,9 +103,9 @@ int __kputs(const char *s)
 	int r;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	r = __inner_puts(s, 1);
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;
@@ -117,7 +117,7 @@ int __kread(char *s, size_t count)
 	int c, n;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	c = __inner_getc();
 	if (c == EOF) {
 		n = 0;
@@ -125,7 +125,7 @@ int __kread(char *s, size_t count)
 		s[0] = c;
 		n = 1;
 	}
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return n;
@@ -136,11 +136,11 @@ int __kwrite(const char *s, size_t count)
 	long st;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	for (size_t i = 0; i < count; i++) {
 		__inner_putc(s[i]);
 	}
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return count;
@@ -188,9 +188,9 @@ int __vprintk(const char *format, va_list va)
 	int r;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	r = __inner_vprintf(format, va);
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;
@@ -207,9 +207,9 @@ int __vsnprintk(char *buffer, size_t count, const char *format, va_list va)
 	int r;
 
 	__intr_save_local(&st);
-	__spinlock_lock(&printk_lock);
+	k_spinlock_lock(&printk_lock);
 	r = __inner_vsnprintf(buffer, count, format, va);
-	__spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&printk_lock);
 	__intr_restore_local(st);
 
 	return r;

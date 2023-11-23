@@ -21,7 +21,7 @@ struct k_file_ops {
 };
 
 struct k_file_desc {
-	struct __spinlock lock;
+	struct k_spinlock lock;
 	const struct k_file_ops *ops;
 };
 
