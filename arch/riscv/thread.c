@@ -6,7 +6,7 @@
 #include <bmetal/thread.h>
 #include <bmetal/arch/intr.h>
 
-int k_arch_riscv_thread_init(struct __thread_info *ti)
+int k_arch_riscv_thread_init(struct k_thread_info *ti)
 {
 	k_arch_copy_current_context(&ti->regs);
 

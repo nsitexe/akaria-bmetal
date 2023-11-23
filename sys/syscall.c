@@ -95,12 +95,12 @@ intptr_t k_sys_getegid(void)
 
 intptr_t k_sys_getpid(void)
 {
-	return __proc_get_pid();
+	return k_proc_get_pid();
 }
 
 intptr_t k_sys_gettid(void)
 {
-	return __thread_get_tid();
+	return k_thread_get_tid();
 }
 
 intptr_t k_sys_clock_gettime32(clockid_t clock_id, struct timespec32 *tp)
@@ -440,8 +440,8 @@ intptr_t k_sys_mprotect(void *addr, size_t length, int prot)
 intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
 {
 	struct k_cpu_device *cpu_cur = k_cpu_get_current(), *cpu;
-	struct __proc_info *pi = __proc_get_current();
-	struct __thread_info *ti;
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
 	size_t pos_intr;
 	int need_ctid = 0, need_ptid = 0, need_tls = 0;
 	int r;
@@ -481,7 +481,7 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	k_cpu_lock(cpu);
 
 	/* Init thread info */
-	ti = __thread_create(pi);
+	ti = k_thread_create(pi);
 	if (!ti) {
 		r = -ENOMEM;
 		goto err_out;
@@ -521,7 +521,7 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&k_stack_intr[pos_intr]);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
 
-	r = __thread_run(ti, cpu);
+	r = k_thread_run(ti, cpu);
 	if (r) {
 		goto err_out2;
 	}
@@ -538,10 +538,10 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	return ti->tid;
 
 err_out3:
-	__thread_stop(ti);
+	k_thread_stop(ti);
 
 err_out2:
-	__thread_destroy(ti);
+	k_thread_destroy(ti);
 
 err_out:
 	k_cpu_unlock(cpu);
@@ -633,7 +633,7 @@ err_out:
 intptr_t k_sys_set_robust_list(void *head, size_t len)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __thread_info *ti;
+	struct k_thread_info *ti;
 
 	if (len == 0) {
 		return -EINVAL;
@@ -654,7 +654,7 @@ intptr_t k_sys_set_robust_list(void *head, size_t len)
 intptr_t k_sys_set_tid_address(int *tidptr)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __thread_info *ti;
+	struct k_thread_info *ti;
 
 	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
@@ -671,9 +671,9 @@ intptr_t k_sys_set_tid_address(int *tidptr)
 
 intptr_t k_sys_exit_group(int status)
 {
-	struct __proc_info *pi = __proc_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
 	struct k_cpu_device *cur = k_cpu_get_current();
-	struct __thread_info *ti;
+	struct k_thread_info *ti;
 
 	k_cpu_lock(cur);
 
@@ -684,7 +684,7 @@ intptr_t k_sys_exit_group(int status)
 		return -EINVAL;
 	}
 
-	if (__proc_get_leader(pi) != ti) {
+	if (k_proc_get_leader(pi) != ti) {
 		k_cpu_unlock(cur);
 		return k_sys_exit(status);
 	}
@@ -712,9 +712,9 @@ intptr_t k_sys_exit_group(int status)
 
 intptr_t k_sys_exit(int status)
 {
-	struct __proc_info *pi = __proc_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __thread_info *ti;
+	struct k_thread_info *ti;
 	uintptr_t v;
 	int f_wake = 0, r;
 
@@ -728,20 +728,20 @@ intptr_t k_sys_exit(int status)
 		return -EINVAL;
 	}
 
-	r = __thread_stop(ti);
+	r = k_thread_stop(ti);
 	if (r) {
 		k_cpu_unlock(cpu);
 		return r;
 	}
 
-	r = __thread_destroy(ti);
+	r = k_thread_destroy(ti);
 	if (r) {
 		k_cpu_unlock(cpu);
 		return r;
 	}
 
 	/* Notify to host when leader exit */
-	if (__proc_get_leader(pi) == ti) {
+	if (k_proc_get_leader(pi) == ti) {
 		k_fini_leader(status);
 	} else {
 		k_fini_child(status);
@@ -753,7 +753,7 @@ intptr_t k_sys_exit(int status)
 		f_wake = 1;
 	}
 
-	r = __thread_context_switch_nolock();
+	r = k_thread_context_switch_nolock();
 	if (r) {
 		k_cpu_unlock(cpu);
 		return r;
@@ -804,7 +804,7 @@ intptr_t k_sys_context_switch(void)
 	uintptr_t v;
 	int r;
 
-	r = __thread_context_switch();
+	r = k_thread_context_switch();
 	if (r) {
 		/* TODO: fatal error, panic? */
 		pri_err("sys_context_switch: failed to context_switch.\n");

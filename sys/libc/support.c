@@ -12,7 +12,7 @@
 
 void _start(void);
 
-int k_libc_init_main_thread(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
+int k_libc_init_main_thread(struct k_thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
 	intptr_t *v;
 

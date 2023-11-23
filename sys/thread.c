@@ -11,9 +11,9 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
-static struct __proc_info __pi;
+static struct k_proc_info k_pi;
 /* Each CPU has 2 threads (idle and task) */
-static struct __thread_info __ti[CONFIG_NUM_CORES * 2];
+static struct k_thread_info k_ti[CONFIG_NUM_CORES * 2];
 static k_atomic_int uniq_tid = 1;
 
 static int alloc_tid(void)
@@ -21,51 +21,51 @@ static int alloc_tid(void)
 	return k_afetch_add(&uniq_tid, 1);
 }
 
-struct __proc_info *__proc_create(void)
+struct k_proc_info *k_proc_create(void)
 {
-	if (__pi.avail) {
+	if (k_pi.avail) {
 		pri_warn("proc_create: already created.\n");
 		return NULL;
 	}
 
-	__pi.avail = 1;
+	k_pi.avail = 1;
 
-	return &__pi;
+	return &k_pi;
 }
 
-struct __proc_info *__proc_get_current(void)
+struct k_proc_info *k_proc_get_current(void)
 {
-	if (!__pi.avail) {
+	if (!k_pi.avail) {
 		pri_err("proc_get_current: no process.\n");
 		return NULL;
 	}
 
-	return &__pi;
+	return &k_pi;
 }
 
-pid_t __proc_get_pid(void)
+pid_t k_proc_get_pid(void)
 {
-	struct __proc_info *pi = __proc_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
 
 	return pi->pid;
 }
 
-struct __thread_info *__proc_get_leader(struct __proc_info *pi)
+struct k_thread_info *k_proc_get_leader(struct k_proc_info *pi)
 {
 	return pi->leader;
 }
 
-int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti)
+int k_proc_set_leader(struct k_proc_info *pi, struct k_thread_info *ti)
 {
 	pi->leader = ti;
 
 	return 0;
 }
 
-void __thread_idle_main(int leader)
+void k_thread_idle_main(int leader)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __thread_info *ti = NULL;
+	struct k_thread_info *ti = NULL;
 	int r;
 
 	__intr_disable_local();
@@ -108,15 +108,15 @@ void __thread_idle_main(int leader)
 	}
 }
 
-struct __thread_info *__thread_create(struct __proc_info *pi)
+struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 {
-	struct __thread_info *ti = NULL;
+	struct k_thread_info *ti = NULL;
 	int found = 0, r;
 
 	__spinlock_lock(&pi->lock);
 
-	for (int i = 0; i < ARRAY_OF(__ti); i++) {
-		ti = __thread_get_raw(i);
+	for (int i = 0; i < ARRAY_OF(k_ti); i++) {
+		ti = k_thread_get_raw(i);
 
 		if (!ti->avail) {
 			found = 1;
@@ -152,7 +152,7 @@ struct __thread_info *__thread_create(struct __proc_info *pi)
 	return ti;
 }
 
-int __thread_destroy(struct __thread_info *ti)
+int k_thread_destroy(struct k_thread_info *ti)
 {
 	if (!ti) {
 		return -EINVAL;
@@ -167,7 +167,7 @@ int __thread_destroy(struct __thread_info *ti)
 	return 0;
 }
 
-int __thread_run(struct __thread_info *ti, struct k_cpu_device *cpu)
+int k_thread_run(struct k_thread_info *ti, struct k_cpu_device *cpu)
 {
 	ti->running = 1;
 	ti->cpu = cpu;
@@ -176,7 +176,7 @@ int __thread_run(struct __thread_info *ti, struct k_cpu_device *cpu)
 	return 0;
 }
 
-int __thread_stop(struct __thread_info *ti)
+int k_thread_stop(struct k_thread_info *ti)
 {
 	k_cpu_set_thread_task(ti->cpu, NULL);
 	ti->cpu = NULL;
@@ -185,19 +185,19 @@ int __thread_stop(struct __thread_info *ti)
 	return 0;
 }
 
-struct __thread_info *__thread_get_raw(int n)
+struct k_thread_info *k_thread_get_raw(int n)
 {
-	if (n < 0 || ARRAY_OF(__ti) <= n) {
+	if (n < 0 || ARRAY_OF(k_ti) <= n) {
 		return NULL;
 	}
 
-	return &__ti[n];
+	return &k_ti[n];
 }
 
-struct __thread_info *__thread_get(pid_t tid)
+struct k_thread_info *k_thread_get(pid_t tid)
 {
-	for (int i = 0; i < ARRAY_OF(__ti); i++) {
-		struct __thread_info *ti = __thread_get_raw(i);
+	for (int i = 0; i < ARRAY_OF(k_ti); i++) {
+		struct k_thread_info *ti = k_thread_get_raw(i);
 
 		if (ti->tid == tid) {
 			return ti;
@@ -207,33 +207,33 @@ struct __thread_info *__thread_get(pid_t tid)
 	return NULL;
 }
 
-struct __thread_info *__thread_get_current(void)
+struct k_thread_info *k_thread_get_current(void)
 {
 	return k_cpu_get_thread(k_cpu_get_current());
 }
 
-pid_t __thread_get_tid(void)
+pid_t k_thread_get_tid(void)
 {
-	struct __thread_info *ti = __thread_get_current();
+	struct k_thread_info *ti = k_thread_get_current();
 
 	return ti->tid;
 }
 
-int __thread_context_switch(void)
+int k_thread_context_switch(void)
 {
 	int r;
 
 	__smp_lock();
-	r = __thread_context_switch_nolock();
+	r = k_thread_context_switch_nolock();
 	__smp_unlock();
 
 	return r;
 }
 
-int __thread_context_switch_nolock(void)
+int k_thread_context_switch_nolock(void)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __thread_info *ti, *ti_idle, *ti_task;
+	struct k_thread_info *ti, *ti_idle, *ti_task;
 
 	ti = k_cpu_get_thread(cpu);
 	ti_idle = k_cpu_get_thread_idle(cpu);

@@ -33,7 +33,7 @@ static struct __file_desc fds[CONFIG_MAX_FD] = {
 
 struct __file_desc *__file_get_desc(int fd)
 {
-	struct __proc_info *pi = __proc_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
 		pri_info("__file_get_desc: fd %d is invalid\n", fd);
@@ -45,7 +45,7 @@ struct __file_desc *__file_get_desc(int fd)
 
 struct __file_desc *__file_set_desc(int fd, struct __file_desc *desc)
 {
-	struct __proc_info *pi = __proc_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
 	struct __file_desc *olddesc;
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
@@ -127,7 +127,7 @@ ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t cou
 	return __kwrite(buf, count);
 }
 
-int __file_stdio_init(struct __proc_info *pi)
+int __file_stdio_init(struct k_proc_info *pi)
 {
 	__file_set_desc(0, &fds[0]);
 	__file_set_desc(1, &fds[1]);

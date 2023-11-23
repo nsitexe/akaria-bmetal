@@ -126,7 +126,7 @@ static void copy_data(void)
 
 static int init_proc(void)
 {
-	struct __proc_info *pi = __proc_create();
+	struct k_proc_info *pi = k_proc_create();
 	int r;
 
 	pi->pid = CONFIG_MAIN_PID;
@@ -147,14 +147,14 @@ static int fini_proc(void)
 
 static int init_idle_thread(struct k_cpu_device *cpu, int leader)
 {
-	struct __proc_info *pi = __proc_get_current();
-	struct __thread_info *ti;
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
 	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 	char *sp_user = &k_stack_idle[pos_idle];
 	char *sp_intr = &k_stack_intr[pos_intr];
 
-	ti = __thread_create(pi);
+	ti = k_thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
@@ -162,7 +162,7 @@ static int init_idle_thread(struct k_cpu_device *cpu, int leader)
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_1, leader);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)k_thread_idle_main);
 
 	k_cpu_set_thread_idle(cpu, ti);
 
@@ -172,23 +172,23 @@ static int init_idle_thread(struct k_cpu_device *cpu, int leader)
 static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
-	struct __proc_info *pi = __proc_get_current();
-	struct __thread_info *ti;
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
 	int r;
 
-	ti = __thread_create(pi);
+	ti = k_thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
 	k_libc_init_main_thread(ti, argc, argv, envp, sp_user, sp_intr);
 
-	r = __proc_set_leader(pi, ti);
+	r = k_proc_set_leader(pi, ti);
 	if (r) {
 		return r;
 	}
 
-	r = __thread_run(ti, cpu);
+	r = k_thread_run(ti, cpu);
 	if (r) {
 		return r;
 	}

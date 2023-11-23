@@ -64,31 +64,31 @@ int k_cpu_unlock(struct k_cpu_device *cpu)
 	return __spinlock_unlock(&cpu->lock);
 }
 
-struct __thread_info *k_cpu_get_thread(struct k_cpu_device *cpu)
+struct k_thread_info *k_cpu_get_thread(struct k_cpu_device *cpu)
 {
 	return cpu->ti;
 }
 
-void k_cpu_set_thread(struct k_cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread(struct k_cpu_device *cpu, struct k_thread_info *ti)
 {
 	cpu->ti = ti;
 }
-struct __thread_info *k_cpu_get_thread_idle(struct k_cpu_device *cpu)
+struct k_thread_info *k_cpu_get_thread_idle(struct k_cpu_device *cpu)
 {
 	return cpu->ti_idle;
 }
 
-void k_cpu_set_thread_idle(struct k_cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread_idle(struct k_cpu_device *cpu, struct k_thread_info *ti)
 {
 	cpu->ti_idle = ti;
 }
 
-struct __thread_info *k_cpu_get_thread_task(struct k_cpu_device *cpu)
+struct k_thread_info *k_cpu_get_thread_task(struct k_cpu_device *cpu)
 {
 	return cpu->ti_task;
 }
 
-void k_cpu_set_thread_task(struct k_cpu_device *cpu, struct __thread_info *ti)
+void k_cpu_set_thread_task(struct k_cpu_device *cpu, struct k_thread_info *ti)
 {
 	cpu->ti_task = ti;
 }

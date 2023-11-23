@@ -60,9 +60,9 @@ struct k_cpu_device {
 	int running;
 	k_arch_user_regs_t *regs;
 	struct __spinlock lock;
-	struct __thread_info *ti;
-	struct __thread_info *ti_idle;
-	struct __thread_info *ti_task;
+	struct k_thread_info *ti;
+	struct k_thread_info *ti_idle;
+	struct k_thread_info *ti_task;
 	struct __event_handler handlers[CPU_EVENT_MAX];
 	struct k_cpu_futex futex;
 
@@ -121,12 +121,12 @@ void k_cpu_set_current_user_regs(k_arch_user_regs_t *regs);
 
 int k_cpu_lock(struct k_cpu_device *cpu);
 int k_cpu_unlock(struct k_cpu_device *cpu);
-struct __thread_info *k_cpu_get_thread(struct k_cpu_device *cpu);
-void k_cpu_set_thread(struct k_cpu_device *cpu, struct __thread_info *ti);
-struct __thread_info *k_cpu_get_thread_idle(struct k_cpu_device *cpu);
-void k_cpu_set_thread_idle(struct k_cpu_device *cpu, struct __thread_info *ti);
-struct __thread_info *k_cpu_get_thread_task(struct k_cpu_device *cpu);
-void k_cpu_set_thread_task(struct k_cpu_device *cpu, struct __thread_info *ti);
+struct k_thread_info *k_cpu_get_thread(struct k_cpu_device *cpu);
+void k_cpu_set_thread(struct k_cpu_device *cpu, struct k_thread_info *ti);
+struct k_thread_info *k_cpu_get_thread_idle(struct k_cpu_device *cpu);
+void k_cpu_set_thread_idle(struct k_cpu_device *cpu, struct k_thread_info *ti);
+struct k_thread_info *k_cpu_get_thread_task(struct k_cpu_device *cpu);
+void k_cpu_set_thread_task(struct k_cpu_device *cpu, struct k_thread_info *ti);
 
 int k_cpu_alloc_id(void);
 struct k_cpu_device *k_cpu_get(int id);

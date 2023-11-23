@@ -13,17 +13,17 @@
 
 struct k_cpu_device;
 
-struct __proc_info {
+struct k_proc_info {
 	pid_t pid;
 	int avail;
 	struct __spinlock lock;
-	struct __thread_info *leader;
+	struct k_thread_info *leader;
 
 	struct __file_desc *fdset[CONFIG_MAX_FD];
 };
 
-struct __thread_info {
-	struct __proc_info *pi;
+struct k_thread_info {
+	struct k_proc_info *pi;
 	pid_t tid;
 	int avail;
 	int running;
@@ -40,23 +40,23 @@ struct __thread_info {
 	struct k_cpu_device *cpu;
 };
 
-struct __proc_info *__proc_create(void);
-struct __proc_info *__proc_get_current(void);
-pid_t __proc_get_pid(void);
-struct __thread_info *__proc_get_leader(struct __proc_info *pi);
-int __proc_set_leader(struct __proc_info *pi, struct __thread_info *ti);
+struct k_proc_info *k_proc_create(void);
+struct k_proc_info *k_proc_get_current(void);
+pid_t k_proc_get_pid(void);
+struct k_thread_info *k_proc_get_leader(struct k_proc_info *pi);
+int k_proc_set_leader(struct k_proc_info *pi, struct k_thread_info *ti);
 
-void __thread_idle_main(int leader);
-struct __thread_info *__thread_create(struct __proc_info *pi);
-int __thread_destroy(struct __thread_info *ti);
-int __thread_run(struct __thread_info *ti, struct k_cpu_device *cpu);
-int __thread_stop(struct __thread_info *ti);
-struct __thread_info *__thread_get_raw(int n);
-struct __thread_info *__thread_get(pid_t tid);
-struct __thread_info *__thread_get_current(void);
-pid_t __thread_get_tid(void);
-int __thread_context_switch(void);
-int __thread_context_switch_nolock(void);
+void k_thread_idle_main(int leader);
+struct k_thread_info *k_thread_create(struct k_proc_info *pi);
+int k_thread_destroy(struct k_thread_info *ti);
+int k_thread_run(struct k_thread_info *ti, struct k_cpu_device *cpu);
+int k_thread_stop(struct k_thread_info *ti);
+struct k_thread_info *k_thread_get_raw(int n);
+struct k_thread_info *k_thread_get(pid_t tid);
+struct k_thread_info *k_thread_get_current(void);
+pid_t k_thread_get_tid(void);
+int k_thread_context_switch(void);
+int k_thread_context_switch_nolock(void);
 
 #endif /* !__ASSEMBLER__ */
 
