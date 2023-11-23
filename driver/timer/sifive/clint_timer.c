@@ -124,7 +124,7 @@ static int timer_clint_get_trigger(struct __timer_device *tm, int index, struct 
 		return r;
 	}
 
-	r = __clock_raw_to_timespec(cnt, freq, tsp);
+	r = k_clock_raw_to_timespec(cnt, freq, tsp);
 	if (r) {
 		return r;
 	}
@@ -142,7 +142,7 @@ static int timer_clint_set_trigger(struct __timer_device *tm, int index, const s
 		return r;
 	}
 
-	r = __clock_timespec_to_raw(tsp, freq, &cnt);
+	r = k_clock_timespec_to_raw(tsp, freq, &cnt);
 	if (r) {
 		return r;
 	}
@@ -159,7 +159,7 @@ static int timer_clint_intr(int event, struct __event_handler *hnd)
 {
 	int r;
 
-	r = __clock_on_tick();
+	r = k_clock_on_tick();
 	if (r) {
 		return EVENT_NOT_HANDLED;
 	}

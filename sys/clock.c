@@ -9,7 +9,7 @@
 
 static struct timespec64 ts_realtime_off;
 
-int __clock_raw_to_timespec(uint64_t count, uint64_t freq, struct timespec64 *tsp)
+int k_clock_raw_to_timespec(uint64_t count, uint64_t freq, struct timespec64 *tsp)
 {
 	if (!tsp) {
 		return -EFAULT;
@@ -22,7 +22,7 @@ int __clock_raw_to_timespec(uint64_t count, uint64_t freq, struct timespec64 *ts
 	return 0;
 }
 
-int __clock_timespec_to_raw(const struct timespec64 *tsp, uint64_t freq, uint64_t *count)
+int k_clock_timespec_to_raw(const struct timespec64 *tsp, uint64_t freq, uint64_t *count)
 {
 	uint64_t v;
 
@@ -40,12 +40,12 @@ int __clock_timespec_to_raw(const struct timespec64 *tsp, uint64_t freq, uint64_
 	return 0;
 }
 
-int __clock_get_realtime(struct timespec64 *tsp)
+int k_clock_get_realtime(struct timespec64 *tsp)
 {
 	struct timespec64 mono;
 	int r;
 
-	r = __clock_get_monotonic(&mono);
+	r = k_clock_get_monotonic(&mono);
 	if (r) {
 		return r;
 	}
@@ -57,7 +57,7 @@ int __clock_get_realtime(struct timespec64 *tsp)
 	return 0;
 }
 
-int __clock_set_realtime(const struct timespec64 *tsp)
+int k_clock_set_realtime(const struct timespec64 *tsp)
 {
 	struct timespec64 mono;
 	int r;
@@ -66,7 +66,7 @@ int __clock_set_realtime(const struct timespec64 *tsp)
 		return -EFAULT;
 	}
 
-	r = __clock_get_monotonic(&mono);
+	r = k_clock_get_monotonic(&mono);
 	if (r) {
 		return r;
 	}
@@ -78,7 +78,7 @@ int __clock_set_realtime(const struct timespec64 *tsp)
 	return 0;
 }
 
-int __clock_get_monotonic(struct timespec64 *tsp)
+int k_clock_get_monotonic(struct timespec64 *tsp)
 {
 	struct __timer_device *tm = __system_timer_get();
 	const struct __timer_driver *drv = __timer_get_drv(tm);
@@ -105,7 +105,7 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 			return r;
 		}
 
-		r = __clock_raw_to_timespec(cnt, freq, &tmp);
+		r = k_clock_raw_to_timespec(cnt, freq, &tmp);
 		if (r) {
 			return r;
 		}
@@ -118,7 +118,7 @@ int __clock_get_monotonic(struct timespec64 *tsp)
 	return 0;
 }
 
-int __clock_on_tick(void)
+int k_clock_on_tick(void)
 {
 	struct __timer_device *tm = __system_timer_get();
 	const struct __timer_driver *drv = __timer_get_drv(tm);
@@ -135,7 +135,7 @@ int __clock_on_tick(void)
 		struct timespec64 cur, tick, next;
 		uint64_t hz = 100;
 
-		r = __clock_get_monotonic(&cur);
+		r = k_clock_get_monotonic(&cur);
 		if (r) {
 			return r;
 		}

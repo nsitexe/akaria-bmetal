@@ -147,10 +147,10 @@ intptr_t __sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 
 	switch (clock_id) {
 	case CLOCK_REALTIME:
-		r = __clock_get_realtime(tp);
+		r = k_clock_get_realtime(tp);
 		break;
 	case CLOCK_MONOTONIC:
-		r = __clock_get_monotonic(tp);
+		r = k_clock_get_monotonic(tp);
 		break;
 	default:
 		pri_warn("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
@@ -170,7 +170,7 @@ intptr_t __sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 
 	switch (clock_id) {
 	case CLOCK_REALTIME:
-		r = __clock_set_realtime(tp);
+		r = k_clock_set_realtime(tp);
 		break;
 	default:
 		pri_warn("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
@@ -189,7 +189,7 @@ intptr_t __sys_gettimeofday(struct timeval *tp, void *tzp)
 		return -EFAULT;
 	}
 
-	r = __clock_get_realtime(&tsp);
+	r = k_clock_get_realtime(&tsp);
 	if (r) {
 		return r;
 	}
@@ -212,7 +212,7 @@ intptr_t __sys_settimeofday(const struct timeval *tp, const void *tzp)
 	tsp.tv_sec = tp->tv_sec;
 	tsp.tv_nsec = tp->tv_usec * 1000L;
 
-	r = __clock_set_realtime(&tsp);
+	r = k_clock_set_realtime(&tsp);
 	if (r) {
 		return r;
 	}
