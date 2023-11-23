@@ -42,7 +42,7 @@ intptr_t __sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intp
 
 intptr_t __sys_uname(struct new_utsname *name)
 {
-	__kmemcpy(name, &uname, sizeof(uname));
+	k_memcpy(name, &uname, sizeof(uname));
 
 	return 0;
 }
@@ -345,10 +345,10 @@ intptr_t __sys_brk(void *addr)
 
 	if (caddr > brk_cur) {
 		/* Expand: should zero clear by specification */
-		__kmemset(brk_cur, 0, caddr - brk_cur);
+		k_memset(brk_cur, 0, caddr - brk_cur);
 	} else {
 		/* Shrink: zero clear for security */
-		__kmemset(addr, 0, brk_cur - caddr);
+		k_memset(addr, 0, brk_cur - caddr);
 	}
 	__mem_brk_set_cur(addr);
 	__mem_brk_unlock();
@@ -390,7 +390,7 @@ intptr_t __sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	}
 	anon_ptr = __mem_heap_area_start() + off_page * __PAGE_SIZE;
 
-	__kmemset(anon_ptr, 0, len);
+	k_memset(anon_ptr, 0, len);
 
 	return PTR_TO_INT(anon_ptr);
 }
@@ -418,7 +418,7 @@ intptr_t __sys_madvise(void *addr, size_t length, int advice)
 			return r;
 		}
 
-		__kmemset(addr, length, 0);
+		k_memset(addr, length, 0);
 
 		break;
 	default:
@@ -511,7 +511,7 @@ intptr_t __sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	/* Copy user regs to the initial stack of new thread */
 	ti->sp = child_stack;
-	__kmemcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
+	k_memcpy(&ti->regs, cpu_cur->regs, sizeof(__arch_user_regs_t));
 
 	pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 

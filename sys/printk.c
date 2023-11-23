@@ -41,7 +41,7 @@ int __inner_putc(int c)
 
 int __inner_puts(const char *s, int newline)
 {
-	for (size_t i = 0; i < __kstrlen(s); i++) {
+	for (size_t i = 0; i < k_strlen(s); i++) {
 		__inner_putc(s[i]);
 	}
 	if (newline) {

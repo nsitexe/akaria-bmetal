@@ -7,12 +7,12 @@
 
 #include <bmetal/bmetal.h>
 
-void *__kmemset(void *s, int c, size_t n);
-void *__kmemcpy(void *dest, const void *src, size_t n);
-size_t __kstrlen(const char *s);
-int __kstrcmp(const char *s1, const char *s2);
-int __kstrncmp(const char *s1, const char *s2, size_t n);
-int __kstrcasecmp(const char *s1, const char *s2);
-int __kstrncasecmp(const char *s1, const char *s2, size_t n);
+void *k_memset(void *s, int c, size_t n);
+void *k_memcpy(void *dest, const void *src, size_t n);
+size_t k_strlen(const char *s);
+int k_strcmp(const char *s1, const char *s2);
+int k_strncmp(const char *s1, const char *s2, size_t n);
+int k_strcasecmp(const char *s1, const char *s2);
+int k_strncasecmp(const char *s1, const char *s2, size_t n);
 
 #endif /* BAREMETAL_CRT_SYS_STRING_H_ */

@@ -105,20 +105,20 @@ void __noreturn __init_panic_internal(const char *func, int nline)
 static void clear_bss(void)
 {
 #ifdef CONFIG_CLEAR_BSS
-	__kmemset(__bss_start, 0, __bss_end - __bss_start);
-	__kmemset(__sbss_start, 0, __sbss_end - __sbss_start);
+	k_memset(__bss_start, 0, __bss_end - __bss_start);
+	k_memset(__sbss_start, 0, __sbss_end - __sbss_start);
 #endif /* CONFIG_CLEAR_BSS */
 }
 
 static void copy_data(void)
 {
 #ifdef CONFIG_XIP
-	__kmemcpy(__preinit_array_start, __preinit_array_load, __preinit_array_end - __preinit_array_start);
-	__kmemcpy(__init_array_start, __init_array_load, __init_array_end - __init_array_start);
-	__kmemcpy(__fini_array_start, __fini_array_load, __fini_array_end - __fini_array_start);
-	__kmemcpy(__data_start, __data_load, __data_end - __data_start);
-	__kmemcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
-	__kmemcpy(__tdata_start, __tdata_load, __tdata_end - __tdata_start);
+	k_memcpy(__preinit_array_start, __preinit_array_load, __preinit_array_end - __preinit_array_start);
+	k_memcpy(__init_array_start, __init_array_load, __init_array_end - __init_array_start);
+	k_memcpy(__fini_array_start, __fini_array_load, __fini_array_end - __fini_array_start);
+	k_memcpy(__data_start, __data_load, __data_end - __data_start);
+	k_memcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
+	k_memcpy(__tdata_start, __tdata_load, __tdata_end - __tdata_start);
 #endif /* CONFIG_XIP */
 }
 
