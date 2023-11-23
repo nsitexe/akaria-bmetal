@@ -132,7 +132,7 @@ static int init_proc(void)
 	pi->pid = CONFIG_MAIN_PID;
 
 	/* Init stdin/out/err */
-	r = __file_stdio_init(pi);
+	r = k_file_stdio_init(pi);
 	if (r) {
 		return r;
 	}

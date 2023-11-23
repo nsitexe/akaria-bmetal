@@ -19,7 +19,7 @@ struct k_proc_info {
 	struct __spinlock lock;
 	struct k_thread_info *leader;
 
-	struct __file_desc *fdset[CONFIG_MAX_FD];
+	struct k_file_desc *fdset[CONFIG_MAX_FD];
 };
 
 struct k_thread_info {

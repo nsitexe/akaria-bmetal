@@ -245,7 +245,7 @@ intptr_t k_sys_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 
 intptr_t k_sys_close(int fd)
 {
-	struct __file_desc *desc = __file_get_desc(fd);
+	struct k_file_desc *desc = k_file_get_desc(fd);
 	int ret = 0;
 
 	if (!desc) {
@@ -256,14 +256,14 @@ intptr_t k_sys_close(int fd)
 		ret = desc->ops->close(desc);
 	}
 
-	__file_set_desc(fd, NULL);
+	k_file_set_desc(fd, NULL);
 
 	return ret;
 }
 
 intptr_t k_sys_read(int fd, void *buf, size_t count)
 {
-	struct __file_desc *desc = __file_get_desc(fd);
+	struct k_file_desc *desc = k_file_get_desc(fd);
 
 	if (!desc || !desc->ops || !desc->ops->read) {
 		return -EBADF;
@@ -271,12 +271,12 @@ intptr_t k_sys_read(int fd, void *buf, size_t count)
 
 	pri_dbg("sys_read: fd:%d cnt:%d\n", fd, (int)count);
 
-	return __file_read(desc, buf, count);
+	return k_file_read(desc, buf, count);
 }
 
 intptr_t k_sys_write(int fd, const void *buf, size_t count)
 {
-	struct __file_desc *desc = __file_get_desc(fd);
+	struct k_file_desc *desc = k_file_get_desc(fd);
 
 	if (!desc || !desc->ops || !desc->ops->write) {
 		return -EBADF;
@@ -284,12 +284,12 @@ intptr_t k_sys_write(int fd, const void *buf, size_t count)
 
 	pri_dbg("sys_write: fd:%d cnt:%d\n", fd, (int)count);
 
-	return __file_write(desc, buf, count);
+	return k_file_write(desc, buf, count);
 }
 
 intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 {
-	struct __file_desc *desc = __file_get_desc(fd);
+	struct k_file_desc *desc = k_file_get_desc(fd);
 	ssize_t ret = 0, wr;
 
 	if (!desc || !desc->ops || !desc->ops->write) {
@@ -310,7 +310,7 @@ intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 			continue;
 		}
 
-		wr = __file_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
+		wr = k_file_write_nolock(desc, iov[i].iov_base, iov[i].iov_len);
 		if (wr > 0) {
 			ret += wr;
 		} else if (wr < iov[i].iov_len) {
