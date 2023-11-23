@@ -468,15 +468,15 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 		need_tls = 1;
 	}
 
-	__smp_lock();
+	k_smp_lock();
 
-	r = __smp_find_idle_cpu(&cpu);
+	r = k_smp_find_idle_cpu(&cpu);
 	if (r) {
-		__smp_unlock();
+		k_smp_unlock();
 		return r;
 	}
 
-	__smp_unlock();
+	k_smp_unlock();
 
 	k_cpu_lock(cpu);
 

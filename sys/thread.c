@@ -68,14 +68,14 @@ void k_thread_idle_main(int leader)
 	struct k_thread_info *ti = NULL;
 	int r;
 
-	__intr_disable_local();
+	k_intr_disable_local();
 
 	r = k_cpu_on_wakeup();
 	if (r) {
 		pri_warn("idle: failed to callback on_wakeup.\n");
 	}
 
-	__intr_enable_local();
+	k_intr_enable_local();
 
 	while (k_cpu_get_running(cpu)) {
 		ti = k_cpu_get_thread_task(cpu);
@@ -92,7 +92,7 @@ void k_thread_idle_main(int leader)
 		k_arch_context_switch();
 	}
 
-	__intr_disable_local();
+	k_intr_disable_local();
 
 	r = k_cpu_on_sleep();
 	if (r) {
@@ -223,9 +223,9 @@ int k_thread_context_switch(void)
 {
 	int r;
 
-	__smp_lock();
+	k_smp_lock();
 	r = k_thread_context_switch_nolock();
-	__smp_unlock();
+	k_smp_unlock();
 
 	return r;
 }

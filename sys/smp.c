@@ -8,14 +8,14 @@
 
 static struct k_spinlock lock_smp;
 
-int __smp_lock(void)
+int k_smp_lock(void)
 {
 	k_spinlock_lock(&lock_smp);
 
 	return 0;
 }
 
-int __smp_unlock(void)
+int k_smp_unlock(void)
 {
 	k_spinlock_unlock(&lock_smp);
 
@@ -25,7 +25,7 @@ int __smp_unlock(void)
 /**
  * Need to hold smp_lock.
  */
-int __smp_find_idle_cpu(struct k_cpu_device **cpu_idle)
+int k_smp_find_idle_cpu(struct k_cpu_device **cpu_idle)
 {
 	struct k_cpu_device *cpu = NULL;
 	int found = 0, id;

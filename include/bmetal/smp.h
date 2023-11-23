@@ -10,10 +10,10 @@
 
 #if !defined(__ASSEMBLER__)
 
-int __smp_lock(void);
-int __smp_unlock(void);
-int __smp_find_idle_cpu(struct k_cpu_device **cpu_idle);
-int __smp_find_idle_thread(struct k_thread_info **ti_idle);
+int k_smp_lock(void);
+int k_smp_unlock(void);
+int k_smp_find_idle_cpu(struct k_cpu_device **cpu_idle);
+int k_smp_find_idle_thread(struct k_thread_info **ti_idle);
 
 #endif /* !__ASSEMBLER__ */
 

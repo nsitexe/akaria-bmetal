@@ -536,7 +536,7 @@ int k_cpu_futex_wait(int *uaddr, int val, int bitset)
 			break;
 		}
 
-		__intr_enable_local();
+		k_intr_enable_local();
 		/* FIXME: need suitable delay or wait */
 		//k_cpu_wait_interrupt();
 		for (int k = 0; k < 250; k++) {
@@ -545,7 +545,7 @@ int k_cpu_futex_wait(int *uaddr, int val, int bitset)
 			noop();
 			noop();
 		}
-		__intr_disable_local();
+		k_intr_disable_local();
 
 		drmb();
 	}

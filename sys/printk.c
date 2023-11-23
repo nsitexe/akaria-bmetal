@@ -88,11 +88,11 @@ int __kputchar(int c)
 	long st;
 	int r;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	r = __inner_putc(c);
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return r;
 }
@@ -102,11 +102,11 @@ int __kputs(const char *s)
 	long st;
 	int r;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	r = __inner_puts(s, 1);
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return r;
 }
@@ -116,7 +116,7 @@ int __kread(char *s, size_t count)
 	long st;
 	int c, n;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	c = __inner_getc();
 	if (c == EOF) {
@@ -126,7 +126,7 @@ int __kread(char *s, size_t count)
 		n = 1;
 	}
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return n;
 }
@@ -135,13 +135,13 @@ int __kwrite(const char *s, size_t count)
 {
 	long st;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	for (size_t i = 0; i < count; i++) {
 		__inner_putc(s[i]);
 	}
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return count;
 }
@@ -187,11 +187,11 @@ int __vprintk(const char *format, va_list va)
 	long st;
 	int r;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	r = __inner_vprintf(format, va);
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return r;
 }
@@ -206,11 +206,11 @@ int __vsnprintk(char *buffer, size_t count, const char *format, va_list va)
 	long st;
 	int r;
 
-	__intr_save_local(&st);
+	k_intr_save_local(&st);
 	k_spinlock_lock(&printk_lock);
 	r = __inner_vsnprintf(buffer, count, format, va);
 	k_spinlock_unlock(&printk_lock);
-	__intr_restore_local(st);
+	k_intr_restore_local(st);
 
 	return r;
 }
