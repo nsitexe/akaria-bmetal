@@ -11,45 +11,45 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 
-struct __timer_device;
+struct k_timer_device;
 
-struct __timer_driver_ops {
-	int (* enable)(struct __timer_device *tm, int index);
-	int (* disable)(struct __timer_device *tm, int index);
-	int (* get_freq)(struct __timer_device *tm, int index, uint64_t *freq);
-	int (* set_freq)(struct __timer_device *tm, int index, uint64_t freq);
-	int (* get_raw)(struct __timer_device *tm, int index, uint64_t *count);
-	int (* set_raw)(struct __timer_device *tm, int index, uint64_t count);
-	int (* get_trigger)(struct __timer_device *tm, int index, struct timespec64 *tsp);
-	int (* set_trigger)(struct __timer_device *tm, int index, const struct timespec64 *tsp);
+struct k_timer_driver_ops {
+	int (* enable)(struct k_timer_device *tm, int index);
+	int (* disable)(struct k_timer_device *tm, int index);
+	int (* get_freq)(struct k_timer_device *tm, int index, uint64_t *freq);
+	int (* set_freq)(struct k_timer_device *tm, int index, uint64_t freq);
+	int (* get_raw)(struct k_timer_device *tm, int index, uint64_t *count);
+	int (* set_raw)(struct k_timer_device *tm, int index, uint64_t count);
+	int (* get_trigger)(struct k_timer_device *tm, int index, struct timespec64 *tsp);
+	int (* set_trigger)(struct k_timer_device *tm, int index, const struct timespec64 *tsp);
 };
 
-struct __timer_driver {
+struct k_timer_driver {
 	struct __device_driver base;
 
-	const struct __timer_driver_ops *ops;
+	const struct k_timer_driver_ops *ops;
 };
 
-struct __timer_device {
+struct k_timer_device {
 	struct __device base;
 };
 
-struct __timer_priv_max {
+struct k_timer_priv_max {
 	char dummy[144];
 };
-typedef struct __timer_priv_max    __timer_priv_t;
-#define CHECK_PRIV_SIZE_TIMER(typ)    CHECK_PRIV_SIZE(typ, __timer_priv_t);
+typedef struct k_timer_priv_max    k_timer_priv_t;
+#define CHECK_PRIV_SIZE_TIMER(typ)    CHECK_PRIV_SIZE(typ, k_timer_priv_t);
 
-static inline const struct __timer_driver *__timer_get_drv(const struct __timer_device *timer)
+static inline const struct k_timer_driver *k_timer_get_drv(const struct k_timer_device *timer)
 {
 	if (!timer) {
 		return NULL;
 	}
 
-	return (const struct __timer_driver *)timer->base.drv;
+	return (const struct k_timer_driver *)timer->base.drv;
 }
 
-static inline struct __device *__timer_to_dev(struct __timer_device *timer)
+static inline struct __device *k_timer_to_dev(struct k_timer_device *timer)
 {
 	if (!timer) {
 		return NULL;
@@ -58,47 +58,47 @@ static inline struct __device *__timer_to_dev(struct __timer_device *timer)
 	return &timer->base;
 }
 
-static inline struct __timer_device *__timer_from_dev(struct __device *dev)
+static inline struct k_timer_device *k_timer_from_dev(struct __device *dev)
 {
-	return (struct __timer_device *)dev;
+	return (struct k_timer_device *)dev;
 }
 
-static inline int __timer_add_driver(struct __timer_driver *drv)
+static inline int k_timer_add_driver(struct k_timer_driver *drv)
 {
 	return __driver_add(&drv->base.base);
 }
 
-static inline int __timer_remove_driver(struct __timer_driver *drv)
+static inline int k_timer_remove_driver(struct k_timer_driver *drv)
 {
 	return __driver_remove(&drv->base.base);
 }
 
 #ifdef CONFIG_TIMER
 
-struct __timer_device *__system_timer_get(void);
-int __system_timer_set(struct __timer_device *timer);
+struct k_timer_device *__system_timer_get(void);
+int __system_timer_set(struct k_timer_device *timer);
 
-int __timer_add_device(struct __timer_device *timer, struct __bus *parent);
-int __timer_remove_device(struct __timer_device *timer);
+int k_timer_add_device(struct k_timer_device *timer, struct __bus *parent);
+int k_timer_remove_device(struct k_timer_device *timer);
 
 #else /* CONFIG_TIMER */
 
-static inline struct __timer_device *__timer_get_system(void)
+static inline struct k_timer_device *k_timer_get_system(void)
 {
 	return NULL;
 }
 
-static inline int __timer_set_system(struct __timer_device *timer)
+static inline int k_timer_set_system(struct k_timer_device *timer)
 {
 	return -ENOTSUP;
 }
 
-static inline int __timer_add_device(struct __timer_device *timer, struct __bus *parent)
+static inline int k_timer_add_device(struct k_timer_device *timer, struct __bus *parent)
 {
 	return -ENOTSUP;
 }
 
-static inline int __timer_remove_device(struct __timer_device *timer)
+static inline int k_timer_remove_device(struct k_timer_device *timer)
 {
 	return -ENOTSUP;
 }

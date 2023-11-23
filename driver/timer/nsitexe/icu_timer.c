@@ -20,16 +20,16 @@
 #define REG_MTIMEH            0x010c
 
 struct timer_icu_priv {
-	struct __timer_device *timer;
+	struct k_timer_device *timer;
 	struct k_clk_device *clk_in;
 	int index_clk_in;
 	uint64_t freq_in;
 };
 CHECK_PRIV_SIZE_TIMER(struct timer_icu_priv);
 
-static int timer_icu_get_freq(struct __timer_device *tm, int index, uint64_t *freq)
+static int timer_icu_get_freq(struct k_timer_device *tm, int index, uint64_t *freq)
 {
-	struct __device *dev = __timer_to_dev(tm);
+	struct __device *dev = k_timer_to_dev(tm);
 	struct timer_icu_priv *priv = dev->priv;
 
 	if (priv->freq_in == 0) {
@@ -44,9 +44,9 @@ static int timer_icu_get_freq(struct __timer_device *tm, int index, uint64_t *fr
 	return 0;
 }
 
-static int timer_icu_get_raw(struct __timer_device *tm, int index, uint64_t *count)
+static int timer_icu_get_raw(struct k_timer_device *tm, int index, uint64_t *count)
 {
-	struct __device *dev = __timer_to_dev(tm);
+	struct __device *dev = k_timer_to_dev(tm);
 	uint64_t v;
 
 #ifdef CONFIG_64BIT
@@ -73,7 +73,7 @@ static int timer_icu_get_raw(struct __timer_device *tm, int index, uint64_t *cou
 static int timer_icu_add(struct __device *dev)
 {
 	struct timer_icu_priv *priv = dev->priv;
-	struct __timer_device *timer = __timer_from_dev(dev);
+	struct k_timer_device *timer = k_timer_from_dev(dev);
 	int r;
 
 	if (priv == NULL) {
@@ -118,12 +118,12 @@ const static struct __device_driver_ops timer_icu_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __timer_driver_ops timer_icu_timer_ops = {
+const static struct k_timer_driver_ops timer_icu_timer_ops = {
 	.get_freq = timer_icu_get_freq,
 	.get_raw = timer_icu_get_raw,
 };
 
-static struct __timer_driver timer_icu_drv = {
+static struct k_timer_driver timer_icu_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "nsitexe",
@@ -138,7 +138,7 @@ static struct __timer_driver timer_icu_drv = {
 
 static int timer_icu_init(void)
 {
-	__timer_add_driver(&timer_icu_drv);
+	k_timer_add_driver(&timer_icu_drv);
 
 	return 0;
 }

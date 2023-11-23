@@ -86,8 +86,8 @@ const static struct __device_config clint_timer_conf[] = {
 	{0},
 };
 
-static __timer_priv_t clint_timer_priv;
-static struct __timer_device clint_timer = {
+static k_timer_priv_t clint_timer_priv;
+static struct k_timer_device clint_timer = {
 	.base = {
 		.name = "clint_timer",
 		.type_vendor = "sifive",
@@ -158,7 +158,7 @@ static int board_hifive1_init(void)
 	k_intc_add_device(&clint, __bus_get_root());
 	k_clk_add_device(&lfclk, __bus_get_root());
 	k_clk_add_device(&hfclk, __bus_get_root());
-	__timer_add_device(&clint_timer, __bus_get_root());
+	k_timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);
 
