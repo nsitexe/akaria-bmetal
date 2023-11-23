@@ -7,8 +7,8 @@
 
 #if !defined(__ASSEMBLER__)
 
-int __fini_reboot(void);
-int __fini_power_off(void);
+int k_fini_reboot(void);
+int k_fini_power_off(void);
 
 #endif /* !__ASSEMBLER__ */
 

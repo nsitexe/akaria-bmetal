@@ -518,7 +518,7 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 	/* Return value and stack for new thread */
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_RETVAL, 0);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&__stack_intr[pos_intr]);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&k_stack_intr[pos_intr]);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
 
 	r = __thread_run(ti, cpu);
@@ -742,9 +742,9 @@ intptr_t k_sys_exit(int status)
 
 	/* Notify to host when leader exit */
 	if (__proc_get_leader(pi) == ti) {
-		__fini_leader(status);
+		k_fini_leader(status);
 	} else {
-		__fini_child(status);
+		k_fini_child(status);
 	}
 
 	/* Notify to user space */
@@ -784,11 +784,11 @@ intptr_t k_sys_reboot(int magic1, int magic2, int cmd)
 	switch (cmd) {
 	case RB_AUTOBOOT:
 		pri_err("Restarting system.\n");
-		__fini_reboot();
+		k_fini_reboot();
 		break;
 	case RB_POWER_OFF:
 		pri_err("Power down.\n");
-		__fini_power_off();
+		k_fini_power_off();
 		break;
 	default:
 		pri_warn("sys_reboot: cmd %d is not supported.\n", cmd);

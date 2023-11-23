@@ -54,7 +54,7 @@
 #endif /* CONFIG_XIP */
 
 OUTPUT_ARCH(riscv)
-ENTRY(__reset)
+ENTRY(k_reset)
 
 MEMORY
 {
@@ -105,9 +105,9 @@ SECTIONS
 
 	.initdata : {
 		. = ALIGN(8);
-		__initcall_start = .;
+		k_initcall_start = .;
 		KEEP(*(.initdata .initdata.*))
-		__initcall_end = .;
+		k_initcall_end = .;
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	.auxdata : {
@@ -121,12 +121,12 @@ SECTIONS
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
 	.tdata : {
-		__tdata_start = .;
+		k_tdata_start = .;
 		*(.tdata .tdata.* .gnu.linkonce.td.*)
-		__tdata_end = .;
+		k_tdata_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
-	__tdata_load = LOADADDR(.tdata);
+	k_tdata_load = LOADADDR(.tdata);
 
 	.tbss (NOLOAD) : {
 		*(.tbss .tbss.* .gnu.linkonce.tb.*)
@@ -162,7 +162,7 @@ SECTIONS
 	__fini_array_load = LOADADDR(.fini_array);
 
 	.data : {
-		__data_start = .;
+		k_data_start = .;
 		*(.data .data.* .gnu.linkonce.d.*)
 		*(.eh_frame .eh_frame.*)
 		*(.eh_frame_hdr .eh_frame_hdr.* .eh_frame_entry .eh_frame_entry.*)
@@ -179,36 +179,36 @@ SECTIONS
 		__start___libc_atexit = .;
 		*(__libc_atexit)
 		__stop___libc_atexit = .;
-		__data_end = .;
+		k_data_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
-	__data_load = LOADADDR(.data);
+	k_data_load = LOADADDR(.data);
 
 	.sdata : {
-		__sdata_start = .;
+		k_sdata_start = .;
 		__global_pointer$ = . + 0x800;
 		*(.srodata .srodata.*)
 		*(.sdata .sdata.* .gnu.linkonce.s.*)
-		__sdata_end = .;
+		k_sdata_end = .;
 	} > DATA_AREA AT > DATA_AREA_AT
 
-	__sdata_load = LOADADDR(.sdata);
+	k_sdata_load = LOADADDR(.sdata);
 	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
-		__sbss_start = .;
+		k_sbss_start = .;
 		*(.sbss .sbss.* .gnu.linkonce.sb.*)
 		*(.scommon)
-		__sbss_end = .;
+		k_sbss_end = .;
 	} > DATA_AREA
 
 	.bss (NOLOAD) : {
-		__bss_start = .;
+		k_bss_start = .;
 		*(.bss .bss.* .gnu.linkonce.b.*)
 		*(COMMON)
 		/* for glibc */
 		*(__libc_freeres_ptrs)
-		__bss_end = .;
+		k_bss_end = .;
 	} > DATA_AREA
 
 	.noinit (NOLOAD) : {
@@ -221,7 +221,7 @@ SECTIONS
 
 	.comm_area (NOLOAD) : {
 		. = ALIGN(8);
-		PROVIDE(__comm_area = .);
+		PROVIDE(k_comm_area = .);
 		. = . + CONFIG_COMM_AREA_SIZE;
 	} > COMM_AREA
 

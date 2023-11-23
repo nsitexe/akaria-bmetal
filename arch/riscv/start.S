@@ -3,12 +3,12 @@
 #include <bmetal/arch/cpu.h>
 #include <bmetal/bindings/intc/riscv/rv_priv.h>
 
-.globl __reset
-.type __reset, @function
+.globl k_reset
+.type k_reset, @function
 
 .section ".reset", "ax"
 .align 2
-__reset:
+k_reset:
 #ifdef CONFIG_RISCV_RNMI
 	# Enable NMI
 	csrsi CSR_MNSTATUS, MNSTATUS_NMIE
@@ -19,7 +19,7 @@ __reset:
 	csrw mie, zero
 
 	# Interrupt handler
-	la   t0, __trap_start
+	la   t0, k_trap_start
 	csrw mtvec, t0
 
 	# Global pointer
@@ -36,29 +36,29 @@ __reset:
 	# Branch to main/sub function
 	csrr t0, mhartid
 	li   t1, MHARTID_MAIN
-	beq  t0, t1, __start_for_main
-	j    __start_for_sub
+	beq  t0, t1, k_start_for_main
+	j    k_start_for_sub
 
-__start_for_main:
+k_start_for_main:
 	# Stack pointer
-	la   sp, __stack_idle
+	la   sp, k_stack_idle
 	li   t0, CONFIG_IDLE_STACK_SIZE
 	add  sp, t0, sp
-	la   t0, __stack_intr
+	la   t0, k_stack_intr
 	li   t1, CONFIG_INTR_STACK_SIZE
 	add  t0, t1, t0
 	csrw mscratch, t0
 
-	call __start_for_common
-	call __init_system
-	call __init_leader
+	call k_start_for_common
+	call k_init_system
+	call k_init_leader
 
 	# For error handling
 1:
 	wfi
 	j   1b
 
-__start_for_sub:
+k_start_for_sub:
 	# Wait for notify
 	csrr  t0, mhartid
 1:
@@ -83,15 +83,15 @@ __start_for_sub:
 	OP_ST t1, (t0)
 	fence ow, ow
 
-	call __start_for_common
-	call __init_child
+	call k_start_for_common
+	call k_init_child
 
 	# For error handling
 1:
 	wfi
 	j   1b
 
-__start_for_common:
+k_start_for_common:
 	# Enable FPU
 #ifdef CONFIG_FPU
 	li   t0, RV_STATUS_FS_DIRTY

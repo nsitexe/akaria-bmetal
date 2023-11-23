@@ -133,8 +133,8 @@ static int cpu_riscv_wakeup(struct __cpu_device *cpu)
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
 
 	__boot_done = 0;
-	__boot_sp_idle = (uintptr_t)&__stack_idle[pos_idle];
-	__boot_sp_intr = (uintptr_t)&__stack_intr[pos_intr];
+	__boot_sp_idle = (uintptr_t)&k_stack_idle[pos_idle];
+	__boot_sp_intr = (uintptr_t)&k_stack_intr[pos_intr];
 
 	dwmb();
 

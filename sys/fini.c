@@ -7,7 +7,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/drivers/reset.h>
 
-int __fini_reboot(void)
+int k_fini_reboot(void)
 {
 	struct __reset_device *rst = __reset_get_system();
 	const struct __reset_driver *drv = __reset_get_drv(rst);
@@ -28,7 +28,7 @@ int __fini_reboot(void)
 	return 0;
 }
 
-int __fini_power_off(void)
+int k_fini_power_off(void)
 {
 	struct __reset_device *rst = __reset_get_system();
 	const struct __reset_driver *drv = __reset_get_drv(rst);

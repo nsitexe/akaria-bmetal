@@ -100,7 +100,7 @@ void __thread_idle_main(int leader)
 	}
 
 	if (leader) {
-		__fini_system();
+		k_fini_system();
 	}
 
 	while (1) {
