@@ -5,11 +5,11 @@
 #include <bmetal/printk.h>
 #include <bmetal/sys/errno.h>
 
-int __clk_add_device(struct __clk_device *clk, struct __bus *parent)
+int k_clk_add_device(struct k_clk_device *clk, struct __bus *parent)
 {
 	int r;
 
-	r = __device_add(__clk_to_dev(clk), parent);
+	r = __device_add(k_clk_to_dev(clk), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
@@ -17,14 +17,14 @@ int __clk_add_device(struct __clk_device *clk, struct __bus *parent)
 	return 0;
 }
 
-int __clk_remove_device(struct __clk_device *clk)
+int k_clk_remove_device(struct k_clk_device *clk)
 {
-	return __device_remove(__clk_to_dev(clk));
+	return __device_remove(k_clk_to_dev(clk));
 }
 
-int __clk_enable(struct __clk_device *clk, int index)
+int k_clk_enable(struct k_clk_device *clk, int index)
 {
-	const struct __clk_driver *drv = __clk_get_drv(clk);
+	const struct k_clk_driver *drv = k_clk_get_drv(clk);
 	int r = -ENODEV;
 
 	if (drv && drv->ops && drv->ops->enable) {
@@ -34,9 +34,9 @@ int __clk_enable(struct __clk_device *clk, int index)
 	return r;
 }
 
-int __clk_disable(struct __clk_device *clk, int index)
+int k_clk_disable(struct k_clk_device *clk, int index)
 {
-	const struct __clk_driver *drv = __clk_get_drv(clk);
+	const struct k_clk_driver *drv = k_clk_get_drv(clk);
 	int r = -ENODEV;
 
 	if (drv && drv->ops && drv->ops->disable) {
@@ -46,9 +46,9 @@ int __clk_disable(struct __clk_device *clk, int index)
 	return r;
 }
 
-int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq)
+int k_clk_get_frequency(struct k_clk_device *clk, int index, uint64_t *freq)
 {
-	const struct __clk_driver *drv = __clk_get_drv(clk);
+	const struct k_clk_driver *drv = k_clk_get_drv(clk);
 	uint64_t buf;
 	int r = -ENODEV;
 
@@ -62,9 +62,9 @@ int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq)
 	return r;
 }
 
-int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq)
+int k_clk_set_frequency(struct k_clk_device *clk, int index, uint64_t freq)
 {
-	const struct __clk_driver *drv = __clk_get_drv(clk);
+	const struct k_clk_driver *drv = k_clk_get_drv(clk);
 	int r = -ENODEV;
 
 	if (drv && drv->ops && drv->ops->set_freq) {
@@ -74,7 +74,7 @@ int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq)
 	return r;
 }
 
-int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *index_clk)
+int k_clk_get_clk_from_config(struct __device *dev, int index, struct k_clk_device **clk, int *index_clk)
 {
 	const char *clock_name;
 	struct __device *tmp;
@@ -101,7 +101,7 @@ int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_devi
 	}
 
 	if (clk) {
-		*clk = __clk_from_dev(tmp);
+		*clk = k_clk_from_dev(tmp);
 	}
 	if (index_clk) {
 		*index_clk = val;

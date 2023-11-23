@@ -38,21 +38,21 @@ static int clk_fixed_remove(struct __device *dev)
 	return 0;
 }
 
-static int clk_fixed_enable(struct __clk_device *clk, int index)
+static int clk_fixed_enable(struct k_clk_device *clk, int index)
 {
 	/* Always enabled */
 	return 0;
 }
 
-static int clk_fixed_disable(struct __clk_device *clk, int index)
+static int clk_fixed_disable(struct k_clk_device *clk, int index)
 {
 	/* Always enabled */
 	return 0;
 }
 
-static int clk_fixed_get_freq(struct __clk_device *clk, int index, uint64_t *freq)
+static int clk_fixed_get_freq(struct k_clk_device *clk, int index, uint64_t *freq)
 {
-	struct clk_fixed_priv *priv = __clk_to_dev(clk)->priv;
+	struct clk_fixed_priv *priv = k_clk_to_dev(clk)->priv;
 
 	if (index != 0) {
 		return -EINVAL;
@@ -68,13 +68,13 @@ const static struct __device_driver_ops clk_fixed_dev_ops = {
 	.remove = clk_fixed_remove,
 };
 
-const static struct __clk_driver_ops clk_fixed_clk_ops = {
+const static struct k_clk_driver_ops clk_fixed_clk_ops = {
 	.get_freq = clk_fixed_get_freq,
 	.enable = clk_fixed_enable,
 	.disable = clk_fixed_disable,
 };
 
-static struct __clk_driver clk_fixed_drv = {
+static struct k_clk_driver clk_fixed_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "none",
@@ -89,7 +89,7 @@ static struct __clk_driver clk_fixed_drv = {
 
 static int clk_fixed_init(void)
 {
-	__clk_add_driver(&clk_fixed_drv);
+	k_clk_add_driver(&clk_fixed_drv);
 
 	return 0;
 }

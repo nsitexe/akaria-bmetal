@@ -12,41 +12,41 @@
 #define MHZ    (1000000)
 #define GHZ    (1000000000)
 
-struct __clk_device;
+struct k_clk_device;
 
-struct __clk_driver_ops {
-	int (* enable)(struct __clk_device *clk, int index);
-	int (* disable)(struct __clk_device *clk, int index);
-	int (* get_freq)(struct __clk_device *clk, int index, uint64_t *freq);
-	int (* set_freq)(struct __clk_device *clk, int index, uint64_t freq);
+struct k_clk_driver_ops {
+	int (* enable)(struct k_clk_device *clk, int index);
+	int (* disable)(struct k_clk_device *clk, int index);
+	int (* get_freq)(struct k_clk_device *clk, int index, uint64_t *freq);
+	int (* set_freq)(struct k_clk_device *clk, int index, uint64_t freq);
 };
 
-struct __clk_driver {
+struct k_clk_driver {
 	struct __device_driver base;
 
-	const struct __clk_driver_ops *ops;
+	const struct k_clk_driver_ops *ops;
 };
 
-struct __clk_device {
+struct k_clk_device {
 	struct __device base;
 };
 
-struct __clk_priv_max {
+struct k_clk_priv_max {
 	char dummy[56];
 };
-typedef struct __clk_priv_max    __clk_priv_t;
-#define CHECK_PRIV_SIZE_CLK(typ)    CHECK_PRIV_SIZE(typ, __clk_priv_t);
+typedef struct k_clk_priv_max    k_clk_priv_t;
+#define CHECK_PRIV_SIZE_CLK(typ)    CHECK_PRIV_SIZE(typ, k_clk_priv_t);
 
-static inline const struct __clk_driver *__clk_get_drv(const struct __clk_device *clk)
+static inline const struct k_clk_driver *k_clk_get_drv(const struct k_clk_device *clk)
 {
 	if (!clk) {
 		return NULL;
 	}
 
-	return (const struct __clk_driver *)clk->base.drv;
+	return (const struct k_clk_driver *)clk->base.drv;
 }
 
-static inline struct __device *__clk_to_dev(struct __clk_device *clk)
+static inline struct __device *k_clk_to_dev(struct k_clk_device *clk)
 {
 	if (!clk) {
 		return NULL;
@@ -55,65 +55,65 @@ static inline struct __device *__clk_to_dev(struct __clk_device *clk)
 	return &clk->base;
 }
 
-static inline struct __clk_device *__clk_from_dev(struct __device *dev)
+static inline struct k_clk_device *k_clk_from_dev(struct __device *dev)
 {
-	return (struct __clk_device *)dev;
+	return (struct k_clk_device *)dev;
 }
 
-static inline int __clk_add_driver(struct __clk_driver *drv)
+static inline int k_clk_add_driver(struct k_clk_driver *drv)
 {
 	return __driver_add(&drv->base.base);
 }
 
-static inline int __clk_remove_driver(struct __clk_driver *drv)
+static inline int k_clk_remove_driver(struct k_clk_driver *drv)
 {
 	return __driver_remove(&drv->base.base);
 }
 
 #ifdef CONFIG_CLK
 
-int __clk_add_device(struct __clk_device *clk, struct __bus *parent);
-int __clk_remove_device(struct __clk_device *clk);
-int __clk_enable(struct __clk_device *clk, int index);
-int __clk_disable(struct __clk_device *clk, int index);
-int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq);
-int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq);
+int k_clk_add_device(struct k_clk_device *clk, struct __bus *parent);
+int k_clk_remove_device(struct k_clk_device *clk);
+int k_clk_enable(struct k_clk_device *clk, int index);
+int k_clk_disable(struct k_clk_device *clk, int index);
+int k_clk_get_frequency(struct k_clk_device *clk, int index, uint64_t *freq);
+int k_clk_set_frequency(struct k_clk_device *clk, int index, uint64_t freq);
 
-int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *clk_index);
+int k_clk_get_clk_from_config(struct __device *dev, int index, struct k_clk_device **clk, int *clk_index);
 
 #else /* CONFIG_CLK */
 
-static inline int __clk_add_device(struct __clk_device *clk, struct __bus *parent)
+static inline int k_clk_add_device(struct k_clk_device *clk, struct __bus *parent)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_remove_device(struct __clk_device *clk)
+static inline int k_clk_remove_device(struct k_clk_device *clk)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_enable(struct __clk_device *clk, int index)
+static inline int k_clk_enable(struct k_clk_device *clk, int index)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_disable(struct __clk_device *clk, int index)
+static inline int k_clk_disable(struct k_clk_device *clk, int index)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_get_frequency(struct __clk_device *clk, int index, uint64_t *freq)
+static inline int k_clk_get_frequency(struct k_clk_device *clk, int index, uint64_t *freq)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_set_frequency(struct __clk_device *clk, int index, uint64_t freq)
+static inline int k_clk_set_frequency(struct k_clk_device *clk, int index, uint64_t freq)
 {
 	return -ENOTSUP;
 }
 
-static inline int __clk_get_clk_from_config(struct __device *dev, int index, struct __clk_device **clk, int *clk_index)
+static inline int k_clk_get_clk_from_config(struct __device *dev, int index, struct k_clk_device **clk, int *clk_index)
 {
 	return -ENOTSUP;
 }

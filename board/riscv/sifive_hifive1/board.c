@@ -65,8 +65,8 @@ const static struct __device_config lfclk_conf[] = {
 	{0},
 };
 
-static __clk_priv_t lfclk_priv;
-static struct __clk_device lfclk = {
+static k_clk_priv_t lfclk_priv;
+static struct k_clk_device lfclk = {
 	.base = {
 		.name = "lfclk",
 		.type_vendor = "none",
@@ -102,8 +102,8 @@ const static struct __device_config hfclk_conf[] = {
 	{0},
 };
 
-static __clk_priv_t hfclk_priv;
-static struct __clk_device hfclk = {
+static k_clk_priv_t hfclk_priv;
+static struct k_clk_device hfclk = {
 	.base = {
 		.name = "hfclk",
 		.type_vendor = "none",
@@ -156,8 +156,8 @@ static int board_hifive1_init(void)
 	k_cpu_add_device(&cpu0, __bus_get_root());
 	__intc_add_device(&rvintc0, __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
-	__clk_add_device(&lfclk, __bus_get_root());
-	__clk_add_device(&hfclk, __bus_get_root());
+	k_clk_add_device(&lfclk, __bus_get_root());
+	k_clk_add_device(&hfclk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 	__uart_add_device(&uart1, __bus_get_root(), 1);

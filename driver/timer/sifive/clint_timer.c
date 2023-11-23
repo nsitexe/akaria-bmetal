@@ -24,7 +24,7 @@
 
 struct timer_clint_priv {
 	struct __timer_device *timer;
-	struct __clk_device *clk_in;
+	struct k_clk_device *clk_in;
 	int index_clk_in;
 	uint64_t freq_in;
 };
@@ -182,18 +182,18 @@ static int timer_clint_add(struct __device *dev)
 	priv->timer = timer;
 
 	/* Clock */
-	r = __clk_get_clk_from_config(dev, 0, &priv->clk_in, &priv->index_clk_in);
+	r = k_clk_get_clk_from_config(dev, 0, &priv->clk_in, &priv->index_clk_in);
 	if (r) {
 		return r;
 	}
 
-	r = __clk_get_frequency(priv->clk_in, priv->index_clk_in, &priv->freq_in);
+	r = k_clk_get_frequency(priv->clk_in, priv->index_clk_in, &priv->freq_in);
 	if (r) {
 		__dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 
-	r = __clk_enable(priv->clk_in, priv->index_clk_in);
+	r = k_clk_enable(priv->clk_in, priv->index_clk_in);
 	if (r) {
 		return r;
 	}

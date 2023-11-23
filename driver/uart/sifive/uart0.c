@@ -37,7 +37,7 @@
 
 struct uart_sifive_priv {
 	struct __uart_device *uart;
-	struct __clk_device *clk;
+	struct k_clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
 
@@ -157,18 +157,18 @@ static int uart_sifive_add(struct __device *dev)
 	priv->uart = uart;
 
 	/* Clock */
-	r = __clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
+	r = k_clk_get_clk_from_config(dev, 0, &priv->clk, &priv->index_clk);
 	if (r) {
 		return r;
 	}
 
-	r = __clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
+	r = k_clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
 	if (r) {
 		__dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 
-	r = __clk_enable(priv->clk, priv->index_clk);
+	r = k_clk_enable(priv->clk, priv->index_clk);
 	if (r) {
 		return r;
 	}
@@ -250,7 +250,7 @@ static int uart_sifive_remove(struct __device *dev)
 		priv->intc = NULL;
 	}
 
-	r = __clk_disable(priv->clk, priv->index_clk);
+	r = k_clk_disable(priv->clk, priv->index_clk);
 	if (r) {
 		return r;
 	}

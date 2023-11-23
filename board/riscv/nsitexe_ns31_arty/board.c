@@ -89,8 +89,8 @@ const static struct __device_config clk_conf[] = {
 	{0},
 };
 
-static __clk_priv_t clk_priv;
-static struct __clk_device clk = {
+static k_clk_priv_t clk_priv;
+static struct k_clk_device clk = {
 	.base = {
 		.name = "clk",
 		.type_vendor = "none",
@@ -165,7 +165,7 @@ static int board_ns31_arty_init(void)
 	__intc_add_device(&rvintc[0], __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
 	__intc_add_device(&plic, __bus_get_root());
-	__clk_add_device(&clk, __bus_get_root());
+	k_clk_add_device(&clk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
 

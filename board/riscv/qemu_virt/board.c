@@ -128,8 +128,8 @@ const static struct __device_config rtcclk_conf[] = {
 	{0},
 };
 
-static __clk_priv_t rtcclk_priv;
-static struct __clk_device rtcclk = {
+static k_clk_priv_t rtcclk_priv;
+static struct k_clk_device rtcclk = {
 	.base = {
 		.name = "rtcclk",
 		.type_vendor = "none",
@@ -210,7 +210,7 @@ static int board_qemu_virt_init(void)
 	}
 	__intc_add_device(&plic, __bus_get_root());
 	__intc_add_device(&clint, __bus_get_root());
-	__clk_add_device(&rtcclk, __bus_get_root());
+	k_clk_add_device(&rtcclk, __bus_get_root());
 	__timer_add_device(&clint_timer, __bus_get_root());
 	__reset_add_device(&reset0, __bus_get_root());
 	__uart_add_device(&uart0, __bus_get_root(), 1);
