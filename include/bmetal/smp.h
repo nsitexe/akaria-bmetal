@@ -6,7 +6,7 @@
 #include <bmetal/bmetal.h>
 
 #include <bmetal/thread.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 
 #if !defined(__ASSEMBLER__)
 

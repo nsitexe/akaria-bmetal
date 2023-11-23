@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 #include <bmetal/arch/cpu.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
+#include <bmetal/binding/intc/riscv/rv_priv.h>
 
 .globl k_reset
 .type k_reset, @function

@@ -2,14 +2,14 @@
 
 #include <stdint.h>
 
-#include <bmetal/drivers/intc.h>
+#include <bmetal/driver/intc.h>
 #include <bmetal/device.h>
 #include <bmetal/event.h>
 #include <bmetal/init.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/binding/intc/riscv/rv_priv.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/errno.h>
 
 /* Start address is 0x0000 of clint */

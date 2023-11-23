@@ -2,7 +2,7 @@
 
 #include <bmetal/atomic.h>
 #include <bmetal/lock.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 
 int k_spinlock_init(struct k_spinlock *s)
 {

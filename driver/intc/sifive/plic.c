@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/drivers/intc.h>
+#include <bmetal/driver/intc.h>
 #include <bmetal/device.h>
 #include <bmetal/event.h>
 #include <bmetal/init.h>

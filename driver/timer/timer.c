@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <bmetal/drivers/timer.h>
+#include <bmetal/driver/timer.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/sys/errno.h>

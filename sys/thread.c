@@ -7,7 +7,7 @@
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 

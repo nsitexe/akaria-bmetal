@@ -2,11 +2,11 @@
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
-#include <bmetal/drivers/clk.h>
-#include <bmetal/drivers/cpu.h>
-#include <bmetal/drivers/intc.h>
-#include <bmetal/drivers/timer.h>
-#include <bmetal/drivers/uart.h>
+#include <bmetal/driver/clk.h>
+#include <bmetal/driver/cpu.h>
+#include <bmetal/driver/intc.h>
+#include <bmetal/driver/timer.h>
+#include <bmetal/driver/uart.h>
 
 const static struct k_device_config cpu0_conf[] = {
 	PROP("hartid", 0),

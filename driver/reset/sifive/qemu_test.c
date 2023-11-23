@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/drivers/reset.h>
+#include <bmetal/driver/reset.h>
 #include <bmetal/init.h>
 #include <bmetal/io.h>
 #include <bmetal/printk.h>

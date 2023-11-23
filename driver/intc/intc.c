@@ -2,10 +2,10 @@
 
 #include <stdint.h>
 
-#include <bmetal/drivers/intc.h>
+#include <bmetal/driver/intc.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/errno.h>
 
 static struct k_intc_device *intc_ipi;

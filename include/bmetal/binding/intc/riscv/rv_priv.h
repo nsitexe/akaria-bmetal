@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#ifndef BAREMETAL_CRT_BINDINGS_INTC_RISCV_PRIV_H_
-#define BAREMETAL_CRT_BINDINGS_INTC_RISCV_PRIV_H_
+#ifndef BAREMETAL_CRT_BINDING_INTC_RISCV_PRIV_H_
+#define BAREMETAL_CRT_BINDING_INTC_RISCV_PRIV_H_
 
-#include <bmetal/bindings/bindings.h>
+#include <bmetal/binding/binding.h>
 
 /* RISC-V Privileged Architecture Version 1.10 */
 
@@ -133,4 +133,4 @@
 #define RV_CAUSE_INT_EX    RV_CAUSE_INT_S_EX
 #endif
 
-#endif /* BAREMETAL_CRT_BINDINGS_INTC_RISCV_PRIV_H_ */
+#endif /* BAREMETAL_CRT_BINDING_INTC_RISCV_PRIV_H_ */

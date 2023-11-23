@@ -1,13 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-#include <bmetal/drivers/intc.h>
+#include <bmetal/driver/intc.h>
 #include <bmetal/arch.h>
 #include <bmetal/device.h>
 #include <bmetal/event.h>
 #include <bmetal/init.h>
 #include <bmetal/printk.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/binding/intc/riscv/rv_priv.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/errno.h>
 
 /* mie, mip, sie, sip */

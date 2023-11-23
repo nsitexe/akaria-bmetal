@@ -14,7 +14,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/elf.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>

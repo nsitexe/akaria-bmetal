@@ -2,13 +2,13 @@
 
 #include <bmetal/device.h>
 #include <bmetal/init.h>
-#include <bmetal/bindings/clk/sifive/prci.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
-#include <bmetal/drivers/clk.h>
-#include <bmetal/drivers/cpu.h>
-#include <bmetal/drivers/intc.h>
-#include <bmetal/drivers/timer.h>
-#include <bmetal/drivers/uart.h>
+#include <bmetal/binding/clk/sifive/prci.h>
+#include <bmetal/binding/intc/riscv/rv_priv.h>
+#include <bmetal/driver/clk.h>
+#include <bmetal/driver/cpu.h>
+#include <bmetal/driver/intc.h>
+#include <bmetal/driver/timer.h>
+#include <bmetal/driver/uart.h>
 
 #define CPU_CONF(N)    \
 	{ \

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <bmetal/drivers/reset.h>
+#include <bmetal/driver/reset.h>
 #include <bmetal/device.h>
 
 static struct k_reset_device *reset_system;

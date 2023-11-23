@@ -2,8 +2,8 @@
 
 #include <bmetal/clock.h>
 #include <bmetal/printk.h>
-#include <bmetal/drivers/cpu.h>
-#include <bmetal/drivers/timer.h>
+#include <bmetal/driver/cpu.h>
+#include <bmetal/driver/timer.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 

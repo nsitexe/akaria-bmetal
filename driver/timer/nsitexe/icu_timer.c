@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-#include <bmetal/drivers/timer.h>
+#include <bmetal/driver/timer.h>
 #include <bmetal/arch.h>
 #include <bmetal/device.h>
 #include <bmetal/init.h>
 #include <bmetal/intr.h>
 #include <bmetal/printk.h>
-#include <bmetal/drivers/clk.h>
+#include <bmetal/driver/clk.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/time.h>
 

@@ -2,11 +2,11 @@
 
 #include <stdatomic.h>
 
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/device.h>
 #include <bmetal/printk.h>
 #include <bmetal/smp.h>
-#include <bmetal/drivers/intc.h>
+#include <bmetal/driver/intc.h>
 #include <bmetal/sys/errno.h>
 
 static struct k_cpu_device *cpus[CONFIG_NUM_CORES];

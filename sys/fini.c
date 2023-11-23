@@ -5,7 +5,7 @@
 
 #include <bmetal/fini.h>
 #include <bmetal/printk.h>
-#include <bmetal/drivers/reset.h>
+#include <bmetal/driver/reset.h>
 
 int k_fini_reboot(void)
 {
