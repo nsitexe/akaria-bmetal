@@ -16,10 +16,10 @@
 #  error __riscv_xlen must equal 32 or 64
 #endif
 
-.global _crt_start
-.type _crt_start, @function
+.global k_crt_start
+.type k_crt_start, @function
 
-_crt_start:
+k_crt_start:
 	/* Load gp */
 .option push
 .option norelax

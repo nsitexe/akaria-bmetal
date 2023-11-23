@@ -10,7 +10,7 @@
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/string.h>
 
-void _crt_start(void);
+void k_crt_start(void);
 
 int k_libc_init_main_thread(struct __thread_info *ti, int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
@@ -24,7 +24,7 @@ int k_libc_init_main_thread(struct __thread_info *ti, int argc, char *argv[], ch
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_1, 0);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
 	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)_crt_start);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)k_crt_start);
 
 	return 0;
 }

@@ -73,11 +73,7 @@ SECTIONS
 	/* Special text section for reset vector */
 	.reset : {
 		. = ALIGN(4);
-
 		PROVIDE(__executable_start = .);
-		PROVIDE(_text = .);
-		PROVIDE(_stext = .);
-
 		KEEP(*(.reset .reset.*))
 	} > TEXT_AREA AT > TEXT_AREA_AT
 
@@ -95,9 +91,6 @@ SECTIONS
 	.fini : {
 		KEEP(*(SORT_NONE(.fini)))
 	} > TEXT_AREA AT > TEXT_AREA_AT
-
-	PROVIDE(_etext = .);
-	PROVIDE(etext = .);
 
 	.comm : {
 		KEEP(*(.comm_header .comm_header.*))
@@ -193,7 +186,6 @@ SECTIONS
 	} > DATA_AREA AT > DATA_AREA_AT
 
 	k_sdata_load = LOADADDR(.sdata);
-	PROVIDE(_edata = .);
 
 	.sbss (NOLOAD) : {
 		k_sbss_start = .;
@@ -224,6 +216,10 @@ SECTIONS
 		PROVIDE(k_comm_area = .);
 		. = . + CONFIG_COMM_AREA_SIZE;
 	} > COMM_AREA
+
+	/* for newlib */
+	PROVIDE(_edata = .);
+	PROVIDE(__bss_start = .);
 
 	PROVIDE(_end = .);
 }
