@@ -36,7 +36,7 @@
 #define IE_RXWM               BIT(1)
 
 struct uart_sifive_priv {
-	struct __uart_device *uart;
+	struct k_uart_device *uart;
 	struct k_clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
@@ -45,13 +45,13 @@ struct uart_sifive_priv {
 	struct __event_handler hnd_irq;
 	int num_irq;
 
-	struct __uart_config conf;
+	struct k_uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_sifive_priv);
 
-static int uart_sifive_char_in(struct __uart_device *uart)
+static int uart_sifive_char_in(struct k_uart_device *uart)
 {
-	struct __device *d = __uart_to_dev(uart);
+	struct __device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
 	while (((v = __device_read32(d, REG_RXDATA)) & RXDATA_EMPTY) != 0) {
@@ -60,9 +60,9 @@ static int uart_sifive_char_in(struct __uart_device *uart)
 	return v & 0xffU;
 }
 
-static void uart_sifive_char_out(struct __uart_device *uart, int value)
+static void uart_sifive_char_out(struct k_uart_device *uart, int value)
 {
-	struct __device *d = __uart_to_dev(uart);
+	struct __device *d = k_uart_to_dev(uart);
 
 	while ((__device_read32(d, REG_TXDATA) & TXDATA_FULL) != 0) {
 	}
@@ -70,9 +70,9 @@ static void uart_sifive_char_out(struct __uart_device *uart, int value)
 	__device_write32(d, value & 0xffU, REG_TXDATA);
 }
 
-static int uart_sifive_enable_intr(struct __uart_device *uart)
+static int uart_sifive_enable_intr(struct k_uart_device *uart)
 {
-	struct __device *d = __uart_to_dev(uart);
+	struct __device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
 	//TODO: TX buffering
@@ -83,9 +83,9 @@ static int uart_sifive_enable_intr(struct __uart_device *uart)
 	return 0;
 }
 
-static int uart_sifive_disable_intr(struct __uart_device *uart)
+static int uart_sifive_disable_intr(struct k_uart_device *uart)
 {
-	struct __device *d = __uart_to_dev(uart);
+	struct __device *d = k_uart_to_dev(uart);
 	uint32_t v;
 
 	v = __device_read32(d, REG_IE);
@@ -95,9 +95,9 @@ static int uart_sifive_disable_intr(struct __uart_device *uart)
 	return 0;
 }
 
-static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
+static int uart_sifive_set_baud(struct k_uart_device *uart, uint32_t baud)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 	uint32_t d;
 
@@ -109,9 +109,9 @@ static int uart_sifive_set_baud(struct __uart_device *uart, uint32_t baud)
 	return 0;
 }
 
-static int uart_sifive_get_config(struct __uart_device *uart, struct __uart_config *conf)
+static int uart_sifive_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_sifive_priv *priv = dev->priv;
 
 	if (conf) {
@@ -121,7 +121,7 @@ static int uart_sifive_get_config(struct __uart_device *uart, struct __uart_conf
 	return 0;
 }
 
-static int uart_sifive_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+static int uart_sifive_set_config(struct k_uart_device *uart, const struct k_uart_config *conf)
 {
 	int r, res = 0;
 
@@ -143,9 +143,9 @@ static int uart_sifive_intr(int event, struct __event_handler *hnd)
 
 static int uart_sifive_add(struct __device *dev)
 {
-	struct __uart_device *uart = __uart_from_dev(dev);
+	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
-	struct __uart_config conf;
+	struct k_uart_config conf;
 	uint32_t val;
 	int r;
 
@@ -210,7 +210,7 @@ static int uart_sifive_add(struct __device *dev)
 	}
 
 	/* Apply board default settings */
-	r = __uart_read_default_config(uart, &conf);
+	r = k_uart_read_default_config(uart, &conf);
 	if (r) {
 		return r;
 	}
@@ -228,7 +228,7 @@ static int uart_sifive_add(struct __device *dev)
 
 static int uart_sifive_remove(struct __device *dev)
 {
-	struct __uart_device *uart = __uart_from_dev(dev);
+	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_sifive_priv *priv = dev->priv;
 	int r;
 
@@ -265,14 +265,14 @@ const static struct __device_driver_ops uart_sifive_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __uart_driver_ops uart_sifive_uart_ops = {
+const static struct k_uart_driver_ops uart_sifive_uart_ops = {
 	.char_in = uart_sifive_char_in,
 	.char_out = uart_sifive_char_out,
 	.get_config = uart_sifive_get_config,
 	.set_config = uart_sifive_set_config,
 };
 
-static struct __uart_driver uart_sifive_drv = {
+static struct k_uart_driver uart_sifive_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "sifive",
@@ -287,7 +287,7 @@ static struct __uart_driver uart_sifive_drv = {
 
 static int uart_sifive_init(void)
 {
-	__uart_add_driver(&uart_sifive_drv);
+	k_uart_add_driver(&uart_sifive_drv);
 
 	return 0;
 }

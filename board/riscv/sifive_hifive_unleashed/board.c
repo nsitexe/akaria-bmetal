@@ -224,8 +224,8 @@ const static struct __device_config uart1_conf[] = {
 	{0},
 };
 
-static __uart_priv_t uart0_priv;
-static struct __uart_device uart0 = {
+static k_uart_priv_t uart0_priv;
+static struct k_uart_device uart0 = {
 	.base = {
 		.name = "uart0",
 		.type_vendor = "sifive",
@@ -235,8 +235,8 @@ static struct __uart_device uart0 = {
 	},
 };
 
-static __uart_priv_t uart1_priv;
-static struct __uart_device uart1 = {
+static k_uart_priv_t uart1_priv;
+static struct k_uart_device uart1 = {
 	.base = {
 		.name = "uart1",
 		.type_vendor = "sifive",
@@ -258,10 +258,10 @@ static int board_hifive_unleashed_init(void)
 	k_clk_add_device(&rtcclk, __bus_get_root());
 	k_clk_add_device(&prci, __bus_get_root());
 	k_timer_add_device(&clint_timer, __bus_get_root());
-	__uart_add_device(&uart0, __bus_get_root(), 1);
-	__uart_add_device(&uart1, __bus_get_root(), 1);
+	k_uart_add_device(&uart0, __bus_get_root(), 1);
+	k_uart_add_device(&uart1, __bus_get_root(), 1);
 
-	__uart_set_default_console(&uart0);
+	k_uart_set_default_console(&uart0);
 
 	return 0;
 }

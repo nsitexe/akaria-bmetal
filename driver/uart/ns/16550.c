@@ -44,7 +44,7 @@
 #define REG_WIDTH_DEFAULT    4
 
 struct uart_ns16550_priv {
-	struct __uart_device *uart;
+	struct k_uart_device *uart;
 	struct k_clk_device *clk;
 	int index_clk;
 	uint64_t freq_in;
@@ -55,32 +55,32 @@ struct uart_ns16550_priv {
 	struct __event_handler hnd_irq;
 	int num_irq;
 
-	struct __uart_config conf;
+	struct k_uart_config conf;
 };
 CHECK_PRIV_SIZE_UART(struct uart_ns16550_priv);
 
-static uint8_t uart_read(struct __uart_device *uart, uintptr_t off)
+static uint8_t uart_read(struct k_uart_device *uart, uintptr_t off)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uintptr_t shifted = off << priv->addr_shift;
 
 	switch (priv->addr_shift) {
 	case 0:
-		return __device_read8(__uart_to_dev(uart), shifted);
+		return __device_read8(k_uart_to_dev(uart), shifted);
 	case 1:
-		return __device_read16(__uart_to_dev(uart), shifted);
+		return __device_read16(k_uart_to_dev(uart), shifted);
 	case 2:
-		return __device_read32(__uart_to_dev(uart), shifted);
+		return __device_read32(k_uart_to_dev(uart), shifted);
 	default:
 		/* BUG */
 		return -1;
 	}
 }
 
-static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
+static void uart_write(struct k_uart_device *uart, uint8_t dat, uintptr_t off)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uintptr_t shifted = off << priv->addr_shift;
 
@@ -100,9 +100,9 @@ static void uart_write(struct __uart_device *uart, uint8_t dat, uintptr_t off)
 	}
 }
 
-static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
+static int uart_ns16550_set_baud(struct k_uart_device *uart, uint32_t baud)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 	uint32_t d;
 	uint8_t v;
@@ -133,7 +133,7 @@ static int uart_ns16550_set_baud(struct __uart_device *uart, uint32_t baud)
 	return 0;
 }
 
-static int uart_ns16550_char_in(struct __uart_device *uart)
+static int uart_ns16550_char_in(struct k_uart_device *uart)
 {
 	while ((uart_read(uart, REG_LSR) & LSR_RX_READY) == 0) {
 	}
@@ -141,7 +141,7 @@ static int uart_ns16550_char_in(struct __uart_device *uart)
 	return uart_read(uart, REG_RBR);
 }
 
-static void uart_ns16550_char_out(struct __uart_device *uart, int value)
+static void uart_ns16550_char_out(struct k_uart_device *uart, int value)
 {
 	while ((uart_read(uart, REG_LSR) & LSR_THR_EMPTY) == 0) {
 	}
@@ -149,7 +149,7 @@ static void uart_ns16550_char_out(struct __uart_device *uart, int value)
 	uart_write(uart, value, REG_THR);
 }
 
-static int uart_ns16550_enable_intr(struct __uart_device *uart)
+static int uart_ns16550_enable_intr(struct k_uart_device *uart)
 {
 	uint8_t v;
 
@@ -160,7 +160,7 @@ static int uart_ns16550_enable_intr(struct __uart_device *uart)
 	return 0;
 }
 
-static int uart_ns16550_disable_intr(struct __uart_device *uart)
+static int uart_ns16550_disable_intr(struct k_uart_device *uart)
 {
 	uint8_t v;
 
@@ -171,9 +171,9 @@ static int uart_ns16550_disable_intr(struct __uart_device *uart)
 	return 0;
 }
 
-static int uart_ns16550_get_config(struct __uart_device *uart, struct __uart_config *conf)
+static int uart_ns16550_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 	struct uart_ns16550_priv *priv = dev->priv;
 
 	if (conf) {
@@ -183,7 +183,7 @@ static int uart_ns16550_get_config(struct __uart_device *uart, struct __uart_con
 	return 0;
 }
 
-static int uart_ns16550_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+static int uart_ns16550_set_config(struct k_uart_device *uart, const struct k_uart_config *conf)
 {
 	int r, res = 0;
 
@@ -198,7 +198,7 @@ static int uart_ns16550_set_config(struct __uart_device *uart, const struct __ua
 static int uart_ns16550_intr(int event, struct __event_handler *hnd)
 {
 	struct uart_ns16550_priv *priv = hnd->priv;
-	struct __uart_device *uart = priv->uart;
+	struct k_uart_device *uart = priv->uart;
 	int r;
 
 	//TODO: currently just ignore interrupts
@@ -213,9 +213,9 @@ static int uart_ns16550_intr(int event, struct __event_handler *hnd)
 
 static int uart_ns16550_add(struct __device *dev)
 {
-	struct __uart_device *uart = __uart_from_dev(dev);
+	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_ns16550_priv *priv = dev->priv;
-	struct __uart_config conf;
+	struct k_uart_config conf;
 	uint32_t w;
 	int r;
 
@@ -296,7 +296,7 @@ static int uart_ns16550_add(struct __device *dev)
 	}
 
 	/* Apply board default UART settings */
-	r = __uart_read_default_config(uart, &conf);
+	r = k_uart_read_default_config(uart, &conf);
 	if (r) {
 		return r;
 	}
@@ -314,7 +314,7 @@ static int uart_ns16550_add(struct __device *dev)
 
 static int uart_ns16550_remove(struct __device *dev)
 {
-	struct __uart_device *uart = __uart_from_dev(dev);
+	struct k_uart_device *uart = k_uart_from_dev(dev);
 	struct uart_ns16550_priv *priv = dev->priv;
 	int r;
 
@@ -356,14 +356,14 @@ const static struct __device_driver_ops ns16550_dev_ops = {
 	.mmap = __device_driver_mmap,
 };
 
-const static struct __uart_driver_ops ns16550_uart_ops = {
+const static struct k_uart_driver_ops ns16550_uart_ops = {
 	.char_in = uart_ns16550_char_in,
 	.char_out = uart_ns16550_char_out,
 	.get_config = uart_ns16550_get_config,
 	.set_config = uart_ns16550_set_config,
 };
 
-static struct __uart_driver ns16550_drv = {
+static struct k_uart_driver ns16550_drv = {
 	.base = {
 		.base = {
 			.type_vendor = "ns",
@@ -378,7 +378,7 @@ static struct __uart_driver ns16550_drv = {
 
 static int uart_ns16550_init(void)
 {
-	__uart_add_driver(&ns16550_drv);
+	k_uart_add_driver(&ns16550_drv);
 
 	return 0;
 }

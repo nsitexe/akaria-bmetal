@@ -6,11 +6,11 @@
 #include <bmetal/sys/stdio.h>
 #include <bmetal/sys/string.h>
 
-static struct __uart_device *uart_default;
+static struct k_uart_device *uart_default;
 
-int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf)
+int k_uart_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	const struct __uart_driver *drv = __uart_get_drv(uart);
+	const struct k_uart_driver *drv = k_uart_get_drv(uart);
 	int r;
 
 	if (!uart) {
@@ -20,7 +20,7 @@ int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf)
 	if (drv && drv->ops && drv->ops->get_config) {
 		r = drv->ops->get_config(uart, conf);
 		if (r) {
-			__dev_err(__uart_to_dev(uart), "failed to get UART config.\n");
+			__dev_err(k_uart_to_dev(uart), "failed to get UART config.\n");
 			return r;
 		}
 	}
@@ -28,9 +28,9 @@ int __uart_get_config(struct __uart_device *uart, struct __uart_config *conf)
 	return 0;
 }
 
-int __uart_set_config(struct __uart_device *uart, const struct __uart_config *conf)
+int k_uart_set_config(struct k_uart_device *uart, const struct k_uart_config *conf)
 {
-	const struct __uart_driver *drv = __uart_get_drv(uart);
+	const struct k_uart_driver *drv = k_uart_get_drv(uart);
 	int r;
 
 	if (!uart) {
@@ -40,7 +40,7 @@ int __uart_set_config(struct __uart_device *uart, const struct __uart_config *co
 	if (drv && drv->ops && drv->ops->set_config) {
 		r = drv->ops->set_config(uart, conf);
 		if (r) {
-			__dev_err(__uart_to_dev(uart), "failed to set UART config.\n");
+			__dev_err(k_uart_to_dev(uart), "failed to set UART config.\n");
 			return r;
 		}
 	}
@@ -50,14 +50,14 @@ int __uart_set_config(struct __uart_device *uart, const struct __uart_config *co
 
 static int uart_getc(void)
 {
-	struct __device *uart_default_dev = __uart_to_dev(uart_default);
+	struct __device *uart_default_dev = k_uart_to_dev(uart_default);
 	int c = EOF;
 
 	if (!uart_default || !uart_default_dev->probed) {
 		return EOF;
 	}
 
-	const struct __uart_driver *drv = __uart_get_drv(uart_default);
+	const struct k_uart_driver *drv = k_uart_get_drv(uart_default);
 
 	if (drv && drv->ops && drv->ops->char_in) {
 		c = drv->ops->char_in(uart_default);
@@ -68,13 +68,13 @@ static int uart_getc(void)
 
 static int uart_putc(int c)
 {
-	struct __device *uart_default_dev = __uart_to_dev(uart_default);
+	struct __device *uart_default_dev = k_uart_to_dev(uart_default);
 
 	if (!uart_default || !uart_default_dev->probed) {
 		return (unsigned char)c;
 	}
 
-	const struct __uart_driver *drv = __uart_get_drv(uart_default);
+	const struct k_uart_driver *drv = k_uart_get_drv(uart_default);
 
 	if (drv && drv->ops && drv->ops->char_out) {
 		drv->ops->char_out(uart_default, c);
@@ -83,12 +83,12 @@ static int uart_putc(int c)
 	return (unsigned char)c;
 }
 
-static struct __uart_device *uart_get_default_console(void)
+static struct k_uart_device *uart_get_default_console(void)
 {
 	return uart_default;
 }
 
-int __uart_set_default_console(struct __uart_device *uart)
+int k_uart_set_default_console(struct k_uart_device *uart)
 {
 	uart_default = uart;
 
@@ -98,9 +98,9 @@ int __uart_set_default_console(struct __uart_device *uart)
 	return 0;
 }
 
-int __uart_read_default_config(struct __uart_device *uart, struct __uart_config *conf)
+int k_uart_read_default_config(struct k_uart_device *uart, struct k_uart_config *conf)
 {
-	struct __device *dev = __uart_to_dev(uart);
+	struct __device *dev = k_uart_to_dev(uart);
 
 	k_memset(conf, 0, sizeof(*conf));
 
@@ -109,17 +109,17 @@ int __uart_read_default_config(struct __uart_device *uart, struct __uart_config 
 	return 0;
 }
 
-int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_default)
+int k_uart_add_device(struct k_uart_device *uart, struct __bus *parent, int set_default)
 {
 	int r;
 
-	r = __device_add(__uart_to_dev(uart), parent);
+	r = __device_add(k_uart_to_dev(uart), parent);
 	if (IS_ERROR(r)) {
 		return r;
 	}
 
 	if (set_default) {
-		r = __uart_set_default_console(uart);
+		r = k_uart_set_default_console(uart);
 		if (r) {
 			return r;
 		}
@@ -128,11 +128,11 @@ int __uart_add_device(struct __uart_device *uart, struct __bus *parent, int set_
 	return 0;
 }
 
-int __uart_remove_device(struct __uart_device *uart)
+int k_uart_remove_device(struct k_uart_device *uart)
 {
 	if (uart_get_default_console() == uart) {
-		__uart_set_default_console(NULL);
+		k_uart_set_default_console(NULL);
 	}
 
-	return __device_remove(__uart_to_dev(uart));
+	return __device_remove(k_uart_to_dev(uart));
 }
