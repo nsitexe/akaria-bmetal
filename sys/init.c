@@ -403,7 +403,7 @@ void k_init_system(void)
 	clear_bss();
 	copy_data();
 
-	r = __mem_init();
+	r = k_mem_init();
 	if (r) {
 		pri_err("Failed to init memory system.\n");
 		k_init_panic();

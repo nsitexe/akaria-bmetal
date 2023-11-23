@@ -19,7 +19,7 @@
          Please check configs about HEAP_SIZE and BRK_SIZE.
 #endif
 
-static struct __mem_node node_head;
+static struct k_mem_node node_head;
 
 static define_heap(heap_head_area, CONFIG_HEAP_SIZE);
 static char heap_head_stat[CONFIG_HEAP_SIZE / __PAGE_SIZE];
@@ -28,12 +28,12 @@ static int dbg_heap_num = 1;
 static struct k_spinlock lock_brk;
 static char *brk_top, *brk_cur;
 
-struct __mem_node *__mem_node_head(void)
+struct k_mem_node *k_mem_node_head(void)
 {
 	return &node_head;
 }
 
-static size_t __mem_node_count_cont_pages(const struct __mem_node *m, size_t off_page, size_t lim_page)
+static size_t k_mem_node_count_cont_pages(const struct k_mem_node *m, size_t off_page, size_t lim_page)
 {
 	size_t r = 1;
 
@@ -46,41 +46,41 @@ static size_t __mem_node_count_cont_pages(const struct __mem_node *m, size_t off
 	return r;
 }
 
-void *__mem_heap_area_start(void)
+void *k_mem_heap_area_start(void)
 {
-	const struct __mem_node *m = __mem_node_head();
+	const struct k_mem_node *m = k_mem_node_head();
 
 	return m->vaddr;
 }
 
-void *__mem_heap_area_end(void)
+void *k_mem_heap_area_end(void)
 {
-	const struct __mem_node *m = __mem_node_head();
+	const struct k_mem_node *m = k_mem_node_head();
 
 	return m->vaddr + m->size;
 }
 
-void __mem_dump_heap_pages(void)
+void k_mem_dump_heap_pages(void)
 {
-	__mem_node_dump_heap_pages(__mem_node_head());
+	k_mem_node_dump_heap_pages(k_mem_node_head());
 }
 
-ssize_t __mem_alloc_pages(size_t length)
+ssize_t k_mem_alloc_pages(size_t length)
 {
-	return __mem_node_alloc_pages(__mem_node_head(), length);
+	return k_mem_node_alloc_pages(k_mem_node_head(), length);
 }
 
-int __mem_check_pages(void *start, size_t length)
+int k_mem_check_pages(void *start, size_t length)
 {
-	return __mem_node_check_pages(__mem_node_head(), start, length);
+	return k_mem_node_check_pages(k_mem_node_head(), start, length);
 }
 
-int __mem_free_pages(void *start, size_t length)
+int k_mem_free_pages(void *start, size_t length)
 {
-	return __mem_node_free_pages(__mem_node_head(), start, length);
+	return k_mem_node_free_pages(k_mem_node_head(), start, length);
 }
 
-static int __mem_node_set_page_flag(struct __mem_node *m, size_t off_page, size_t n_page, int val)
+static int k_mem_node_set_page_flag(struct k_mem_node *m, size_t off_page, size_t n_page, int val)
 {
 	for (size_t i = off_page; i < off_page + n_page; i++) {
 		m->stat_page[i] = val;
@@ -89,7 +89,7 @@ static int __mem_node_set_page_flag(struct __mem_node *m, size_t off_page, size_
 	return 0;
 }
 
-void __mem_node_dump_heap_pages(const struct __mem_node *m)
+void k_mem_node_dump_heap_pages(const struct k_mem_node *m)
 {
 #ifdef CONFIG_DEBUG_HEAP
 	pri_dbg("dump_heap_pages:\n");
@@ -106,13 +106,13 @@ void __mem_node_dump_heap_pages(const struct __mem_node *m)
 #endif
 }
 
-ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length)
+ssize_t k_mem_node_alloc_pages_nolock(struct k_mem_node *m, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
 	}
 
-	size_t pgsize = __mem_node_get_pagesize(m);
+	size_t pgsize = k_mem_node_get_pagesize(m);
 	size_t req_page = (length + pgsize - 1) / pgsize;
 	size_t i = 0;
 
@@ -128,9 +128,9 @@ ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length)
 			continue;
 		}
 
-		size_t cnt_page = __mem_node_count_cont_pages(m, i, req_page);
+		size_t cnt_page = k_mem_node_count_cont_pages(m, i, req_page);
 		if (cnt_page >= req_page) {
-			__mem_node_set_page_flag(m, i, req_page, dbg_heap_num);
+			k_mem_node_set_page_flag(m, i, req_page, dbg_heap_num);
 			m->page_use += req_page;
 
 			dbg_heap_num += 1;
@@ -140,7 +140,7 @@ ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length)
 
 			pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
 				(int)i, (int)(i + req_page - 1), (int)(req_page * pgsize / 1024));
-			__mem_node_dump_heap_pages(m);
+			k_mem_node_dump_heap_pages(m);
 			return i;
 		}
 
@@ -150,13 +150,13 @@ ssize_t __mem_node_alloc_pages_nolock(struct __mem_node *m, size_t length)
 	return -1;
 }
 
-int __mem_node_check_pages_nolock(struct __mem_node *m, void *start, size_t length)
+int k_mem_node_check_pages_nolock(struct k_mem_node *m, void *start, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
 	}
 
-	size_t pgsize = __mem_node_get_pagesize(m);
+	size_t pgsize = k_mem_node_get_pagesize(m);
 	
 	if (start < m->vaddr || (m->vaddr + m->size <= start)) {
 		pri_warn("check_pages: out of range 0x%p.\n", start);
@@ -179,7 +179,7 @@ int __mem_node_check_pages_nolock(struct __mem_node *m, void *start, size_t leng
 		}
 	}
 	if (failed) {
-		__mem_node_dump_heap_pages(m);
+		k_mem_node_dump_heap_pages(m);
 
 		return -EBADF;
 	}
@@ -187,13 +187,13 @@ int __mem_node_check_pages_nolock(struct __mem_node *m, void *start, size_t leng
 	return 0;
 }
 
-int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t length)
+int k_mem_node_free_pages_nolock(struct k_mem_node *m, void *start, size_t length)
 {
 	if (!m || length == 0) {
 		return -EINVAL;
 	}
 	
-	size_t pgsize = __mem_node_get_pagesize(m);
+	size_t pgsize = k_mem_node_get_pagesize(m);
 
 	if (start < m->vaddr || (m->vaddr + m->size <= start)) {
 		pri_warn("free_pages: out of range 0x%p.\n", start);
@@ -216,10 +216,10 @@ int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t lengt
 		}
 	}
 	if (need_dump) {
-		__mem_dump_heap_pages();
+		k_mem_dump_heap_pages();
 	}
 
-	__mem_node_set_page_flag(m, off_page, n_page, 0);
+	k_mem_node_set_page_flag(m, off_page, n_page, 0);
 	m->page_use -= n_page;
 
 	pri_info("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
@@ -228,42 +228,42 @@ int __mem_node_free_pages_nolock(struct __mem_node *m, void *start, size_t lengt
 	return 0;
 }
 
-int __mem_brk_lock(void)
+int k_mem_brk_lock(void)
 {
 	k_spinlock_lock(&lock_brk);
 
 	return 0;
 }
 
-int __mem_brk_unlock(void)
+int k_mem_brk_unlock(void)
 {
 	k_spinlock_unlock(&lock_brk);
 
 	return 0;
 }
-void *__mem_brk_start(void)
+void *k_mem_brk_start(void)
 {
 	return brk_top;
 }
 
-void *__mem_brk_end(void)
+void *k_mem_brk_end(void)
 {
 	return brk_top + CONFIG_BRK_SIZE;
 }
 
-char *__mem_brk_get_cur(void)
+char *k_mem_brk_get_cur(void)
 {
 	return brk_cur;
 }
 
-void __mem_brk_set_cur(char *p)
+void k_mem_brk_set_cur(char *p)
 {
 	brk_cur = p;
 }
 
-int __mem_init(void)
+int k_mem_init(void)
 {
-	struct __mem_node *mnode = __mem_node_head();
+	struct k_mem_node *mnode = k_mem_node_head();
 	size_t pgsize = __PAGE_SIZE;
 	ssize_t off_page;
 	int res = 0;
@@ -276,7 +276,7 @@ int __mem_init(void)
 	mnode->page_use = 0;
 	mnode->stat_page = heap_head_stat;
 
-	off_page = __mem_node_alloc_pages(mnode, CONFIG_BRK_SIZE);
+	off_page = k_mem_node_alloc_pages(mnode, CONFIG_BRK_SIZE);
 	if (off_page < 0) {
 		pri_warn("Failed to allocate brk area, len:%d.\n", (int)CONFIG_BRK_SIZE);
 		return -ENOMEM;

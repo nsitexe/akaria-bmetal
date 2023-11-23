@@ -330,15 +330,15 @@ intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 intptr_t k_sys_brk(void *addr)
 {
 	char *caddr = (char *)addr;
-	char *brk_cur = __mem_brk_get_cur();
+	char *brk_cur = k_mem_brk_get_cur();
 
-	__mem_brk_lock();
+	k_mem_brk_lock();
 	if (addr == NULL) {
-		__mem_brk_unlock();
+		k_mem_brk_unlock();
 		return PTR_TO_INT(brk_cur);
 	}
-	if (addr < __mem_brk_start() || __mem_brk_end() < addr) {
-		__mem_brk_unlock();
+	if (addr < k_mem_brk_start() || k_mem_brk_end() < addr) {
+		k_mem_brk_unlock();
 		pri_info("sys_brk: addr:%p is out of bounds.\n", addr);
 		return -ENOMEM;
 	}
@@ -350,8 +350,8 @@ intptr_t k_sys_brk(void *addr)
 		/* Shrink: zero clear for security */
 		k_memset(addr, 0, brk_cur - caddr);
 	}
-	__mem_brk_set_cur(addr);
-	__mem_brk_unlock();
+	k_mem_brk_set_cur(addr);
+	k_mem_brk_unlock();
 
 	return PTR_TO_INT(addr);
 }
@@ -383,12 +383,12 @@ intptr_t k_sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 		return -EINVAL;
 	}
 
-	off_page = __mem_alloc_pages(len);
+	off_page = k_mem_alloc_pages(len);
 	if (off_page < 0) {
 		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}
-	anon_ptr = __mem_heap_area_start() + off_page * __PAGE_SIZE;
+	anon_ptr = k_mem_heap_area_start() + off_page * __PAGE_SIZE;
 
 	k_memset(anon_ptr, 0, len);
 
@@ -397,11 +397,11 @@ intptr_t k_sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 
 intptr_t k_sys_munmap(void *addr, size_t length)
 {
-	if (addr < __mem_heap_area_start() || __mem_heap_area_end() < addr + length) {
+	if (addr < k_mem_heap_area_start() || k_mem_heap_area_end() < addr + length) {
 		return -EINVAL;
 	}
 
-	__mem_free_pages(addr, length);
+	k_mem_free_pages(addr, length);
 
 	return 0;
 }
@@ -413,7 +413,7 @@ intptr_t k_sys_madvise(void *addr, size_t length, int advice)
 		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
-		int r = __mem_check_pages(addr, length);
+		int r = k_mem_check_pages(addr, length);
 		if (r) {
 			return r;
 		}
