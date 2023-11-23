@@ -6,9 +6,9 @@
 #define ARRAY_OF(x)    (sizeof(x) / sizeof((x)[0]))
 
 /* This is not POSIX application */
-void *__kmemset(void *s, int c, size_t n);
-void *__kmemcpy(void *dest, const void *src, size_t n);
-size_t __kstrlen(const char *s);
+void *k_memset(void *s, int c, size_t n);
+void *k_memcpy(void *dest, const void *src, size_t n);
+size_t k_strlen(const char *s);
 
 struct param_memset {
 	size_t dest_bufsize;
@@ -413,7 +413,7 @@ int bench_memset(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			__kmemset(dst, 0, dstsize);
+			k_memset(dst, 0, dstsize);
 		} else {
 			memset(dst, 0, dstsize);
 		}
@@ -451,7 +451,7 @@ int bench_memcpy(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			__kmemcpy(dst, src, dstsize);
+			k_memcpy(dst, src, dstsize);
 		} else {
 			memcpy(dst, src, dstsize);
 		}
@@ -488,7 +488,7 @@ int bench_strlen(size_t dstsize, int nloop, int kernel)
 	gettimeofday(&st, NULL);
 	for (int i = 0; i < nloop; i++) {
 		if (kernel) {
-			len = __kstrlen(s);
+			len = k_strlen(s);
 		} else {
 			len = strlen(s);
 		}
@@ -517,8 +517,8 @@ int main(int argc, char *argv[], char *envp[])
 	printf("  memset: %d tests\n", (int)ARRAY_OF(par_kmemset));
 	gettimeofday(&st, NULL);
 	for (size_t i = 0; i < ARRAY_OF(par_kmemset); i++) {
-		par_kmemset[i].funcname = "kmemset";
-		par_kmemset[i].func = __kmemset;
+		par_kmemset[i].funcname = "k_memset";
+		par_kmemset[i].func = k_memset;
 		r = test_memset(&par_kmemset[i]);
 		if (r) {
 			printf("  failed at %d\n", (int)i);
@@ -533,8 +533,8 @@ int main(int argc, char *argv[], char *envp[])
 	printf("  memcpy: %d tests\n", (int)ARRAY_OF(par_kmemcpy));
 	gettimeofday(&st, NULL);
 	for (size_t i = 0; i < ARRAY_OF(par_kmemcpy); i++) {
-		par_kmemcpy[i].funcname = "kmemcpy";
-		par_kmemcpy[i].func = __kmemcpy;
+		par_kmemcpy[i].funcname = "k_memcpy";
+		par_kmemcpy[i].func = k_memcpy;
 		r = test_memcpy(&par_kmemcpy[i]);
 		if (r) {
 			printf("  failed at %d\n", (int)i);
@@ -551,42 +551,42 @@ int main(int argc, char *argv[], char *envp[])
 	size_t bench_sz = 0x1000;
 	int bench_cnt = 1000;
 
-	printf("  kmemset bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  k_memset bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_memset(bench_sz, bench_cnt, 1);
 	if (r) {
 		printf("  failed\n");
 		ret = r;
 	}
 
-	printf("  memset bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  memset bench  : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_memset(bench_sz, bench_cnt, 0);
 	if (r) {
 		printf("  failed\n");
 		ret = r;
 	}
 
-	printf("  kmemcpy bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  k_memcpy bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_memcpy(bench_sz, bench_cnt, 1);
 	if (r) {
 		printf("  failed\n");
 		ret = r;
 	}
 
-	printf("  memcpy bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  memcpy bench  : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_memcpy(bench_sz, bench_cnt, 0);
 	if (r) {
 		printf("  failed\n");
 		ret = r;
 	}
 
-	printf("  kstrlen bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  k_strlen bench: %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_strlen(bench_sz, bench_cnt, 1);
 	if (r) {
 		printf("  failed\n");
 		ret = r;
 	}
 
-	printf("  strlen bench : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
+	printf("  strlen bench  : %d bytes x %d times\n", (int)bench_sz, bench_cnt);
 	r = bench_strlen(bench_sz, bench_cnt, 0);
 	if (r) {
 		printf("  failed\n");
