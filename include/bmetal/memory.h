@@ -11,12 +11,12 @@
 
 #if !defined(__ASSEMBLER__)
 
-typedef uint64_t __paddr_t;
+typedef uint64_t k_paddr_t;
 
 struct k_mem_node {
 	struct k_spinlock lock;
 
-	__paddr_t paddr;
+	k_paddr_t paddr;
 	void *vaddr;
 	uint64_t size;
 
@@ -44,7 +44,7 @@ static inline size_t k_mem_node_get_pagesize(const struct k_mem_node *m)
 	return __PAGE_SIZE;
 }
 
-static inline __paddr_t k_mem_node_get_paddr(const struct k_mem_node *m)
+static inline k_paddr_t k_mem_node_get_paddr(const struct k_mem_node *m)
 {
 	return m->paddr;
 }
