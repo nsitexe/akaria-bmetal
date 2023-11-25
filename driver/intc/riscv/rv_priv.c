@@ -137,7 +137,7 @@ static int intc_priv_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -239,7 +239,7 @@ static int intc_priv_add_handler(struct k_intc_device *intc, int event, struct k
 		head = &priv->hnd_ex;
 		break;
 	default:
-		__dev_err(dev, "Unknown event number %d\n", event);
+		k_dev_err(dev, "Unknown event number %d\n", event);
 		return -EINVAL;
 	}
 
@@ -279,7 +279,7 @@ static int intc_priv_remove_handler(struct k_intc_device *intc, int event, struc
 		head = &priv->hnd_ex;
 		break;
 	default:
-		__dev_err(dev, "Unknown event number %d\n", event);
+		k_dev_err(dev, "Unknown event number %d\n", event);
 		return -EINVAL;
 	}
 
@@ -317,7 +317,7 @@ static int intc_priv_enable(struct k_intc_device *intc, int event)
 		priv->enabled_ex = 1;
 		break;
 	default:
-		__dev_err(dev, "Unknown event number %d\n", event);
+		k_dev_err(dev, "Unknown event number %d\n", event);
 		return -EINVAL;
 	}
 
@@ -348,7 +348,7 @@ static int intc_priv_disable(struct k_intc_device *intc, int event)
 		priv->enabled_ex = 0;
 		break;
 	default:
-		__dev_err(dev, "Unknown event number %d\n", event);
+		k_dev_err(dev, "Unknown event number %d\n", event);
 		return -EINVAL;
 	}
 

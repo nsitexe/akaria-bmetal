@@ -97,7 +97,7 @@ static int uart_lite_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -112,7 +112,7 @@ static int uart_lite_add(struct k_device *dev)
 	/* Interrupt */
 	r = k_intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
-		__dev_warn(dev, "intc is not found, use polling.\n");
+		k_dev_warn(dev, "intc is not found, use polling.\n");
 		priv->intc = NULL;
 	}
 

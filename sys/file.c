@@ -36,7 +36,7 @@ struct k_file_desc *k_file_get_desc(int fd)
 	struct k_proc_info *pi = k_proc_get_current();
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		pri_info("k_file_get_desc: fd %d is invalid\n", fd);
+		k_pri_info("k_file_get_desc: fd %d is invalid\n", fd);
 		return NULL;
 	}
 
@@ -49,7 +49,7 @@ struct k_file_desc *k_file_set_desc(int fd, struct k_file_desc *desc)
 	struct k_file_desc *olddesc;
 
 	if (fd < 0 || CONFIG_MAX_FD <= fd) {
-		pri_info("k_file_set_desc: fd %d is invalid\n", fd);
+		k_pri_info("k_file_set_desc: fd %d is invalid\n", fd);
 		return NULL;
 	}
 

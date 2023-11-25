@@ -33,7 +33,7 @@ static int timer_icu_get_freq(struct k_timer_device *tm, int index, uint64_t *fr
 	struct timer_icu_priv *priv = dev->priv;
 
 	if (priv->freq_in == 0) {
-		__dev_err(dev, "input clock frequency is 0.\n");
+		k_dev_err(dev, "input clock frequency is 0.\n");
 		return -EINVAL;
 	}
 
@@ -77,7 +77,7 @@ static int timer_icu_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -95,7 +95,7 @@ static int timer_icu_add(struct k_device *dev)
 
 	r = k_clk_get_frequency(priv->clk_in, priv->index_clk_in, &priv->freq_in);
 	if (r) {
-		__dev_err(dev, "clock freq is unknown.\n");
+		k_dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 

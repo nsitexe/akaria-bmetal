@@ -206,7 +206,7 @@ static int init_drivers(void)
 	for (int i = 0; i < cnt; i++) {
 		r = k_initcall_start[i]();
 		if (r) {
-			pri_err("Initcall failed.\n");
+			k_pri_err("Initcall failed.\n");
 			res = r;
 		}
 	}
@@ -231,7 +231,7 @@ static int fini_drivers(void)
 static int add_argv(void *p)
 {
 	if (index_argv >= MAX_ARGV) {
-		pri_warn("Exceed number of argv max:%d.\n", MAX_ARGV);
+		k_pri_warn("Exceed number of argv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -249,7 +249,7 @@ static int add_env(void *p)
 static int add_aux(int typ, void *p)
 {
 	if (index_argv >= MAX_ARGV - 1) {
-		pri_warn("Exceed number of auxv max:%d.\n", MAX_ARGV);
+		k_pri_warn("Exceed number of auxv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -273,12 +273,12 @@ static int map_argv(const struct k_comm_area_header *h, const char *buf_args)
 
 		r = k_cpu_cache_inv_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
+			k_pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		r = add_argv((void *)buf);
 		if (r) {
-			pri_warn("Too many argumnets, max:%d.\n", MAX_ARGV);
+			k_pri_warn("Too many argumnets, max:%d.\n", MAX_ARGV);
 		}
 		buf += ha->size;
 
@@ -301,7 +301,7 @@ static int unmap_argv(const struct k_comm_area_header *h, const char *buf_args)
 
 		r = k_cpu_cache_flush_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
+			k_pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		buf += ha->size;
@@ -326,18 +326,18 @@ static int init_args(int *argc)
 		size_t sz = ALIGN_OF(sizeof(struct k_comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			pri_warn("Exceed number of args (req:%" PRId32 ", max:%d)\n",
+			k_pri_warn("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
 		map_argv(h_area, k_comm_area + sz);
 		if (index_argv != h_area->num_args) {
-			pri_warn("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
+			k_pri_warn("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
 				index_argv, h_area->num_args);
 		}
 	}
 	if (index_argv == 0) {
-		pri_info("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
+		k_pri_info("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
 		argv[0] = DEFAULT_KERNEL_NAME;
 		index_argv = 1;
 	}
@@ -364,7 +364,7 @@ static int init_args(int *argc)
 
 		add_aux(AT_PHDR, p);
 	} else {
-		pri_warn("Missing program header. AT_PHDR is not available.\n");
+		k_pri_warn("Missing program header. AT_PHDR is not available.\n");
 	}
 
 	add_aux(0, NULL);
@@ -381,7 +381,7 @@ static int fini_args(int st)
 		size_t sz = ALIGN_OF(sizeof(struct k_comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			pri_warn("Broken number of args (req:%" PRId32 ", max:%d)\n",
+			k_pri_warn("Broken number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
@@ -405,19 +405,19 @@ void k_init_system(void)
 
 	r = k_mem_init();
 	if (r) {
-		pri_err("Failed to init memory system.\n");
+		k_pri_err("Failed to init memory system.\n");
 		k_init_panic();
 	}
 
 	r = init_drivers();
 	if (r) {
-		pri_err("Failed to init drivers.\n");
+		k_pri_err("Failed to init drivers.\n");
 		k_init_panic();
 	}
 
 	r = init_proc();
 	if (r) {
-		pri_err("Failed to init process.\n");
+		k_pri_err("Failed to init process.\n");
 		k_init_panic();
 	}
 }
@@ -437,7 +437,7 @@ void k_init_leader(void)
 	struct k_cpu_device *cpu = k_cpu_get_current();
 	int argc;
 
-	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	k_pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	/* Boot other cores */
 	k_cpu_wakeup_all();
@@ -466,7 +466,7 @@ void k_init_child(void)
 {
 	struct k_cpu_device *cpu = k_cpu_get_current();
 
-	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	k_pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	init_idle_thread(cpu, 0);
 

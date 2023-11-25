@@ -29,18 +29,18 @@ int k_intc_raise_ipi(struct k_cpu_device *src, struct k_cpu_device *dest, void *
 	int r;
 
 	if (!intc) {
-		__dev_err(k_cpu_to_dev(src), "not set IPI intc.\n");
+		k_dev_err(k_cpu_to_dev(src), "not set IPI intc.\n");
 		return -ENOTSUP;
 	}
 
 	if (drv && drv->ops && drv->ops->raise_ipi) {
 		r = drv->ops->raise_ipi(intc, src, dest, arg);
 		if (r) {
-			__dev_err(k_intc_to_dev(intc), "failed to raise IPI.\n");
+			k_dev_err(k_intc_to_dev(intc), "failed to raise IPI.\n");
 			return r;
 		}
 	} else {
-		__dev_err(k_intc_to_dev(intc), "not supported to raise IPI.\n");
+		k_dev_err(k_intc_to_dev(intc), "not supported to raise IPI.\n");
 		return -ENOTSUP;
 	}
 
@@ -139,12 +139,12 @@ int k_intc_get_intc_from_config(struct k_device *dev, int index, struct k_intc_d
 
 	r = k_device_read_conf_str(dev, "interrupts", &intc_name, index * 2);
 	if (r) {
-		__dev_err(dev, "intc name is not found, index:%d.\n", index);
+		k_dev_err(dev, "intc name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 	r = k_device_read_conf_u32(dev, "interrupts", &val, index * 2 + 1);
 	if (r) {
-		__dev_err(dev, "intc irq number is not found, index:%d.\n", index);
+		k_dev_err(dev, "intc irq number is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
@@ -152,7 +152,7 @@ int k_intc_get_intc_from_config(struct k_device *dev, int index, struct k_intc_d
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {
-		__dev_err(dev, "intc '%s' is not found.\n", intc_name);
+		k_dev_err(dev, "intc '%s' is not found.\n", intc_name);
 		return -EINVAL;
 	}
 

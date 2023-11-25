@@ -14,7 +14,7 @@ int k_fini_reboot(void)
 	int r;
 
 	if (!rst) {
-		pri_info("system reset is not found.\n");
+		k_pri_info("system reset is not found.\n");
 		return -ENOTSUP;
 	}
 
@@ -35,7 +35,7 @@ int k_fini_power_off(void)
 	int r;
 
 	if (!rst) {
-		pri_info("system reset is not found.\n");
+		k_pri_info("system reset is not found.\n");
 		return -ENOTSUP;
 	}
 

@@ -102,7 +102,7 @@ int k_cpu_alloc_id(void)
 struct k_cpu_device *k_cpu_get(int id)
 {
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		pri_warn("cpu_get: id:%d is out of bounds.\n", id);
+		k_pri_warn("cpu_get: id:%d is out of bounds.\n", id);
 		return NULL;
 	}
 
@@ -115,7 +115,7 @@ int k_cpu_set(int id, struct k_cpu_device *cpu)
 		return -EINVAL;
 	}
 	if (id < 0 || CONFIG_NUM_CORES <= id) {
-		pri_warn("cpu_set: id:%d is out of bounds.\n", id);
+		k_pri_warn("cpu_set: id:%d is out of bounds.\n", id);
 		return -EINVAL;
 	}
 
@@ -134,7 +134,7 @@ struct k_cpu_device *k_cpu_get_by_physical_id(int id_phys)
 			return cpus[i];
 		}
 	}
-	pri_warn("cpu_get_by_physical_id: id_phys:%d is not found.\n", id_phys);
+	k_pri_warn("cpu_get_by_physical_id: id_phys:%d is not found.\n", id_phys);
 
 	return NULL;
 }
@@ -194,7 +194,7 @@ int k_cpu_cache_clean_range(struct k_cpu_device *cpu, const void *start, size_t 
 	if (drv && drv->ops && drv->ops->clean_range) {
 		r = drv->ops->clean_range(cpu, start, sz);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "clean range:%p-%p failed.\n",
+			k_dev_err(k_cpu_to_dev(cpu), "clean range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -211,7 +211,7 @@ int k_cpu_cache_inv_range(struct k_cpu_device *cpu, const void *start, size_t sz
 	if (drv && drv->ops && drv->ops->inv_range) {
 		r = drv->ops->inv_range(cpu, start, sz);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "invalidate range:%p-%p failed.\n",
+			k_dev_err(k_cpu_to_dev(cpu), "invalidate range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -228,7 +228,7 @@ int k_cpu_cache_flush_range(struct k_cpu_device *cpu, const void *start, size_t 
 	if (drv && drv->ops && drv->ops->flush_range) {
 		r = drv->ops->flush_range(cpu, start, sz);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "flush range:%p-%p failed.\n",
+			k_dev_err(k_cpu_to_dev(cpu), "flush range:%p-%p failed.\n",
 				start, start + sz);
 			return r;
 		}
@@ -243,7 +243,7 @@ static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event eve
 	struct k_event_handler *h;
 
 	if (CPU_EVENT_MAX <= event) {
-		__dev_err(dev, "CPU event %d is too large.\n", event);
+		k_dev_err(dev, "CPU event %d is too large.\n", event);
 		return -EINVAL;
 	}
 
@@ -256,7 +256,7 @@ static int k_cpu_get_handler_head(struct k_cpu_device *cpu, enum k_cpu_event eve
 		h = &cpu->handlers[event];
 		break;
 	default:
-		__dev_err(dev, "CPU event %d is unknown.\n", event);
+		k_dev_err(dev, "CPU event %d is unknown.\n", event);
 		return -EINVAL;
 	}
 
@@ -333,7 +333,7 @@ int k_cpu_wakeup(struct k_cpu_device *cpu)
 	if (drv && drv->ops && drv->ops->wakeup) {
 		r = drv->ops->wakeup(cpu);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "wakeup id:%d(phys:%d) failed.\n",
+			k_dev_err(k_cpu_to_dev(cpu), "wakeup id:%d(phys:%d) failed.\n",
 				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
@@ -350,7 +350,7 @@ int k_cpu_sleep(struct k_cpu_device *cpu)
 	if (drv && drv->ops && drv->ops->sleep) {
 		r = drv->ops->sleep(cpu);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "sleep id:%d(phys:%d) failed.\n",
+			k_dev_err(k_cpu_to_dev(cpu), "sleep id:%d(phys:%d) failed.\n",
 				cpu->id_cpu, cpu->id_phys);
 			return r;
 		}
@@ -370,7 +370,7 @@ int k_cpu_wakeup_all(void)
 	/* Main core is enabled */
 	cpu = k_cpu_get(0);
 	if (!cpu) {
-		pri_err("cpu_wakeup_all: cannot get main core.\n");
+		k_pri_err("cpu_wakeup_all: cannot get main core.\n");
 		return -ENOMEM;
 	}
 
@@ -425,7 +425,7 @@ int k_cpu_sleep_all(void)
 	/* Main core is disabled */
 	cpu = k_cpu_get(0);
 	if (!cpu) {
-		pri_err("cpu_sleep_all: cannot get main core.\n");
+		k_pri_err("cpu_sleep_all: cannot get main core.\n");
 		return -ENOMEM;
 	}
 
@@ -444,14 +444,14 @@ int k_cpu_on_wakeup(void)
 	if (drv && drv->ops && drv->ops->on_wakeup) {
 		r = drv->ops->on_wakeup(cpu);
 		if (r) {
-			__dev_err(dev, "failed to callback on_wakeup.\n");
+			k_dev_err(dev, "failed to callback on_wakeup.\n");
 			return r;
 		}
 	}
 
 	r = k_cpu_call_handler(cpu, CPU_EVENT_ON_WAKEUP);
 	if (r) {
-		__dev_err(dev, "failed to handle event of on_wakeup.\n");
+		k_dev_err(dev, "failed to handle event of on_wakeup.\n");
 		return r;
 	}
 
@@ -467,14 +467,14 @@ int k_cpu_on_sleep(void)
 
 	r = k_cpu_call_handler(cpu, CPU_EVENT_ON_SLEEP);
 	if (r) {
-		__dev_err(dev, "failed to handle event of on_sleep.\n");
+		k_dev_err(dev, "failed to handle event of on_sleep.\n");
 		return r;
 	}
 
 	if (drv && drv->ops && drv->ops->on_sleep) {
 		r = drv->ops->on_sleep(cpu);
 		if (r) {
-			__dev_err(dev, "failed to callback on_sleep.\n");
+			k_dev_err(dev, "failed to callback on_sleep.\n");
 			return r;
 		}
 	}
@@ -498,11 +498,11 @@ int k_cpu_raise_ipi(struct k_cpu_device *dest, void *arg)
 	if (drv && drv->ops && drv->ops->raise_ipi) {
 		r = drv->ops->raise_ipi(cpu, dest, arg);
 		if (r) {
-			__dev_err(k_cpu_to_dev(cpu), "failed to raise IPI.\n");
+			k_dev_err(k_cpu_to_dev(cpu), "failed to raise IPI.\n");
 			return r;
 		}
 	} else {
-		__dev_err(k_cpu_to_dev(cpu), "not supported to raise IPI.\n");
+		k_dev_err(k_cpu_to_dev(cpu), "not supported to raise IPI.\n");
 		return -ENOTSUP;
 	}
 
@@ -515,7 +515,7 @@ int k_cpu_futex_wait(int *uaddr, int val, int bitset)
 	int res = 0;
 
 	if (!bitset) {
-		__dev_err(k_cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
+		k_dev_err(k_cpu_to_dev(cpu), "futex_wait bitmask is 0.\n");
 		return -EINVAL;
 	}
 
@@ -569,7 +569,7 @@ int k_cpu_futex_wake(int *uaddr, int val, int bitset)
 	int r, res = 0;
 
 	if (!bitset) {
-		__dev_err(k_cpu_to_dev(cpu_cur), "futex_wake bitmask is 0.\n");
+		k_dev_err(k_cpu_to_dev(cpu_cur), "futex_wake bitmask is 0.\n");
 		return -EINVAL;
 	}
 
@@ -612,7 +612,7 @@ int k_cpu_get_cpu_from_config(struct k_device *dev, int index, struct k_cpu_devi
 
 	r = k_device_read_conf_str(dev, "cpu", &cpu_name, index);
 	if (r) {
-		__dev_err(dev, "cpu name is not found, index:%d.\n", index);
+		k_dev_err(dev, "cpu name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
@@ -620,7 +620,7 @@ int k_cpu_get_cpu_from_config(struct k_device *dev, int index, struct k_cpu_devi
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {
-		__dev_err(dev, "cpu '%s' is not found.\n", cpu_name);
+		k_dev_err(dev, "cpu '%s' is not found.\n", cpu_name);
 		return -EINVAL;
 	}
 

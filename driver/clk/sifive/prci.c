@@ -135,7 +135,7 @@ static int clk_prci_filter_range(struct k_clk_device *clk, uint64_t post_divr, i
 		r = 7;
 		break;
 	default:
-		__dev_err(dev, "post divr frequency out of range: %"PRId64"\n",
+		k_dev_err(dev, "post divr frequency out of range: %"PRId64"\n",
 			post_divr);
 		return -ERANGE;
 	}
@@ -295,7 +295,7 @@ static int clk_prci_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -311,7 +311,7 @@ static int clk_prci_add(struct k_device *dev)
 
 	r = k_clk_get_frequency(priv->clk_in, priv->index_clk_in, &priv->freq_in);
 	if (r) {
-		__dev_err(dev, "clock freq is unknown.\n");
+		k_dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 
@@ -324,7 +324,7 @@ static int clk_prci_add(struct k_device *dev)
 
 	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_DDRCTRLCLK);
 	if (r) {
-		__dev_err(dev, "config 'frequency' ddrctrlclk is not found.\n");
+		k_dev_err(dev, "config 'frequency' ddrctrlclk is not found.\n");
 		return -EINVAL;
 	}
 	r = clk_prci_set_freq(clk, PRCI_INDEX_DDRCTRLCLK, freq);
@@ -334,7 +334,7 @@ static int clk_prci_add(struct k_device *dev)
 
 	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_CORECLK);
 	if (r) {
-		__dev_err(dev, "config 'frequency' coreclk is not found.\n");
+		k_dev_err(dev, "config 'frequency' coreclk is not found.\n");
 		return -EINVAL;
 	}
 	r = clk_prci_set_freq(clk, PRCI_INDEX_CORECLK, freq);
@@ -344,7 +344,7 @@ static int clk_prci_add(struct k_device *dev)
 
 	r = k_device_read_conf_u64(dev, "frequency", &freq, PRCI_INDEX_GEMGXLCLK);
 	if (r) {
-		__dev_err(dev, "config 'frequency' gemgxlclk is not found.\n");
+		k_dev_err(dev, "config 'frequency' gemgxlclk is not found.\n");
 		return -EINVAL;
 	}
 	r = clk_prci_set_freq(clk, PRCI_INDEX_GEMGXLCLK, freq);
@@ -454,7 +454,7 @@ static int clk_prci_set_freq(struct k_clk_device *clk, int index, uint64_t freq)
 		freq_found = &priv->freq_ddrctrl;
 		break;
 	case PRCI_INDEX_TLCLK:
-		__dev_err(dev, "Cannot change TLCLK.\n");
+		k_dev_err(dev, "Cannot change TLCLK.\n");
 		return -EINVAL;
 	case PRCI_INDEX_CORECLK:
 		freq_found = &priv->freq_core;
@@ -463,7 +463,7 @@ static int clk_prci_set_freq(struct k_clk_device *clk, int index, uint64_t freq)
 		freq_found = &priv->freq_gemgxl;
 		break;
 	default:
-		__dev_err(dev, "Unknown index %d.\n", index);
+		k_dev_err(dev, "Unknown index %d.\n", index);
 		return -EINVAL;
 	}
 

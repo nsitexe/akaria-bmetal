@@ -26,14 +26,14 @@ static int cpu_riscv_add(struct k_device *dev)
 	int cpuid, r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
 	/* Logical and physical ID */
 	r = k_device_read_conf_u32(dev, "hartid", &hartid, 0);
 	if (r) {
-		__dev_err(dev, "config 'hartid' is not found.\n");
+		k_dev_err(dev, "config 'hartid' is not found.\n");
 		return -EINVAL;
 	}
 
@@ -43,7 +43,7 @@ static int cpu_riscv_add(struct k_device *dev)
 		cpuid = k_cpu_alloc_id();
 	}
 	if (cpuid >= CONFIG_NUM_CORES) {
-		__dev_err(dev, "add too many cpus, max:%d.\n", CONFIG_NUM_CORES);
+		k_dev_err(dev, "add too many cpus, max:%d.\n", CONFIG_NUM_CORES);
 		return -EINVAL;
 	}
 
@@ -71,7 +71,7 @@ static int cpu_riscv_clean_range(struct k_cpu_device *cpu, const void *start, si
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		k_dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -92,7 +92,7 @@ static int cpu_riscv_inv_range(struct k_cpu_device *cpu, const void *start, size
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		k_dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -113,7 +113,7 @@ static int cpu_riscv_flush_range(struct k_cpu_device *cpu, const void *start, si
 	const char *p = start;
 
 	if (sz_line <= 0) {
-		__dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
+		k_dev_err(k_cpu_to_dev(cpu), "cache line size %d is invalid.\n", sz_line);
 		return -EINVAL;
 	}
 
@@ -157,7 +157,7 @@ static int cpu_riscv_sleep(struct k_cpu_device *cpu)
 #if !defined(CONFIG_INTC)
 static int cpu_riscv_raise_ipi(struct k_cpu_device *cpu, struct k_cpu_device *dest, void *arg)
 {
-	__dev_err(k_cpu_to_dev(cpu), "Not support intc.\n");
+	k_dev_err(k_cpu_to_dev(cpu), "Not support intc.\n");
 	return -ENOTSUP;
 }
 #else /* CONFIG_INTC */

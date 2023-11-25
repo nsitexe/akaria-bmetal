@@ -22,7 +22,7 @@ int k_event_alloc_handler(struct k_event_handler **handler)
 		}
 	}
 	if (!found) {
-		pri_err("No more interrupt handlers.\n");
+		k_pri_err("No more interrupt handlers.\n");
 		return -ENOMEM;
 	}
 
@@ -48,7 +48,7 @@ int k_event_free_handler(struct k_event_handler *handler)
 		}
 	}
 	if (!found) {
-		pri_err("handler %p is not found.\n", handler);
+		k_pri_err("handler %p is not found.\n", handler);
 		return -EINVAL;
 	}
 
@@ -91,7 +91,7 @@ int k_event_remove_handler(struct k_event_handler *head, struct k_event_handler 
 		}
 	}
 	if (!found) {
-		pri_err("handler %p is not found.\n", handler);
+		k_pri_err("handler %p is not found.\n", handler);
 		return -EINVAL;
 	}
 

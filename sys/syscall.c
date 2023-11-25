@@ -35,7 +35,7 @@ static const struct new_utsname uname = {
 
 intptr_t k_sys_unknown(intptr_t number, intptr_t a, intptr_t b, intptr_t c, intptr_t d, intptr_t e, intptr_t f)
 {
-	pri_info("%d: unknown syscall %"PRIdPTR"\n", k_cpu_get_current_id_phys(), number);
+	k_pri_info("%d: unknown syscall %"PRIdPTR"\n", k_cpu_get_current_id_phys(), number);
 
 	return -ENOTSUP;
 }
@@ -52,7 +52,7 @@ intptr_t k_sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim
 	struct rlimit64 old;
 
 	if (new_lim) {
-		pri_warn("prlimit64: not support to set new rlimit.\n");
+		k_pri_warn("prlimit64: not support to set new rlimit.\n");
 		return -EPERM;
 	}
 
@@ -62,7 +62,7 @@ intptr_t k_sys_prlimit64(pid_t pid, int resource, const struct rlimit64 *new_lim
 		old.rlim_max = ~0;
 		break;
 	default:
-		pri_warn("prlimit64: not support to resource %d.\n", resource);
+		k_pri_warn("prlimit64: not support to resource %d.\n", resource);
 		return -EINVAL;
 	}
 
@@ -153,7 +153,7 @@ intptr_t k_sys_clock_gettime64(clockid_t clock_id, struct timespec64 *tp)
 		r = k_clock_get_monotonic(tp);
 		break;
 	default:
-		pri_warn("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
+		k_pri_warn("sys_clock_gettime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 
@@ -173,7 +173,7 @@ intptr_t k_sys_clock_settime64(clockid_t clock_id, const struct timespec64 *tp)
 		r = k_clock_set_realtime(tp);
 		break;
 	default:
-		pri_warn("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
+		k_pri_warn("sys_clock_settime: not supported clock_id:%d.\n", (int)clock_id);
 		return -EINVAL;
 	}
 
@@ -238,7 +238,7 @@ intptr_t k_sys_getrandom(void *buf, size_t buflen, unsigned int flags)
 
 intptr_t k_sys_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 {
-	pri_dbg("sys_openat: %d, %s\n", dirfd, pathname);
+	k_pri_dbg("sys_openat: %d, %s\n", dirfd, pathname);
 
 	return -ENOTSUP;
 }
@@ -269,7 +269,7 @@ intptr_t k_sys_read(int fd, void *buf, size_t count)
 		return -EBADF;
 	}
 
-	pri_dbg("sys_read: fd:%d cnt:%d\n", fd, (int)count);
+	k_pri_dbg("sys_read: fd:%d cnt:%d\n", fd, (int)count);
 
 	return k_file_read(desc, buf, count);
 }
@@ -282,7 +282,7 @@ intptr_t k_sys_write(int fd, const void *buf, size_t count)
 		return -EBADF;
 	}
 
-	pri_dbg("sys_write: fd:%d cnt:%d\n", fd, (int)count);
+	k_pri_dbg("sys_write: fd:%d cnt:%d\n", fd, (int)count);
 
 	return k_file_write(desc, buf, count);
 }
@@ -316,7 +316,7 @@ intptr_t k_sys_writev(int fd, const struct iovec *iov, int iovcnt)
 		} else if (wr < iov[i].iov_len) {
 			break;
 		} else {
-			pri_warn("sys_writev: failed at %d, fd:%d len:%d.\n",
+			k_pri_warn("sys_writev: failed at %d, fd:%d len:%d.\n",
 				i, fd, (int)iov[i].iov_len);
 			ret = wr;
 			break;
@@ -339,7 +339,7 @@ intptr_t k_sys_brk(void *addr)
 	}
 	if (addr < k_mem_brk_start() || k_mem_brk_end() < addr) {
 		k_mem_brk_unlock();
-		pri_info("sys_brk: addr:%p is out of bounds.\n", addr);
+		k_pri_info("sys_brk: addr:%p is out of bounds.\n", addr);
 		return -ENOMEM;
 	}
 
@@ -379,13 +379,13 @@ intptr_t k_sys_mmap(void *addr, size_t length, int prot, int flags, int fd, off_
 	 */
 	if ((flags & flags_req) != flags_req ||
 	    fd != -1 || offset != 0) {
-		pri_warn("sys_mmap: only support anonymous mmap.\n");
+		k_pri_warn("sys_mmap: only support anonymous mmap.\n");
 		return -EINVAL;
 	}
 
 	off_page = k_mem_alloc_pages(len);
 	if (off_page < 0) {
-		pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
+		k_pri_warn("sys_mmap: no enough pages, len:%d.\n", (int)len);
 		return -ENOMEM;
 	}
 	anon_ptr = k_mem_heap_area_start() + off_page * __PAGE_SIZE;
@@ -410,7 +410,7 @@ intptr_t k_sys_madvise(void *addr, size_t length, int advice)
 {
 	switch (advice) {
 	case MADV_DONTNEED:
-		pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
+		k_pri_info("sys_madvise: %08"PRIxPTR" - %08"PRIxPTR" do not need.\n",
 			(uintptr_t)addr, (uintptr_t)addr + length);
 
 		int r = k_mem_check_pages(addr, length);
@@ -422,7 +422,7 @@ intptr_t k_sys_madvise(void *addr, size_t length, int advice)
 
 		break;
 	default:
-		pri_warn("sys_madvise: advice %d is not supported.\n", advice);
+		k_pri_warn("sys_madvise: advice %d is not supported.\n", advice);
 
 		return -EINVAL;
 	}
@@ -432,7 +432,7 @@ intptr_t k_sys_madvise(void *addr, size_t length, int advice)
 
 intptr_t k_sys_mprotect(void *addr, size_t length, int prot)
 {
-	pri_info("sys_mprotect: ignore mprotect.\n");
+	k_pri_info("sys_mprotect: ignore mprotect.\n");
 
 	return 0;
 }
@@ -448,21 +448,21 @@ intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *t
 
 	if (flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
 		if (!ctid) {
-			pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
+			k_pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
 			return -EFAULT;
 		}
 		need_ctid = 1;
 	}
 	if (flags & CLONE_PARENT_SETTID) {
 		if (!ptid) {
-			pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
+			k_pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
 			return -EFAULT;
 		}
 		need_ptid = 1;
 	}
 	if (flags & CLONE_SETTLS) {
 		if (!tls) {
-			pri_warn("sys_clone: Need tls but tls is NULL.\n");
+			k_pri_warn("sys_clone: Need tls but tls is NULL.\n");
 			return -EFAULT;
 		}
 		need_tls = 1;
@@ -576,7 +576,7 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	switch (cmd) {
 	case FUTEX_WAIT:
 		if (timeout) {
-			pri_warn("sys_futex: timeout %d.%09d is not support.\n",
+			k_pri_warn("sys_futex: timeout %d.%09d is not support.\n",
 				(int)timeout->tv_sec, (int)timeout->tv_nsec);
 		}
 
@@ -586,7 +586,7 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		r = k_cpu_futex_wait(uaddr, val, val3);
 		if (r) {
 			if (r != -EWOULDBLOCK) {
-				pri_warn("%d: futex err wait %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
+				k_pri_warn("%d: futex err wait %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 			}
 
 			ret = r;
@@ -600,7 +600,7 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	case FUTEX_WAKE_BITSET:
 		r = k_cpu_futex_wake(uaddr, val, val3);
 		if (r < 0) {
-			pri_warn("%d: futex err wake %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
+			k_pri_warn("%d: futex err wake %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -611,7 +611,7 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 	case FUTEX_REQUEUE:
 		r = k_cpu_futex_wake(uaddr, val, FUTEX_BITSET_ANY);
 		if (r < 0) {
-			pri_warn("%d: futex err requeue %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
+			k_pri_warn("%d: futex err requeue %p %d.\n", k_cpu_get_current_id_phys(), uaddr, val);
 
 			ret = r;
 			goto err_out;
@@ -620,7 +620,7 @@ intptr_t k_sys_futex64(int *uaddr, int op, int val, const struct timespec64 *tim
 		ret = r;
 		break;
 	default:
-		pri_warn("sys_futex: cmd %d is not supported.\n", cmd);
+		k_pri_warn("sys_futex: cmd %d is not supported.\n", cmd);
 
 		ret = -ENOSYS;
 		goto err_out;
@@ -641,7 +641,7 @@ intptr_t k_sys_set_robust_list(void *head, size_t len)
 
 	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
-		pri_err("sys_robust_list: cannot get task thread.\n");
+		k_pri_err("sys_robust_list: cannot get task thread.\n");
 		return -EINVAL;
 	}
 
@@ -658,7 +658,7 @@ intptr_t k_sys_set_tid_address(int *tidptr)
 
 	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
-		pri_err("sys_set_tid_address: cannot get task thread.\n");
+		k_pri_err("sys_set_tid_address: cannot get task thread.\n");
 		return -EINVAL;
 	}
 
@@ -679,7 +679,7 @@ intptr_t k_sys_exit_group(int status)
 
 	ti = k_cpu_get_thread_task(cur);
 	if (!ti) {
-		pri_err("sys_exit_group: cannot get current task thread.\n");
+		k_pri_err("sys_exit_group: cannot get current task thread.\n");
 		k_cpu_unlock(cur);
 		return -EINVAL;
 	}
@@ -722,7 +722,7 @@ intptr_t k_sys_exit(int status)
 
 	ti = k_cpu_get_thread_task(cpu);
 	if (!ti) {
-		pri_err("sys_exit: cannot get task thread.\n");
+		k_pri_err("sys_exit: cannot get task thread.\n");
 
 		k_cpu_unlock(cpu);
 		return -EINVAL;
@@ -767,7 +767,7 @@ intptr_t k_sys_exit(int status)
 	if (f_wake) {
 		r = k_cpu_futex_wake(ti->ctid, 1, FUTEX_BITSET_ANY);
 		if (r < 0) {
-			pri_warn("sys_exit: futex error %d but ignored.\n", r);
+			k_pri_warn("sys_exit: futex error %d but ignored.\n", r);
 		}
 	}
 
@@ -783,15 +783,15 @@ intptr_t k_sys_reboot(int magic1, int magic2, int cmd)
 
 	switch (cmd) {
 	case RB_AUTOBOOT:
-		pri_err("Restarting system.\n");
+		k_pri_err("Restarting system.\n");
 		k_fini_reboot();
 		break;
 	case RB_POWER_OFF:
-		pri_err("Power down.\n");
+		k_pri_err("Power down.\n");
 		k_fini_power_off();
 		break;
 	default:
-		pri_warn("sys_reboot: cmd %d is not supported.\n", cmd);
+		k_pri_warn("sys_reboot: cmd %d is not supported.\n", cmd);
 		return -EINVAL;
 	}
 
@@ -807,7 +807,7 @@ intptr_t k_sys_context_switch(void)
 	r = k_thread_context_switch();
 	if (r) {
 		/* TODO: fatal error, panic? */
-		pri_err("sys_context_switch: failed to context_switch.\n");
+		k_pri_err("sys_context_switch: failed to context_switch.\n");
 		return r;
 	}
 

@@ -33,10 +33,10 @@
 			k_printf(fmt, ##__VA_ARGS__); \
 		}                                     \
 	} while (0)
-#define pri_err(fmt, ...)     k_pri_level(PRI_LV_ERR, fmt, ##__VA_ARGS__)
-#define pri_warn(fmt, ...)    k_pri_level(PRI_LV_WARN, fmt, ##__VA_ARGS__)
-#define pri_info(fmt, ...)    k_pri_level(PRI_LV_INFO, fmt, ##__VA_ARGS__)
-#define pri_dbg(fmt, ...)     k_pri_level(PRI_LV_DBG, fmt, ##__VA_ARGS__)
+#define k_pri_err(fmt, ...)     k_pri_level(PRI_LV_ERR, fmt, ##__VA_ARGS__)
+#define k_pri_warn(fmt, ...)    k_pri_level(PRI_LV_WARN, fmt, ##__VA_ARGS__)
+#define k_pri_info(fmt, ...)    k_pri_level(PRI_LV_INFO, fmt, ##__VA_ARGS__)
+#define k_pri_dbg(fmt, ...)     k_pri_level(PRI_LV_DBG, fmt, ##__VA_ARGS__)
 
 typedef int (*k_pri_getchar_func)(void);
 typedef int (*k_pri_putchar_func)(int c);

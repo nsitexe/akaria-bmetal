@@ -20,7 +20,7 @@ int k_uart_get_config(struct k_uart_device *uart, struct k_uart_config *conf)
 	if (drv && drv->ops && drv->ops->get_config) {
 		r = drv->ops->get_config(uart, conf);
 		if (r) {
-			__dev_err(k_uart_to_dev(uart), "failed to get UART config.\n");
+			k_dev_err(k_uart_to_dev(uart), "failed to get UART config.\n");
 			return r;
 		}
 	}
@@ -40,7 +40,7 @@ int k_uart_set_config(struct k_uart_device *uart, const struct k_uart_config *co
 	if (drv && drv->ops && drv->ops->set_config) {
 		r = drv->ops->set_config(uart, conf);
 		if (r) {
-			__dev_err(k_uart_to_dev(uart), "failed to set UART config.\n");
+			k_dev_err(k_uart_to_dev(uart), "failed to set UART config.\n");
 			return r;
 		}
 	}

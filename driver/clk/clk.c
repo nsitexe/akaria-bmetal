@@ -83,12 +83,12 @@ int k_clk_get_clk_from_config(struct k_device *dev, int index, struct k_clk_devi
 
 	r = k_device_read_conf_str(dev, "clocks", &clock_name, index * 2);
 	if (r) {
-		__dev_err(dev, "clock name is not found, index:%d.\n", index);
+		k_dev_err(dev, "clock name is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 	r = k_device_read_conf_u32(dev, "clocks", &val, index * 2 + 1);
 	if (r) {
-		__dev_err(dev, "clock number is not found, index:%d.\n", index);
+		k_dev_err(dev, "clock number is not found, index:%d.\n", index);
 		return -EINVAL;
 	}
 
@@ -96,7 +96,7 @@ int k_clk_get_clk_from_config(struct k_device *dev, int index, struct k_clk_devi
 	if (r == -EAGAIN) {
 		return -EAGAIN;
 	} else if (r) {
-		__dev_err(dev, "clock '%s' is not found.\n", clock_name);
+		k_dev_err(dev, "clock '%s' is not found.\n", clock_name);
 		return -EINVAL;
 	}
 

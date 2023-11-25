@@ -60,7 +60,7 @@ int k_arch_riscv_get_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t,
 		v = regs->mepc;
 		break;
 	default:
-		pri_warn("riscv_get_arg: unknown arg type %d\n", t);
+		k_pri_warn("riscv_get_arg: unknown arg type %d\n", t);
 		return -EINVAL;
 	}
 
@@ -111,7 +111,7 @@ int k_arch_riscv_set_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t,
 		v = &regs->mepc;
 		break;
 	default:
-		pri_warn("riscv_set_arg: unknown arg type %d\n", t);
+		k_pri_warn("riscv_set_arg: unknown arg type %d\n", t);
 		return -EINVAL;
 	}
 

@@ -85,7 +85,7 @@ int k_clock_get_monotonic(struct timespec64 *tsp)
 	int id, r;
 
 	if (!tm) {
-		pri_info("system timer is not found.\n");
+		k_pri_info("system timer is not found.\n");
 		return -ENOTSUP;
 	}
 
@@ -125,7 +125,7 @@ int k_clock_on_tick(void)
 	int id, r;
 
 	if (!tm) {
-		pri_info("system timer is not found.\n");
+		k_pri_info("system timer is not found.\n");
 		return -ENOTSUP;
 	}
 

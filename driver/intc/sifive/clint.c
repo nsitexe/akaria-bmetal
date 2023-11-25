@@ -47,7 +47,7 @@ static int intc_clint_add(struct k_device *dev)
 	int len, num_irq, r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -106,7 +106,7 @@ static int intc_clint_raise_ipi(struct k_intc_device *intc, struct k_cpu_device 
 	int id_dest = k_cpu_get_id_phys(dest);
 
 	if (id_cur != k_cpu_get_id_phys(src)) {
-		__dev_err(dev, "cannot send IPI, src:%d is not current CPU.\n",
+		k_dev_err(dev, "cannot send IPI, src:%d is not current CPU.\n",
 			k_cpu_get_id_phys(src));
 		return -EINVAL;
 	}

@@ -15,10 +15,10 @@
 
 #if !defined(__ASSEMBLER__)
 
-#define __dev_err(dev, fmt, ...)     pri_err("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
-#define __dev_warn(dev, fmt, ...)    pri_warn("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
-#define __dev_info(dev, fmt, ...)    pri_info("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
-#define __dev_dbg(dev, fmt, ...)     pri_dbg("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_err(dev, fmt, ...)     k_pri_err("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_warn(dev, fmt, ...)    k_pri_warn("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_info(dev, fmt, ...)    k_pri_info("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_dbg(dev, fmt, ...)     k_pri_dbg("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
 
 #define PROP_REVSEQ    \
 	109, 108, 107, 106, 105, 104, 103, 102, 101, 100, \

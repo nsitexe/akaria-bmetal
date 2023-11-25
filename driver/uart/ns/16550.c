@@ -110,12 +110,12 @@ static int uart_ns16550_set_baud(struct k_uart_device *uart, uint32_t baud)
 	d = priv->freq_in / baud / 16;
 	if (d == 0) {
 		/* Out of range, input clock rate is too low */
-		__dev_err(dev, "Divisor latch is zero (baud:%d)\n", (int)baud);
+		k_dev_err(dev, "Divisor latch is zero (baud:%d)\n", (int)baud);
 		return -EINVAL;
 	}
 	if (d > 0xffff) {
 		/* Out of range, input clock rate is too high */
-		__dev_err(dev, "Not support baud:%d\n", (int)baud);
+		k_dev_err(dev, "Not support baud:%d\n", (int)baud);
 		return -EINVAL;
 	}
 
@@ -220,7 +220,7 @@ static int uart_ns16550_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -231,7 +231,7 @@ static int uart_ns16550_add(struct k_device *dev)
 	if (r) {
 		w = REG_WIDTH_DEFAULT;
 
-		__dev_err(dev, "config 'reg-width' is not found."
+		k_dev_err(dev, "config 'reg-width' is not found."
 			"Use default size %"PRId32".\n", w);
 	}
 
@@ -246,7 +246,7 @@ static int uart_ns16550_add(struct k_device *dev)
 		priv->addr_shift = 2;
 		break;
 	default:
-		__dev_err(dev, "config 'reg-width' %"PRId32" is not supported.\n", w);
+		k_dev_err(dev, "config 'reg-width' %"PRId32" is not supported.\n", w);
 		return -EINVAL;
 	}
 
@@ -258,7 +258,7 @@ static int uart_ns16550_add(struct k_device *dev)
 
 	r = k_clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
 	if (r) {
-		__dev_err(dev, "clock freq is unknown.\n");
+		k_dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 
@@ -276,7 +276,7 @@ static int uart_ns16550_add(struct k_device *dev)
 	/* Interrupt */
 	r = k_intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
-		__dev_warn(dev, "intc is not found, use polling.\n");
+		k_dev_warn(dev, "intc is not found, use polling.\n");
 		priv->intc = NULL;
 	}
 
@@ -319,7 +319,7 @@ static int uart_ns16550_remove(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 

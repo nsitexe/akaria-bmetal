@@ -88,15 +88,15 @@ static int intc_plic_add_handler(struct k_intc_device *intc, int event, struct k
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 	if (event < 0 || PLIC_SOURCES_MAX <= event) {
-		__dev_err(dev, "event %d is too large.\n", event);
+		k_dev_err(dev, "event %d is too large.\n", event);
 		return -EINVAL;
 	}
 	if (priv->hnd[event]) {
-		__dev_err(dev, "event %d is already existed.\n", event);
+		k_dev_err(dev, "event %d is already existed.\n", event);
 		return -EINVAL;
 	}
 
@@ -120,15 +120,15 @@ static int intc_plic_remove_handler(struct k_intc_device *intc, int event, struc
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 	if (event < 0 || PLIC_SOURCES_MAX <= event) {
-		__dev_err(dev, "event %d is too large.\n", event);
+		k_dev_err(dev, "event %d is too large.\n", event);
 		return -EINVAL;
 	}
 	if (!priv->hnd[event]) {
-		__dev_err(dev, "event %d is not used.\n", event);
+		k_dev_err(dev, "event %d is not used.\n", event);
 		return -EINVAL;
 	}
 
@@ -173,7 +173,7 @@ static int intc_plic_add(struct k_device *dev)
 	int len, num_irq, r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -214,14 +214,14 @@ static int intc_plic_add(struct k_device *dev)
 	priv->n_event = PLIC_SOURCES_MAX;
 	r = k_device_read_conf_u32(dev, "n_source", &priv->n_event, 0);
 	if (r) {
-		__dev_info(dev, "config 'n_source' is not found, use default:%d.\n", PLIC_SOURCES_MAX);
+		k_dev_info(dev, "config 'n_source' is not found, use default:%d.\n", PLIC_SOURCES_MAX);
 	}
 	priv->n_event = NMIN(PLIC_SOURCES_MAX, priv->n_event);
 
 	priv->n_ctx = PLIC_CONTEXTS_MAX;
 	r = k_device_read_conf_u32(dev, "n_context", &priv->n_ctx, 0);
 	if (r) {
-		__dev_info(dev, "config 'n_context' is not found, use default:%d.\n", PLIC_CONTEXTS_MAX);
+		k_dev_info(dev, "config 'n_context' is not found, use default:%d.\n", PLIC_CONTEXTS_MAX);
 	}
 	priv->n_ctx = NMIN(PLIC_CONTEXTS_MAX, priv->n_ctx);
 

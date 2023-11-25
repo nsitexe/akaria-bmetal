@@ -18,13 +18,13 @@ static int clk_fixed_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
 	r = k_device_read_conf_u64(dev, "frequency", &f, 0);
 	if (r) {
-		__dev_err(dev, "config 'frequency' is not found.\n");
+		k_dev_err(dev, "config 'frequency' is not found.\n");
 		return -EINVAL;
 	}
 

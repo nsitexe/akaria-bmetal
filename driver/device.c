@@ -173,7 +173,7 @@ static int bus_probe(struct k_bus *bus)
 	for_each_device (dev, bus->dev_child) {
 		int s = device_probe(dev);
 		if (IS_ERROR(s)) {
-			pri_warn("bus:%d probe: Failed to probe dev:%d '%s'.\n",
+			k_pri_warn("bus:%d probe: Failed to probe dev:%d '%s'.\n",
 				bus->id, dev->id, "");
 			r = s;
 			break;
@@ -223,14 +223,14 @@ int k_driver_add(struct k_driver *driver)
 	struct k_driver *drv = NULL;
 
 	if (!driver->type_vendor || !driver->type_device) {
-		pri_warn("driver_add: Please set vendor and device.\n");
+		k_pri_warn("driver_add: Please set vendor and device.\n");
 		return -EINVAL;
 	}
 
 	for_each_driver (d, &head) {
 		if (k_strcmp(d->type_vendor, driver->type_vendor) == 0 &&
 		    k_strcmp(d->type_device, driver->type_device) == 0) {
-			pri_warn("Driver '%s:%s' has already registered.\n",
+			k_pri_warn("Driver '%s:%s' has already registered.\n",
 				driver->type_vendor, driver->type_device);
 			return -EINVAL;
 		}
@@ -242,7 +242,7 @@ int k_driver_add(struct k_driver *driver)
 
 	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
-		pri_warn("driver_add: Probe failed (%d).\n", r);
+		k_pri_warn("driver_add: Probe failed (%d).\n", r);
 	}
 
 	return 0;
@@ -260,13 +260,13 @@ int k_device_add(struct k_device *dev, struct k_bus *parent)
 		return -EINVAL;
 	}
 	if (!dev->name) {
-		pri_warn("device_add: Please set name.\n");
+		k_pri_warn("device_add: Please set name.\n");
 		return -EINVAL;
 	}
 
 	if (dev->bus_parent) {
 		/* TODO: autogenerate device name */
-		pri_warn("Dev:%d '%s' has already added into bus:%d '%s'.\n",
+		k_pri_warn("Dev:%d '%s' has already added into bus:%d '%s'.\n",
 			dev->id, "", dev->bus_parent->id, "");
 		return -EINVAL;
 	}
@@ -288,7 +288,7 @@ int k_device_add(struct k_device *dev, struct k_bus *parent)
 
 	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
-		pri_warn("dev:%d add: Probe failed (%d).\n", dev->id, r);
+		k_pri_warn("dev:%d add: Probe failed (%d).\n", dev->id, r);
 	}
 
 	return 0;
@@ -342,7 +342,7 @@ int k_device_read_conf_u32(struct k_device *dev, const char *name, uint32_t *ptr
 		return -EINVAL;
 	}
 	if (index >= dev->conf[i].count) {
-		pri_warn("conf '%s': index %d exceeds array size %d.\n",
+		k_pri_warn("conf '%s': index %d exceeds array size %d.\n",
 			name, index, dev->conf[i].count);
 		return -EINVAL;
 	}
@@ -361,7 +361,7 @@ int k_device_read_conf_u64(struct k_device *dev, const char *name, uint64_t *ptr
 		return -EINVAL;
 	}
 	if (index >= dev->conf[i].count) {
-		pri_warn("conf '%s': index %d exceeds array size %d.\n",
+		k_pri_warn("conf '%s': index %d exceeds array size %d.\n",
 			name, index, dev->conf[i].count);
 		return -EINVAL;
 	}
@@ -380,7 +380,7 @@ int k_device_read_conf_str(struct k_device *dev, const char *name, const char **
 		return -EINVAL;
 	}
 	if (index >= dev->conf[i].count) {
-		pri_warn("conf '%s': index %d exceeds array size %d.\n",
+		k_pri_warn("conf '%s': index %d exceeds array size %d.\n",
 			name, index, dev->conf[i].count);
 		return -EINVAL;
 	}
@@ -418,13 +418,13 @@ int k_bus_add(struct k_bus *bus, struct k_device *parent)
 		return -EINVAL;
 	}
 	if (!bus->name) {
-		pri_warn("bus_add: Please set name.\n");
+		k_pri_warn("bus_add: Please set name.\n");
 		return -EINVAL;
 	}
 
 	if (bus->dev_parent) {
 		/* TODO: autogenerate device name */
-		pri_warn("Bus:%d '%s' has already had Dev:%d.\n",
+		k_pri_warn("Bus:%d '%s' has already had Dev:%d.\n",
 			bus->id, "", bus->dev_parent->id);
 		return -EINVAL;
 	}
@@ -446,7 +446,7 @@ int k_bus_add(struct k_bus *bus, struct k_device *parent)
 
 	int r = k_device_probe_all();
 	if (IS_ERROR(r)) {
-		pri_warn("bus:%d add: Probe failed (%d).\n", bus->id, r);
+		k_pri_warn("bus:%d add: Probe failed (%d).\n", bus->id, r);
 	}
 
 	return 0;

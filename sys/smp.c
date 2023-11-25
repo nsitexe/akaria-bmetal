@@ -39,7 +39,7 @@ int k_smp_find_idle_cpu(struct k_cpu_device **cpu_idle)
 		}
 	}
 	if (!found) {
-		pri_warn("smp: Not found idle cpu.\n");
+		k_pri_warn("smp: Not found idle cpu.\n");
 		return -ENOMEM;
 	}
 

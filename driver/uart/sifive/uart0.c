@@ -150,7 +150,7 @@ static int uart_sifive_add(struct k_device *dev)
 	int r;
 
 	if (priv == NULL) {
-		__dev_err(dev, "priv is NULL\n");
+		k_dev_err(dev, "priv is NULL\n");
 		return -EINVAL;
 	}
 
@@ -164,7 +164,7 @@ static int uart_sifive_add(struct k_device *dev)
 
 	r = k_clk_get_frequency(priv->clk, priv->index_clk, &priv->freq_in);
 	if (r) {
-		__dev_err(dev, "clock freq is unknown.\n");
+		k_dev_err(dev, "clock freq is unknown.\n");
 		return r;
 	}
 
@@ -190,7 +190,7 @@ static int uart_sifive_add(struct k_device *dev)
 	/* Interrupt */
 	r = k_intc_get_intc_from_config(dev, 0, &priv->intc, &priv->num_irq);
 	if (r) {
-		__dev_warn(dev, "intc is not found, use polling.\n");
+		k_dev_warn(dev, "intc is not found, use polling.\n");
 		priv->intc = NULL;
 	}
 

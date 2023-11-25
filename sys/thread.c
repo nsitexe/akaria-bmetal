@@ -24,7 +24,7 @@ static int alloc_tid(void)
 struct k_proc_info *k_proc_create(void)
 {
 	if (k_pi.avail) {
-		pri_warn("proc_create: already created.\n");
+		k_pri_warn("proc_create: already created.\n");
 		return NULL;
 	}
 
@@ -36,7 +36,7 @@ struct k_proc_info *k_proc_create(void)
 struct k_proc_info *k_proc_get_current(void)
 {
 	if (!k_pi.avail) {
-		pri_err("proc_get_current: no process.\n");
+		k_pri_err("proc_get_current: no process.\n");
 		return NULL;
 	}
 
@@ -72,7 +72,7 @@ void k_thread_idle_main(int leader)
 
 	r = k_cpu_on_wakeup();
 	if (r) {
-		pri_warn("idle: failed to callback on_wakeup.\n");
+		k_pri_warn("idle: failed to callback on_wakeup.\n");
 	}
 
 	k_intr_enable_local();
@@ -96,7 +96,7 @@ void k_thread_idle_main(int leader)
 
 	r = k_cpu_on_sleep();
 	if (r) {
-		pri_warn("idle: failed to callback on_sleep.\n");
+		k_pri_warn("idle: failed to callback on_sleep.\n");
 	}
 
 	if (leader) {
@@ -124,7 +124,7 @@ struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 		}
 	}
 	if (!found) {
-		pri_warn("create_thread: reach to limit.\n");
+		k_pri_warn("create_thread: reach to limit.\n");
 
 		k_spinlock_unlock(&pi->lock);
 		return NULL;
@@ -141,7 +141,7 @@ struct k_thread_info *k_thread_create(struct k_proc_info *pi)
 
 	r = k_arch_thread_init(ti);
 	if (r) {
-		pri_warn("create_thread: failed to arch_thread_init.\n");
+		k_pri_warn("create_thread: failed to arch_thread_init.\n");
 
 		k_spinlock_unlock(&pi->lock);
 		return NULL;
@@ -158,7 +158,7 @@ int k_thread_destroy(struct k_thread_info *ti)
 		return -EINVAL;
 	}
 	if (ti->running) {
-		pri_warn("destroy_thread: thread %d is running.\n", ti->tid);
+		k_pri_warn("destroy_thread: thread %d is running.\n", ti->tid);
 		return -EBUSY;
 	}
 

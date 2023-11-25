@@ -92,17 +92,17 @@ static int k_mem_node_set_page_flag(struct k_mem_node *m, size_t off_page, size_
 void k_mem_node_dump_heap_pages(const struct k_mem_node *m)
 {
 #ifdef CONFIG_DEBUG_HEAP
-	pri_dbg("dump_heap_pages:\n");
+	k_pri_dbg("dump_heap_pages:\n");
 	for (size_t i = 0; i < m->page_total; i++) {
 		if (i % 16 == 0) {
-			pri_dbg("  %4d: ", (int)i);
+			k_pri_dbg("  %4d: ", (int)i);
 		}
-		pri_dbg("%2x ", m->stat_page[i]);
+		k_pri_dbg("%2x ", m->stat_page[i]);
 		if (i % 16 == 15) {
-			pri_dbg("\n");
+			k_pri_dbg("\n");
 		}
 	}
-	pri_dbg("\n");
+	k_pri_dbg("\n");
 #endif
 }
 
@@ -117,7 +117,7 @@ ssize_t k_mem_node_alloc_pages_nolock(struct k_mem_node *m, size_t length)
 	size_t i = 0;
 
 	if (req_page > m->page_total - m->page_use) {
-		pri_warn("alloc_pages: no more pages (req:%d, free:%d)\n",
+		k_pri_warn("alloc_pages: no more pages (req:%d, free:%d)\n",
 			(int)req_page, (int)(m->page_total - m->page_use));
 		return -ENOMEM;
 	}
@@ -138,7 +138,7 @@ ssize_t k_mem_node_alloc_pages_nolock(struct k_mem_node *m, size_t length)
 				dbg_heap_num += 1;
 			}
 
-			pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
+			k_pri_info("alloc_pages: heap:%d, page:%d-%d (%d KB)\n", dbg_heap_num,
 				(int)i, (int)(i + req_page - 1), (int)(req_page * pgsize / 1024));
 			k_mem_node_dump_heap_pages(m);
 			return i;
@@ -159,7 +159,7 @@ int k_mem_node_check_pages_nolock(struct k_mem_node *m, void *start, size_t leng
 	size_t pgsize = k_mem_node_get_pagesize(m);
 	
 	if (start < m->vaddr || (m->vaddr + m->size <= start)) {
-		pri_warn("check_pages: out of range 0x%p.\n", start);
+		k_pri_warn("check_pages: out of range 0x%p.\n", start);
 		return -EINVAL;
 	}
 
@@ -174,7 +174,7 @@ int k_mem_node_check_pages_nolock(struct k_mem_node *m, void *start, size_t leng
 
 	for (size_t i = off_page; i < off_page + n_page; i++) {
 		if (!m->stat_page[i]) {
-			pri_warn("check_pages: not allocated at %d.\n", (int)i);
+			k_pri_warn("check_pages: not allocated at %d.\n", (int)i);
 			failed = 1;
 		}
 	}
@@ -196,7 +196,7 @@ int k_mem_node_free_pages_nolock(struct k_mem_node *m, void *start, size_t lengt
 	size_t pgsize = k_mem_node_get_pagesize(m);
 
 	if (start < m->vaddr || (m->vaddr + m->size <= start)) {
-		pri_warn("free_pages: out of range 0x%p.\n", start);
+		k_pri_warn("free_pages: out of range 0x%p.\n", start);
 		return -EINVAL;
 	}
 
@@ -211,7 +211,7 @@ int k_mem_node_free_pages_nolock(struct k_mem_node *m, void *start, size_t lengt
 
 	for (size_t i = off_page; i < off_page + n_page; i++) {
 		if (!m->stat_page[i]) {
-			pri_warn("free_pages: double free at %d.\n", (int)i);
+			k_pri_warn("free_pages: double free at %d.\n", (int)i);
 			need_dump = 1;
 		}
 	}
@@ -222,7 +222,7 @@ int k_mem_node_free_pages_nolock(struct k_mem_node *m, void *start, size_t lengt
 	k_mem_node_set_page_flag(m, off_page, n_page, 0);
 	m->page_use -= n_page;
 
-	pri_info("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
+	k_pri_info("free_pages: page:%d-%d (%d KB)\n", (int)off_page,
 		(int)(off_page + n_page - 1), (int)(n_page * pgsize / 1024));
 
 	return 0;
@@ -278,7 +278,7 @@ int k_mem_init(void)
 
 	off_page = k_mem_node_alloc_pages(mnode, CONFIG_BRK_SIZE);
 	if (off_page < 0) {
-		pri_warn("Failed to allocate brk area, len:%d.\n", (int)CONFIG_BRK_SIZE);
+		k_pri_warn("Failed to allocate brk area, len:%d.\n", (int)CONFIG_BRK_SIZE);
 		return -ENOMEM;
 	}
 	brk_top = mnode->vaddr + off_page * pgsize;
