@@ -63,12 +63,16 @@ BINS = \
 	daxpy \
 	echo flush \
 	hello \
-	malloc md5 memcpy \
+	malloc \
+	mathf \
+	md5 memcpy \
 	saxpy sgemm \
 	vecadd vecaddf \
 	donut/donut \
 	coremark/coremark \
 	dhrystone/dhrystone
+
+EXT_LDADD += -lm
 
 ifeq ($(WITH_MT),y)
 BINS += \
@@ -122,6 +126,7 @@ HELLO_CPP_OBJS = hello_cpp.o
 HELLO_EIGEN_OBJS = hello_eigen.o
 HELLO_OPENSSL_OBJS = hello_openssl.o
 MALLOC_OBJS = malloc.o
+MATHF_OBJS = mathf.o
 MD5_OBJS = md5.o
 MEMCPY_OBJS = memcpy.o
 MT_CLOCK_OBJS = mt_clock.o
@@ -146,7 +151,9 @@ OBJS = \
 	$(ECHO_OBJS) $(FLUSH_OBJS) \
 	$(HELLO_OBJS) $(HELLO_CPP_OBJS) $(HELLO_EIGEN_OBJS) \
 	$(HELLO_OPENSSL_OBJS) \
-	$(MALLOC_OBJS) $(MD5_OBJS) $(MEMCPY_OBJS) \
+	$(MALLOC_OBJS) \
+	$(MATHF_OBJS) \
+	$(MD5_OBJS) $(MEMCPY_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
 	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(PTHREAD_COND_OBJS) \
@@ -183,7 +190,7 @@ flush: $(FLUSH_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello: $(HELLO_OBJS)
-	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@ -lm
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 hello_cpp: $(HELLO_CPP_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
@@ -195,6 +202,9 @@ hello_openssl: $(HELLO_OPENSSL_OBJS)
 	$(CXX) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 malloc: $(MALLOC_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+mathf: $(MATHF_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 md5: $(MD5_OBJS)

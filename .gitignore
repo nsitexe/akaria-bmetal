@@ -16,6 +16,7 @@
 /test/hello_eigen
 /test/hello_openssl
 /test/malloc
+/test/mathf
 /test/md5
 /test/memcpy
 /test/mt_clock
