@@ -130,7 +130,7 @@ typedef struct {
 
 
 // internal buffer output
-static inline void __out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
 {
   if (idx < maxlen) {
     ((char*)buffer)[idx] = character;
@@ -139,24 +139,24 @@ static inline void __out_buffer(char character, void* buffer, size_t idx, size_t
 
 
 // internal null output
-static inline void __out_null(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_null(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)character; (void)buffer; (void)idx; (void)maxlen;
 }
 
 
 // internal _putchar wrapper
-static inline void __out_char(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_char(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)buffer; (void)idx; (void)maxlen;
   if (character) {
-    __inner_putc(character);
+    k_putchar_nolock(character);
   }
 }
 
 
 // internal output function wrapper
-static inline void __out_fct(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_fct(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)idx; (void)maxlen;
   if (character) {
@@ -196,7 +196,7 @@ static unsigned int _atoi(const char** str)
 
 
 // output the specified string in reverse, taking care of any zero-padding
-static size_t __out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
+static size_t k_pri_out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
 {
   const size_t start_idx = idx;
 
@@ -273,7 +273,7 @@ static size_t _ntoa_format(out_fct_type out, char* buffer, size_t idx, size_t ma
     }
   }
 
-  return __out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+  return k_pri_out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
 }
 
 
@@ -347,11 +347,11 @@ static size_t __ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, 
 
   // test for special values
   if (value != value)
-    return __out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
   if (value < -DBL_MAX)
-    return __out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
   if (value > DBL_MAX)
-    return __out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
 
   // test for very large values
   // standard printf behavior is to print EVERY whole number digit -- which could be 100s of characters overflowing your buffers == bad
@@ -458,7 +458,7 @@ static size_t __ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, 
     }
   }
 
-  return __out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+  return k_pri_out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
 }
 
 
@@ -574,14 +574,14 @@ static size_t __etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, 
 
 
 // internal vsnprintf
-static int __vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
+static int k_vsnprintf_inner(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
 {
   unsigned int flags, width, precision, n;
   size_t idx = 0U;
 
   if (!buffer) {
     // use null output function
-    out = __out_null;
+    out = k_pri_out_null;
   }
 
   while (*format)
@@ -859,23 +859,13 @@ static int __vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int __inner_vprintf(const char* format, va_list va)
+int k_vprintf_nolock(const char* format, va_list va)
 {
   char buffer[1];
-  return __vsnprintf(__out_char, buffer, (size_t)-1, format, va);
+  return k_vsnprintf_inner(k_pri_out_char, buffer, (size_t)-1, format, va);
 }
 
-int __inner_vsnprintf(char* buffer, size_t count, const char* format, va_list va)
+int k_vsnprintf_nolock(char* buffer, size_t count, const char* format, va_list va)
 {
-  return __vsnprintf(__out_buffer, buffer, count, format, va);
-}
-
-int __inner_fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  const out_fct_wrap_type out_fct_wrap = { out, arg };
-  const int ret = __vsnprintf(__out_fct, (char*)(uintptr_t)&out_fct_wrap, (size_t)-1, format, va);
-  va_end(va);
-  return ret;
+  return k_vsnprintf_inner(k_pri_out_buffer, buffer, count, format, va);
 }

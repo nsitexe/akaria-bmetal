@@ -119,12 +119,12 @@ ssize_t k_file_write(struct k_file_desc *desc, const void *buf, size_t count)
 
 ssize_t k_file_stdio_read(struct k_file_desc *desc, void *buf, size_t count)
 {
-	return __kread(buf, count);
+	return k_pri_read_stdin(buf, count);
 }
 
 ssize_t k_file_stdio_write(struct k_file_desc *desc, const void *buf, size_t count)
 {
-	return __kwrite(buf, count);
+	return k_pri_write_stdout(buf, count);
 }
 
 int k_file_stdio_init(struct k_proc_info *pi)

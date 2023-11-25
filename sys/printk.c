@@ -9,207 +9,204 @@
 #include <bmetal/sys/stdio.h>
 #include <bmetal/sys/string.h>
 
-int __inner_vprintf(const char *format, va_list va);
-int __inner_vsnprintf(char *buffer, size_t count, const char *format, va_list va);
+static int null_getchar(void);
+static int null_putchar(int c);
 
-static int null_getc(void);
-static int null_putc(int c);
+static k_pri_getchar_func k_pri_getchar_in = null_getchar;
+static k_pri_putchar_func k_pri_putchar_in = null_putchar;
+static struct k_spinlock k_pri_lock;
 
-static __getc_func printk_getc = null_getc;
-static __putc_func printk_putc = null_putc;
-static struct k_spinlock printk_lock;
-
-static int null_getc(void)
+static int null_getchar(void)
 {
 	return EOF;
 }
 
-static int null_putc(int c)
+static int null_putchar(int c)
 {
 	return (unsigned char)c;
 }
 
-int __inner_getc(void)
+k_pri_getchar_func k_pri_get_getchar(void)
 {
-	return printk_getc();
+	return k_pri_getchar_in;
 }
 
-int __inner_putc(int c)
+int k_pri_set_getchar(k_pri_getchar_func f)
 {
-	return printk_putc(c);
+	if (f == NULL) {
+		f = null_getchar;
+	}
+
+	k_pri_getchar_in = f;
+
+	return 0;
 }
 
-int __inner_puts(const char *s, int newline)
+k_pri_putchar_func k_pri_get_putchar(void)
+{
+	return k_pri_putchar_in;
+}
+
+int k_pri_set_putchar(k_pri_putchar_func f)
+{
+	if (f == NULL) {
+		f = null_putchar;
+	}
+
+	k_pri_putchar_in = f;
+
+	return 0;
+}
+
+int k_getchar_nolock(void)
+{
+	return k_pri_getchar_in();
+}
+
+int k_putchar_nolock(int c)
+{
+	return k_pri_putchar_in(c);
+}
+
+int k_puts_nolock(const char *s, int newline)
 {
 	for (size_t i = 0; i < k_strlen(s); i++) {
-		__inner_putc(s[i]);
+		k_putchar_nolock(s[i]);
 	}
 	if (newline) {
-		__inner_putc('\n');
+		k_putchar_nolock('\n');
 	}
 
 	return 0;
 }
 
-__getc_func __get_printk_in(void)
-{
-	return printk_getc;
-}
-
-int __set_printk_in(__getc_func f)
-{
-	if (f == NULL) {
-		f = null_getc;
-	}
-
-	printk_getc = f;
-
-	return 0;
-}
-
-__putc_func __get_printk_out(void)
-{
-	return printk_putc;
-}
-
-int __set_printk_out(__putc_func f)
-{
-	if (f == NULL) {
-		f = null_putc;
-	}
-
-	printk_putc = f;
-
-	return 0;
-}
-
-int __kputchar(int c)
-{
-	long st;
-	int r;
-
-	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
-	r = __inner_putc(c);
-	k_spinlock_unlock(&printk_lock);
-	k_intr_restore_local(st);
-
-	return r;
-}
-
-int __kputs(const char *s)
-{
-	long st;
-	int r;
-
-	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
-	r = __inner_puts(s, 1);
-	k_spinlock_unlock(&printk_lock);
-	k_intr_restore_local(st);
-
-	return r;
-}
-
-int __kread(char *s, size_t count)
+int k_pri_read_stdin(char *s, size_t count)
 {
 	long st;
 	int c, n;
 
 	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
-	c = __inner_getc();
+	k_spinlock_lock(&k_pri_lock);
+	c = k_getchar_nolock();
 	if (c == EOF) {
 		n = 0;
 	} else {
 		s[0] = c;
 		n = 1;
 	}
-	k_spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&k_pri_lock);
 	k_intr_restore_local(st);
 
 	return n;
 }
 
-int __kwrite(const char *s, size_t count)
+int k_pri_write_stdout(const char *s, size_t count)
 {
 	long st;
 
 	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
+	k_spinlock_lock(&k_pri_lock);
 	for (size_t i = 0; i < count; i++) {
-		__inner_putc(s[i]);
+		k_putchar_nolock(s[i]);
 	}
-	k_spinlock_unlock(&printk_lock);
+	k_spinlock_unlock(&k_pri_lock);
 	k_intr_restore_local(st);
 
 	return count;
 }
 
-int __printk(const char *format, ...)
-{
-	va_list va;
-	int r;
-
-	va_start(va, format);
-	r = __vprintk(format, va);
-	va_end(va);
-
-	return r;
-}
-
-int __sprintk(char *buffer, const char *format, ...)
-{
-	va_list va;
-	int r;
-
-	va_start(va, format);
-	r = __vsprintk(buffer, format, va);
-	va_end(va);
-
-	return r;
-}
-
-int __snprintk(char *buffer, size_t count, const char *format, ...)
-{
-	va_list va;
-	int r;
-
-	va_start(va, format);
-	r = __vsnprintk(buffer, count, format, va);
-	va_end(va);
-
-	return r;
-}
-
-int __vprintk(const char *format, va_list va)
+int k_putchar(int c)
 {
 	long st;
 	int r;
 
 	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
-	r = __inner_vprintf(format, va);
-	k_spinlock_unlock(&printk_lock);
+	k_spinlock_lock(&k_pri_lock);
+	r = k_putchar_nolock(c);
+	k_spinlock_unlock(&k_pri_lock);
 	k_intr_restore_local(st);
 
 	return r;
 }
 
-int __vsprintk(char *buffer, const char *format, va_list va)
-{
-	return __vsnprintk(buffer, (size_t) -1, format, va);
-}
-
-int __vsnprintk(char *buffer, size_t count, const char *format, va_list va)
+int k_puts(const char *s)
 {
 	long st;
 	int r;
 
 	k_intr_save_local(&st);
-	k_spinlock_lock(&printk_lock);
-	r = __inner_vsnprintf(buffer, count, format, va);
-	k_spinlock_unlock(&printk_lock);
+	k_spinlock_lock(&k_pri_lock);
+	r = k_puts_nolock(s, 1);
+	k_spinlock_unlock(&k_pri_lock);
+	k_intr_restore_local(st);
+
+	return r;
+}
+
+int k_printf(const char *format, ...)
+{
+	va_list va;
+	int r;
+
+	va_start(va, format);
+	r = k_vprintf(format, va);
+	va_end(va);
+
+	return r;
+}
+
+int k_sprintf(char *buffer, const char *format, ...)
+{
+	va_list va;
+	int r;
+
+	va_start(va, format);
+	r = k_vsprintf(buffer, format, va);
+	va_end(va);
+
+	return r;
+}
+
+int k_snprintf(char *buffer, size_t count, const char *format, ...)
+{
+	va_list va;
+	int r;
+
+	va_start(va, format);
+	r = k_vsnprintf(buffer, count, format, va);
+	va_end(va);
+
+	return r;
+}
+
+int k_vprintf(const char *format, va_list va)
+{
+	long st;
+	int r;
+
+	k_intr_save_local(&st);
+	k_spinlock_lock(&k_pri_lock);
+	r = k_vprintf_nolock(format, va);
+	k_spinlock_unlock(&k_pri_lock);
+	k_intr_restore_local(st);
+
+	return r;
+}
+
+int k_vsprintf(char *buffer, const char *format, va_list va)
+{
+	return k_vsnprintf(buffer, (size_t) -1, format, va);
+}
+
+int k_vsnprintf(char *buffer, size_t count, const char *format, va_list va)
+{
+	long st;
+	int r;
+
+	k_intr_save_local(&st);
+	k_spinlock_lock(&k_pri_lock);
+	r = k_vsnprintf_nolock(buffer, count, format, va);
+	k_spinlock_unlock(&k_pri_lock);
 	k_intr_restore_local(st);
 
 	return r;

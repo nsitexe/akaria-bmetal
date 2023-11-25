@@ -92,8 +92,8 @@ int k_uart_set_default_console(struct k_uart_device *uart)
 {
 	uart_default = uart;
 
-	__set_printk_in(uart_getc);
-	__set_printk_out(uart_putc);
+	k_pri_set_getchar(uart_getc);
+	k_pri_set_putchar(uart_putc);
 
 	return 0;
 }
