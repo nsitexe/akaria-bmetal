@@ -9,7 +9,7 @@
 #define mcycle     0xb00
 #define mcycleh    0xb80
 
-#define N_TESTS    23
+#define N_TESTS    25
 
 #define PI    3.1415926535897f
 
@@ -29,7 +29,7 @@ float g_f2;
 
 uint64_t get_clk(void)
 {
-#ifdef __riscv
+#if defined(__riscv) && (__riscv_xlen == 32) && defined(__riscv_zicsr)
 	uint32_t h, l;
 
 	__asm volatile("csrr %0, %2\n"
@@ -38,6 +38,14 @@ uint64_t get_clk(void)
 		: "i"(mcycle), "i"(mcycleh));
 
 	return (((uint64_t)h) << 32) | l;
+#elif defined(__riscv) && (__riscv_xlen == 64) && defined(__riscv_zicsr)
+	uint64_t v;
+
+	__asm volatile("csrr %0, %1\n"
+		: "=r"(v)
+		: "i"(mcycle));
+
+	return v;
 #else
 	return 0;
 #endif
@@ -75,6 +83,14 @@ int case_mulf(int id)
 int case_divf(int id)
 {
 	g_f /= 1000.1f;
+	g_f2 = g_f;
+
+	return 0;
+}
+
+int case_fabsf(int id)
+{
+	g_f = fabsf(g_f);
 	g_f2 = g_f;
 
 	return 0;
@@ -120,6 +136,14 @@ int case_log2f(int id)
 	return 0;
 }
 
+int case_powf(int id)
+{
+	g_f = powf(g_f, g_f2);
+	g_f2 = g_f;
+
+	return 0;
+}
+
 int case_sinf(int id)
 {
 	g_f = sinf(g_f);
@@ -151,11 +175,13 @@ struct testcase tests_org[N_TESTS] = {
 	{"addf", case_addf},
 	{"mulf", case_mulf},
 	{"divf", case_divf},
+	{"fabsf", case_fabsf},
 	{"sqrtf", case_sqrtf},
 	{"exp2f", case_exp2f, 1000.0f},
 	{"expf",  case_expf,  1000.0f},
 	{"log2f", case_log2f, 100000.0f},
 	{"logf",  case_logf,  100000.0f},
+	{"powf",  case_powf,  100000.0f},
 	{"sinf(small)",  case_sinf, PI / 4},
 	{"sinf(medium)", case_sinf, 5 * PI / 4},
 	{"sinf(large)",  case_sinf, 192 * PI / 4},
