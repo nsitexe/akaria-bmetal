@@ -472,6 +472,8 @@ intptr_t k_sys_clone3(struct clone_args *cargs, size_t size)
 	args.set_tid_size = cargs->set_tid_size;
 	args.cgroup       = cargs->cgroup;
 
+	args.child_stack += cargs->stack_size;
+
 	return k_thread_clone(&args);
 }
 
