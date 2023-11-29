@@ -13,6 +13,20 @@
 
 struct k_cpu_device;
 
+struct k_clone_args {
+	uint64_t flags;
+	pid_t *pidfd;
+	pid_t *ctid;
+	pid_t *ptid;
+	int exit_signal;
+	void *child_stack;
+	uint64_t stack_size;
+	void *tls;
+	pid_t *set_tid;
+	uint64_t set_tid_size;
+	int cgroup;
+};
+
 struct k_proc_info {
 	pid_t pid;
 	int avail;
@@ -55,6 +69,7 @@ struct k_thread_info *k_thread_get_raw(int n);
 struct k_thread_info *k_thread_get(pid_t tid);
 struct k_thread_info *k_thread_get_current(void);
 pid_t k_thread_get_tid(void);
+pid_t k_thread_clone(const struct k_clone_args *args);
 int k_thread_context_switch(void);
 int k_thread_context_switch_nolock(void);
 

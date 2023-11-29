@@ -31,4 +31,22 @@
 #define CLONE_NEWNET            0x40000000
 #define CLONE_IO                0x80000000
 
+#if !defined(__ASSEMBLER__)
+
+struct clone_args {
+	uint64_t flags;
+	uint64_t pidfd;
+	uint64_t child_tid;
+	uint64_t parent_tid;
+	uint64_t exit_signal;
+	uint64_t stack;
+	uint64_t stack_size;
+	uint64_t tls;
+	uint64_t set_tid;
+	uint64_t set_tid_size;
+	uint64_t cgroup;
+};
+
+#endif /* !__ASSEMBLER__ */
+
 #endif /* BAREMETAL_CRT_SYS_SCHED_H_ */

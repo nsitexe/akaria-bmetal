@@ -9,6 +9,7 @@
 #include <bmetal/smp.h>
 #include <bmetal/driver/cpu.h>
 #include <bmetal/sys/errno.h>
+#include <bmetal/sys/sched.h>
 #include <bmetal/sys/string.h>
 
 static struct k_proc_info k_pi;
@@ -217,6 +218,119 @@ pid_t k_thread_get_tid(void)
 	struct k_thread_info *ti = k_thread_get_current();
 
 	return ti->tid;
+}
+
+pid_t k_thread_clone(const struct k_clone_args *args)
+{
+/*unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid*/
+	struct k_cpu_device *cpu_cur = k_cpu_get_current(), *cpu;
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
+	size_t pos_intr;
+	int need_ctid = 0, need_ptid = 0, need_tls = 0;
+	int r;
+
+	if (args->flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
+		if (!args->ctid) {
+			k_pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
+			return -EFAULT;
+		}
+		need_ctid = 1;
+	}
+	if (args->flags & CLONE_PARENT_SETTID) {
+		if (!args->ptid) {
+			k_pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
+			return -EFAULT;
+		}
+		need_ptid = 1;
+	}
+	if (args->flags & CLONE_SETTLS) {
+		if (!args->tls) {
+			k_pri_warn("sys_clone: Need tls but tls is NULL.\n");
+			return -EFAULT;
+		}
+		need_tls = 1;
+	}
+
+	k_smp_lock();
+
+	r = k_smp_find_idle_cpu(&cpu);
+	if (r) {
+		k_smp_unlock();
+		return r;
+	}
+
+	k_smp_unlock();
+
+	k_cpu_lock(cpu);
+
+	/* Init thread info */
+	ti = k_thread_create(pi);
+	if (!ti) {
+		r = -ENOMEM;
+		goto err_out;
+	}
+
+	ti->flags = args->flags;
+	ti->ctid = NULL;
+	if (need_ctid) {
+		ti->ctid = args->ctid;
+	}
+	ti->ptid = NULL;
+	if (need_ptid) {
+		ti->ptid = args->ptid;
+	}
+	ti->tls = NULL;
+	if (need_tls) {
+		ti->tls = args->tls;
+	}
+
+	/* Notify to user space */
+	if (args->flags & CLONE_CHILD_SETTID) {
+		*ti->ctid = ti->tid;
+	}
+	if (args->flags & CLONE_PARENT_SETTID) {
+		*ti->ptid = ti->tid;
+	}
+
+	/* Copy user regs to the initial stack of new thread */
+	ti->sp = args->child_stack;
+	k_memcpy(&ti->regs, cpu_cur->regs, sizeof(k_arch_user_regs_t));
+
+	pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
+
+	/* Return value and stack for new thread */
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_RETVAL, 0);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&k_stack_intr[pos_intr]);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
+
+	r = k_thread_run(ti, cpu);
+	if (r) {
+		goto err_out2;
+	}
+
+	r = k_cpu_raise_ipi(ti->cpu, NULL);
+	if (r) {
+		goto err_out3;
+	}
+
+	dwmb();
+	k_cpu_unlock(cpu);
+
+	/* Return value for current thread */
+	return ti->tid;
+
+err_out3:
+	k_thread_stop(ti);
+
+err_out2:
+	k_thread_destroy(ti);
+
+err_out:
+	k_cpu_unlock(cpu);
+
+	return r;
 }
 
 int k_thread_context_switch(void)

@@ -439,114 +439,40 @@ intptr_t k_sys_mprotect(void *addr, size_t length, int prot)
 
 intptr_t k_sys_clone(unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid)
 {
-	struct k_cpu_device *cpu_cur = k_cpu_get_current(), *cpu;
-	struct k_proc_info *pi = k_proc_get_current();
-	struct k_thread_info *ti;
-	size_t pos_intr;
-	int need_ctid = 0, need_ptid = 0, need_tls = 0;
-	int r;
+	struct k_clone_args args;
 
-	if (flags & (CLONE_CHILD_CLEARTID | CLONE_CHILD_SETTID)) {
-		if (!ctid) {
-			k_pri_warn("sys_clone: Need ctid but ctid is NULL.\n");
-			return -EFAULT;
-		}
-		need_ctid = 1;
-	}
-	if (flags & CLONE_PARENT_SETTID) {
-		if (!ptid) {
-			k_pri_warn("sys_clone: Need ptid but ptid is NULL.\n");
-			return -EFAULT;
-		}
-		need_ptid = 1;
-	}
-	if (flags & CLONE_SETTLS) {
-		if (!tls) {
-			k_pri_warn("sys_clone: Need tls but tls is NULL.\n");
-			return -EFAULT;
-		}
-		need_tls = 1;
+	args.flags = flags & ~CSIGNAL;
+	args.exit_signal = flags & CSIGNAL;
+	args.child_stack = child_stack;
+	args.pidfd = ptid;
+	args.ptid = ptid;
+	args.tls = tls;
+	args.ctid = ctid;
+
+	return k_thread_clone(&args);
+}
+
+intptr_t k_sys_clone3(struct clone_args *cargs, size_t size)
+{
+	struct k_clone_args args;
+
+	if (!cargs || size < sizeof(struct clone_args)) {
+		return -EINVAL;
 	}
 
-	k_smp_lock();
+	args.flags        = cargs->flags;
+	args.pidfd        = (pid_t *)(uintptr_t)cargs->pidfd;
+	args.ctid         = (pid_t *)(uintptr_t)cargs->child_tid;
+	args.ptid         = (pid_t *)(uintptr_t)cargs->parent_tid;
+	args.exit_signal  = cargs->exit_signal;
+	args.child_stack  = (void *)(uintptr_t)cargs->stack;
+	args.stack_size   = cargs->stack_size;
+	args.tls          = (void *)(uintptr_t)cargs->tls;
+	args.set_tid      = (pid_t *)(uintptr_t)cargs->set_tid;
+	args.set_tid_size = cargs->set_tid_size;
+	args.cgroup       = cargs->cgroup;
 
-	r = k_smp_find_idle_cpu(&cpu);
-	if (r) {
-		k_smp_unlock();
-		return r;
-	}
-
-	k_smp_unlock();
-
-	k_cpu_lock(cpu);
-
-	/* Init thread info */
-	ti = k_thread_create(pi);
-	if (!ti) {
-		r = -ENOMEM;
-		goto err_out;
-	}
-
-	ti->flags = flags;
-	ti->ctid = NULL;
-	if (need_ctid) {
-		ti->ctid = ctid;
-	}
-	ti->ptid = NULL;
-	if (need_ptid) {
-		ti->ptid = ptid;
-	}
-	ti->tls = NULL;
-	if (need_tls) {
-		ti->tls = tls;
-	}
-
-	/* Notify to user space */
-	if (flags & CLONE_CHILD_SETTID) {
-		*ti->ctid = ti->tid;
-	}
-	if (flags & CLONE_PARENT_SETTID) {
-		*ti->ptid = ti->tid;
-	}
-
-	/* Copy user regs to the initial stack of new thread */
-	ti->sp = child_stack;
-	k_memcpy(&ti->regs, cpu_cur->regs, sizeof(k_arch_user_regs_t));
-
-	pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
-
-	/* Return value and stack for new thread */
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_RETVAL, 0);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)ti->sp);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)&k_stack_intr[pos_intr]);
-	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_TLS, (uintptr_t)ti->tls);
-
-	r = k_thread_run(ti, cpu);
-	if (r) {
-		goto err_out2;
-	}
-
-	r = k_cpu_raise_ipi(ti->cpu, NULL);
-	if (r) {
-		goto err_out3;
-	}
-
-	dwmb();
-	k_cpu_unlock(cpu);
-
-	/* Return value for current thread */
-	return ti->tid;
-
-err_out3:
-	k_thread_stop(ti);
-
-err_out2:
-	k_thread_destroy(ti);
-
-err_out:
-	k_cpu_unlock(cpu);
-
-	return r;
+	return k_thread_clone(&args);
 }
 
 intptr_t k_sys_futex32(int *uaddr, int op, int val, const struct timespec32 *timeout, int *uaddr2, int val3)

@@ -11,6 +11,7 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/syscall_num.h>
 #include <bmetal/sys/resource.h>
+#include <bmetal/sys/sched.h>
 #include <bmetal/sys/time.h>
 #include <bmetal/sys/uio.h>
 
@@ -121,6 +122,7 @@ SYSCALL_WRAP1(set_tid_address, int *, tidptr);
 SYSCALL_WRAP1(exit_group, int, status);
 SYSCALL_WRAP1(exit, int, status);
 SYSCALL_WRAP3(reboot, int, magic, int, magic2, int, cmd);
+SYSCALL_WRAP2(clone3, struct clone_args *, args, size_t, size);
 SYSCALL_WRAP0(context_switch);
 
 #endif /* !__ASSEMBLER__ */

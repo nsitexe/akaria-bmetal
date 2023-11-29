@@ -72,6 +72,7 @@ const k_syscall_func_t k_table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_exit_group, k_sys_wrap_exit_group),
 	SYSCALL_P(SYS_exit, k_sys_wrap_exit),
 	SYSCALL_P(SYS_reboot, k_sys_wrap_reboot),
+	SYSCALL_P(SYS_clone3, k_sys_wrap_clone3),
 
 	/* system dependent */
 	SYSCALL_P(SYS_context_switch, k_sys_context_switch),
