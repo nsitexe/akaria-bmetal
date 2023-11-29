@@ -36,6 +36,10 @@ const k_syscall_func_t k_table_syscalls[MAX_SYSCALLS] = {
 	SYSCALL_P(SYS_getgid, k_sys_wrap_getgid),
 	SYSCALL_P(SYS_getegid, k_sys_wrap_getegid),
 	SYSCALL_P(SYS_getpid, k_sys_wrap_getpid),
+#ifdef CONFIG_64BIT
+#else /* CONFIG_64BIT */
+	SYSCALL_P(SYS_clock_gettime64, k_sys_wrap_clock_gettime64),
+#endif /* CONFIG_64BIT */
 	SYSCALL_P(SYS_gettimeofday, k_sys_wrap_gettimeofday),
 	SYSCALL_P(SYS_openat, k_sys_wrap_openat),
 	SYSCALL_P(SYS_close, k_sys_wrap_close),
