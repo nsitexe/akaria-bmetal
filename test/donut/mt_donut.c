@@ -63,15 +63,12 @@ void *thread_main(void *arg)
 			if (threads == 1 && n == 0) {
 				st = 0;
 				ed = 90;
-			} else if (n == 0) {
-				st = 0;
-				ed = 10;
 			} else if (n == threads - 1) {
-				st = 10 + 80 / (threads - 1) * (n - 1);
+				st = 90 / threads * n;
 				ed = 90;
 			} else {
-				st = 10 + 80 / (threads - 1) * (n - 1);
-				ed = 10 + 80 / (threads - 1) * n;
+				st = 90 / threads * n;
+				ed = 90 / threads * (n + 1);
 			}
 
 			for (int j = 0; j < st; j++) {
@@ -179,6 +176,8 @@ void *thread_main(void *arg)
 				term = 1;
 			}
 		}
+
+		pthread_barrier_wait(&barrier);
 	}
 
 	return NULL;
