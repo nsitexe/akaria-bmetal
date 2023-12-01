@@ -36,18 +36,19 @@ pthread_t th[MAX_THREADS];
 void *th_res[MAX_THREADS];
 
 pthread_barrier_t barrier;
-struct timeval demo_start;
+struct timeval demo_init, demo_start;
 int term;
 
 void *thread_main(void *arg)
 {
 	const struct thread_info *thi = arg;
 	int sA = 1024, cA = 0, sB = 1024, cB = 0;
-	struct timeval tv_s, tv_e, tv_calc, tv_draw, tv_demo;
+	struct timeval tv_s, tv_e, tv_calc, tv_draw, tv_demo, tv_wall;
 	int threads = thi->threads;
 	int n = thi->id;
 	int8_t *b = bb[n];
 	int8_t *z = zz[n];
+
 
 	for (;;) {
 		int st, ed;
@@ -162,8 +163,12 @@ void *thread_main(void *arg)
 				fps = 1000000000 / tt;
 			}
 
-			printf("thread:%d, calc:%d.%06ds, draw:%d.%06ds, "
-				"fps:%d.%03d, w:%d  \n",
+			timersub(&tv_e, &demo_init, &tv_wall);
+			printf("%02d:%02d:%02d) thread:%d calc:%d.%06ds draw:%d.%06ds "
+				"fps:%d.%03d w:%d  \n",
+				(int)(tv_wall.tv_sec / 3600),
+				(int)(tv_wall.tv_sec / 60) % 60,
+				(int)(tv_wall.tv_sec % 60),
 				threads,
 				(int)tv_calc.tv_sec, (int)tv_calc.tv_usec,
 				(int)tv_draw.tv_sec, (int)tv_draw.tv_usec,
@@ -231,6 +236,8 @@ int main(int argc, char *argv[])
 
 	// hide cursor
 	printf("\x1b[?25l");
+
+	gettimeofday(&demo_init, NULL);
 
 	len = sizeof(scenario) / sizeof(scenario[0]);
 	for (int i = 0; i < 1000000; i++) {
