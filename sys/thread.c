@@ -222,7 +222,6 @@ pid_t k_thread_get_tid(void)
 
 pid_t k_thread_clone(const struct k_clone_args *args)
 {
-/*unsigned long flags, void *child_stack, void *ptid, void *tls, void *ctid*/
 	struct k_cpu_device *cpu_cur = k_cpu_get_current(), *cpu;
 	struct k_proc_info *pi = k_proc_get_current();
 	struct k_thread_info *ti;
