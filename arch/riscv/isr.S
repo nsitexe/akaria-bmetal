@@ -28,6 +28,20 @@ k_trap_in_user:
 	addi  t0, sp, REGOFF_ALL
 	OP_ST t0, REGOFF_MSCRATCH(sp)
 	csrw  mscratch, x0
+
+	# Save pointer of user regs
+	# This may break caller-saved regs
+	mv    a0, sp
+	call  k_cpu_set_current_user_regs
+	OP_LD a0, REGOFF_A0(sp)
+	OP_LD a1, REGOFF_A1(sp)
+	OP_LD a2, REGOFF_A2(sp)
+	OP_LD a3, REGOFF_A3(sp)
+	OP_LD a4, REGOFF_A4(sp)
+	OP_LD a5, REGOFF_A5(sp)
+	OP_LD a6, REGOFF_A6(sp)
+	OP_LD a7, REGOFF_A7(sp)
+
 	j     k_trap_common
 
 k_trap_in_kernel:
@@ -42,19 +56,6 @@ k_trap_in_kernel:
 	j     k_trap_common
 
 k_trap_common:
-	# Save pointer of user regs
-	# This may break caller-saved regs
-	mv    a0, sp
-	call  k_cpu_set_current_user_regs
-	OP_LD a0, REGOFF_A0(sp)
-	OP_LD a1, REGOFF_A1(sp)
-	OP_LD a2, REGOFF_A2(sp)
-	OP_LD a3, REGOFF_A3(sp)
-	OP_LD a4, REGOFF_A4(sp)
-	OP_LD a5, REGOFF_A5(sp)
-	OP_LD a6, REGOFF_A6(sp)
-	OP_LD a7, REGOFF_A7(sp)
-
 	# Check syscall
 	csrr t0, mcause
 	li   t1, XCAUSE_SYSCALL_M
