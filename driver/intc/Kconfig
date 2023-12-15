@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Interrupt controller drivers"
+
+config INTC
+	bool "Interrupt controller drivers"
+	help
+	  Interrupt controller drivers
+
+if INTC
+
+config INTC_RISCV_PRIV
+	bool "RISC-V priviledged arch"
+
+config INTC_SIFIVE_CLINT
+	bool "SiFive CLINT"
+
+config INTC_SIFIVE_PLIC
+	bool "SiFive PLIC"
+
+endif # INTC
+
+endmenu

@@ -58,9 +58,17 @@ $ make USE_NEWLIB=y USE_SYSROOT=/path/to/sysroot
 ----
 
 Project specific options::
+  USE_MUSL:::
+    Use GCC toolchain with musl libc.
   USE_NEWLIB:::
-    Use gcc toolchain with newlib.
+    Use GCC toolchain with newlib.
   USE_GLIBC:::
-    Use gcc toolchain with glibc.
+    Use GCC toolchain with GNU libc.
   USE_SYSROOT:::
     Specify sysroot (includes runtime libraries) if you have installed runtime into other directory. Default value is "./sysroot".
+  WITH_CXX:::
+    Build C++ samples. They need large memory space than other C samples.
+  WITH_POSIX:::
+    Build POSIX functions samples. GCC with newlib cannot build them.
+  WITH_MT:::
+    Build multithread samples. GCC with newlib cannot build them.

@@ -3,10 +3,10 @@
 #include <bmetal/event.h>
 #include <bmetal/printk.h>
 
-static struct __event_handler evt_handlers[CONFIG_MAX_EVENT_HANDLERS];
-static int evt_handler_stat[CONFIG_MAX_EVENT_HANDLERS];
+static struct k_event_handler k_evt_handlers[CONFIG_MAX_EVENT_HANDLERS];
+static int k_evt_handler_stat[CONFIG_MAX_EVENT_HANDLERS];
 
-int __event_alloc_handler(struct __event_handler **handler)
+int k_event_alloc_handler(struct k_event_handler **handler)
 {
 	int found = 0;
 	int i;
@@ -16,23 +16,23 @@ int __event_alloc_handler(struct __event_handler **handler)
 	}
 
 	for (i = 0; i < CONFIG_MAX_EVENT_HANDLERS; i++) {
-		if (evt_handler_stat[i] == 0) {
+		if (k_evt_handler_stat[i] == 0) {
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		pri_err("No more interrupt handlers.\n");
+		k_pri_err("No more interrupt handlers.\n");
 		return -ENOMEM;
 	}
 
-	*handler = &evt_handlers[i];
-	evt_handler_stat[i] = 1;
+	*handler = &k_evt_handlers[i];
+	k_evt_handler_stat[i] = 1;
 
 	return 0;
 }
 
-int __event_free_handler(struct __event_handler *handler)
+int k_event_free_handler(struct k_event_handler *handler)
 {
 	int found = 0;
 	int i;
@@ -42,24 +42,24 @@ int __event_free_handler(struct __event_handler *handler)
 	}
 
 	for (i = 0; i < CONFIG_MAX_EVENT_HANDLERS; i++) {
-		if (handler == &evt_handlers[i]) {
+		if (handler == &k_evt_handlers[i]) {
 			found = 1;
 			break;
 		}
 	}
 	if (!found) {
-		pri_err("handler %p is not found.\n", handler);
+		k_pri_err("handler %p is not found.\n", handler);
 		return -EINVAL;
 	}
 
-	evt_handler_stat[i] = 0;
+	k_evt_handler_stat[i] = 0;
 
 	return 0;
 }
 
-int __event_add_handler(struct __event_handler *head, struct __event_handler *handler)
+int k_event_add_handler(struct k_event_handler *head, struct k_event_handler *handler)
 {
-	struct __event_handler *last = NULL;
+	struct k_event_handler *last = NULL;
 
 	if (head == NULL || handler == NULL) {
 		return -EINVAL;
@@ -75,7 +75,7 @@ int __event_add_handler(struct __event_handler *head, struct __event_handler *ha
 	return 0;
 }
 
-int __event_remove_handler(struct __event_handler *head, struct __event_handler *handler)
+int k_event_remove_handler(struct k_event_handler *head, struct k_event_handler *handler)
 {
 	int found = 0;
 
@@ -91,14 +91,14 @@ int __event_remove_handler(struct __event_handler *head, struct __event_handler 
 		}
 	}
 	if (!found) {
-		pri_err("handler %p is not found.\n", handler);
+		k_pri_err("handler %p is not found.\n", handler);
 		return -EINVAL;
 	}
 
 	return 0;
 }
 
-int __event_handle_generic(int event, struct __event_handler *hnd_head)
+int k_event_handle_generic(int event, struct k_event_handler *hnd_head)
 {
 	int r, res = EVENT_NOT_HANDLED;
 

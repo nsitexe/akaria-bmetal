@@ -9,12 +9,12 @@
 #include <bmetal/thread.h>
 #include <bmetal/sys/string.h>
 
-static const struct __file_ops file_stdio_ops = {
-	.read = __file_stdio_read,
-	.write = __file_stdio_write,
+static const struct k_file_ops file_stdio_ops = {
+	.read = k_file_stdio_read,
+	.write = k_file_stdio_write,
 };
 
-static struct __file_desc fds[CONFIG_MAX_FD] = {
+static struct k_file_desc fds[CONFIG_MAX_FD] = {
 	/* stdin */
 	[0] = {
 		.ops = &file_stdio_ops,
@@ -31,21 +31,107 @@ static struct __file_desc fds[CONFIG_MAX_FD] = {
 	},
 };
 
-ssize_t __file_stdio_read(struct __file_desc *desc, void *buf, size_t count)
+struct k_file_desc *k_file_get_desc(int fd)
 {
-	return __kread(buf, count);
+	struct k_proc_info *pi = k_proc_get_current();
+
+	if (fd < 0 || CONFIG_MAX_FD <= fd) {
+		k_pri_info("k_file_get_desc: fd %d is invalid\n", fd);
+		return NULL;
+	}
+
+	return pi->fdset[fd];
 }
 
-ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count)
+struct k_file_desc *k_file_set_desc(int fd, struct k_file_desc *desc)
 {
-	return __kwrite(buf, count);
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_file_desc *olddesc;
+
+	if (fd < 0 || CONFIG_MAX_FD <= fd) {
+		k_pri_info("k_file_set_desc: fd %d is invalid\n", fd);
+		return NULL;
+	}
+
+	olddesc = pi->fdset[fd];
+	pi->fdset[fd] = desc;
+
+	return olddesc;
 }
 
-int __file_stdio_init(struct __proc_info *pi)
+ssize_t k_file_read_nolock(struct k_file_desc *desc, void *buf, size_t count)
 {
-	pi->fdset[0] = &fds[0];
-	pi->fdset[1] = &fds[1];
-	pi->fdset[2] = &fds[2];
+	ssize_t ret = 0;
+
+	if (!buf) {
+		return -EINVAL;
+	}
+	if (count == 0) {
+		return -EINVAL;
+	}
+
+	if (desc->ops && desc->ops->read) {
+		ret = desc->ops->read(desc, buf, count);
+	}
+
+	return ret;
+}
+
+ssize_t k_file_read(struct k_file_desc *desc, void *buf, size_t count)
+{
+	ssize_t ret;
+
+	k_spinlock_lock(&desc->lock);
+	ret = k_file_read_nolock(desc, buf, count);
+	k_spinlock_unlock(&desc->lock);
+
+	return ret;
+}
+
+ssize_t k_file_write_nolock(struct k_file_desc *desc, const void *buf, size_t count)
+{
+	ssize_t ret = 0;
+
+	if (!buf) {
+		return -EINVAL;
+	}
+	if (count == 0) {
+		return 0;
+	}
+
+	if (desc->ops && desc->ops->write) {
+		ret = desc->ops->write(desc, buf, count);
+	}
+
+	return ret;
+}
+
+ssize_t k_file_write(struct k_file_desc *desc, const void *buf, size_t count)
+{
+	ssize_t ret;
+
+	k_spinlock_lock(&desc->lock);
+	ret = k_file_write_nolock(desc, buf, count);
+	k_spinlock_unlock(&desc->lock);
+
+	return ret;
+}
+
+ssize_t k_file_stdio_read(struct k_file_desc *desc, void *buf, size_t count)
+{
+	return k_pri_read_stdin(buf, count);
+}
+
+ssize_t k_file_stdio_write(struct k_file_desc *desc, const void *buf, size_t count)
+{
+	return k_pri_write_stdout(buf, count);
+}
+
+int k_file_stdio_init(struct k_proc_info *pi)
+{
+	k_file_set_desc(0, &fds[0]);
+	k_file_set_desc(1, &fds[1]);
+	k_file_set_desc(2, &fds[2]);
 
 	return 0;
 }

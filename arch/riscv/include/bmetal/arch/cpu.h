@@ -11,6 +11,15 @@
 
 #define MHARTID_MAIN    CONFIG_MAIN_CORE
 
+#ifdef CONFIG_RISCV_RNMI
+#  define CSR_MNSCRATCH       0x740
+#  define CSR_MNEPC           0x741
+#  define CSR_MNCAUSE         0x742
+#  define CSR_MNSTATUS        0x744
+
+#  define MNSTATUS_NMIE       0x8
+#endif /* CONFIG_RISCV_RNMI */
+
 #ifdef CONFIG_64BIT
 #  define REGSIZE     8
 #  define REGOFF      3
@@ -146,14 +155,14 @@
 
 #if !defined(__ASSEMBLER__)
 
-#define __arch_user_regs_t       __arch_riscv_user_regs_t
-#define __arch_get_cpu_id        __arch_riscv_get_cpu_id
-#define __arch_wait_interrupt    __arch_riscv_wait_interrupt
-#define __arch_get_arg           __arch_riscv_get_arg
-#define __arch_set_arg           __arch_riscv_set_arg
+#define k_arch_user_regs_t       k_arch_riscv_user_regs_t
+#define k_arch_get_cpu_id        k_arch_riscv_get_cpu_id
+#define k_arch_wait_interrupt    k_arch_riscv_wait_interrupt
+#define k_arch_get_arg           k_arch_riscv_get_arg
+#define k_arch_set_arg           k_arch_riscv_set_arg
 
-#define __arch_copy_current_context    __arch_riscv_copy_current_context
-#define __arch_context_switch          __arch_riscv_context_switch
+#define k_arch_copy_current_context    k_arch_riscv_copy_current_context
+#define k_arch_context_switch          k_arch_riscv_context_switch
 
 #endif /* !__ASSEMBLER__ */
 
@@ -163,7 +172,7 @@
 
 #if !defined(__ASSEMBLER__)
 
-typedef struct __arch_riscv_user_regs {
+typedef struct k_arch_riscv_user_regs {
 	uintptr_t ra;
 	uintptr_t sp;
 	uintptr_t gp;
@@ -198,17 +207,17 @@ typedef struct __arch_riscv_user_regs {
 	uintptr_t mepc;
 	uintptr_t mstatus;
 	uintptr_t mscratch;
-} __arch_riscv_user_regs_t;
+} k_arch_riscv_user_regs_t;
 
-int __arch_riscv_get_cpu_id(void);
-void __arch_riscv_wait_interrupt(void);
-int __arch_riscv_get_context(__arch_riscv_user_regs_t *regs);
-int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t *val);
-int __arch_riscv_set_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t val);
+int k_arch_riscv_get_cpu_id(void);
+void k_arch_riscv_wait_interrupt(void);
+int k_arch_riscv_get_context(k_arch_riscv_user_regs_t *regs);
+int k_arch_riscv_get_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t, uintptr_t *val);
+int k_arch_riscv_set_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t, uintptr_t val);
 
 /* switch.S */
-void __arch_riscv_copy_current_context(__arch_riscv_user_regs_t *regs);
-void __arch_riscv_context_switch(void);
+void k_arch_riscv_copy_current_context(k_arch_riscv_user_regs_t *regs);
+void k_arch_riscv_context_switch(void);
 
 #endif /* !__ASSEMBLER__ */
 

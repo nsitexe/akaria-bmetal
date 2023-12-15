@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Serial drivers"
+
+config UART
+	bool "Usyncronous drivers"
+	help
+	  Serial drivers
+
+if UART
+
+config UART_NS16550
+	bool "NS16550"
+
+config UART_SIFIVE
+	bool "SiFive UART"
+
+config UART_XILINX_UART_LITE
+	bool "Xilinx UART lite"
+
+endif # UART
+
+endmenu

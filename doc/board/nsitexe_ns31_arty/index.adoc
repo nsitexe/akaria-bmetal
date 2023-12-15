@@ -1,0 +1,12 @@
+
+= NSITEXE NS31 on Arty A7
+
+NSITEXE Akaria NS31 on Digilent Arty A7-100 FPGA board.
+
+Config::
+  riscv_nsitexe_ns31_arty
+Device::
+  FPGA Board is Digilent Arty A7-100T board.
+  https://digilent.com/reference/programmable-logic/arty-a7/start
+  Main SoC image is NSITEXE Akaria NS31.
+  https://www.nsitexe.com/en/akaria/processor/ns/akaria-ns-bsp/

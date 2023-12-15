@@ -7,7 +7,7 @@ enable_language(C ASM)
 
 # Additional host tools
 # Need to add these dirs before changing CMAKE_C_COMPILER.
-add_subdirectory(tools)
+add_subdirectory(tool)
 
 # Check ARCH
 if(NOT DEFINED ARCH)
@@ -46,7 +46,7 @@ add_library(${PRJ_LIB_NAME} STATIC)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Default config directory
-set(CONF_DIR ${CMAKE_SOURCE_DIR}/configs)
+set(CONF_DIR ${CMAKE_SOURCE_DIR}/config)
 message("${SPACER} DEFCONF is '${DEFCONF}'")
 message("${SPACER} CONF dir is '${CONF_DIR}'")
 
@@ -56,7 +56,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/kconfig.cmake)
 
 set(ARCH_DIR ${CMAKE_SOURCE_DIR}/arch/${ARCH})
 set(SOC_DIR ${ARCH_DIR}/${CONFIG_SOC_NAME})
-set(BOARD_DIR ${CMAKE_SOURCE_DIR}/boards/${ARCH}/${CONFIG_BOARD_NAME})
+set(BOARD_DIR ${CMAKE_SOURCE_DIR}/board/${ARCH}/${CONFIG_BOARD_NAME})
 
 message("${SPACER} ARCH dir is '${ARCH_DIR}'")
 message("${SPACER} SOC dir is '${SOC_DIR}'")
@@ -127,8 +127,8 @@ prj_include_directories(
 
 add_subdirectory(arch)
 add_subdirectory(sys)
-add_subdirectory(boards)
-add_subdirectory(drivers)
+add_subdirectory(board)
+add_subdirectory(driver)
 
 # Document settings
 set(DOXYGEN_GENERATE_HTML YES)
@@ -142,6 +142,6 @@ find_package(
 if (DEFINED DOXYGEN_FOUND)
   doxygen_add_docs(
     doxygen
-    arch boards drivers include sys
+    arch board driver include sys
     )
 endif()

@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Archtecture dependent options"
+
+source "arch/$(ARCH)/Kconfig"
+
+choice
+	prompt "Word size"
+
+	config 32BIT
+		bool "32bit"
+	config 64BIT
+		bool "64bit"
+endchoice
+
+config ATOMIC
+	bool "Atomic operations support"
+
+config CACHE
+	bool "Cache management support"
+
+config FPU
+	bool "FPU support"
+
+config FPU_DOUBLE
+	bool "Double precision FPU support"
+	depends on FPU
+
+config VPU
+	bool "Vector support"
+
+config XIP
+	bool "Execution in place (XIP) support"
+
+config CLEAR_BSS
+	bool "Clear BSS area at booting"
+
+config MIRROR_RAM
+	bool "Mirror RAM area support"
+
+config MAIN_CORE
+	int "ID of main CPU"
+	default 0
+
+config NUM_CORES
+	int "Maximum number of CPUs"
+	default 4
+
+endmenu

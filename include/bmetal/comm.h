@@ -19,7 +19,7 @@
 
 #if !defined(__ASSEMBLER__)
 
-struct __comm_section {
+struct k_comm_section {
 	uint32_t magic;
 };
 
@@ -27,7 +27,7 @@ struct __comm_section {
  * @brief Header of comm_area section that is for host and device
  *        communication in accelerator mode.
  */
-struct __comm_area_header {
+struct k_comm_area_header {
 	/**
 	 * Store magic number (see BAREMETAL_CRT_COMM_MAGIC macro).
 	 * Runtime ignore the section if this is not equal magic number.
@@ -58,7 +58,7 @@ struct __comm_area_header {
  *   value
  * @endcode
  */
-struct __comm_arg_header {
+struct k_comm_arg_header {
 	/** Type of argument (see COMM_ARG_ macros). */
 	uint32_t argtype;
 	/**
@@ -71,7 +71,7 @@ struct __comm_arg_header {
 };
 
 /* Communication area for host */
-extern char __comm_area[];
+extern char k_comm_area[];
 
 #endif /* !__ASSEMBLER__ */
 

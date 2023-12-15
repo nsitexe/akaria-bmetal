@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config RISCV
+	def_bool y
+
+config RISCV_EXT_I_OLD
+	bool "RISC-V integer (binutils < 2.38)"
+
+config RISCV_EXT_I
+	bool "RISC-V integer with Zicsr and Zifencei (binutils >= 2.38)"
+
+config RISCV_EXT_M
+	bool "RISC-V multiplication and division"
+
+config RISCV_EXT_A
+	bool "RISC-V atomic"
+	depends on ATOMIC
+
+config RISCV_EXT_F
+	bool "RISC-V single-precision floating-point"
+	depends on FPU
+
+config RISCV_EXT_D
+	bool "RISC-V double-precision floating-Point"
+	depends on FPU_DOUBLE
+
+config RISCV_EXT_C
+	bool "RISC-V compressed"
+
+config RISCV_EXT_V
+	bool "RISC-V vector operations"
+
+config RISCV_EXT_ZBA
+	bool "RISC-V address generation"
+
+config RISCV_EXT_ZBB
+	bool "RISC-V basic bit-manipulation"
+
+config RISCV_EXT_ZBC
+	bool "RISC-V carry-less multiplication"
+
+config RISCV_EXT_ZBS
+	bool "RISC-V single-bit"
+
+config RISCV_EXT_ZICBOM
+	bool "RISC-V cache-block management"
+	depends on CACHE
+
+config RISCV_EXT_ZICBOZ
+	bool "RISC-V cache-block zero"
+	depends on CACHE
+
+config RISCV_EXT_ZICBOP
+	bool "RISC-V cache-block prefetch"
+	depends on CACHE

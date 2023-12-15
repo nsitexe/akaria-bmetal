@@ -15,10 +15,10 @@
 
 #if !defined(__ASSEMBLER__)
 
-#define __dev_err(dev, fmt, ...)     pri_err("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
-#define __dev_warn(dev, fmt, ...)    pri_warn("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
-#define __dev_info(dev, fmt, ...)    pri_info("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
-#define __dev_dbg(dev, fmt, ...)     pri_dbg("%s: " fmt, __device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_err(dev, fmt, ...)     k_pri_err("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_warn(dev, fmt, ...)    k_pri_warn("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_info(dev, fmt, ...)    k_pri_info("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
+#define k_dev_dbg(dev, fmt, ...)     k_pri_dbg("%s: " fmt, k_device_get_name(dev), ##__VA_ARGS__)
 
 #define PROP_REVSEQ    \
 	109, 108, 107, 106, 105, 104, 103, 102, 101, 100, \
@@ -49,81 +49,81 @@
 #define PROP_VA_ARGS_N(...)    __PROP_VA_ARGS_N(__VA_ARGS__, PROP_REVSEQ)
 #define PROP(NAME, ...)        {NAME, PROP_VA_ARGS_N(__VA_ARGS__), {__VA_ARGS__}}
 
-#define for_each_driver(x, head)    for (struct __driver *x = (head); x; x = x->drv_next)
-#define for_each_device(x, head)    for (struct __device *x = (head); x; x = x->dev_next)
-#define for_each_bus(x, head)       for (struct __bus *x = (head); x; x = x->bus_next)
+#define for_each_driver(x, head)    for (struct k_driver *x = (head); x; x = x->drv_next)
+#define for_each_device(x, head)    for (struct k_device *x = (head); x; x = x->dev_next)
+#define for_each_bus(x, head)       for (struct k_bus *x = (head); x; x = x->bus_next)
 
 #define IS_ERROR(r)    ((r) != 0 && (r) != -EAGAIN)
 
 #define CHECK_PRIV_SIZE(typ, lim)    static_assert(sizeof(lim) >= sizeof(typ), "size of " #lim " is less than " #typ);
 #define CHECK_ELEM_SIZE(vala, valb)    static_assert(ARRAY_OF(vala) == ARRAY_OF(valb), "elements of " #vala " is not equal " #valb);
 
-struct __device;
-struct __bus;
+struct k_device;
+struct k_bus;
 
-struct __driver {
+struct k_driver {
 	const char *type_vendor;
 	const char *type_device;
 
-	struct __driver *drv_next;
+	struct k_driver *drv_next;
 };
 
-struct __bus_driver_ops {
-	int (*add)(struct __bus *bus);
-	int (*remove)(struct __bus *bus);
-	void *(*mmap)(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off);
+struct k_bus_driver_ops {
+	int (*add)(struct k_bus *bus);
+	int (*remove)(struct k_bus *bus);
+	void *(*mmap)(void *addr, uintptr_t length, int prot, int flags, struct k_bus *bus, uintptr_t off);
 };
 
-struct __bus_driver {
-	struct __driver base;
+struct k_bus_driver {
+	struct k_driver base;
 
-	const struct __bus_driver_ops *ops;
+	const struct k_bus_driver_ops *ops;
 };
 
-struct __device_driver_ops {
-	int (*add)(struct __device *dev);
-	int (*remove)(struct __device *dev);
-	void *(*mmap)(void *addr, uintptr_t length, int prot, int flags, struct __device *dev, uintptr_t off);
-	uint8_t (*read8)(struct __device *dev, uintptr_t off);
-	uint16_t (*read16)(struct __device *dev, uintptr_t off);
-	uint32_t (*read32)(struct __device *dev, uintptr_t off);
-	uint64_t (*read64)(struct __device *dev, uintptr_t off);
-	void (*write8)(struct __device *dev, uint8_t dat, uintptr_t off);
-	void (*write16)(struct __device *dev, uint16_t dat, uintptr_t off);
-	void (*write32)(struct __device *dev, uint32_t dat, uintptr_t off);
-	void (*write64)(struct __device *dev, uint64_t dat, uintptr_t off);
+struct k_device_driver_ops {
+	int (*add)(struct k_device *dev);
+	int (*remove)(struct k_device *dev);
+	void *(*mmap)(void *addr, uintptr_t length, int prot, int flags, struct k_device *dev, uintptr_t off);
+	uint8_t (*read8)(struct k_device *dev, uintptr_t off);
+	uint16_t (*read16)(struct k_device *dev, uintptr_t off);
+	uint32_t (*read32)(struct k_device *dev, uintptr_t off);
+	uint64_t (*read64)(struct k_device *dev, uintptr_t off);
+	void (*write8)(struct k_device *dev, uint8_t dat, uintptr_t off);
+	void (*write16)(struct k_device *dev, uint16_t dat, uintptr_t off);
+	void (*write32)(struct k_device *dev, uint32_t dat, uintptr_t off);
+	void (*write64)(struct k_device *dev, uint64_t dat, uintptr_t off);
 };
 
-struct __device_driver {
-	struct __driver base;
+struct k_device_driver {
+	struct k_driver base;
 
-	const struct __device_driver_ops *ops;
+	const struct k_device_driver_ops *ops;
 };
 
-struct __device_config {
+struct k_device_config {
 	const char *name;
 	int count;
 	uintptr_t val[32];
 };
 
-struct __device {
+struct k_device {
 	const char *name;
 	const char *type_vendor;
 	const char *type_device;
-	const struct __device_config *conf;
+	const struct k_device_config *conf;
 
 	/* Runtime info */
-	const struct __driver *drv;
+	const struct k_driver *drv;
 	int id;
 
-	struct __bus *bus_parent;
+	struct k_bus *bus_parent;
 	/* Set non-NULL if this device has an other bus */
-	struct __bus *bus_child;
+	struct k_bus *bus_child;
 	/* Set non-NULL if this device has a sibling */
-	struct __device *dev_next;
+	struct k_device *dev_next;
 
 	/* I/O region */
-	struct __io_map io_base;
+	struct k_io_map io_base;
 
 	/* Virtual address of I/O region if memory mapped */
 	void *virt;
@@ -131,42 +131,42 @@ struct __device {
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed:1;
-	int failed:1;
+	unsigned int probed:1;
+	unsigned int failed:1;
 };
 
-struct __bus {
+struct k_bus {
 	const char *name;
 	const char *type_vendor;
 	const char *type_device;
 
 	/* Runtime info */
-	const struct __driver *drv;
+	const struct k_driver *drv;
 	int id;
 
-	struct __device *dev_parent;
+	struct k_device *dev_parent;
 	/* Set non-NULL if other devices are connected to this bus */
-	struct __device *dev_child;
+	struct k_device *dev_child;
 	/* Set non-NULL if this device has a sibling */
-	struct __bus *bus_next;
+	struct k_bus *bus_next;
 
 	/* Private data area for each driver */
 	void *priv;
 
-	int probed:1;
-	int failed:1;
+	unsigned int probed:1;
+	unsigned int failed:1;
 };
 
-static inline const struct __device_driver *__device_get_drv(const struct __device *dev)
+static inline const struct k_device_driver *k_device_get_drv(const struct k_device *dev)
 {
 	if (!dev) {
 		return NULL;
 	}
 
-	return (const struct __device_driver *)dev->drv;
+	return (const struct k_device_driver *)dev->drv;
 }
 
-static inline const char *__device_get_name(const struct __device *dev)
+static inline const char *k_device_get_name(const struct k_device *dev)
 {
 	if (!dev) {
 		return NULL;
@@ -175,22 +175,22 @@ static inline const char *__device_get_name(const struct __device *dev)
 	return dev->name;
 }
 
-static inline const struct __bus_driver *__bus_get_drv(const struct __bus *bus)
+static inline const struct k_bus_driver *k_bus_get_drv(const struct k_bus *bus)
 {
 	if (!bus) {
 		return NULL;
 	}
 
-	return (const struct __bus_driver *)bus->drv;
+	return (const struct k_bus_driver *)bus->drv;
 }
 
-static inline uint8_t __device_read8(struct __device *dev, uintptr_t off)
+static inline uint8_t k_device_read8(struct k_device *dev, uintptr_t off)
 {
 	if (dev->virt) {
-		return __io_read8(dev->virt + off);
+		return k_io_read8(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->read8) {
 		return devdrv->ops->read8(dev, off);
@@ -199,13 +199,13 @@ static inline uint8_t __device_read8(struct __device *dev, uintptr_t off)
 	return -1;
 }
 
-static inline uint16_t __device_read16(struct __device *dev, uintptr_t off)
+static inline uint16_t k_device_read16(struct k_device *dev, uintptr_t off)
 {
 	if (dev->virt) {
-		return __io_read16(dev->virt + off);
+		return k_io_read16(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->read16) {
 		return devdrv->ops->read16(dev, off);
@@ -214,13 +214,13 @@ static inline uint16_t __device_read16(struct __device *dev, uintptr_t off)
 	return -1;
 }
 
-static inline uint32_t __device_read32(struct __device *dev, uintptr_t off)
+static inline uint32_t k_device_read32(struct k_device *dev, uintptr_t off)
 {
 	if (dev->virt) {
-		return __io_read32(dev->virt + off);
+		return k_io_read32(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->read32) {
 		return devdrv->ops->read32(dev, off);
@@ -229,13 +229,13 @@ static inline uint32_t __device_read32(struct __device *dev, uintptr_t off)
 	return -1;
 }
 
-static inline uint64_t __device_read64(struct __device *dev, uintptr_t off)
+static inline uint64_t k_device_read64(struct k_device *dev, uintptr_t off)
 {
 	if (dev->virt) {
-		return __io_read64(dev->virt + off);
+		return k_io_read64(dev->virt + off);
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->read64) {
 		return devdrv->ops->read64(dev, off);
@@ -244,14 +244,14 @@ static inline uint64_t __device_read64(struct __device *dev, uintptr_t off)
 	return -1;
 }
 
-static inline void __device_write8(struct __device *dev, uint8_t dat, uintptr_t off)
+static inline void k_device_write8(struct k_device *dev, uint8_t dat, uintptr_t off)
 {
 	if (dev->virt) {
-		__io_write8(dat, dev->virt + off);
+		k_io_write8(dat, dev->virt + off);
 		return;
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->write8) {
 		devdrv->ops->write8(dev, dat, off);
@@ -259,14 +259,14 @@ static inline void __device_write8(struct __device *dev, uint8_t dat, uintptr_t 
 	}
 }
 
-static inline void __device_write16(struct __device *dev, uint16_t dat, uintptr_t off)
+static inline void k_device_write16(struct k_device *dev, uint16_t dat, uintptr_t off)
 {
 	if (dev->virt) {
-		__io_write16(dat, dev->virt + off);
+		k_io_write16(dat, dev->virt + off);
 		return;
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->write16) {
 		devdrv->ops->write16(dev, dat, off);
@@ -274,14 +274,14 @@ static inline void __device_write16(struct __device *dev, uint16_t dat, uintptr_
 	}
 }
 
-static inline void __device_write32(struct __device *dev, uint32_t dat, uintptr_t off)
+static inline void k_device_write32(struct k_device *dev, uint32_t dat, uintptr_t off)
 {
 	if (dev->virt) {
-		__io_write32(dat, dev->virt + off);
+		k_io_write32(dat, dev->virt + off);
 		return;
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->write32) {
 		devdrv->ops->write32(dev, dat, off);
@@ -289,14 +289,14 @@ static inline void __device_write32(struct __device *dev, uint32_t dat, uintptr_
 	}
 }
 
-static inline void __device_write64(struct __device *dev, uint64_t dat, uintptr_t off)
+static inline void k_device_write64(struct k_device *dev, uint64_t dat, uintptr_t off)
 {
 	if (dev->virt) {
-		__io_write64(dat, dev->virt + off);
+		k_io_write64(dat, dev->virt + off);
 		return;
 	}
 
-	const struct __device_driver *devdrv = __device_get_drv(dev);
+	const struct k_device_driver *devdrv = k_device_get_drv(dev);
 
 	if (devdrv && devdrv->ops && devdrv->ops->write64) {
 		devdrv->ops->write64(dev, dat, off);
@@ -304,28 +304,28 @@ static inline void __device_write64(struct __device *dev, uint64_t dat, uintptr_
 	}
 }
 
-int __driver_add(struct __driver *driver);
-int __driver_remove(struct __driver *driver);
+int k_driver_add(struct k_driver *driver);
+int k_driver_remove(struct k_driver *driver);
 
-struct __device *__device_get_root(void);
-int __device_get_probe_all_enabled(void);
-int __device_set_probe_all_enabled(int en);
-int __device_probe_all(void);
-int __device_add(struct __device *dev, struct __bus *parent);
-int __device_remove(struct __device *dev);
-int __device_get_conf_length(struct __device *dev, const char *name, int *len);
-int __device_read_conf_u32(struct __device *dev, const char *name, uint32_t *ptr, int index);
-int __device_read_conf_u64(struct __device *dev, const char *name, uint64_t *ptr, int index);
-int __device_read_conf_str(struct __device *dev, const char *name, const char **ptr, int index);
+struct k_device *k_device_get_root(void);
+int k_device_get_probe_all_enabled(void);
+int k_device_set_probe_all_enabled(int en);
+int k_device_probe_all(void);
+int k_device_add(struct k_device *dev, struct k_bus *parent);
+int k_device_remove(struct k_device *dev);
+int k_device_get_conf_length(struct k_device *dev, const char *name, int *len);
+int k_device_read_conf_u32(struct k_device *dev, const char *name, uint32_t *ptr, int index);
+int k_device_read_conf_u64(struct k_device *dev, const char *name, uint64_t *ptr, int index);
+int k_device_read_conf_str(struct k_device *dev, const char *name, const char **ptr, int index);
 
-void *__device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __device *dev, uintptr_t off);
+void *k_device_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct k_device *dev, uintptr_t off);
 
-struct __bus *__bus_get_root(void);
-int __bus_add(struct __bus *bus, struct __device *parent);
-int __bus_remove(struct __bus *bus);
-int __bus_find_device(struct __bus *bus, const char *name, struct __device **dev);
+struct k_bus *k_bus_get_root(void);
+int k_bus_add(struct k_bus *bus, struct k_device *parent);
+int k_bus_remove(struct k_bus *bus);
+int k_bus_find_device(struct k_bus *bus, const char *name, struct k_device **dev);
 
-void *__bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct __bus *bus, uintptr_t off);
+void *k_bus_driver_mmap(void *addr, uintptr_t length, int prot, int flags, struct k_bus *bus, uintptr_t off);
 
 #endif /* !__ASSEMBLER__ */
 

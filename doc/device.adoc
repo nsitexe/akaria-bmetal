@@ -20,6 +20,7 @@ If you want to know full command example of cmake, please check xref:build.adoc[
 
 == Real boards
 
+* xref:board/nsitexe_ns31_arty/index.adoc[NSITEXE NS31 on Arty A7]
 * xref:board/sifive_hifive1/index.adoc[SiFive HiFive1 Rev.B]
 * xref:board/sifive_hifive_unleashed/index.adoc[SiFive HiFive Unleashed]
 

@@ -1,5 +1,8 @@
 *.o
 
+# by asciidoctor
+.asciidoctor/
+
 # by Make
 /test/args
 /test/clock
@@ -13,6 +16,7 @@
 /test/hello_eigen
 /test/hello_openssl
 /test/malloc
+/test/mathf
 /test/md5
 /test/memcpy
 /test/mt_clock
@@ -24,7 +28,10 @@
 /test/reboot
 /test/saxpy
 /test/sgemm
+/test/sleep
 /test/vecadd
 /test/vecaddf
+/test/donut/donut
+/test/donut/mt_donut
 /test/coremark/coremark
 /test/dhrystone/dhrystone

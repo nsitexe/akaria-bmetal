@@ -1,5 +1,12 @@
 
 = SiFive HiFive Unleashed
 
+SiFive HiFive Unleased board that has 4 cores RV64 CPU and 8GB DDR4 memory.
+This board is discontinued.
+
 Config::
   riscv_sifive_hifive_unleashed
+Device::
+  Board is SiFive HiFive Unleashed.
+  Main SoC is SiFive Freedom U540 (FU540).
+  https://www.sifive.com/boards/hifive-unleashed

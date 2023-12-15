@@ -8,32 +8,32 @@
 
 #if !defined(__ASSEMBLER__)
 
-#ifndef __arch_spinlock_t
-typedef struct __arch_gen_spinlock {
-	__atomic_int val;
+#ifndef k_arch_spinlock_t
+typedef struct k_arch_gen_spinlock {
+	k_atomic_int val;
 	int id;
-} __arch_gen_spinlock_t;
-#define __arch_spinlock_t    __arch_gen_spinlock_t
+} k_arch_gen_spinlock_t;
+#define k_arch_spinlock_t    k_arch_gen_spinlock_t
 #endif
 
-#ifndef __arch_spinlock_init
-#define __arch_spinlock_init    __arch_gen_spinlock_init
-int __arch_gen_spinlock_init(__arch_spinlock_t *lock);
+#ifndef k_arch_spinlock_init
+#define k_arch_spinlock_init    k_arch_gen_spinlock_init
+int k_arch_gen_spinlock_init(k_arch_spinlock_t *lock);
 #endif
 
-#ifndef __arch_spinlock_lock
-#define __arch_spinlock_lock    __arch_gen_spinlock_lock
-int __arch_gen_spinlock_lock(__arch_spinlock_t *lock);
+#ifndef k_arch_spinlock_lock
+#define k_arch_spinlock_lock    k_arch_gen_spinlock_lock
+int k_arch_gen_spinlock_lock(k_arch_spinlock_t *lock);
 #endif
 
-#ifndef __arch_spinlock_trylock
-#define __arch_spinlock_trylock    __arch_gen_spinlock_trylock
-int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock);
+#ifndef k_arch_spinlock_trylock
+#define k_arch_spinlock_trylock    k_arch_gen_spinlock_trylock
+int k_arch_gen_spinlock_trylock(k_arch_spinlock_t *lock);
 #endif
 
-#ifndef __arch_spinlock_unlock
-#define __arch_spinlock_unlock    __arch_gen_spinlock_unlock
-int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock);
+#ifndef k_arch_spinlock_unlock
+#define k_arch_spinlock_unlock    k_arch_gen_spinlock_unlock
+int k_arch_gen_spinlock_unlock(k_arch_spinlock_t *lock);
 #endif
 
 #endif /* !__ASSEMBLER__ */

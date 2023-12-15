@@ -6,7 +6,7 @@
 #include <bmetal/printk.h>
 #include <bmetal/sys/errno.h>
 
-int __arch_riscv_get_cpu_id(void)
+int k_arch_riscv_get_cpu_id(void)
 {
 	int tmp;
 
@@ -15,52 +15,52 @@ int __arch_riscv_get_cpu_id(void)
 	return tmp;
 }
 
-void __arch_riscv_wait_interrupt(void)
+void k_arch_riscv_wait_interrupt(void)
 {
 	__asm volatile ("wfi");
 }
 
-int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t *val)
+int k_arch_riscv_get_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t, uintptr_t *val)
 {
 	uintptr_t v;
 
 	switch (t) {
-	case __ARCH_ARG_TYPE_1:
-	case __ARCH_ARG_TYPE_RETVAL:
+	case K_ARCH_ARG_TYPE_1:
+	case K_ARCH_ARG_TYPE_RETVAL:
 		v = regs->a0;
 		break;
-	case __ARCH_ARG_TYPE_2:
+	case K_ARCH_ARG_TYPE_2:
 		v = regs->a1;
 		break;
-	case __ARCH_ARG_TYPE_3:
+	case K_ARCH_ARG_TYPE_3:
 		v = regs->a2;
 		break;
-	case __ARCH_ARG_TYPE_4:
+	case K_ARCH_ARG_TYPE_4:
 		v = regs->a3;
 		break;
-	case __ARCH_ARG_TYPE_5:
+	case K_ARCH_ARG_TYPE_5:
 		v = regs->a4;
 		break;
-	case __ARCH_ARG_TYPE_6:
+	case K_ARCH_ARG_TYPE_6:
 		v = regs->a5;
 		break;
-	case __ARCH_ARG_TYPE_RETADDR:
+	case K_ARCH_ARG_TYPE_RETADDR:
 		v = regs->ra;
 		break;
-	case __ARCH_ARG_TYPE_STACK:
+	case K_ARCH_ARG_TYPE_STACK:
 		v = regs->sp;
 		break;
-	case __ARCH_ARG_TYPE_STACK_INTR:
+	case K_ARCH_ARG_TYPE_STACK_INTR:
 		v = regs->mscratch;
 		break;
-	case __ARCH_ARG_TYPE_TLS:
+	case K_ARCH_ARG_TYPE_TLS:
 		v = regs->tp;
 		break;
-	case __ARCH_ARG_TYPE_INTADDR:
+	case K_ARCH_ARG_TYPE_INTADDR:
 		v = regs->mepc;
 		break;
 	default:
-		pri_warn("riscv_get_arg: unknown arg type %d\n", t);
+		k_pri_warn("riscv_get_arg: unknown arg type %d\n", t);
 		return -EINVAL;
 	}
 
@@ -71,47 +71,47 @@ int __arch_riscv_get_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t,
 	return 0;
 }
 
-int __arch_riscv_set_arg(__arch_riscv_user_regs_t *regs, enum __arch_arg_type t, uintptr_t val)
+int k_arch_riscv_set_arg(k_arch_riscv_user_regs_t *regs, enum k_arch_arg_type t, uintptr_t val)
 {
 	uintptr_t *v;
 
 	switch (t) {
-	case __ARCH_ARG_TYPE_1:
-	case __ARCH_ARG_TYPE_RETVAL:
+	case K_ARCH_ARG_TYPE_1:
+	case K_ARCH_ARG_TYPE_RETVAL:
 		v = &regs->a0;
 		break;
-	case __ARCH_ARG_TYPE_2:
+	case K_ARCH_ARG_TYPE_2:
 		v = &regs->a1;
 		break;
-	case __ARCH_ARG_TYPE_3:
+	case K_ARCH_ARG_TYPE_3:
 		v = &regs->a2;
 		break;
-	case __ARCH_ARG_TYPE_4:
+	case K_ARCH_ARG_TYPE_4:
 		v = &regs->a3;
 		break;
-	case __ARCH_ARG_TYPE_5:
+	case K_ARCH_ARG_TYPE_5:
 		v = &regs->a4;
 		break;
-	case __ARCH_ARG_TYPE_6:
+	case K_ARCH_ARG_TYPE_6:
 		v = &regs->a5;
 		break;
-	case __ARCH_ARG_TYPE_RETADDR:
+	case K_ARCH_ARG_TYPE_RETADDR:
 		v = &regs->ra;
 		break;
-	case __ARCH_ARG_TYPE_STACK:
+	case K_ARCH_ARG_TYPE_STACK:
 		v = &regs->sp;
 		break;
-	case __ARCH_ARG_TYPE_STACK_INTR:
+	case K_ARCH_ARG_TYPE_STACK_INTR:
 		v = &regs->mscratch;
 		break;
-	case __ARCH_ARG_TYPE_TLS:
+	case K_ARCH_ARG_TYPE_TLS:
 		v = &regs->tp;
 		break;
-	case __ARCH_ARG_TYPE_INTADDR:
+	case K_ARCH_ARG_TYPE_INTADDR:
 		v = &regs->mepc;
 		break;
 	default:
-		pri_warn("riscv_set_arg: unknown arg type %d\n", t);
+		k_pri_warn("riscv_set_arg: unknown arg type %d\n", t);
 		return -EINVAL;
 	}
 

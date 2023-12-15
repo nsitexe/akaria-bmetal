@@ -7,7 +7,7 @@
 
 #ifdef __ASSEMBLER__
 
-#define BIT(x)    (1 << x)
+#define BIT(x)    (1 << (x))
 
 #else /* __ASSEMBLER__ */
 
@@ -22,10 +22,14 @@
 
 #define UPTR(x)    (uintptr_t)(x)
 
-#define BIT(x)    (1UL << x)
+#define BIT(x)    (1UL << (x))
 
 #ifndef __aligned
 #define __aligned(n)    __attribute__((aligned(n)))
+#endif
+
+#ifndef __noreturn
+#define __noreturn      __attribute__((noreturn))
 #endif
 
 #ifndef __section

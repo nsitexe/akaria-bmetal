@@ -53,14 +53,14 @@ ParentK -> ChildK : create thread
 
 ParentK -> Idle : send IPI
 activate Idle
-libc <- ParentK : mret
+libc <- ParentK : ret from syscall
 deactivate ParentK
 activate libc
 ParentU <- libc : pthread_create()
 deactivate libc
 activate ParentU
 Idle -> Idle : sys_context_switch(to Child)
-Idle -> ChildU : mret
+Idle -> ChildU : ret from syscall
 deactivate Idle
 activate ChildU
 
@@ -87,7 +87,7 @@ ChildK -> ChildK : sys_futex(wake)
 ChildK -> ParentK : send IPI
 activate ParentK
 ChildK -> ChildK : sys_context_switch(to Idle)
-Idle <- ChildK : mret
+Idle <- ChildK : ret from syscall
 deactivate ChildK
 activate Idle
 Idle -> Idle : wait for interrupt
@@ -95,7 +95,7 @@ deactivate Idle
 
 ParentK -> ChildK : destroy thread
 destroy ChildK
-libc <- ParentK : mret
+libc <- ParentK : ret from syscall
 deactivate ParentK
 activate libc
 libc -> ChildU : free stack, args

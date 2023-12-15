@@ -6,7 +6,7 @@
 #include <bmetal/bmetal.h>
 #include <bmetal/device.h>
 #include <bmetal/event.h>
-#include <bmetal/bindings/intc/riscv/rv_priv.h>
+#include <bmetal/binding/intc/riscv/rv_priv.h>
 
 #if !defined(__ASSEMBLER__)
 
@@ -45,14 +45,14 @@
 #define XIX_SEIX        BIT(RV_IX_SEIX)
 #define XIX_MEIX        BIT(RV_IX_MEIX)
 
-#define __arch_get_intr_handler    __arch_riscv_get_intr_handler
-#define __arch_set_intr_handler    __arch_riscv_set_intr_handler
-#define __arch_get_exc_handler    __arch_riscv_get_exc_handler
-#define __arch_set_exc_handler    __arch_riscv_set_exc_handler
-#define __arch_intr_enable_local     __arch_riscv_intr_enable_local
-#define __arch_intr_disable_local    __arch_riscv_intr_disable_local
-#define __arch_intr_restore_local    __arch_riscv_intr_restore_local
-#define __arch_intr_save_local       __arch_riscv_intr_save_local
+#define k_arch_get_intr_handler      k_arch_riscv_get_intr_handler
+#define k_arch_set_intr_handler      k_arch_riscv_set_intr_handler
+#define k_arch_get_exc_handler       k_arch_riscv_get_exc_handler
+#define k_arch_set_exc_handler       k_arch_riscv_set_exc_handler
+#define k_arch_intr_enable_local     k_arch_riscv_intr_enable_local
+#define k_arch_intr_disable_local    k_arch_riscv_intr_disable_local
+#define k_arch_intr_restore_local    k_arch_riscv_intr_restore_local
+#define k_arch_intr_save_local       k_arch_riscv_intr_save_local
 
 #endif /* !__ASSEMBLER__ */
 
@@ -62,14 +62,14 @@
 
 #if !defined(__ASSEMBLER__)
 
-int __arch_riscv_get_intr_handler(int event, struct __event_handler **hnd);
-int __arch_riscv_set_intr_handler(int event, struct __event_handler *hnd);
-int __arch_riscv_get_exc_handler(int event, struct __event_handler **hnd);
-int __arch_riscv_set_exc_handler(int event, struct __event_handler *hnd);
-void __arch_riscv_intr_enable_local(void);
-void __arch_riscv_intr_disable_local(void);
-void __arch_riscv_intr_restore_local(const long status);
-void __arch_riscv_intr_save_local(long *status);
+int k_arch_riscv_get_intr_handler(int event, struct k_event_handler **hnd);
+int k_arch_riscv_set_intr_handler(int event, struct k_event_handler *hnd);
+int k_arch_riscv_get_exc_handler(int event, struct k_event_handler **hnd);
+int k_arch_riscv_set_exc_handler(int event, struct k_event_handler *hnd);
+void k_arch_riscv_intr_enable_local(void);
+void k_arch_riscv_intr_disable_local(void);
+void k_arch_riscv_intr_restore_local(const long status);
+void k_arch_riscv_intr_save_local(long *status);
 
 #endif /* !__ASSEMBLER__ */
 

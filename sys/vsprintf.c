@@ -128,10 +128,9 @@ typedef struct {
   void* arg;
 } out_fct_wrap_type;
 
-int inner_putc(int c);
 
 // internal buffer output
-static inline void _out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_buffer(char character, void* buffer, size_t idx, size_t maxlen)
 {
   if (idx < maxlen) {
     ((char*)buffer)[idx] = character;
@@ -140,24 +139,24 @@ static inline void _out_buffer(char character, void* buffer, size_t idx, size_t 
 
 
 // internal null output
-static inline void _out_null(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_null(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)character; (void)buffer; (void)idx; (void)maxlen;
 }
 
 
 // internal _putchar wrapper
-static inline void _out_char(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_char(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)buffer; (void)idx; (void)maxlen;
   if (character) {
-    inner_putc(character);
+    k_putchar_nolock(character);
   }
 }
 
 
 // internal output function wrapper
-static inline void _out_fct(char character, void* buffer, size_t idx, size_t maxlen)
+static inline void k_pri_out_fct(char character, void* buffer, size_t idx, size_t maxlen)
 {
   (void)idx; (void)maxlen;
   if (character) {
@@ -197,7 +196,7 @@ static unsigned int _atoi(const char** str)
 
 
 // output the specified string in reverse, taking care of any zero-padding
-static size_t _out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
+static size_t k_pri_out_rev(out_fct_type out, char* buffer, size_t idx, size_t maxlen, const char* buf, size_t len, unsigned int width, unsigned int flags)
 {
   const size_t start_idx = idx;
 
@@ -274,7 +273,7 @@ static size_t _ntoa_format(out_fct_type out, char* buffer, size_t idx, size_t ma
     }
   }
 
-  return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+  return k_pri_out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
 }
 
 
@@ -331,13 +330,13 @@ static size_t _ntoa_long_long(out_fct_type out, char* buffer, size_t idx, size_t
 #if defined(PRINTF_SUPPORT_FLOAT)
 
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
-// forward declaration so that _ftoa can switch to exp notation for values > PRINTF_MAX_FLOAT
-static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags);
+// forward declaration so that ftoa can switch to exp notation for values > PRINTF_MAX_FLOAT
+static size_t __etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags);
 #endif
 
 
 // internal ftoa for fixed decimal floating point
-static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
+static size_t __ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
 {
   char buf[PRINTF_FTOA_BUFFER_SIZE];
   size_t len  = 0U;
@@ -348,17 +347,17 @@ static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
   // test for special values
   if (value != value)
-    return _out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, "nan", 3, width, flags);
   if (value < -DBL_MAX)
-    return _out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, "fni-", 4, width, flags);
   if (value > DBL_MAX)
-    return _out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
+    return k_pri_out_rev(out, buffer, idx, maxlen, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
 
   // test for very large values
   // standard printf behavior is to print EVERY whole number digit -- which could be 100s of characters overflowing your buffers == bad
   if ((value > PRINTF_MAX_FLOAT) || (value < -PRINTF_MAX_FLOAT)) {
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
-    return _etoa(out, buffer, idx, maxlen, value, prec, width, flags);
+    return __etoa(out, buffer, idx, maxlen, value, prec, width, flags);
 #else
     return 0U;
 #endif
@@ -459,17 +458,17 @@ static size_t _ftoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
     }
   }
 
-  return _out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
+  return k_pri_out_rev(out, buffer, idx, maxlen, buf, len, width, flags);
 }
 
 
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
 // internal ftoa variant for exponential floating-point type, contributed by Martijn Jasperse <m.jasperse@gmail.com>
-static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
+static size_t __etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, double value, unsigned int prec, unsigned int width, unsigned int flags)
 {
   // check for NaN and special values
   if ((value != value) || (value > DBL_MAX) || (value < -DBL_MAX)) {
-    return _ftoa(out, buffer, idx, maxlen, value, prec, width, flags);
+    return __ftoa(out, buffer, idx, maxlen, value, prec, width, flags);
   }
 
   // determine the sign
@@ -555,7 +554,7 @@ static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
   // output the floating part
   const size_t start_idx = idx;
-  idx = _ftoa(out, buffer, idx, maxlen, negative ? -value : value, prec, fwidth, flags & ~FLAGS_ADAPT_EXP);
+  idx = __ftoa(out, buffer, idx, maxlen, negative ? -value : value, prec, fwidth, flags & ~FLAGS_ADAPT_EXP);
 
   // output the exponent part
   if (minwidth) {
@@ -575,14 +574,14 @@ static size_t _etoa(out_fct_type out, char* buffer, size_t idx, size_t maxlen, d
 
 
 // internal vsnprintf
-static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
+static int k_vsnprintf_inner(out_fct_type out, char* buffer, const size_t maxlen, const char* format, va_list va)
 {
   unsigned int flags, width, precision, n;
   size_t idx = 0U;
 
   if (!buffer) {
     // use null output function
-    out = _out_null;
+    out = k_pri_out_null;
   }
 
   while (*format)
@@ -759,7 +758,7 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
       case 'f' :
       case 'F' :
         if (*format == 'F') flags |= FLAGS_UPPERCASE;
-        idx = _ftoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+        idx = __ftoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
         format++;
         break;
 #if defined(PRINTF_SUPPORT_EXPONENTIAL)
@@ -769,7 +768,7 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
       case 'G':
         if ((*format == 'g')||(*format == 'G')) flags |= FLAGS_ADAPT_EXP;
         if ((*format == 'E')||(*format == 'G')) flags |= FLAGS_UPPERCASE;
-        idx = _etoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
+        idx = __etoa(out, buffer, idx, maxlen, va_arg(va, double), precision, width, flags);
         format++;
         break;
 #endif  // PRINTF_SUPPORT_EXPONENTIAL
@@ -860,23 +859,13 @@ static int _vsnprintf(out_fct_type out, char* buffer, const size_t maxlen, const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int inner_vprintf(const char* format, va_list va)
+int k_vprintf_nolock(const char* format, va_list va)
 {
   char buffer[1];
-  return _vsnprintf(_out_char, buffer, (size_t)-1, format, va);
+  return k_vsnprintf_inner(k_pri_out_char, buffer, (size_t)-1, format, va);
 }
 
-int inner_vsnprintf(char* buffer, size_t count, const char* format, va_list va)
+int k_vsnprintf_nolock(char* buffer, size_t count, const char* format, va_list va)
 {
-  return _vsnprintf(_out_buffer, buffer, count, format, va);
-}
-
-int inner_fctprintf(void (*out)(char character, void* arg), void* arg, const char* format, ...)
-{
-  va_list va;
-  va_start(va, format);
-  const out_fct_wrap_type out_fct_wrap = { out, arg };
-  const int ret = _vsnprintf(_out_fct, (char*)(uintptr_t)&out_fct_wrap, (size_t)-1, format, va);
-  va_end(va);
-  return ret;
+  return k_vsnprintf_inner(k_pri_out_buffer, buffer, count, format, va);
 }

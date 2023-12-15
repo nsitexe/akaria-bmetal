@@ -13,7 +13,7 @@
 #define OPT_BYTES    4
 #endif /* CONFIG_64BIT */
 
-void *kmemset(void *s, int c, size_t n)
+void *k_memset(void *s, int c, size_t n)
 {
 	void *s_org = s;
 
@@ -50,7 +50,7 @@ void *kmemset(void *s, int c, size_t n)
 	return s_org;
 }
 
-void *kmemcpy(void *dest, const void *src, size_t n)
+void *k_memcpy(void *dest, const void *src, size_t n)
 {
 	void *dest_org = dest;
 
@@ -78,7 +78,7 @@ void *kmemcpy(void *dest, const void *src, size_t n)
 	return dest_org;
 }
 
-size_t kstrlen(const char *s)
+size_t k_strlen(const char *s)
 {
 	const char *p = s;
 
@@ -89,7 +89,7 @@ size_t kstrlen(const char *s)
 	return p - s;
 }
 
-int kstrcmp(const char *s1, const char *s2)
+int k_strcmp(const char *s1, const char *s2)
 {
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
@@ -106,7 +106,7 @@ int kstrcmp(const char *s1, const char *s2)
 	return *p1 - *p2;
 }
 
-int kstrncmp(const char *s1, const char *s2, size_t n)
+int k_strncmp(const char *s1, const char *s2, size_t n)
 {
 	const unsigned char *p1 = (const unsigned char *)s1;
 	const unsigned char *p2 = (const unsigned char *)s2;
@@ -127,19 +127,19 @@ int kstrncmp(const char *s1, const char *s2, size_t n)
 	return *p1 - *p2;
 }
 
-static int kisupper(char c)
+static int k_isupper(char c)
 {
 	/* Do not support locale */
 	return 'A' <= c && c <= 'Z';
 }
 
-static int ktolower(char c)
+static int k_tolower(char c)
 {
 	/* Do not support multibytes */
-	return kisupper(c) ? (c - 'A' + 'a') : c;
+	return k_isupper(c) ? (c - 'A' + 'a') : c;
 }
 
-int kstrcasecmp(const char *s1, const char *s2)
+int k_strcasecmp(const char *s1, const char *s2)
 {
 	int c1, c2, d = 0;
 
@@ -148,8 +148,8 @@ int kstrcasecmp(const char *s1, const char *s2)
 	}
 
 	while (1) {
-		c1 = ktolower(*s1);
-		c2 = ktolower(*s2);
+		c1 = k_tolower(*s1);
+		c2 = k_tolower(*s2);
 		d = c1 - c2;
 		if (c1 == '\0' || d != 0) {
 			break;
@@ -162,7 +162,7 @@ int kstrcasecmp(const char *s1, const char *s2)
 	return d;
 }
 
-int kstrncasecmp(const char *s1, const char *s2, size_t n)
+int k_strncasecmp(const char *s1, const char *s2, size_t n)
 {
 	int c1, c2, d = 0;
 
@@ -171,8 +171,8 @@ int kstrncasecmp(const char *s1, const char *s2, size_t n)
 	}
 
 	while (n > 0) {
-		c1 = ktolower(*s1);
-		c2 = ktolower(*s2);
+		c1 = k_tolower(*s1);
+		c2 = k_tolower(*s2);
 		d = c1 - c2;
 		if (c1 == '\0' || d != 0) {
 			break;

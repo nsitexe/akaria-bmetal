@@ -10,10 +10,11 @@
 #include <bmetal/intr.h>
 #include <bmetal/libc_support.h>
 #include <bmetal/lock.h>
+#include <bmetal/memory.h>
 #include <bmetal/printk.h>
 #include <bmetal/syscall.h>
 #include <bmetal/thread.h>
-#include <bmetal/drivers/cpu.h>
+#include <bmetal/driver/cpu.h>
 #include <bmetal/sys/elf.h>
 #include <bmetal/sys/errno.h>
 #include <bmetal/sys/inttypes.h>
@@ -39,29 +40,51 @@
          Please check configs about MAIN_STACK_SIZE.
 #endif
 
-extern char __bss_start[], __bss_end[];
-extern char __sbss_start[], __sbss_end[];
-extern char __preinit_array_start[], __preinit_array_end[], __preinit_array_load[];
-extern char __init_array_start[], __init_array_end[], __init_array_load[];
-extern char __fini_array_start[], __fini_array_end[], __fini_array_load[];
-extern char __data_start[], __data_end[], __data_load[];
-extern char __sdata_start[], __sdata_end[], __sdata_load[];
-extern char __tdata_start[], __tdata_end[], __tdata_load[];
+/* Check overlap */
+#ifdef CONFIG_XIP
+#  if CHECK_OVERLAP(CONFIG_ROM_BASE, CONFIG_ROM_SIZE, \
+			CONFIG_RAM_BASE, CONFIG_RAM_SIZE)
+#    error Overlapped ROM and RAM area. \
+	   Please check configs about CONFIG_ROM_BASE and CONFIG_RAM_BASE
+#  endif
+#  if CHECK_OVERLAP(CONFIG_ROM_BASE, CONFIG_ROM_SIZE, \
+			CONFIG_SHM_BASE, CONFIG_SHM_SIZE)
+#    error Overlapped ROM and SHM area. \
+	   Please check configs about CONFIG_ROM_BASE and CONFIG_SHM_BASE
+#  endif
+#endif /* CONFIG_XIP */
+
+#if CHECK_OVERLAP(CONFIG_RAM_BASE, CONFIG_RAM_SIZE, \
+			CONFIG_SHM_BASE, CONFIG_SHM_SIZE)
+#  error Overlapped RAM and SHM area. \
+	 Please check configs about CONFIG_RAM_BASE and CONFIG_SHM_BASE
+#endif
+
+extern char k_bss_start[], k_bss_end[];
+extern char k_sbss_start[], k_sbss_end[];
+extern char k_data_start[], k_data_end[], k_data_load[];
+extern char k_sdata_start[], k_sdata_end[], k_sdata_load[];
+extern char k_tdata_start[], k_tdata_end[], k_tdata_load[];
 #ifdef CONFIG_64BIT
 extern const Elf64_Ehdr __ehdr_start;
 #else
 extern const Elf32_Ehdr __ehdr_start;
 #endif /* CONFIG_64BIT */
 
-extern __init_func_t __initcall_start[];
-extern __init_func_t __initcall_end[];
+/* for glibc */
+extern char __preinit_array_start[], __preinit_array_end[], __preinit_array_load[];
+extern char __init_array_start[], __init_array_end[], __init_array_load[];
+extern char __fini_array_start[], __fini_array_end[], __fini_array_load[];
 
-static const struct __aux_data __aux_start__ __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
-static volatile const struct __aux_data *__aux_start = &__aux_start__;
+extern k_init_func_t k_initcall_start[];
+extern k_init_func_t k_initcall_end[];
 
-define_stack(__stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
-define_stack(__stack_idle, CONFIG_NUM_CORES * CONFIG_IDLE_STACK_SIZE);
-define_stack(__stack_main, CONFIG_MAIN_STACK_SIZE);
+static const struct k_aux_data k_aux_start_var __section(BAREMETAL_CRT_AUX_SECTION) __aligned(8) __used;
+static volatile const struct k_aux_data *k_aux_start = &k_aux_start_var;
+
+define_stack(k_stack_intr, CONFIG_NUM_CORES * CONFIG_INTR_STACK_SIZE);
+define_stack(k_stack_idle, CONFIG_NUM_CORES * CONFIG_IDLE_STACK_SIZE);
+define_stack(k_stack_main, CONFIG_MAIN_STACK_SIZE);
 
 static char **argv;
 static char **envp;
@@ -70,39 +93,46 @@ static int index_argv;
 /* TODO: randomize */
 static char at_random[16];
 
-static const struct __comm_section __comm_s __section(BAREMETAL_CRT_COMM_SECTION) __aligned(8) __used = {
+static const struct k_comm_section k_comm_s __section(BAREMETAL_CRT_COMM_SECTION) __aligned(8) __used = {
 	.magic     = BAREMETAL_CRT_COMM_MAGIC,
 };
+
+void __noreturn k_init_panic_internal(const char *func, int nline)
+{
+	while (1) {
+		/* do nothing */
+	}
+}
 
 static void clear_bss(void)
 {
 #ifdef CONFIG_CLEAR_BSS
-	kmemset(__bss_start, 0, __bss_end - __bss_start);
-	kmemset(__sbss_start, 0, __sbss_end - __sbss_start);
+	k_memset(k_bss_start, 0, k_bss_end - k_bss_start);
+	k_memset(k_sbss_start, 0, k_sbss_end - k_sbss_start);
 #endif /* CONFIG_CLEAR_BSS */
 }
 
 static void copy_data(void)
 {
 #ifdef CONFIG_XIP
-	kmemcpy(__preinit_array_start, __preinit_array_load, __preinit_array_end - __preinit_array_start);
-	kmemcpy(__init_array_start, __init_array_load, __init_array_end - __init_array_start);
-	kmemcpy(__fini_array_start, __fini_array_load, __fini_array_end - __fini_array_start);
-	kmemcpy(__data_start, __data_load, __data_end - __data_start);
-	kmemcpy(__sdata_start, __sdata_load, __sdata_end - __sdata_start);
-	kmemcpy(__tdata_start, __tdata_load, __tdata_end - __tdata_start);
+	k_memcpy(__preinit_array_start, __preinit_array_load, __preinit_array_end - __preinit_array_start);
+	k_memcpy(__init_array_start, __init_array_load, __init_array_end - __init_array_start);
+	k_memcpy(__fini_array_start, __fini_array_load, __fini_array_end - __fini_array_start);
+	k_memcpy(k_data_start, k_data_load, k_data_end - k_data_start);
+	k_memcpy(k_sdata_start, k_sdata_load, k_sdata_end - k_sdata_start);
+	k_memcpy(k_tdata_start, k_tdata_load, k_tdata_end - k_tdata_start);
 #endif /* CONFIG_XIP */
 }
 
 static int init_proc(void)
 {
-	struct __proc_info *pi = __proc_create();
+	struct k_proc_info *pi = k_proc_create();
 	int r;
 
 	pi->pid = CONFIG_MAIN_PID;
 
 	/* Init stdin/out/err */
-	r = __file_stdio_init(pi);
+	r = k_file_stdio_init(pi);
 	if (r) {
 		return r;
 	}
@@ -115,50 +145,50 @@ static int fini_proc(void)
 	return 0;
 }
 
-static int init_idle_thread(struct __cpu_device *cpu, int leader)
+static int init_idle_thread(struct k_cpu_device *cpu, int leader)
 {
-	struct __proc_info *pi = __proc_get_current();
-	struct __thread_info *ti;
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
 	size_t pos_idle = (cpu->id_cpu + 1) * CONFIG_IDLE_STACK_SIZE;
 	size_t pos_intr = (cpu->id_cpu + 1) * CONFIG_INTR_STACK_SIZE;
-	char *sp_user = &__stack_idle[pos_idle];
-	char *sp_intr = &__stack_intr[pos_intr];
+	char *sp_user = &k_stack_idle[pos_idle];
+	char *sp_intr = &k_stack_intr[pos_intr];
 
-	ti = __thread_create(pi);
+	ti = k_thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_1, leader);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
-	__arch_set_arg(&ti->regs, __ARCH_ARG_TYPE_INTADDR, (uintptr_t)__thread_idle_main);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_1, leader);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK, (uintptr_t)sp_user);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_STACK_INTR, (uintptr_t)sp_intr);
+	k_arch_set_arg(&ti->regs, K_ARCH_ARG_TYPE_INTADDR, (uintptr_t)k_thread_idle_main);
 
-	__cpu_set_thread_idle(cpu, ti);
+	k_cpu_set_thread_idle(cpu, ti);
 
 	return 0;
 }
 
 static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user, char *sp_intr)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __proc_info *pi = __proc_get_current();
-	struct __thread_info *ti;
+	struct k_cpu_device *cpu = k_cpu_get_current();
+	struct k_proc_info *pi = k_proc_get_current();
+	struct k_thread_info *ti;
 	int r;
 
-	ti = __thread_create(pi);
+	ti = k_thread_create(pi);
 	if (!ti) {
 		return -EAGAIN;
 	}
 
-	__init_main_thread_args(ti, argc, argv, envp, sp_user, sp_intr);
+	k_libc_init_main_thread(ti, argc, argv, envp, sp_user, sp_intr);
 
-	r = __proc_set_leader(pi, ti);
+	r = k_proc_set_leader(pi, ti);
 	if (r) {
 		return r;
 	}
 
-	r = __thread_run(ti, cpu);
+	r = k_thread_run(ti, cpu);
 	if (r) {
 		return r;
 	}
@@ -168,22 +198,22 @@ static int init_main_thread(int argc, char *argv[], char *envp[], char *sp_user,
 
 static int init_drivers(void)
 {
-	int cnt = __initcall_end - __initcall_start;
+	int cnt = k_initcall_end - k_initcall_start;
 	int r, res = 0;
 
-	__device_set_probe_all_enabled(0);
+	k_device_set_probe_all_enabled(0);
 
 	for (int i = 0; i < cnt; i++) {
-		r = __initcall_start[i]();
+		r = k_initcall_start[i]();
 		if (r) {
-			pri_err("Initcall failed.\n");
+			k_pri_err("Initcall failed.\n");
 			res = r;
 		}
 	}
 
-	__device_set_probe_all_enabled(1);
+	k_device_set_probe_all_enabled(1);
 	do {
-		r = __device_probe_all();
+		r = k_device_probe_all();
 		if (IS_ERROR(r)) {
 			res = r;
 			break;
@@ -201,7 +231,7 @@ static int fini_drivers(void)
 static int add_argv(void *p)
 {
 	if (index_argv >= MAX_ARGV) {
-		pri_warn("Exceed number of argv max:%d.\n", MAX_ARGV);
+		k_pri_warn("Exceed number of argv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -219,7 +249,7 @@ static int add_env(void *p)
 static int add_aux(int typ, void *p)
 {
 	if (index_argv >= MAX_ARGV - 1) {
-		pri_warn("Exceed number of auxv max:%d.\n", MAX_ARGV);
+		k_pri_warn("Exceed number of auxv max:%d.\n", MAX_ARGV);
 		return -ENOMEM;
 	}
 
@@ -230,25 +260,25 @@ static int add_aux(int typ, void *p)
 	return 0;
 }
 
-static int map_argv(const struct __comm_area_header *h, const char *buf_args)
+static int map_argv(const struct k_comm_area_header *h, const char *buf_args)
 {
-	const struct __comm_arg_header *ha;
+	const struct k_comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
 	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
-		struct __cpu_device *cpu = __cpu_get_current();
-		ha = (const struct __comm_arg_header *)buf;
-		buf += sizeof(struct __comm_arg_header);
+		struct k_cpu_device *cpu = k_cpu_get_current();
+		ha = (const struct k_comm_arg_header *)buf;
+		buf += sizeof(struct k_comm_arg_header);
 
-		r = __cpu_cache_inv_range(cpu, (void *)buf, ha->size);
+		r = k_cpu_cache_inv_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
+			k_pri_warn("invalidate arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		r = add_argv((void *)buf);
 		if (r) {
-			pri_warn("Too many argumnets, max:%d.\n", MAX_ARGV);
+			k_pri_warn("Too many argumnets, max:%d.\n", MAX_ARGV);
 		}
 		buf += ha->size;
 
@@ -258,20 +288,20 @@ static int map_argv(const struct __comm_area_header *h, const char *buf_args)
 	return 0;
 }
 
-static int unmap_argv(const struct __comm_area_header *h, const char *buf_args)
+static int unmap_argv(const struct k_comm_area_header *h, const char *buf_args)
 {
-	const struct __comm_arg_header *ha;
+	const struct k_comm_arg_header *ha;
 	uintptr_t buf = (uintptr_t)buf_args;
 	int r;
 
 	for (int i = 0; i < h->num_args; i++) {
-		struct __cpu_device *cpu = __cpu_get_current();
-		ha = (const struct __comm_arg_header *)buf;
-		buf += sizeof(struct __comm_arg_header);
+		struct k_cpu_device *cpu = k_cpu_get_current();
+		ha = (const struct k_comm_arg_header *)buf;
+		buf += sizeof(struct k_comm_arg_header);
 
-		r = __cpu_cache_flush_range(cpu, (void *)buf, ha->size);
+		r = k_cpu_cache_flush_range(cpu, (void *)buf, ha->size);
 		if (r) {
-			pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
+			k_pri_warn("flush arg:%d is failed, arguments may be broken.\n", i);
 		}
 
 		buf += ha->size;
@@ -284,30 +314,30 @@ static int unmap_argv(const struct __comm_area_header *h, const char *buf_args)
 
 static int init_args(int *argc)
 {
-	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+	struct k_comm_area_header *h_area = (struct k_comm_area_header *)k_comm_area;
 
 	/* argv, envp and auxv are constructed on stack of main thread */
-	argv = (void *)&__stack_main[CONFIG_MAIN_STACK_SIZE];
+	argv = (void *)&k_stack_main[CONFIG_MAIN_STACK_SIZE];
 	argv -= MAX_ARGV;
 
 	index_argv = 0;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
-		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
+		size_t sz = ALIGN_OF(sizeof(struct k_comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			pri_warn("Exceed number of args (req:%" PRId32 ", max:%d)\n",
+			k_pri_warn("Exceed number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
-		map_argv(h_area, __comm_area + sz);
+		map_argv(h_area, k_comm_area + sz);
 		if (index_argv != h_area->num_args) {
-			pri_warn("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
+			k_pri_warn("Illegal number of arguments (ind:%d != num_args:%" PRId32 ").\n",
 				index_argv, h_area->num_args);
 		}
 	}
 	if (index_argv == 0) {
-		pri_info("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
+		k_pri_info("Missing kernel name. Use default '%s'.\n", DEFAULT_KERNEL_NAME);
 		argv[0] = DEFAULT_KERNEL_NAME;
 		index_argv = 1;
 	}
@@ -325,16 +355,16 @@ static int init_args(int *argc)
 	add_aux(AT_RANDOM, at_random);
 	add_aux(AT_PAGESZ, (void *)__PAGE_SIZE);
 
-	if (__aux_start->valid) {
-		add_aux(AT_PHENT, (void *)(uintptr_t)__aux_start->phent);
-		add_aux(AT_PHNUM, (void *)(intptr_t)__aux_start->phnum);
+	if (k_aux_start->valid) {
+		add_aux(AT_PHENT, (void *)(uintptr_t)k_aux_start->phent);
+		add_aux(AT_PHNUM, (void *)(intptr_t)k_aux_start->phnum);
 
 		char *p = (char *)&__ehdr_start;
 		p += __ehdr_start.e_phoff;
 
 		add_aux(AT_PHDR, p);
 	} else {
-		pri_warn("Missing program header. AT_PHDR is not available.\n");
+		k_pri_warn("Missing program header. AT_PHDR is not available.\n");
 	}
 
 	add_aux(0, NULL);
@@ -344,91 +374,108 @@ static int init_args(int *argc)
 
 static int fini_args(int st)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
-	struct __comm_area_header *h_area = (struct __comm_area_header *)__comm_area;
+	struct k_cpu_device *cpu = k_cpu_get_current();
+	struct k_comm_area_header *h_area = (struct k_comm_area_header *)k_comm_area;
 
 	if (h_area->magic == BAREMETAL_CRT_COMM_MAGIC) {
-		size_t sz = ALIGN_OF(sizeof(struct __comm_area_header), 8);
+		size_t sz = ALIGN_OF(sizeof(struct k_comm_area_header), 8);
 
 		if (CONFIG_COMM_MAX_ARGS < h_area->num_args) {
-			pri_warn("Broken number of args (req:%" PRId32 ", max:%d)\n",
+			k_pri_warn("Broken number of args (req:%" PRId32 ", max:%d)\n",
 				h_area->num_args, CONFIG_COMM_MAX_ARGS);
 		}
 
-		unmap_argv(h_area, __comm_area + sz);
+		unmap_argv(h_area, k_comm_area + sz);
 
 		h_area->ret_main = st;
 		h_area->done = 1;
-		__cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
-		__cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
+		k_cpu_cache_flush_range(cpu, &h_area->ret_main, sizeof(h_area->ret_main));
+		k_cpu_cache_flush_range(cpu, &h_area->done, sizeof(h_area->done));
 	}
 
 	return 0;
 }
 
-void __init_system(void)
+void k_init_system(void)
 {
+	int r;
+
 	clear_bss();
 	copy_data();
 
-	init_drivers();
-	init_proc();
+	r = k_mem_init();
+	if (r) {
+		k_pri_err("Failed to init memory system.\n");
+		k_init_panic();
+	}
+
+	r = init_drivers();
+	if (r) {
+		k_pri_err("Failed to init drivers.\n");
+		k_init_panic();
+	}
+
+	r = init_proc();
+	if (r) {
+		k_pri_err("Failed to init process.\n");
+		k_init_panic();
+	}
 }
 
-void __fini_system(void)
+void k_fini_system(void)
 {
 #ifdef CONFIG_PWR_OFF_AFTER_EXIT
-	__fini_power_off();
+	k_fini_power_off();
 #endif /* CONFIG_PWR_OFF_AFTER_EXIT */
 
 	fini_proc();
 	fini_drivers();
 }
 
-void __init_leader(void)
+void k_init_leader(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 	int argc;
 
-	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	k_pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	/* Boot other cores */
-	__cpu_wakeup_all();
+	k_cpu_wakeup_all();
 
 	init_args(&argc);
-	init_main_thread(argc, argv, envp, &__stack_main[CONFIG_MAIN_STACK_SIZE], &__stack_intr[CONFIG_INTR_STACK_SIZE]);
+	init_main_thread(argc, argv, envp, &k_stack_main[CONFIG_MAIN_STACK_SIZE], &k_stack_intr[CONFIG_INTR_STACK_SIZE]);
 	init_idle_thread(cpu, 1);
 
 	dwmb();
 
 	/* Switch to idle/main thread */
-	__arch_context_switch();
+	k_arch_context_switch();
 }
 
-void __fini_leader(int status)
+void k_fini_leader(int status)
 {
 	int st = status & 0xff;
 
 	fini_args(st);
 
 	/* Stop other cores */
-	__cpu_sleep_all();
+	k_cpu_sleep_all();
 }
 
-void __init_child(void)
+void k_init_child(void)
 {
-	struct __cpu_device *cpu = __cpu_get_current();
+	struct k_cpu_device *cpu = k_cpu_get_current();
 
-	pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
+	k_pri_info("hello cpu:%d phys:%d\n", cpu->id_cpu, cpu->id_phys);
 
 	init_idle_thread(cpu, 0);
 
 	dwmb();
 
 	/* Switch to idle/main thread */
-	__arch_context_switch();
+	k_arch_context_switch();
 }
 
-void __fini_child(int status)
+void k_fini_child(int status)
 {
 }

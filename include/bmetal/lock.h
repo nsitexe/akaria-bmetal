@@ -8,14 +8,14 @@
 
 #if !defined(__ASSEMBLER__)
 
-struct __spinlock {
-	__arch_spinlock_t lock;
+struct k_spinlock {
+	k_arch_spinlock_t lock;
 };
 
-int __spinlock_init(struct __spinlock *s);
-int __spinlock_lock(struct __spinlock *s);
-int __spinlock_trylock(struct __spinlock *s);
-int __spinlock_unlock(struct __spinlock *s);
+int k_spinlock_init(struct k_spinlock *s);
+int k_spinlock_lock(struct k_spinlock *s);
+int k_spinlock_trylock(struct k_spinlock *s);
+int k_spinlock_unlock(struct k_spinlock *s);
 
 #endif /* !__ASSEMBLER__ */
 

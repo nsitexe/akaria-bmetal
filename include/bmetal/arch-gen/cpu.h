@@ -7,51 +7,51 @@
 
 #if !defined(__ASSEMBLER__)
 
-enum __arch_arg_type {
-	__ARCH_ARG_TYPE_1,
-	__ARCH_ARG_TYPE_2,
-	__ARCH_ARG_TYPE_3,
-	__ARCH_ARG_TYPE_4,
-	__ARCH_ARG_TYPE_5,
-	__ARCH_ARG_TYPE_6,
-	__ARCH_ARG_TYPE_INTADDR,
-	__ARCH_ARG_TYPE_RETADDR,
-	__ARCH_ARG_TYPE_RETVAL,
-	__ARCH_ARG_TYPE_STACK,
-	__ARCH_ARG_TYPE_STACK_INTR,
-	__ARCH_ARG_TYPE_TLS,
+enum k_arch_arg_type {
+	K_ARCH_ARG_TYPE_1,
+	K_ARCH_ARG_TYPE_2,
+	K_ARCH_ARG_TYPE_3,
+	K_ARCH_ARG_TYPE_4,
+	K_ARCH_ARG_TYPE_5,
+	K_ARCH_ARG_TYPE_6,
+	K_ARCH_ARG_TYPE_INTADDR,
+	K_ARCH_ARG_TYPE_RETADDR,
+	K_ARCH_ARG_TYPE_RETVAL,
+	K_ARCH_ARG_TYPE_STACK,
+	K_ARCH_ARG_TYPE_STACK_INTR,
+	K_ARCH_ARG_TYPE_TLS,
 };
 
-#ifndef __arch_user_regs_t
-#  error Please implement arch_user_regs_t type.
+#ifndef k_arch_user_regs_t
+#  error Please implement k_arch_user_regs_t type.
 #endif
 
-#ifndef __arch_get_cpu_id
-#  error Please implement arch_get_cpu_id() function.
+#ifndef k_arch_get_cpu_id
+#  error Please implement k_arch_get_cpu_id() function.
 #endif
 
-#ifndef __arch_wait_interrupt
-#  error Please implement arch_wait_interrupt() function.
+#ifndef k_arch_wait_interrupt
+#  error Please implement k_arch_wait_interrupt() function.
 #endif
 
-#ifndef __arch_get_arg
-#  error Please implement arch_get_arg() function.
+#ifndef k_arch_get_arg
+#  error Please implement k_arch_get_arg() function.
 #endif
 
-#ifndef __arch_set_arg
-#  error Please implement arch_set_arg() function.
+#ifndef k_arch_set_arg
+#  error Please implement k_arch_set_arg() function.
 #endif
 
-#ifndef __arch_copy_current_context
-#  error Please implement arch_copy_current_context() function.
+#ifndef k_arch_copy_current_context
+#  error Please implement k_arch_copy_current_context() function.
 #endif
 
-#ifndef __arch_context_switch
-#  error Please implement arch_context_switch() function.
+#ifndef k_arch_context_switch
+#  error Please implement k_arch_context_switch() function.
 #endif
 
-#ifndef __arch_get_cpu_id
-#  error Please implement arch_get_cpu_id() function.
+#ifndef k_arch_get_cpu_id
+#  error Please implement k_arch_get_cpu_id() function.
 #endif
 
 #endif /* !__ASSEMBLER__ */

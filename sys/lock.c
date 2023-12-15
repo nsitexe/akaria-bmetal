@@ -2,28 +2,29 @@
 
 #include <bmetal/atomic.h>
 #include <bmetal/lock.h>
+#include <bmetal/driver/cpu.h>
 
-int __spinlock_init(struct __spinlock *s)
+int k_spinlock_init(struct k_spinlock *s)
 {
-	return __arch_spinlock_init(&s->lock);
+	return k_arch_spinlock_init(&s->lock);
 }
 
-int __spinlock_lock(struct __spinlock *s)
+int k_spinlock_lock(struct k_spinlock *s)
 {
-	return __arch_spinlock_lock(&s->lock);
+	return k_arch_spinlock_lock(&s->lock);
 }
 
-int __spinlock_trylock(struct __spinlock *s)
+int k_spinlock_trylock(struct k_spinlock *s)
 {
-	return __arch_spinlock_trylock(&s->lock);
+	return k_arch_spinlock_trylock(&s->lock);
 }
 
-int __spinlock_unlock(struct __spinlock *s)
+int k_spinlock_unlock(struct k_spinlock *s)
 {
-	return __arch_spinlock_unlock(&s->lock);
+	return k_arch_spinlock_unlock(&s->lock);
 }
 
-int __arch_gen_spinlock_init(__arch_spinlock_t *lock)
+int k_arch_gen_spinlock_init(k_arch_spinlock_t *lock)
 {
 	lock->val = 0;
 	lock->id = -1;
@@ -31,31 +32,31 @@ int __arch_gen_spinlock_init(__arch_spinlock_t *lock)
 	return 0;
 }
 
-int __arch_gen_spinlock_lock(__arch_spinlock_t *lock)
+int k_arch_gen_spinlock_lock(k_arch_spinlock_t *lock)
 {
 	int r = 1;
 
 	while (r) {
-		r = __arch_gen_spinlock_trylock(lock);
+		r = k_arch_gen_spinlock_trylock(lock);
 	}
-	lock->id = __arch_get_cpu_id();
+	lock->id = k_cpu_get_current_id_phys();
 
 	return 0;
 }
 
-int __arch_gen_spinlock_trylock(__arch_spinlock_t *lock)
+int k_arch_gen_spinlock_trylock(k_arch_spinlock_t *lock)
 {
 	int tmp = 1, val;
 
-	val = __aexchange(&lock->val, tmp);
+	val = k_aexchange(&lock->val, tmp);
 
 	return val;
 }
 
-int __arch_gen_spinlock_unlock(__arch_spinlock_t *lock)
+int k_arch_gen_spinlock_unlock(k_arch_spinlock_t *lock)
 {
 	lock->id = -1;
-	__astore(&lock->val, 0);
+	k_astore(&lock->val, 0);
 
 	return 0;
 }

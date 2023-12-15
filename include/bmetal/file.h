@@ -11,23 +11,30 @@
 
 #if !defined(__ASSEMBLER__)
 
-struct __file_desc;
-struct __proc_info;
+struct k_file_desc;
+struct k_proc_info;
 
-struct __file_ops {
-	ssize_t (*read)(struct __file_desc *desc, void *buf, size_t count);
-	ssize_t (*write)(struct __file_desc *desc, const void *buf, size_t count);
-	int (*close)(struct __file_desc *desc);
+struct k_file_ops {
+	ssize_t (*read)(struct k_file_desc *desc, void *buf, size_t count);
+	ssize_t (*write)(struct k_file_desc *desc, const void *buf, size_t count);
+	int (*close)(struct k_file_desc *desc);
 };
 
-struct __file_desc {
-	struct __spinlock lock;
-	const struct __file_ops *ops;
+struct k_file_desc {
+	struct k_spinlock lock;
+	const struct k_file_ops *ops;
 };
 
-ssize_t __file_stdio_read(struct __file_desc *desc, void *buf, size_t count);
-ssize_t __file_stdio_write(struct __file_desc *desc, const void *buf, size_t count);
-int __file_stdio_init(struct __proc_info *pi);
+struct k_file_desc *k_file_get_desc(int fd);
+struct k_file_desc *k_file_set_desc(int fd, struct k_file_desc *desc);
+ssize_t k_file_read_nolock(struct k_file_desc *desc, void *buf, size_t count);
+ssize_t k_file_read(struct k_file_desc *desc, void *buf, size_t count);
+ssize_t k_file_write_nolock(struct k_file_desc *desc, const void *buf, size_t count);
+ssize_t k_file_write(struct k_file_desc *desc, const void *buf, size_t count);
+
+ssize_t k_file_stdio_read(struct k_file_desc *desc, void *buf, size_t count);
+ssize_t k_file_stdio_write(struct k_file_desc *desc, const void *buf, size_t count);
+int k_file_stdio_init(struct k_proc_info *pi);
 
 #endif /* !__ASSEMBLER__ */
 

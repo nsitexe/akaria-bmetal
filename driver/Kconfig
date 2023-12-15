@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menu "Device Drivers"
+
+source "driver/clk/Kconfig"
+source "driver/cpu/Kconfig"
+source "driver/intc/Kconfig"
+source "driver/reset/Kconfig"
+source "driver/timer/Kconfig"
+source "driver/uart/Kconfig"
+
+endmenu

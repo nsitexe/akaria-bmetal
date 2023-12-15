@@ -10,26 +10,46 @@ USE_NEWLIB  ?= n
 USE_SYSROOT ?= ./sysroot
 
 # Test with additional libraries (please read doc/test.adoc)
+ifeq ($(USE_GLIBC),y)
+WITH_POSIX ?= y
+WITH_MT    ?= y
+endif
+ifeq ($(USE_MUSL),y)
+WITH_POSIX ?= y
+WITH_MT    ?= y
+endif
+ifeq ($(USE_NEWLIB),y)
+WITH_POSIX ?= n
+WITH_MT    ?= n
+endif
+
+WITH_CXX ?= n
 WITH_EIGEN ?= n
 WITH_OPENBLAS ?= n
 WITH_OPENSSL ?= n
 
 # 32bit
-APP_CFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
-# 32bit for NS31
-#APP_CFLAGS_RV = -march=rv32im -mabi=ilp32 -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32im -mabi=ilp32 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32im -mabi=ilp32 -mcmodel=medany
+APP_CFLAGS_RV  = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+APP_LDFLAGS_RV = -march=rv32imafc -mabi=ilp32f -mcmodel=medany
+
 # 32bit glibc
-#APP_CFLAGS_RV = -march=rv32gc -mabi=ilp32d -mcmodel=medany
-#APP_CFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32gc -mabi=ilp32d -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32gc -mabi=ilp32d -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv32imac -mabi=ilp32 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv32imac -mabi=ilp32 -mcmodel=medany
 
 # 64bit glibc
-#APP_CFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
-#APP_CFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv64gc -mabi=lp64d -mcmodel=medany
+#APP_CFLAGS_RV  = -march=rv64imac -mabi=lp64 -mcmodel=medany
+#APP_LDFLAGS_RV = -march=rv64imac -mabi=lp64 -mcmodel=medany
 
 APP_CPPFLAGS = -Wall
 APP_CFLAGS   = -O2 -gdwarf-4 $(APP_CFLAGS_RV)
 APP_CXXFLAGS = $(APP_CFLAGS)
-APP_LDFLAGS  = $(APP_CFLAGS_RV)
+APP_LDFLAGS  = $(APP_LDFLAGS_RV)
 
 CPPFLAGS = $(APP_CPPFLAGS) $(EXT_CPPFLAGS)
 CFLAGS   = $(APP_CFLAGS)   $(EXT_CFLAGS)
@@ -43,25 +63,34 @@ BINS = \
 	daxpy \
 	echo flush \
 	hello \
-	malloc md5 memcpy \
+	malloc \
+	mathf \
+	md5 memcpy \
 	saxpy sgemm \
 	vecadd vecaddf \
+	donut/donut \
 	coremark/coremark \
 	dhrystone/dhrystone
 
-ifeq ($(USE_GLIBC),y)
-ADD_MT=y
-endif
-ifeq ($(USE_MUSL),y)
-ADD_MT=y
-endif
+EXT_LDADD += -lm
 
-ifeq ($(ADD_MT),y)
+ifeq ($(WITH_MT),y)
 BINS += \
-	hello_cpp mt_clock \
+	mt_clock \
 	mt_vecadd mt_vecaddf \
 	pthread pthread_barrier pthread_cond \
-	reboot
+	reboot \
+	donut/mt_donut
+endif
+
+ifeq ($(WITH_CXX),y)
+BINS += \
+	hello_cpp
+endif
+
+ifeq ($(WITH_POSIX),y)
+BINS += \
+	sleep
 endif
 
 ifeq ($(WITH_EIGEN),y)
@@ -97,6 +126,7 @@ HELLO_CPP_OBJS = hello_cpp.o
 HELLO_EIGEN_OBJS = hello_eigen.o
 HELLO_OPENSSL_OBJS = hello_openssl.o
 MALLOC_OBJS = malloc.o
+MATHF_OBJS = mathf.o
 MD5_OBJS = md5.o
 MEMCPY_OBJS = memcpy.o
 MT_CLOCK_OBJS = mt_clock.o
@@ -108,8 +138,11 @@ PTHREAD_COND_OBJS = pthread_cond.o
 REBOOT_OBJS = reboot.o
 SAXPY_OBJS = saxpy.o
 SGEMM_OBJS = sgemm.o
+SLEEP_OBJS = sleep.o
 VECADD_OBJS = vecadd.o cmn_vecaddf.o
 VECADDF_OBJS = vecaddf.o cmn_vecaddf.o
+DONUT_OBJS = donut/donut.o
+MT_DONUT_OBJS = donut/mt_donut.o
 OBJS = \
 	$(ARGS_OBJS) $(CLOCK_OBJS) \
 	$(CRT_STRING_OBJS) \
@@ -118,13 +151,16 @@ OBJS = \
 	$(ECHO_OBJS) $(FLUSH_OBJS) \
 	$(HELLO_OBJS) $(HELLO_CPP_OBJS) $(HELLO_EIGEN_OBJS) \
 	$(HELLO_OPENSSL_OBJS) \
-	$(MALLOC_OBJS) $(MD5_OBJS) $(MEMCPY_OBJS) \
+	$(MALLOC_OBJS) \
+	$(MATHF_OBJS) \
+	$(MD5_OBJS) $(MEMCPY_OBJS) \
 	$(MT_CLOCK_OBJS) \
 	$(MT_VECADD_OBJS) $(MT_VECADDF_OBJS) \
 	$(PTHREAD_OBJS) $(PTHREAD_BARRIER_OBJS) $(PTHREAD_COND_OBJS) \
 	$(REBOOT_OBJS) \
-	$(SAXPY_OBJS) $(SGEMM_OBJS) \
-	$(VECADD_OBJS) $(VECADDF_OBJS)
+	$(SAXPY_OBJS) $(SGEMM_OBJS) $(SLEEP_OBJS) \
+	$(VECADD_OBJS) $(VECADDF_OBJS) \
+	$(DONUT_OBJS) $(MT_DONUT_OBJS)
 
 all: all_auxdata
 
@@ -168,6 +204,9 @@ hello_openssl: $(HELLO_OPENSSL_OBJS)
 malloc: $(MALLOC_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
+mathf: $(MATHF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
 md5: $(MD5_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
@@ -201,10 +240,19 @@ saxpy: $(SAXPY_OBJS)
 sgemm: $(SGEMM_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
+sleep: $(SLEEP_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
 vecadd: $(VECADD_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 vecaddf: $(VECADDF_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+donut/donut: $(DONUT_OBJS)
+	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
+
+donut/mt_donut: $(MT_DONUT_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDADD) $(EXT_LDADD) -o $@
 
 coremark/coremark:
